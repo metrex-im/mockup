@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<style>
+@import url("https://fastly.jsdelivr.net/gh/sunn-us/SUITE/fonts/variable/woff2/SUITE-Variable.css");
+@import url("https://fastly.jsdelivr.net/gh/sunn-us/SUIT/fonts/variable/woff2/SUIT-Variable.css");
+@import url("https://fastly.jsdelivr.net/gh/sunn-us/SUITE/fonts/variable/woff2/SUITE-Variable.css");
+@import url("https://fastly.jsdelivr.net/gh/sunn-us/SUIT/fonts/variable/woff2/SUIT-Variable.css");
+</style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ActiMedi 슬라이드 리소스 라이브러리 — UX 목업</title>
+<style>
+/* =============================================================
+   ActiMedi — Self-hosted brand fonts (offline fallback)
+   SUITE = headings/emphasis · SUIT = body/long-form
+   These @font-face rules register the BUNDLED static woff2
+   files under the family names "SUIT" / "SUITE".
+   colors_and_type.css already lists "SUIT Variable" / "SUITE
+   Variable" first (loaded from CDN when online) and falls back
+   to these local families when offline / behind a firewall.
+   Import order: load THIS file, then colors_and_type.css.
+   ============================================================= */
+
+/* ---------- SUIT (body) ---------- */
+
+
+
+
+
+
+
+/* ---------- SUITE (headings / emphasis) ----------
+   Only the Bold (700) master is bundled in this package.
+   We register it for the 700 AND 800 ranges so headline
+   weights still render on-brand offline. When online, the
+   CDN "SUITE Variable" supplies the true 800 weight. */
+
+
+</style>
+<style>
+/* =============================================================
+   ActiMedi · Kneefresh — Design Tokens
+   Source: ActiMedi Brand Book v1.0 (2025.07)
+   Primary product: Kneefresh — 근골격계 맞춤 재활 치료 앱
+   Parent: VSC (Virtual Sports Center) · ActiMedi (Active + Medical)
+   Slogan: 회복을 넘어, 일상으로
+   ============================================================= */
+
+/* ---------- Fonts ----------
+   Brand spec: SUITE (제목 및 강조) + SUIT (본문)
+   - SUIT: open-source, served via fastly CDN
+   - SUITE: open-source, served via fastly CDN
+*/
+
+
+
+:root {
+  /* ---- Brand Colors (per CI page 16) ---- */
+  --am-blue:        #1E5AF0;   /* ActiMedi BLUE — primary */
+  --am-navy:        #0C1E6B;   /* Navy — deep secondary, headings on light, deepest hero bg */
+  --am-skyblue:     #38D2FF;   /* SkyBlue — informational accent, fresh highlights */
+  --am-yellow:      #FFCF2C;   /* Yellow — Kneefresh app warmth accent */
+  --am-white:       #FFFFFF;
+  --am-black:       #101010;
+
+  /* ---- Primary tints (extended for UI states) ---- */
+  --am-blue-900:    #061B6B;   /* near-navy press */
+  --am-blue-800:    #0A2DA8;
+  --am-blue-700:    #1342CC;
+  --am-blue-600:    #1E5AF0;   /* = blue */
+  --am-blue-500:    #2E6CFF;
+  --am-blue-400:    #5D8CFF;
+  --am-blue-300:    #93B2FF;
+  --am-blue-200:    #C5D5FF;
+  --am-blue-100:    #E3EBFF;
+  --am-blue-50:     #F3F6FF;
+
+  /* ---- Sky tints ---- */
+  --am-sky-900:     #0B6B92;
+  --am-sky-700:     #1F9CC8;
+  --am-sky-500:     #38D2FF;
+  --am-sky-300:     #84E2FF;
+  --am-sky-100:     #D6F4FF;
+  --am-sky-50:      #ECFAFF;
+
+  /* ---- Yellow tints ---- */
+  --am-yellow-700:  #B58705;
+  --am-yellow-500:  #FFCF2C;
+  --am-yellow-300:  #FFE17C;
+  --am-yellow-100:  #FFF4C7;
+
+  /* ---- Neutral / Ink ramp ---- */
+  --am-ink-1000:    #050609;
+  --am-ink-900:     #101010;   /* = black */
+  --am-ink-800:     #1A1D24;
+  --am-ink-700:     #262A33;
+  --am-ink-600:     #3A3F4B;
+  --am-ink-500:     #555B68;
+  --am-ink-400:     #7C8290;
+  --am-ink-300:     #A8ADBA;
+  --am-ink-200:     #C9CDD6;
+  --am-ink-100:     #E5E7EC;
+  --am-ink-50:      #F3F4F7;
+  --am-ink-30:      #F8F9FB;
+  --am-ink-10:      #FCFCFD;
+  --am-ink-0:       #FFFFFF;
+
+  /* ---- Status ---- */
+  --am-status-positive:    #1FAE6B;
+  --am-status-cautionary:  #F2A02D;
+  --am-status-destructive: #E5484D;
+  --am-status-info:        var(--am-skyblue);
+
+  /* ---- Semantic — text (on light) ---- */
+  --am-text-strong:      #101010;
+  --am-text-neutral:     #262A33;
+  --am-text-alternative: #555B68;
+  --am-text-assistive:   #A8ADBA;
+  --am-text-disable:     #C9CDD6;
+  --am-text-onbrand:     #FFFFFF;     /* on blue/navy */
+  --am-text-link:        var(--am-blue);
+
+  /* ---- Semantic — text (on dark) ---- */
+  --am-ontext-strong:      #FFFFFF;
+  --am-ontext-neutral:     #E5E7EC;
+  --am-ontext-alternative: #A8ADBA;
+  --am-ontext-assistive:   #7C8290;
+  --am-ontext-disable:     #555B68;
+
+  /* ---- Semantic — surface ---- */
+  --am-surface-page:     #FFFFFF;
+  --am-surface-elev:     #F8F9FB;
+  --am-surface-sunken:   #F3F4F7;
+  --am-surface-brand:    var(--am-blue);
+  --am-surface-deep:     var(--am-navy);
+  --am-surface-dark:     #101010;
+  --am-surface-dark-elev:#1A1D24;
+  --am-surface-card-dark:#262A33;
+
+  /* ---- Borders / Hairlines ---- */
+  --am-line:          #E5E7EC;
+  --am-line-strong:   #C9CDD6;
+  --am-line-on-dark:  rgba(255,255,255,0.10);
+  --am-line-on-brand: rgba(255,255,255,0.20);
+  --am-focus-ring:    rgba(30,90,240,0.35);
+
+  /* ---- Radii ---- */
+  --am-radius-xs:   4px;
+  --am-radius-sm:   8px;
+  --am-radius-md:   12px;
+  --am-radius-lg:   16px;
+  --am-radius-xl:   20px;
+  --am-radius-2xl:  28px;
+  --am-radius-3xl:  36px;
+  --am-radius-pill: 999px;
+
+  /* ---- Spacing (4pt base) ---- */
+  --am-space-1: 4px;
+  --am-space-2: 8px;
+  --am-space-3: 12px;
+  --am-space-4: 16px;
+  --am-space-5: 20px;
+  --am-space-6: 24px;
+  --am-space-8: 32px;
+  --am-space-10: 40px;
+  --am-space-12: 48px;
+  --am-space-16: 64px;
+  --am-space-20: 80px;
+
+  /* ---- Elevation / Shadow ---- */
+  --am-shadow-xs:    0 1px 2px rgba(12,30,107,0.06);
+  --am-shadow-sm:    0 2px 6px rgba(12,30,107,0.06), 0 1px 2px rgba(12,30,107,0.04);
+  --am-shadow-md:    0 8px 20px rgba(12,30,107,0.08), 0 2px 4px rgba(12,30,107,0.04);
+  --am-shadow-lg:    0 16px 36px rgba(12,30,107,0.12), 0 4px 8px rgba(12,30,107,0.06);
+  --am-shadow-brand: 0 12px 32px rgba(30,90,240,0.22), 0 4px 12px rgba(30,90,240,0.18);
+
+  /* ---- Type families ---- */
+  --am-font-head: "SUITE Variable", "SUITE", -apple-system, BlinkMacSystemFont,
+                  "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
+  --am-font-body: "SUIT Variable", "SUIT", -apple-system, BlinkMacSystemFont,
+                  "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
+  --am-font-num:  "SUIT Variable", "SUIT", ui-monospace, "SF Mono", Menlo, monospace;
+
+  /* ---- Type scale (px) ----
+     SUITE = headings & numerals; SUIT = body text.
+     Weights used:  300 Light · 400 Regular · 500 Medium · 600 Semibold · 700 Bold · 800 ExtraBold · 900 Heavy
+  */
+  --am-type-display-1: 56px;   /* 800/900 - hero */
+  --am-type-display-2: 44px;   /* 800 */
+  --am-type-h1:        36px;   /* 800 */
+  --am-type-h2:        28px;   /* 700 */
+  --am-type-h3:        22px;   /* 700 */
+  --am-type-h4:        18px;   /* 700 */
+  --am-type-body-lg:   17px;   /* 500 */
+  --am-type-body:      15px;   /* 400/500 */
+  --am-type-body-sm:   14px;   /* 400 */
+  --am-type-caption:   12px;   /* 500 */
+  --am-type-micro:     11px;   /* 600 - uppercase eyebrows */
+}
+
+/* ---------- Base ---------- */
+html, body {
+  font-family: var(--am-font-body);
+  font-feature-settings: "ss01", "tnum";
+  color: var(--am-text-strong);
+  background: var(--am-surface-page);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* ---------- Type roles ---------- */
+.am-display-1 { font-family: var(--am-font-head); font-size: var(--am-type-display-1); font-weight: 800; line-height: 1.08; letter-spacing: -0.025em; }
+.am-display-2 { font-family: var(--am-font-head); font-size: var(--am-type-display-2); font-weight: 800; line-height: 1.1;  letter-spacing: -0.02em; }
+h1, .am-h1    { font-family: var(--am-font-head); font-size: var(--am-type-h1);        font-weight: 800; line-height: 1.15; letter-spacing: -0.018em; }
+h2, .am-h2    { font-family: var(--am-font-head); font-size: var(--am-type-h2);        font-weight: 700; line-height: 1.2;  letter-spacing: -0.012em; }
+h3, .am-h3    { font-family: var(--am-font-head); font-size: var(--am-type-h3);        font-weight: 700; line-height: 1.3;  letter-spacing: -0.008em; }
+h4, .am-h4    { font-family: var(--am-font-head); font-size: var(--am-type-h4);        font-weight: 700; line-height: 1.35; }
+.am-body-lg   { font-family: var(--am-font-body); font-size: var(--am-type-body-lg);   font-weight: 500; line-height: 1.55; }
+p, .am-body   { font-family: var(--am-font-body); font-size: var(--am-type-body);      font-weight: 400; line-height: 1.55; }
+.am-body-m    { font-family: var(--am-font-body); font-size: var(--am-type-body);      font-weight: 500; line-height: 1.5; }
+.am-caption   { font-family: var(--am-font-body); font-size: var(--am-type-caption);   font-weight: 500; line-height: 1.4; color: var(--am-text-alternative); }
+.am-micro     { font-family: var(--am-font-head); font-size: var(--am-type-micro);     font-weight: 700; line-height: 1.2; letter-spacing: 0.11em; text-transform: uppercase; color: var(--am-text-alternative); }
+.am-num       { font-family: var(--am-font-num); font-feature-settings: "tnum"; font-weight: 700; }
+
+/* ---------- Surface helpers ---------- */
+.am-on-brand { background: var(--am-blue); color: var(--am-white); }
+.am-on-navy  { background: var(--am-navy); color: var(--am-white); }
+.am-on-dark  { background: var(--am-ink-900); color: var(--am-white); }
+.am-on-light { background: var(--am-white); color: var(--am-text-strong); }
+.am-on-brand h1, .am-on-brand h2, .am-on-brand h3, .am-on-brand h4, .am-on-brand p,
+.am-on-navy  h1, .am-on-navy  h2, .am-on-navy  h3, .am-on-navy  h4, .am-on-navy  p,
+.am-on-dark  h1, .am-on-dark  h2, .am-on-dark  h3, .am-on-dark  h4, .am-on-dark  p { color: var(--am-white); }
+
+</style>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { height:100%; }
+  body {
+    font-family:"SUIT Variable","SUIT","Pretendard","Noto Sans KR",sans-serif;
+    font-size:15px; line-height:1.55; color:var(--am-text-neutral);
+    background:var(--am-ink-50);
+  }
+  h1,h2,h3,h4,.suite { font-family:"SUITE Variable","SUITE","Pretendard","Noto Sans KR",sans-serif; color:var(--am-text-strong); }
+  .num { font-feature-settings:"tnum"; }
+  button { font-family:inherit; cursor:pointer; border:none; background:none; }
+
+  /* ===== Layout ===== */
+  .app { display:flex; min-height:100vh; }
+  .sidebar {
+    width:248px; flex-shrink:0; background:var(--am-white);
+    border-right:1px solid var(--am-ink-100);
+    display:flex; flex-direction:column; padding:24px 16px; gap:8px;
+    position:sticky; top:0; height:100vh;
+  }
+  .sidebar .logo { padding:4px 12px 20px; }
+  .sidebar .logo img { height:26px; display:block; }
+  .nav-label { font-family:"SUITE Variable","SUITE",sans-serif; font-weight:700; font-size:11px; letter-spacing:.11em; text-transform:uppercase; color:var(--am-text-assistive); padding:14px 12px 6px; }
+  .nav-item {
+    display:flex; align-items:center; gap:10px; width:100%;
+    padding:11px 12px; border-radius:12px; font-size:14px; font-weight:500;
+    color:var(--am-text-alternative); text-align:left;
+  }
+  .nav-item:hover { background:var(--am-ink-30); }
+  .nav-item.active { background:var(--am-blue-50); color:var(--am-blue); font-weight:700; }
+  .nav-item .ic { width:20px; height:20px; flex-shrink:0; }
+  .sidebar .me {
+    margin-top:auto; display:flex; align-items:center; gap:10px;
+    padding:12px; border-top:1px solid var(--am-ink-100);
+  }
+  .avatar { width:34px; height:34px; border-radius:999px; background:var(--am-blue-100); color:var(--am-blue-800); font-weight:700; font-size:13px; display:flex; align-items:center; justify-content:center; }
+  .me .who { font-size:13px; font-weight:600; color:var(--am-text-strong); }
+  .me .role { font-size:11px; color:var(--am-text-assistive); }
+
+  .main { flex:1; min-width:0; padding:32px 40px 64px; }
+  .screen { display:none; max-width:1080px; margin:0 auto; }
+  .screen.on { display:block; }
+
+  .page-head { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:24px; }
+  .eyebrow { font-family:"SUITE Variable","SUITE",sans-serif; font-weight:700; font-size:11px; letter-spacing:.11em; color:var(--am-blue); text-transform:uppercase; margin-bottom:6px; }
+  .page-head h1 { font-size:28px; font-weight:700; letter-spacing:-0.012em; line-height:1.2; }
+  .page-head p { color:var(--am-text-alternative); font-size:14px; margin-top:6px; }
+
+  /* ===== Buttons ===== */
+  .btn { display:inline-flex; align-items:center; gap:8px; border-radius:999px; font-weight:600; transition:background 120ms cubic-bezier(.2,0,.1,1); }
+  .btn-m { height:48px; padding:0 24px; font-size:15px; }
+  .btn-s { height:40px; padding:0 18px; font-size:14px; }
+  .btn-xs { height:32px; padding:0 14px; font-size:13px; }
+  .btn-primary { background:var(--am-blue); color:var(--am-text-onbrand); }
+  .btn-primary:hover { background:var(--am-blue-700); }
+  .btn-secondary { background:var(--am-white); color:var(--am-blue); box-shadow:inset 0 0 0 1.5px var(--am-blue); }
+  .btn-secondary:hover { background:var(--am-blue-50); }
+  .btn-tertiary { background:transparent; color:var(--am-blue); }
+  .btn-ghost { background:var(--am-ink-50); color:var(--am-text-alternative); }
+  .btn-destructive { background:var(--am-status-destructive); color:#fff; }
+  .btn[disabled] { background:var(--am-ink-100); color:var(--am-text-disable); box-shadow:none; cursor:not-allowed; }
+
+  /* ===== Cards / chips ===== */
+  .card { background:var(--am-white); border-radius:20px; border:1px solid var(--am-ink-100); box-shadow:0 2px 10px rgba(12,30,107,.06); }
+  .chip { display:inline-flex; align-items:center; gap:5px; height:26px; padding:0 11px; border-radius:12px; font-size:12px; font-weight:600; }
+  .chip-sx { background:var(--am-blue-100); color:var(--am-blue-800); }       /* 수술명 */
+  .chip-dx { background:var(--am-sky-100); color:var(--am-sky-900); }         /* 진단 */
+  .chip-gen { background:var(--am-ink-50); color:var(--am-ink-500); }         /* 일반 */
+  .chip .x { font-weight:400; color:inherit; opacity:.55; cursor:pointer; }
+  .badge { display:inline-flex; align-items:center; height:22px; padding:0 9px; border-radius:999px; font-size:11px; font-weight:700; }
+  .badge-warn { background:#FDF1DF; color:#9A6310; }
+  .badge-pub { background:var(--am-sky-50); color:var(--am-sky-900); }
+  .badge-priv { background:var(--am-ink-50); color:var(--am-ink-500); }
+  .badge-ok { background:#E6F6EE; color:#157A4B; }
+  .badge-err { background:#FDEBEC; color:#B3262B; }
+  .badge-proc { background:var(--am-blue-50); color:var(--am-blue-700); }
+
+  /* ===== Inputs ===== */
+  .input { display:flex; align-items:center; gap:10px; height:52px; padding:0 18px; border-radius:16px; border:1px solid var(--am-ink-100); background:var(--am-white); font-size:15px; color:var(--am-text-neutral); }
+  .input:focus-within { border-color:var(--am-blue); box-shadow:0 0 0 4px rgba(30,90,240,.12); }
+  .input input { border:none; outline:none; flex:1; font:inherit; background:transparent; }
+  .input img { width:18px; height:18px; opacity:.5; }
+
+  .seg { display:inline-flex; background:var(--am-ink-50); border-radius:999px; padding:4px; }
+  .seg button { height:36px; padding:0 18px; border-radius:999px; font-size:13px; font-weight:600; color:var(--am-text-alternative); }
+  .seg button.on { background:var(--am-white); color:var(--am-blue); box-shadow:0 1px 4px rgba(12,30,107,.10); }
+
+  /* ===== F1 Login ===== */
+  #f1 { max-width:none; }
+  .login-wrap { min-height:calc(100vh - 96px); display:flex; align-items:center; justify-content:center; }
+  .login-card { width:400px; padding:48px 40px 40px; text-align:center; }
+  .login-card img.vlogo { height:88px; margin:0 auto 24px; display:block; }
+  .login-card h1 { font-size:22px; font-weight:700; margin-bottom:8px; }
+  .login-card p { font-size:14px; color:var(--am-text-alternative); margin-bottom:28px; }
+  .login-card .btn { width:100%; justify-content:center; }
+  .login-foot { margin-top:20px; font-size:12px; color:var(--am-text-assistive); }
+
+  /* ===== F2 Library ===== */
+  .toolbar { display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:16px; }
+  .toolbar .input { flex:1; min-width:280px; height:48px; }
+  .filter-row { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; align-items:center; }
+  .filter-row .lbl { font-size:12px; font-weight:700; color:var(--am-text-assistive); margin-right:2px; }
+  .fchip { height:32px; padding:0 14px; border-radius:999px; border:1px solid var(--am-ink-100); background:var(--am-white); font-size:13px; font-weight:500; color:var(--am-text-alternative); cursor:pointer; }
+  .fchip.on { border-color:var(--am-blue); color:var(--am-blue); background:var(--am-blue-50); font-weight:700; }
+  .deck-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:20px; }
+  .deck-card { overflow:hidden; cursor:pointer; transition:box-shadow 120ms cubic-bezier(.2,0,.1,1); }
+  .deck-card:hover { box-shadow:0 6px 20px rgba(12,30,107,.12); }
+  .deck-thumb { aspect-ratio:16/9; position:relative; border-bottom:1px solid var(--am-ink-100); }
+  .deck-thumb .count { position:absolute; right:10px; bottom:10px; background:rgba(16,16,16,.66); color:#fff; font-size:11px; font-weight:600; padding:3px 9px; border-radius:999px; }
+  .deck-thumb .flag { position:absolute; left:10px; top:10px; }
+  .deck-body { padding:16px 18px 18px; }
+  .deck-body h4 { font-size:16px; font-weight:700; line-height:1.35; margin-bottom:4px; }
+  .deck-meta { font-size:12px; color:var(--am-text-assistive); display:flex; gap:8px; align-items:center; margin-bottom:10px; }
+  .deck-tags { display:flex; gap:6px; flex-wrap:wrap; }
+
+  /* mini slide placeholder art */
+  .ms { width:100%; height:100%; display:flex; flex-direction:column; justify-content:center; gap:7%; padding:9% 11%; }
+  .ms .bar { border-radius:4px; }
+  .ms-light { background:linear-gradient(150deg,var(--am-blue-50),var(--am-white)); }
+  .ms-light .t { height:14%; width:62%; background:var(--am-navy); opacity:.85; }
+  .ms-light .l1 { height:7%; width:88%; background:var(--am-ink-200); }
+  .ms-light .l2 { height:7%; width:74%; background:var(--am-ink-200); }
+  .ms-light .ac { height:10%; width:30%; background:var(--am-blue); }
+  .ms-navy { background:linear-gradient(150deg,var(--am-navy),#15309A); }
+  .ms-navy .t { height:14%; width:58%; background:#fff; opacity:.95; }
+  .ms-navy .l1 { height:7%; width:84%; background:rgba(255,255,255,.30); }
+  .ms-navy .l2 { height:7%; width:66%; background:rgba(255,255,255,.30); }
+  .ms-navy .ac { height:10%; width:26%; background:var(--am-skyblue); }
+  .ms-kpi { background:var(--am-white); flex-direction:row; align-items:center; gap:6%; }
+  .ms-kpi .k { flex:1; height:62%; border-radius:10px; background:var(--am-blue-50); border:1px solid var(--am-blue-100); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12%; }
+  .ms-kpi .k i { display:block; width:46%; height:16%; border-radius:3px; background:var(--am-blue); }
+  .ms-kpi .k em { display:block; width:60%; height:9%; border-radius:3px; background:var(--am-ink-200); }
+
+  /* ===== F3 Detail ===== */
+  .detail-head { padding:24px 28px; margin-bottom:20px; }
+  .detail-top { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; }
+  .detail-top h1 { font-size:24px; font-weight:700; letter-spacing:-0.012em; }
+  .detail-sub { font-size:13px; color:var(--am-text-assistive); margin-top:4px; display:flex; gap:10px; align-items:center; }
+  .detail-actions { display:flex; gap:8px; flex-wrap:wrap; }
+  .tag-edit { margin-top:18px; padding-top:18px; border-top:1px solid var(--am-ink-100); }
+  .tag-edit .lbl { font-size:12px; font-weight:700; color:var(--am-text-assistive); margin-bottom:8px; }
+  .tag-edit .row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .tag-add { height:26px; padding:0 12px; border-radius:12px; border:1px dashed var(--am-ink-200); font-size:12px; font-weight:600; color:var(--am-blue); background:transparent; }
+  .vis-row { margin-top:16px; display:flex; align-items:center; gap:12px; font-size:13px; color:var(--am-text-alternative); }
+  .toggle { width:44px; height:26px; border-radius:999px; background:var(--am-ink-200); position:relative; cursor:pointer; flex-shrink:0; }
+  .toggle::after { content:""; position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:999px; background:#fff; transition:left 120ms cubic-bezier(.2,0,.1,1); }
+  .toggle.on { background:var(--am-blue); } .toggle.on::after { left:21px; }
+  .slide-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:14px; }
+  .slide-cell { border-radius:16px; overflow:hidden; border:1px solid var(--am-ink-100); background:var(--am-white); cursor:pointer; }
+  .slide-cell:hover { border-color:var(--am-blue-300); box-shadow:0 0 0 3px rgba(30,90,240,.10); }
+  .slide-cell .th { aspect-ratio:16/9; }
+  .slide-cell .cap { padding:8px 12px; font-size:12px; color:var(--am-text-alternative); display:flex; justify-content:space-between; }
+  .sec-title { font-size:18px; font-weight:700; margin:26px 0 14px; }
+
+  /* ===== F4 Upload ===== */
+  .dropzone { border:2px dashed var(--am-blue-200); background:var(--am-blue-50); border-radius:28px; padding:56px 24px; text-align:center; margin-bottom:24px; }
+  .dropzone h3 { font-size:18px; font-weight:700; margin-bottom:6px; }
+  .dropzone p { font-size:13px; color:var(--am-text-alternative); margin-bottom:18px; }
+  .up-item { padding:18px 22px; margin-bottom:12px; }
+  .up-row { display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+  .file-ic { width:42px; height:42px; border-radius:12px; background:var(--am-blue-100); display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:800; color:var(--am-blue-800); font-family:"SUITE Variable","SUITE",sans-serif; }
+  .up-name { font-weight:600; font-size:14px; color:var(--am-text-strong); }
+  .up-sub { font-size:12px; color:var(--am-text-assistive); }
+  .steps { display:flex; gap:6px; align-items:center; margin-left:auto; }
+  .step { font-size:11px; font-weight:600; padding:4px 10px; border-radius:999px; background:var(--am-ink-50); color:var(--am-text-assistive); }
+  .step.done { background:#E6F6EE; color:#157A4B; }
+  .step.run { background:var(--am-blue-50); color:var(--am-blue-700); }
+  .progress { height:6px; border-radius:999px; background:var(--am-ink-50); overflow:hidden; margin-top:12px; }
+  .progress i { display:block; height:100%; border-radius:999px; background:var(--am-blue); }
+  .suggest { margin-top:16px; padding:16px 18px; border-radius:16px; background:var(--am-ink-30); border:1px solid var(--am-ink-100); }
+  .suggest .lbl { font-size:12px; font-weight:700; color:var(--am-text-alternative); margin-bottom:10px; }
+  .sg-chip { display:inline-flex; align-items:center; gap:8px; height:32px; padding:0 6px 0 14px; border-radius:999px; background:var(--am-white); border:1px solid var(--am-ink-100); font-size:13px; font-weight:600; margin:0 6px 6px 0; }
+  .sg-chip .ok,.sg-chip .no { width:22px; height:22px; border-radius:999px; font-size:12px; display:flex; align-items:center; justify-content:center; }
+  .sg-chip .ok { background:var(--am-blue-50); color:var(--am-blue); }
+  .sg-chip .no { background:var(--am-ink-50); color:var(--am-ink-400); }
+  .sg-chip.taken { border-color:var(--am-blue); background:var(--am-blue-50); }
+
+  /* ===== F5 Jobs ===== */
+  .job { padding:22px 24px; margin-bottom:14px; }
+  .job-top { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+  .job-top h4 { font-size:16px; font-weight:700; flex:1; min-width:200px; }
+  .job-meta { font-size:12px; color:var(--am-text-assistive); margin-top:2px; }
+  .warn-box { margin-top:14px; border-radius:14px; padding:12px 16px; font-size:13px; display:flex; gap:10px; align-items:flex-start; }
+  .warn-box.theme { background:#FDF1DF; color:#7A4E0C; }
+  .warn-box.text { background:var(--am-sky-50); color:var(--am-sky-900); }
+  .warn-box b { font-weight:700; }
+  .previews { display:flex; gap:8px; margin-top:14px; overflow-x:auto; padding-bottom:4px; }
+  .previews .p { width:128px; aspect-ratio:16/9; flex-shrink:0; border-radius:10px; overflow:hidden; border:1px solid var(--am-ink-100); }
+  .job-actions { display:flex; gap:8px; margin-top:16px; flex-wrap:wrap; }
+
+  /* ===== F6 Admin ===== */
+  .tbl { width:100%; border-collapse:collapse; font-size:13.5px; }
+  .tbl th { text-align:left; font-size:12px; font-weight:700; color:var(--am-text-assistive); padding:12px 16px; border-bottom:1px solid var(--am-ink-100); white-space:nowrap; }
+  .tbl td { padding:13px 16px; border-bottom:1px solid var(--am-ink-50); vertical-align:top; }
+  .tbl tr:hover td { background:var(--am-ink-10); }
+  .alias { font-size:12px; color:var(--am-text-assistive); }
+  .code-pill { font-size:11px; font-weight:600; background:var(--am-ink-50); border-radius:6px; padding:2px 7px; color:var(--am-ink-500); white-space:nowrap; }
+  .req-card { padding:16px 20px; margin-bottom:10px; display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+  .req-card .grow { flex:1; min-width:220px; }
+  .req-card .t { font-weight:700; font-size:14px; color:var(--am-text-strong); }
+  .req-card .s { font-size:12px; color:var(--am-text-assistive); }
+
+  /* ===== Modal ===== */
+  .modal-bg { position:fixed; inset:0; background:rgba(16,16,16,.45); display:none; align-items:center; justify-content:center; z-index:50; }
+  .modal-bg.on { display:flex; }
+  .modal { width:440px; max-width:calc(100vw - 48px); background:var(--am-white); border-radius:28px; padding:32px; box-shadow:0 18px 50px rgba(12,30,107,.25); }
+  .modal h3 { font-size:19px; font-weight:700; margin-bottom:10px; }
+  .modal p { font-size:14px; color:var(--am-text-alternative); margin-bottom:16px; }
+  .check-row { display:flex; gap:10px; align-items:flex-start; font-size:13.5px; color:var(--am-text-neutral); background:var(--am-ink-30); border:1px solid var(--am-ink-100); border-radius:14px; padding:14px 16px; margin-bottom:20px; cursor:pointer; }
+  .check-row input { margin-top:3px; accent-color:var(--am-blue); width:16px; height:16px; }
+  .modal-actions { display:flex; gap:8px; justify-content:flex-end; }
+
+  .note { font-size:12px; color:var(--am-text-assistive); margin-top:24px; text-align:center; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ============ Sidebar ============ -->
+  <aside class="sidebar">
+    <div class="logo"><img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzgwIiBoZWlnaHQ9Ijg1IiB2aWV3Qm94PSIwIDAgMzgwIDg1IiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cGF0aCBkPSJNODMuNTgzOCAyMy40MDdDODguOTA2MiAxOS45Mjk0IDkwLjcxODMgMTMuMjggODcuNjMxMSA4LjU1NTE2Qzg0LjU0MzkgMy44MzAyOSA3Ny43MjY2IDIuODE5MTcgNzIuNDA0MiA2LjI5Njc2QzY3LjA4MTggOS43NzQzNiA2NS4yNjk3IDE2LjQyMzggNjguMzU2OSAyMS4xNDg2QzcxLjQ0NCAyNS44NzM1IDc4LjI2MTQgMjYuODg0NiA4My41ODM4IDIzLjQwN1oiIGZpbGw9IiNGRkNENDEiPjwvcGF0aD4KPHBhdGggZD0iTTE0LjIzNTUgNDMuNDgwMUMxMy42NDk0IDQzLjc5NTcgMTMuMTIzNCA0NC4wODEzIDEyLjY0MjQgNDQuMzUxOEMxMi41MjIyIDQ0LjQyNjkgMTIuNDAyIDQ0LjQ4NyAxMi4yODE4IDQ0LjU2MjJDMTEuNzEwNyA0NC44Nzc4IDExLjIyOTggNDUuMTYzMyAxMC44NTQxIDQ1LjM3MzdDMTAuNzkzOSA0NS40MDM4IDEwLjc0ODkgNDUuNDMzOCAxMC43MDM4IDQ1LjQ2MzlDMTAuMzU4MSA0NS42NzQzIDEwLjExNzcgNDUuODA5NiAxMC4wMjc1IDQ1Ljg1NDZDMTAuMDI3NSA0NS44NTQ2IDEwLjAxMjUgNDUuODU0NiA5Ljk5NzQzIDQ1Ljg2OTdDOC45MzA0IDQ2LjUxNTkgNy43NTgxOCA0Ni44MTY1IDYuNjAwOTggNDYuODE2NUM0LjM2MTczIDQ2LjgxNjUgMi4xOTc2MiA0NS42NzQzIDAuOTUwMjUyIDQzLjYzMDRDLTAuOTI4MzE0IDQwLjUxOTUgMC4wNjM1Njg5IDM2LjQ2MTggMy4xNzQ0NyAzNC41ODMyQzMuMTc0NDcgMzQuNTgzMiAzLjIwNDUzIDM0LjU2ODIgMy4yMzQ1OSAzNC41MzgyQzMuMjY0NjUgMzQuNTM4MiAzLjI5NDcgMzQuNTA4MSAzLjMyNDc2IDM0LjQ3OEMzLjQ0NDk5IDM0LjQwMjkgMy42MjUzMyAzNC4zMTI3IDMuODUwNzYgMzQuMTc3NUMzLjkyNTkgMzQuMTMyNCA0LjAwMTA0IDM0LjA4NzMgNC4wNzYxOSAzNC4wNDIyQzQuMTY2MzYgMzMuOTgyMSA0LjI3MTU2IDMzLjkyMiA0LjM5MTc5IDMzLjg2MTlDNC40ODE5NiAzMy44MTY4IDQuNTcyMTMgMzMuNzU2NyA0LjY2MjMgMzMuNzExNkM0Ljc4MjUzIDMzLjYzNjQgNC45MTc3OCAzMy41NjEzIDUuMDY4MDcgMzMuNDg2MkM1LjM5ODcgMzMuMzA1OCA1Ljc3NDQxIDMzLjA5NTQgNi4xODAxOCAzMi44N0M2LjI3MDM1IDMyLjgyNDkgNi4zNjA1MiAzMi43NjQ4IDYuNDUwNyAzMi43MTk3QzYuOTE2NTggMzIuNDY0MiA3LjQyNzU1IDMyLjE3ODcgNy45ODM2IDMxLjg3ODFDMTEuMTg0NyAzMC4xNDk4IDE1LjE4MjMgMzEuMzM3MSAxNi45MjU2IDM0LjUzODJDMTguNjUzOSAzNy43MzkyIDE3LjQ2NjYgNDEuNzM2OCAxNC4yNjU1IDQzLjQ4MDFIMTQuMjM1NVoiIGZpbGw9IiM1OUQ2RkYiPjwvcGF0aD4KPHBhdGggZD0iTTY2Ljk4NTYgNDAuNTgwM0M2Ni43NDUxIDQxLjU3MjIgNjYuNDQ0NSA0Mi41NzkxIDY2LjA4MzkgNDMuNjE2QzYxLjMxOTggNTcuMjAxOCA0Ni4zNjY0IDczLjk0MzYgMzIuMzE0OCA4MC45NjE5QzMyLjIzOTYgODAuOTkyIDMyLjE2NDUgODEuMDM3MSAzMi4xMDQ0IDgxLjA2NzFDMzEuMTcyNiA4MS41MzMgMzAuMTY1NyA4MS43NDM0IDI5LjE4ODggODEuNzQzNEMyNi43NTQyIDgxLjc0MzQgMjQuNDI0OCA4MC4zOTA5IDIzLjI2NzYgNzguMDYxNEMyMS42NTk1IDc0LjgwMDMgMjIuOTk3MSA3MC44NDc3IDI2LjI1ODMgNjkuMjM5N0MzNC40Nzg5IDY1LjE4MiA0My44NDE2IDU2LjA3NDcgNDkuNDYyMyA0Ny40MzMzQzUwLjY3OTYgNDUuNTU0NyA1MS43MzE2IDQzLjcwNjIgNTIuNTQzMiA0MS45NDc5QzUzLjI2NDUgNDAuMzg0OSA1My44MjA2IDM4Ljg2NyA1NC4xNjYyIDM3LjQ2OTRDNTQuNzM3MyAzNS4xNCA1NC40MzY3IDM0LjA3MjkgNTQuMjcxNCAzMy44NDc1QzU0LjEzNjIgMzMuNjY3MiA1NC4wMDA5IDMzLjQ3MTggNTMuODgwNyAzMy4yNjE0QzUzLjc2MDUgMzMuMTQxMiA1My42MjUyIDMzLjAzNiA1My40ODk5IDMyLjkzMDhDNTMuMjE5NCAzMi43MzU0IDUyLjkzMzkgMzIuNTcwMSA1Mi42MTgzIDMyLjQxOThDNDkuOTQzMiAzMS4yMDI1IDQ1LjYgMzEuNjk4NCA0Mi44OTQ4IDMyLjE3OTNDMzQuMzQzNiAzMy43MjczIDI0LjQzOTggMzguMTkwOCAxNy42MzE5IDQxLjY2MjNDMTYuMzY5NSA0Mi4zMDg2IDE1LjIxMjMgNDIuOTA5NyAxNC4yMjA0IDQzLjQ1MDdDMTcuNDIxNSA0MS43MDc0IDE4LjYwODcgMzcuNzA5OCAxNi44ODA1IDM0LjUwODhDMTUuMTUyMiAzMS4zMDc3IDExLjEzOTYgMzAuMTIwNCA3LjkzODQ4IDMxLjg0ODdDOS4wMjA1MyAzMS4yNjI2IDEwLjI2NzkgMzAuNjAxMyAxMS42MzU1IDI5LjkxQzE5LjIyNDkgMjYuMDMyNyAzMC40MDYxIDIxLjAxMzEgNDAuNTY1NCAxOS4xOTQ3QzUxLjkyNyAxNy4xNTA4IDYwLjEwMjUgMTkuMzc1IDY0Ljg4MTYgMjUuODM3M0M2NS4xNjcxIDI2LjIyOCA2NS40MDc2IDI2LjYzMzggNjUuNjAyOSAyNy4wNTQ2QzY2LjE1OSAyNy45ODY0IDY2LjY3IDI5LjA5ODUgNjcuMDYwNyAzMC40MjFDNjcuNzk3MSAzMi45OTA5IDY4LjAyMjUgMzYuMzI3MiA2Ny4wMDA2IDQwLjU1MDJMNjYuOTg1NiA0MC41ODAzWiIgZmlsbD0iIzEzNDdDRSI+PC9wYXRoPgo8cGF0aCBkPSJNNTQuMTgxOSAzNy40N0M1My44MzYyIDM4Ljg4MjcgNTMuMjk1MiA0MC4zODU1IDUyLjU1ODggNDEuOTQ4NUM1MS43MzIyIDQzLjcyMTkgNTAuNjk1MyA0NS41NzA0IDQ5LjQ3NzkgNDcuNDMzOUM0My4yNDExIDQ5Ljk3MzcgMzYuNjg4NyA1My42MTA2IDMwLjc4MjUgNTcuOTM4OUMyMi43NDIyIDYzLjgxNSAxOC45MDk5IDY4Ljc0NDQgMTcuNzY3NyA3MS4wNzM4QzIwLjQxMjggNzEuODg1MyAyNC40NzA1IDcwLjEyNyAyNi4yNzM5IDY5LjI0MDNDMjMuMDEyNyA3MC44NDg0IDIxLjY2MDEgNzQuODAwOSAyMy4yODMyIDc4LjA2MjFDMjQuNDQwNCA4MC4zOTE1IDI2Ljc2OTggODEuNzQ0IDI5LjIwNDUgODEuNzQ0QzMwLjE4MTMgODEuNzQ0IDMxLjE3MzIgODEuNTE4NiAzMi4xMiA4MS4wNjc4QzI4Ljk2NCA4Mi42MTU3IDI0LjE4NDkgODQuNDQ5MiAxOS4xNjU0IDg0LjQ0OTJDMTUuNDUzNCA4NC40NDkyIDExLjYwNiA4My40NDIzIDguMTc5NTQgODAuNTg2OUM0Ljc4MzA5IDc3Ljc2MTUgMy40OTA2NCA3My40Nzg0IDQuNjMyODEgNjguODQ5NkM1LjU3OTYxIDY1LjAxNzMgOS4zNjY4IDU3LjAwNzEgMjMuOTg5NiA0Ni41OTIzQzMzLjE1NyA0MC4wNjk5IDQzLjM5MTQgMzUuMDIwMyA1Mi42NjQgMzIuNDIwNEM1Mi45Nzk2IDMyLjU3MDcgNTMuMjY1MSAzMi43MjEgNTMuNTM1NyAzMi45MzE0QzUzLjY4NTkgMzMuMDM2NiA1My44MDYyIDMzLjE0MTggNTMuOTI2NCAzMy4yNjJDNTQuMDQ2NiAzMy40NTc0IDU0LjE2NjkgMzMuNjUyNyA1NC4zMTcxIDMzLjg0ODFDNTQuNDgyNSAzNC4wNzM1IDU0Ljc2OCAzNS4xNDA2IDU0LjIxMTkgMzcuNDdINTQuMTgxOVoiIGZpbGw9IiMwQzFFNkIiPjwvcGF0aD4KPHBhdGggZD0iTTc2Ljk5NDYgMzguNTIxMkM3Ni4zNjM0IDQyLjExMzEgNzIuOTUxOSA0NC41MDI2IDY5LjM2MDEgNDMuODg2NEM2OC4zMzgyIDQzLjcwNjEgNjcuMjQxMSA0My42MTU5IDY2LjA2ODggNDMuNjE1OUM2Ni40Mjk1IDQyLjU3ODkgNjYuNzQ1MSA0MS41NzIgNjYuOTcwNiA0MC41ODAyQzY3Ljk5MjUgMzYuMzU3MSA2Ny43ODIxIDMzLjAyMDggNjcuMDMwNyAzMC40NTA5QzY4LjYyMzcgMzAuNDk2IDcwLjE1NjYgMzAuNjQ2MyA3MS42MTQ0IDMwLjkwMThDNzUuMjA2MiAzMS41MzMgNzcuNTk1NyAzNC45NDQ1IDc2Ljk3OTYgMzguNTM2M0w3Ni45OTQ2IDM4LjUyMTJaIiBmaWxsPSIjMEMxRTZCIj48L3BhdGg+CjxwYXRoIGQ9Ik0xMDMuMzEgNjQuOTcyMUw5OS43MzI4IDc0LjU0NTNDOTguNzQxIDc3LjEzMDIgOTUuNTU0OSA3OC4zNDc1IDkyLjc0NDYgNzcuNDMwOEM5MC4wMDk0IDc2LjUxNCA4OC40OTE1IDczLjEwMjUgODkuMzkzMiA3MC41MTc2TDEwNC41MTIgMjkuNzc1M0MxMDUuNzI5IDI2LjU4OTIgMTA4LjE2NCAyNC42MDU1IDExMi4wNDEgMjQuNjA1NUgxMTIuNDkyQzExNi4zNjkgMjQuNjA1NSAxMTguODA0IDI2LjU3NDIgMTIwLjAyMSAyOS43NzUzTDEzNS4xNCA3MC41MTc2QzEzNi4wNTcgNzMuMTAyNSAxMzQuNTM5IDc2LjUyOSAxMzEuNzg5IDc3LjQzMDhDMTI4Ljk3OCA3OC4zNDc1IDEyNS43OTIgNzcuMTMwMiAxMjQuOCA3NC41NDUzTDEyMS4yMjQgNjQuOTcyMUgxMDMuMjhIMTAzLjMxWk0xMTcuNTg3IDU1LjMyMzhMMTEyLjI2NyAzNy4wNzkyTDEwNi45NDcgNTUuMzIzOEgxMTcuNTg3WiIgZmlsbD0iIzEzNDdDRSI+PC9wYXRoPgo8cGF0aCBkPSJNMTU2LjUxIDY3Ljc5NzNDMTU4LjQwNCA2Ny43OTczIDE2MC4yMzcgNjcuMjcxMyAxNjEuNzU1IDY2LjQyOTdDMTYzLjY0OSA2NS4zNjI3IDE2Ni43NzUgNjQuOTExOCAxNjguNjY4IDY2LjgwNTRDMTcwLjgwMiA2OC45Mzk0IDE3MC40ODcgNzIuODAxOCAxNjcuOTc3IDc0LjU2MDFDMTY0Ljc5MSA3Ni44NDQ0IDE2MC43NjMgNzguMDYxOCAxNTYuNDk1IDc4LjA2MThDMTQ2LjMwNiA3OC4wNjE4IDEzNy4wMzMgNzAuOTIzMiAxMzcuMDMzIDU5Ljc0MlY1OS41MTY2QzEzNy4wMzMgNDguMzUwNCAxNDYuMzA2IDQxLjE5NjggMTU2LjQ5NSA0MS4xOTY4QzE2MC43NDggNDEuMTk2OCAxNjQuNzc2IDQyLjQxNDEgMTY3Ljk3NyA0NC42OTg0QzE3MC40ODcgNDYuNDQxNyAxNzAuNzg3IDUwLjMxOTEgMTY4LjY2OCA1Mi40NTMxQzE2Ni43NzUgNTQuMzQ2NyAxNjMuNjQ5IDUzLjg5NTkgMTYxLjc1NSA1Mi44Mjg5QzE2MC4yMzcgNTEuOTg3MyAxNTguNDA0IDUxLjQ2MTMgMTU2LjUxIDUxLjQ2MTNDMTUxLjk1NyA1MS40NjEzIDE0Ny44MzkgNTQuNTcyMiAxNDcuODM5IDU5LjUxNjZWNTkuNzQyQzE0Ny44MzkgNjQuNjg2NCAxNTEuOTQyIDY3Ljc5NzMgMTU2LjUxIDY3Ljc5NzNaIiBmaWxsPSIjMTM0N0NFIj48L3BhdGg+CjxwYXRoIGQ9Ik0xNzkuMDA4IDQxLjg3MjJWMzIuNTk5NkMxNzkuMDgzIDMwLjAxNDcgMTgxLjUxOCAyNy44ODA2IDE4NC4zMjggMjcuODgwNkMxODcuMTM4IDI3Ljg4MDYgMTg5LjY0OCAyOS45Mzk1IDE4OS42NDggMzIuNTk5NlY0MS44NzIySDE5My42NzZDMTk1LjgxIDQxLjg3MjIgMTk3LjQ3OCA0My43NjU4IDE5Ny40NzggNDYuMDUwMUMxOTcuNDc4IDQ4LjMzNDQgMTk1LjgxIDUwLjE1MjkgMTkzLjY3NiA1MC4yMjhIMTg5LjY0OFY3My4wMjYzQzE4OS42NDggNzUuNjg2NCAxODcuMjE0IDc3Ljc0NTMgMTg0LjMyOCA3Ny43NDUzQzE4MS40NDMgNzcuNzQ1MyAxNzkuMDgzIDc1LjYxMTIgMTc5LjAwOCA3My4wMjYzVjUwLjIyOEgxNzYuMTIzQzE3My45ODggNTAuMTUyOSAxNzIuMzIgNDguMjU5MyAxNzIuMzIgNDYuMDUwMUMxNzIuMzIgNDMuODQwOSAxNzMuOTg4IDQxLjg3MjIgMTc2LjEyMyA0MS44NzIySDE3OS4wMDhaIiBmaWxsPSIjMTM0N0NFIj48L3BhdGg+CjxwYXRoIGQ9Ik0yMDYuMTUxIDIyLjU3NjdDMjA5LjcyNyAyMi41NzY3IDIxMi42MTMgMjUuMjM2NyAyMTIuNjEzIDI4LjczODRDMjEyLjYxMyAzMi4yNCAyMDkuNzI3IDM0Ljk3NTIgMjA2LjE1MSAzNC45NzUyQzIwMi41NzQgMzQuOTc1MiAxOTkuNTM4IDMyLjI0IDE5OS41MzggMjguNzM4NEMxOTkuNTM4IDI1LjIzNjcgMjAyLjU3NCAyMi41NzY3IDIwNi4xNTEgMjIuNTc2N1pNMjExLjQ3MSA3My4wNDI1QzIxMS40NzEgNzUuNzAyNSAyMDkuMDM2IDc3Ljc2MTQgMjA2LjE1MSA3Ny43NjE0QzIwMy4yNjUgNzcuNzYxNCAyMDAuOTA2IDc1LjYyNzQgMjAwLjgzMSA3My4wNDI1VjQ2LjIxNjVDMjAwLjkwNiA0My42MzE2IDIwMy4zNCA0MS40OTc2IDIwNi4xNTEgNDEuNDk3NkMyMDguOTYxIDQxLjQ5NzYgMjExLjQ3MSA0My41NTY1IDIxMS40NzEgNDYuMjE2NVY3My4wNDI1WiIgZmlsbD0iIzEzNDdDRSI+PC9wYXRoPgo8cGF0aCBkPSJNMjYzLjAzMyAyNy45NzFDMjY0LjQgMjUuMDg1NSAyNjUuOTE4IDI0LjYxOTYgMjY4LjA1MiAyNC42MTk2SDI2OS4xOTVDMjcxLjc3OSAyNC42MTk2IDI3My44MzggMjYuOTc5MSAyNzQuMTM5IDI5LjU2NEwyNzkuMzg0IDcyLjJDMjc5LjY4NCA3NC44NiAyNzcuMTc1IDc3LjUyMDEgMjc0LjI4OSA3Ny43NDU1QzI3MS4zMjkgNzcuOTcwOSAyNjguNjY5IDc1Ljg1MTkgMjY4LjM2OCA3My4wMjY1TDI2NS4xODIgNDUuOTc1MkwyNTQuNzY3IDY3LjQ4MUMyNTMuNzc1IDY5LjYxNTEgMjUxLjg4MiA3Mi4xMDk4IDI0OC42MDUgNzIuMTA5OEMyNDUuMzI5IDcyLjEwOTggMjQzLjUxMSA2OS42IDI0Mi41MTkgNjcuNDgxTDIzMi4wMjkgNDUuOTc1MkwyMjguODQzIDczLjAyNjVDMjI4LjU0MiA3NS44MzY5IDIyNS44ODIgNzcuOTcwOSAyMjIuOTIyIDc3Ljc0NTVDMjIwLjAzNiA3Ny41MjAxIDIxNy40NTEgNzQuODYgMjE3LjgyNyA3Mi4yTDIyMy4wNzIgMjkuNTY0QzIyMy4zNzMgMjYuOTc5MSAyMjUuNDMxIDI0LjYxOTYgMjI4LjAxNiAyNC42MTk2SDIyOS4xNTlDMjMxLjI5MyAyNC42MTk2IDIzMi44ODYgMjUuMDcwNSAyMzQuMTc4IDI3Ljk3MUwyNDguNjIgNTguNzQ5NEwyNjMuMDYzIDI3Ljk3MUgyNjMuMDMzWiIgZmlsbD0iIzEzNDdDRSI+PC9wYXRoPgo8cGF0aCBkPSJNMzEzLjcyNCA3NC44NjE2QzMxMC4xNDcgNzcuMjIxIDMwNS42NjkgNzguMDQ3NiAzMDEuNDkxIDc4LjA0NzZDMjkxLjMwMiA3OC4wNDc2IDI4Mi45NDYgNzAuNjY4NiAyODIuOTQ2IDU5LjUwMjRDMjgyLjk0NiA0OC4zMzYyIDI5MS4zMDIgNDEuMTgyNiAzMDEuNDkxIDQxLjE4MjZDMzExLjY4IDQxLjE4MjYgMzE5LjY2MSA0OC42MzY4IDMxOS42NjEgNTkuODAzQzMxOS42NjEgNjEuNjk2NiAzMTguMDY3IDYzLjA2NDIgMzE2LjM5OSA2My4wNjQySDI5My41MjZDMjk0LjA1MiA2Ny4xNjY5IDI5OC41NDUgNjguOTEwMyAzMDIuMjcyIDY4LjkxMDNDMzA0LjQwNyA2OC45MTAzIDMwNi4yMjUgNjguNzYgMzA4LjQzNCA2Ny4yNDIxQzMxMC44NjkgNjUuNTczOSAzMTMuNjA0IDY2LjAyNDggMzE1LjEyMiA2Ny43NjgxQzMxNy4xMDYgNzAuMDUyNCAzMTYuMzM5IDczLjMxMzYgMzEzLjc1NCA3NC44MzE1TDMxMy43MjQgNzQuODYxNlpNMzA5LjAwNSA1Ni40NjY2QzMwOC40NzkgNTIuMTM4NCAzMDUuNTA0IDUwLjAwNDQgMzAxLjU1MSA1MC4wMDQ0QzI5Ny41OTkgNTAuMDA0NCAyOTQuNTYzIDUxLjk3MzEgMjkzLjY0NiA1Ni40NjY2SDMwOS4wMDVaIiBmaWxsPSIjMTM0N0NFIj48L3BhdGg+CjxwYXRoIGQ9Ik0zNTAuMzQ5IDI2LjkwNDNDMzUwLjQyNCAyNC4zMTk0IDM1Mi44NTkgMjIuMTg1MyAzNTUuNjY5IDIyLjE4NTNDMzU4LjQ3OSAyMi4xODUzIDM2MC45ODkgMjQuMjQ0MiAzNjAuOTg5IDI2LjkwNDNWNzMuMDQxOUMzNjAuOTg5IDc1LjcwMTkgMzU4LjU1NSA3Ny43NjA4IDM1NS42NjkgNzcuNzYwOEMzNTIuNzg0IDc3Ljc2MDggMzUwLjQyNCA3NS42MjY4IDM1MC4zNDkgNzMuMDQxOVY3Mi4zNTA1QzM0OC4wNjUgNzYuMDc3NiAzNDMuNzM2IDc4LjA0NjMgMzM5LjcwOSA3OC4wNDYzQzMzMC42NjIgNzguMDQ2MyAzMjIuNDU2IDcxLjM1ODcgMzIyLjQ1NiA1OS41NzYzQzMyMi40NTYgNDcuNzkzOSAzMzAuNjYyIDQxLjE4MTQgMzM5LjcwOSA0MS4xODE0QzM0MS45OTMgNDEuMTgxNCAzNDcuMzEzIDQyLjE3MzIgMzUwLjM0OSA0Ni44NzcyVjI2Ljg4OTJWMjYuOTA0M1pNMzQxLjc2OCA2OC42MjM1QzM0Ni41NjIgNjguNjIzNSAzNTAuNDM5IDY0LjM3MDQgMzUwLjQzOSA1OS42NTE0QzM1MC40MzkgNTQuOTMyNSAzNDYuNTYyIDUwLjY3OTQgMzQxLjc2OCA1MC42Nzk0QzMzNi40NDggNTAuNjc5NCAzMzMuNDEyIDU0LjkzMjUgMzMzLjQxMiA1OS42NTE0QzMzMy40MTIgNjQuMzcwNCAzMzYuNDQ4IDY4LjYyMzUgMzQxLjc2OCA2OC42MjM1WiIgZmlsbD0iIzEzNDdDRSI+PC9wYXRoPgo8cGF0aCBkPSJNMzczLjUzOCAyMi41NzY3QzM3Ny4xMTUgMjIuNTc2NyAzODAgMjUuMjM2NyAzODAgMjguNzM4NEMzODAgMzIuMjQgMzc3LjExNSAzNC45NzUyIDM3My41MzggMzQuOTc1MkMzNjkuOTYxIDM0Ljk3NTIgMzY2LjkyNSAzMi4yNCAzNjYuOTI1IDI4LjczODRDMzY2LjkyNSAyNS4yMzY3IDM2OS45NjEgMjIuNTc2NyAzNzMuNTM4IDIyLjU3NjdaTTM3OC44NTggNzMuMDQyNUMzNzguODU4IDc1LjcwMjUgMzc2LjQyMyA3Ny43NjE0IDM3My41MzggNzcuNzYxNEMzNzAuNjUyIDc3Ljc2MTQgMzY4LjI5MyA3NS42Mjc0IDM2OC4yMTggNzMuMDQyNVY0Ni4yMTY1QzM2OC4yOTMgNDMuNjMxNiAzNzAuNzI4IDQxLjQ5NzYgMzczLjUzOCA0MS40OTc2QzM3Ni4zNDggNDEuNDk3NiAzNzguODU4IDQzLjU1NjUgMzc4Ljg1OCA0Ni4yMTY1VjczLjA0MjVaIiBmaWxsPSIjMTM0N0NFIj48L3BhdGg+Cjwvc3ZnPg==" alt="ActiMedi"></div>
+    <div class="nav-label">Library</div>
+    <button class="nav-item active" data-go="f2"><img class="ic" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgdmlld0JveD0iMCAwIDE2IDE2IiBmaWxsPSJub25lIiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMS42IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPgogIDxjaXJjbGUgY3g9IjciIGN5PSI3IiByPSI0LjUiPjwvY2lyY2xlPjxwYXRoIGQ9Ik0xMC41IDEwLjVMMTQgMTQiPjwvcGF0aD4KPC9zdmc+" alt="">덱 라이브러리</button>
+    <button class="nav-item" data-go="f4"><img class="ic" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj4KICA8cGF0aCBkPSJNMTIgNXYxNE01IDEyaDE0Ij48L3BhdGg+Cjwvc3ZnPg==" alt="">업로드</button>
+    <button class="nav-item" data-go="f5"><img class="ic" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgdmlld0JveD0iMCAwIDE2IDE2IiBmaWxsPSJub25lIiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPgogIDxjaXJjbGUgY3g9IjgiIGN5PSI4IiByPSI2Ij48L2NpcmNsZT48cGF0aCBkPSJNOCA0LjVWOGwyLjUgMS41Ij48L3BhdGg+Cjwvc3ZnPg==" alt="">생성 결과</button>
+    <div class="nav-label">Admin</div>
+    <button class="nav-item" data-go="f6"><img class="ic" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj4KICA8cGF0aCBkPSJNNiAzaDEydjE4bC02LTQtNiA0VjN6Ij48L3BhdGg+Cjwvc3ZnPg==" alt="">태그 사전 관리</button>
+    <div class="nav-label">Demo</div>
+    <button class="nav-item" data-go="f1"><img class="ic" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj4KICA8cmVjdCB4PSI0IiB5PSIxMSIgd2lkdGg9IjE2IiBoZWlnaHQ9IjEwIiByeD0iMiI+PC9yZWN0PjxwYXRoIGQ9Ik04IDExVjdhNCA0IDAgMDE4IDB2NCI+PC9wYXRoPgo8L3N2Zz4=" alt="">로그인 화면 보기</button>
+    <button class="nav-item" data-go="f3"><img class="ic" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgdmlld0JveD0iMCAwIDE2IDE2IiBmaWxsPSJub25lIiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPgogIDxwYXRoIGQ9Ik0xLjUgOGMxLjUtMyAzLjgtNC41IDYuNS00LjVTMTMgNSAxNC41IDhjLTEuNSAzLTMuOCA0LjUtNi41IDQuNVMzIDExIDEuNSA4eiI+PC9wYXRoPgogIDxjaXJjbGUgY3g9IjgiIGN5PSI4IiByPSIyIj48L2NpcmNsZT4KPC9zdmc+" alt="">덱 상세 보기</button>
+    <div class="me">
+      <div class="avatar">김주</div>
+      <div><div class="who">김주현</div><div class="role">jh.kim@actimedi.com · 관리자</div></div>
+    </div>
+  </aside>
+
+  <!-- ============ Main ============ -->
+  <main class="main">
+
+    <!-- ===== F1. 로그인 ===== -->
+    <section class="screen" id="f1">
+      <div class="login-wrap">
+        <div class="card login-card">
+          <img class="vlogo" src="data:image/svg+xml;base64,Cjxzdmcgd2lkdGg9IjIwMCIgaGVpZ2h0PSIxOTAiIHZpZXdCb3g9IjAgMCAyMDAgMTkwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogIAogIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDU1IDApIj4KICAgIDxwYXRoIGQ9Ik04My41ODM4IDIzLjQwN0M4OC45MDYyIDE5LjkyOTQgOTAuNzE4MyAxMy4yOCA4Ny42MzExIDguNTU1MTZDODQuNTQzOSAzLjgzMDI5IDc3LjcyNjYgMi44MTkxNyA3Mi40MDQyIDYuMjk2NzZDNjcuMDgxOCA5Ljc3NDM2IDY1LjI2OTcgMTYuNDIzOCA2OC4zNTY5IDIxLjE0ODZDNzEuNDQ0IDI1Ljg3MzUgNzguMjYxNCAyNi44ODQ2IDgzLjU4MzggMjMuNDA3WiIgZmlsbD0iI0ZGQ0Q0MSI+PC9wYXRoPgogICAgPHBhdGggZD0iTTE0LjIzNTUgNDMuNDgwMUMxMy42NDk0IDQzLjc5NTcgMTMuMTIzNCA0NC4wODEzIDEyLjY0MjQgNDQuMzUxOEMxMi41MjIyIDQ0LjQyNjkgMTIuNDAyIDQ0LjQ4NyAxMi4yODE4IDQ0LjU2MjJDMTEuNzEwNyA0NC44Nzc4IDExLjIyOTggNDUuMTYzMyAxMC44NTQxIDQ1LjM3MzdDMTAuNzkzOSA0NS40MDM4IDEwLjc0ODkgNDUuNDMzOCAxMC43MDM4IDQ1LjQ2MzlDMTAuMzU4MSA0NS42NzQzIDEwLjExNzcgNDUuODA5NiAxMC4wMjc1IDQ1Ljg1NDZDMTAuMDI3NSA0NS44NTQ2IDEwLjAxMjUgNDUuODU0NiA5Ljk5NzQzIDQ1Ljg2OTdDOC45MzA0IDQ2LjUxNTkgNy43NTgxOCA0Ni44MTY1IDYuNjAwOTggNDYuODE2NUM0LjM2MTczIDQ2LjgxNjUgMi4xOTc2MiA0NS42NzQzIDAuOTUwMjUyIDQzLjYzMDRDLTAuOTI4MzE0IDQwLjUxOTUgMC4wNjM1Njg5IDM2LjQ2MTggMy4xNzQ0NyAzNC41ODMyQzMuMTc0NDcgMzQuNTgzMiAzLjIwNDUzIDM0LjU2ODIgMy4yMzQ1OSAzNC41MzgyQzMuMjY0NjUgMzQuNTM4MiAzLjI5NDcgMzQuNTA4MSAzLjMyNDc2IDM0LjQ3OEMzLjQ0NDk5IDM0LjQwMjkgMy42MjUzMyAzNC4zMTI3IDMuODUwNzYgMzQuMTc3NUMzLjkyNTkgMzQuMTMyNCA0LjAwMTA0IDM0LjA4NzMgNC4wNzYxOSAzNC4wNDIyQzQuMTY2MzYgMzMuOTgyMSA0LjI3MTU2IDMzLjkyMiA0LjM5MTc5IDMzLjg2MTlDNC40ODE5NiAzMy44MTY4IDQuNTcyMTMgMzMuNzU2NyA0LjY2MjMgMzMuNzExNkM0Ljc4MjUzIDMzLjYzNjQgNC45MTc3OCAzMy41NjEzIDUuMDY4MDcgMzMuNDg2MkM1LjM5ODcgMzMuMzA1OCA1Ljc3NDQxIDMzLjA5NTQgNi4xODAxOCAzMi44N0M2LjI3MDM1IDMyLjgyNDkgNi4zNjA1MiAzMi43NjQ4IDYuNDUwNyAzMi43MTk3QzYuOTE2NTggMzIuNDY0MiA3LjQyNzU1IDMyLjE3ODcgNy45ODM2IDMxLjg3ODFDMTEuMTg0NyAzMC4xNDk4IDE1LjE4MjMgMzEuMzM3MSAxNi45MjU2IDM0LjUzODJDMTguNjUzOSAzNy43MzkyIDE3LjQ2NjYgNDEuNzM2OCAxNC4yNjU1IDQzLjQ4MDFIMTQuMjM1NVoiIGZpbGw9IiM1OUQ2RkYiPjwvcGF0aD4KICAgIDxwYXRoIGQ9Ik02Ni45ODU2IDQwLjU4MDNDNjYuNzQ1MSA0MS41NzIyIDY2LjQ0NDUgNDIuNTc5MSA2Ni4wODM5IDQzLjYxNkM2MS4zMTk4IDU3LjIwMTggNDYuMzY2NCA3My45NDM2IDMyLjMxNDggODAuOTYxOUMzMi4yMzk2IDgwLjk5MiAzMi4xNjQ1IDgxLjAzNzEgMzIuMTA0NCA4MS4wNjcxQzMxLjE3MjYgODEuNTMzIDMwLjE2NTcgODEuNzQzNCAyOS4xODg4IDgxLjc0MzRDMjYuNzU0MiA4MS43NDM0IDI0LjQyNDggODAuMzkwOSAyMy4yNjc2IDc4LjA2MTRDMjEuNjU5NSA3NC44MDAzIDIyLjk5NzEgNzAuODQ3NyAyNi4yNTgzIDY5LjIzOTdDMzQuNDc4OSA2NS4xODIgNDMuODQxNiA1Ni4wNzQ3IDQ5LjQ2MjMgNDcuNDMzM0M1MC42Nzk2IDQ1LjU1NDcgNTEuNzMxNiA0My43MDYyIDUyLjU0MzIgNDEuOTQ3OUM1My4yNjQ1IDQwLjM4NDkgNTMuODIwNiAzOC44NjcgNTQuMTY2MiAzNy40Njk0QzU0LjczNzMgMzUuMTQgNTQuNDM2NyAzNC4wNzI5IDU0LjI3MTQgMzMuODQ3NUM1NC4xMzYyIDMzLjY2NzIgNTQuMDAwOSAzMy40NzE4IDUzLjg4MDcgMzMuMjYxNEM1My43NjA1IDMzLjE0MTIgNTMuNjI1MiAzMy4wMzYgNTMuNDg5OSAzMi45MzA4QzUzLjIxOTQgMzIuNzM1NCA1Mi45MzM5IDMyLjU3MDEgNTIuNjE4MyAzMi40MTk4QzQ5Ljk0MzIgMzEuMjAyNSA0NS42IDMxLjY5ODQgNDIuODk0OCAzMi4xNzkzQzM0LjM0MzYgMzMuNzI3MyAyNC40Mzk4IDM4LjE5MDggMTcuNjMxOSA0MS42NjIzQzE2LjM2OTUgNDIuMzA4NiAxNS4yMTIzIDQyLjkwOTcgMTQuMjIwNCA0My40NTA3QzE3LjQyMTUgNDEuNzA3NCAxOC42MDg3IDM3LjcwOTggMTYuODgwNSAzNC41MDg4QzE1LjE1MjIgMzEuMzA3NyAxMS4xMzk2IDMwLjEyMDQgNy45Mzg0OCAzMS44NDg3QzkuMDIwNTMgMzEuMjYyNiAxMC4yNjc5IDMwLjYwMTMgMTEuNjM1NSAyOS45MUMxOS4yMjQ5IDI2LjAzMjcgMzAuNDA2MSAyMS4wMTMxIDQwLjU2NTQgMTkuMTk0N0M1MS45MjcgMTcuMTUwOCA2MC4xMDI1IDE5LjM3NSA2NC44ODE2IDI1LjgzNzNDNjUuMTY3MSAyNi4yMjggNjUuNDA3NiAyNi42MzM4IDY1LjYwMjkgMjcuMDU0NkM2Ni4xNTkgMjcuOTg2NCA2Ni42NyAyOS4wOTg1IDY3LjA2MDcgMzAuNDIxQzY3Ljc5NzEgMzIuOTkwOSA2OC4wMjI1IDM2LjMyNzIgNjcuMDAwNiA0MC41NTAyTDY2Ljk4NTYgNDAuNTgwM1oiIGZpbGw9IiMxMzQ3Q0UiPjwvcGF0aD4KICAgIDxwYXRoIGQ9Ik01NC4xODE5IDM3LjQ3QzUzLjgzNjIgMzguODgyNyA1My4yOTUyIDQwLjM4NTUgNTIuNTU4OCA0MS45NDg1QzUxLjczMjIgNDMuNzIxOSA1MC42OTUzIDQ1LjU3MDQgNDkuNDc3OSA0Ny40MzM5QzQzLjI0MTEgNDkuOTczNyAzNi42ODg3IDUzLjYxMDYgMzAuNzgyNSA1Ny45Mzg5QzIyLjc0MjIgNjMuODE1IDE4LjkwOTkgNjguNzQ0NCAxNy43Njc3IDcxLjA3MzhDMjAuNDEyOCA3MS44ODUzIDI0LjQ3MDUgNzAuMTI3IDI2LjI3MzkgNjkuMjQwM0MyMy4wMTI3IDcwLjg0ODQgMjEuNjYwMSA3NC44MDA5IDIzLjI4MzIgNzguMDYyMUMyNC40NDA0IDgwLjM5MTUgMjYuNzY5OCA4MS43NDQgMjkuMjA0NSA4MS43NDRDMzAuMTgxMyA4MS43NDQgMzEuMTczMiA4MS41MTg2IDMyLjEyIDgxLjA2NzhDMjguOTY0IDgyLjYxNTcgMjQuMTg0OSA4NC40NDkyIDE5LjE2NTQgODQuNDQ5MkMxNS40NTM0IDg0LjQ0OTIgMTEuNjA2IDgzLjQ0MjMgOC4xNzk1NCA4MC41ODY5QzQuNzgzMDkgNzcuNzYxNSAzLjQ5MDY0IDczLjQ3ODQgNC42MzI4MSA2OC44NDk2QzUuNTc5NjEgNjUuMDE3MyA5LjM2NjggNTcuMDA3MSAyMy45ODk2IDQ2LjU5MjNDMzMuMTU3IDQwLjA2OTkgNDMuMzkxNCAzNS4wMjAzIDUyLjY2NCAzMi40MjA0QzUyLjk3OTYgMzIuNTcwNyA1My4yNjUxIDMyLjcyMSA1My41MzU3IDMyLjkzMTRDNTMuNjg1OSAzMy4wMzY2IDUzLjgwNjIgMzMuMTQxOCA1My45MjY0IDMzLjI2MkM1NC4wNDY2IDMzLjQ1NzQgNTQuMTY2OSAzMy42NTI3IDU0LjMxNzEgMzMuODQ4MUM1NC40ODI1IDM0LjA3MzUgNTQuNzY4IDM1LjE0MDYgNTQuMjExOSAzNy40N0g1NC4xODE5WiIgZmlsbD0iIzBDMUU2QiI+PC9wYXRoPgogICAgPHBhdGggZD0iTTc2Ljk5NDYgMzguNTIxMkM3Ni4zNjM0IDQyLjExMzEgNzIuOTUxOSA0NC41MDI2IDY5LjM2MDEgNDMuODg2NEM2OC4zMzgyIDQzLjcwNjEgNjcuMjQxMSA0My42MTU5IDY2LjA2ODggNDMuNjE1OUM2Ni40Mjk1IDQyLjU3ODkgNjYuNzQ1MSA0MS41NzIgNjYuOTcwNiA0MC41ODAyQzY3Ljk5MjUgMzYuMzU3MSA2Ny43ODIxIDMzLjAyMDggNjcuMDMwNyAzMC40NTA5QzY4LjYyMzcgMzAuNDk2IDcwLjE1NjYgMzAuNjQ2MyA3MS42MTQ0IDMwLjkwMThDNzUuMjA2MiAzMS41MzMgNzcuNTk1NyAzNC45NDQ1IDc2Ljk3OTYgMzguNTM2M0w3Ni45OTQ2IDM4LjUyMTJaIiBmaWxsPSIjMEMxRTZCIj48L3BhdGg+CiAgPC9nPgogIAogIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKC01OCA5Nikgc2NhbGUoMC43OCkiPgogICAgPHBhdGggZD0iTTEwMy4zMSA2NC45NzIxTDk5LjczMjggNzQuNTQ1M0M5OC43NDEgNzcuMTMwMiA5NS41NTQ5IDc4LjM0NzUgOTIuNzQ0NiA3Ny40MzA4QzkwLjAwOTQgNzYuNTE0IDg4LjQ5MTUgNzMuMTAyNSA4OS4zOTMyIDcwLjUxNzZMMTA0LjUxMiAyOS43NzUzQzEwNS43MjkgMjYuNTg5MiAxMDguMTY0IDI0LjYwNTUgMTEyLjA0MSAyNC42MDU1SDExMi40OTJDMTE2LjM2OSAyNC42MDU1IDExOC44MDQgMjYuNTc0MiAxMjAuMDIxIDI5Ljc3NTNMMTM1LjE0IDcwLjUxNzZDMTM2LjA1NyA3My4xMDI1IDEzNC41MzkgNzYuNTI5IDEzMS43ODkgNzcuNDMwOEMxMjguOTc4IDc4LjM0NzUgMTI1Ljc5MiA3Ny4xMzAyIDEyNC44IDc0LjU0NTNMMTIxLjIyNCA2NC45NzIxSDEwMy4yOEgxMDMuMzFaTTExNy41ODcgNTUuMzIzOEwxMTIuMjY3IDM3LjA3OTJMMTA2Ljk0NyA1NS4zMjM4SDExNy41ODdaIiBmaWxsPSIjMTM0N0NFIj48L3BhdGg+CiAgICA8cGF0aCBkPSJNMTU2LjUxIDY3Ljc5NzNDMTU4LjQwNCA2Ny43OTczIDE2MC4yMzcgNjcuMjcxMyAxNjEuNzU1IDY2LjQyOTdDMTYzLjY0OSA2NS4zNjI3IDE2Ni43NzUgNjQuOTExOCAxNjguNjY4IDY2LjgwNTRDMTcwLjgwMiA2OC45Mzk0IDE3MC40ODcgNzIuODAxOCAxNjcuOTc3IDc0LjU2MDFDMTY0Ljc5MSA3Ni44NDQ0IDE2MC43NjMgNzguMDYxOCAxNTYuNDk1IDc4LjA2MThDMTQ2LjMwNiA3OC4wNjE4IDEzNy4wMzMgNzAuOTIzMiAxMzcuMDMzIDU5Ljc0MlY1OS41MTY2QzEzNy4wMzMgNDguMzUwNCAxNDYuMzA2IDQxLjE5NjggMTU2LjQ5NSA0MS4xOTY4QzE2MC43NDggNDEuMTk2OCAxNjQuNzc2IDQyLjQxNDEgMTY3Ljk3NyA0NC42OTg0QzE3MC40ODcgNDYuNDQxNyAxNzAuNzg3IDUwLjMxOTEgMTY4LjY2OCA1Mi40NTMxQzE2Ni43NzUgNTQuMzQ2NyAxNjMuNjQ5IDUzLjg5NTkgMTYxLjc1NSA1Mi44Mjg5QzE2MC4yMzcgNTEuOTg3MyAxNTguNDA0IDUxLjQ2MTMgMTU2LjUxIDUxLjQ2MTNDMTUxLjk1NyA1MS40NjEzIDE0Ny44MzkgNTQuNTcyMiAxNDcuODM5IDU5LjUxNjZWNTkuNzQyQzE0Ny44MzkgNjQuNjg2NCAxNTEuOTQyIDY3Ljc5NzMgMTU2LjUxIDY3Ljc5NzNaIiBmaWxsPSIjMTM0N0NFIj48L3BhdGg+CiAgICA8cGF0aCBkPSJNMTc5LjAwOCA0MS44NzIyVjMyLjU5OTZDMTc5LjA4MyAzMC4wMTQ3IDE4MS41MTggMjcuODgwNiAxODQuMzI4IDI3Ljg4MDZDMTg3LjEzOCAyNy44ODA2IDE4OS42NDggMjkuOTM5NSAxODkuNjQ4IDMyLjU5OTZWNDEuODcyMkgxOTMuNjc2QzE5NS44MSA0MS44NzIyIDE5Ny40NzggNDMuNzY1OCAxOTcuNDc4IDQ2LjA1MDFDMTk3LjQ3OCA0OC4zMzQ0IDE5NS44MSA1MC4xNTI5IDE5My42NzYgNTAuMjI4SDE4OS42NDhWNzMuMDI2M0MxODkuNjQ4IDc1LjY4NjQgMTg3LjIxNCA3Ny43NDUzIDE4NC4zMjggNzcuNzQ1M0MxODEuNDQzIDc3Ljc0NTMgMTc5LjA4MyA3NS42MTEyIDE3OS4wMDggNzMuMDI2M1Y1MC4yMjhIMTc2LjEyM0MxNzMuOTg4IDUwLjE1MjkgMTcyLjMyIDQ4LjI1OTMgMTcyLjMyIDQ2LjA1MDFDMTcyLjMyIDQzLjg0MDkgMTczLjk4OCA0MS44NzIyIDE3Ni4xMjMgNDEuODcyMkgxNzkuMDA4WiIgZmlsbD0iIzEzNDdDRSI+PC9wYXRoPgogICAgPHBhdGggZD0iTTIwNi4xNTEgMjIuNTc2N0MyMDkuNzI3IDIyLjU3NjcgMjEyLjYxMyAyNS4yMzY3IDIxMi42MTMgMjguNzM4NEMyMTIuNjEzIDMyLjI0IDIwOS43MjcgMzQuOTc1MiAyMDYuMTUxIDM0Ljk3NTJDMjAyLjU3NCAzNC45NzUyIDE5OS41MzggMzIuMjQgMTk5LjUzOCAyOC43Mzg0QzE5OS41MzggMjUuMjM2NyAyMDIuNTc0IDIyLjU3NjcgMjA2LjE1MSAyMi41NzY3Wk0yMTEuNDcxIDczLjA0MjVDMjExLjQ3MSA3NS43MDI1IDIwOS4wMzYgNzcuNzYxNCAyMDYuMTUxIDc3Ljc2MTRDMjAzLjI2NSA3Ny43NjE0IDIwMC45MDYgNzUuNjI3NCAyMDAuODMxIDczLjA0MjVWNDYuMjE2NUMyMDAuOTA2IDQzLjYzMTYgMjAzLjM0IDQxLjQ5NzYgMjA2LjE1MSA0MS40OTc2QzIwOC45NjEgNDEuNDk3NiAyMTEuNDcxIDQzLjU1NjUgMjExLjQ3MSA0Ni4yMTY1VjczLjA0MjVaIiBmaWxsPSIjMTM0N0NFIj48L3BhdGg+CiAgICA8cGF0aCBkPSJNMjYzLjAzMyAyNy45NzFDMjY0LjQgMjUuMDg1NSAyNjUuOTE4IDI0LjYxOTYgMjY4LjA1MiAyNC42MTk2SDI2OS4xOTVDMjcxLjc3OSAyNC42MTk2IDI3My44MzggMjYuOTc5MSAyNzQuMTM5IDI5LjU2NEwyNzkuMzg0IDcyLjJDMjc5LjY4NCA3NC44NiAyNzcuMTc1IDc3LjUyMDEgMjc0LjI4OSA3Ny43NDU1QzI3MS4zMjkgNzcuOTcwOSAyNjguNjY5IDc1Ljg1MTkgMjY4LjM2OCA3My4wMjY1TDI2NS4xODIgNDUuOTc1MkwyNTQuNzY3IDY3LjQ4MUMyNTMuNzc1IDY5LjYxNTEgMjUxLjg4MiA3Mi4xMDk4IDI0OC42MDUgNzIuMTA5OEMyNDUuMzI5IDcyLjEwOTggMjQzLjUxMSA2OS42IDI0Mi41MTkgNjcuNDgxTDIzMi4wMjkgNDUuOTc1MkwyMjguODQzIDczLjAyNjVDMjI4LjU0MiA3NS44MzY5IDIyNS44ODIgNzcuOTcwOSAyMjIuOTIyIDc3Ljc0NTVDMjIwLjAzNiA3Ny41MjAxIDIxNy40NTEgNzQuODYgMjE3LjgyNyA3Mi4yTDIyMy4wNzIgMjkuNTY0QzIyMy4zNzMgMjYuOTc5MSAyMjUuNDMxIDI0LjYxOTYgMjI4LjAxNiAyNC42MTk2SDIyOS4xNTlDMjMxLjI5MyAyNC42MTk2IDIzMi44ODYgMjUuMDcwNSAyMzQuMTc4IDI3Ljk3MUwyNDguNjIgNTguNzQ5NEwyNjMuMDYzIDI3Ljk3MUgyNjMuMDMzWiIgZmlsbD0iIzEzNDdDRSI+PC9wYXRoPgogICAgPHBhdGggZD0iTTMxMy43MjQgNzQuODYxNkMzMTAuMTQ3IDc3LjIyMSAzMDUuNjY5IDc4LjA0NzYgMzAxLjQ5MSA3OC4wNDc2QzI5MS4zMDIgNzguMDQ3NiAyODIuOTQ2IDcwLjY2ODYgMjgyLjk0NiA1OS41MDI0QzI4Mi45NDYgNDguMzM2MiAyOTEuMzAyIDQxLjE4MjYgMzAxLjQ5MSA0MS4xODI2QzMxMS42OCA0MS4xODI2IDMxOS42NjEgNDguNjM2OCAzMTkuNjYxIDU5LjgwM0MzMTkuNjYxIDYxLjY5NjYgMzE4LjA2NyA2My4wNjQyIDMxNi4zOTkgNjMuMDY0MkgyOTMuNTI2QzI5NC4wNTIgNjcuMTY2OSAyOTguNTQ1IDY4LjkxMDMgMzAyLjI3MiA2OC45MTAzQzMwNC40MDcgNjguOTEwMyAzMDYuMjI1IDY4Ljc2IDMwOC40MzQgNjcuMjQyMUMzMTAuODY5IDY1LjU3MzkgMzEzLjYwNCA2Ni4wMjQ4IDMxNS4xMjIgNjcuNzY4MUMzMTcuMTA2IDcwLjA1MjQgMzE2LjMzOSA3My4zMTM2IDMxMy43NTQgNzQuODMxNUwzMTMuNzI0IDc0Ljg2MTZaTTMwOS4wMDUgNTYuNDY2NkMzMDguNDc5IDUyLjEzODQgMzA1LjUwNCA1MC4wMDQ0IDMwMS41NTEgNTAuMDA0NEMyOTcuNTk5IDUwLjAwNDQgMjk0LjU2MyA1MS45NzMxIDI5My42NDYgNTYuNDY2NkgzMDkuMDA1WiIgZmlsbD0iIzEzNDdDRSI+PC9wYXRoPgogICAgPHBhdGggZD0iTTM1MC4zNDkgMjYuOTA0M0MzNTAuNDI0IDI0LjMxOTQgMzUyLjg1OSAyMi4xODUzIDM1NS42NjkgMjIuMTg1M0MzNTguNDc5IDIyLjE4NTMgMzYwLjk4OSAyNC4yNDQyIDM2MC45ODkgMjYuOTA0M1Y3My4wNDE5QzM2MC45ODkgNzUuNzAxOSAzNTguNTU1IDc3Ljc2MDggMzU1LjY2OSA3Ny43NjA4QzM1Mi43ODQgNzcuNzYwOCAzNTAuNDI0IDc1LjYyNjggMzUwLjM0OSA3My4wNDE5VjcyLjM1MDVDMzQ4LjA2NSA3Ni4wNzc2IDM0My43MzYgNzguMDQ2MyAzMzkuNzA5IDc4LjA0NjNDMzMwLjY2MiA3OC4wNDYzIDMyMi40NTYgNzEuMzU4NyAzMjIuNDU2IDU5LjU3NjNDMzIyLjQ1NiA0Ny43OTM5IDMzMC42NjIgNDEuMTgxNCAzMzkuNzA5IDQxLjE4MTRDMzQxLjk5MyA0MS4xODE0IDM0Ny4zMTMgNDIuMTczMiAzNTAuMzQ5IDQ2Ljg3NzJWMjYuODg5MlYyNi45MDQzWk0zNDEuNzY4IDY4LjYyMzVDMzQ2LjU2MiA2OC42MjM1IDM1MC40MzkgNjQuMzcwNCAzNTAuNDM5IDU5LjY1MTRDMzUwLjQzOSA1NC45MzI1IDM0Ni41NjIgNTAuNjc5NCAzNDEuNzY4IDUwLjY3OTRDMzM2LjQ0OCA1MC42Nzk0IDMzMy40MTIgNTQuOTMyNSAzMzMuNDEyIDU5LjY1MTRDMzMzLjQxMiA2NC4zNzA0IDMzNi40NDggNjguNjIzNSAzNDEuNzY4IDY4LjYyMzVaIiBmaWxsPSIjMTM0N0NFIj48L3BhdGg+CiAgICA8cGF0aCBkPSJNMzczLjUzOCAyMi41NzY3QzM3Ny4xMTUgMjIuNTc2NyAzODAgMjUuMjM2NyAzODAgMjguNzM4NEMzODAgMzIuMjQgMzc3LjExNSAzNC45NzUyIDM3My41MzggMzQuOTc1MkMzNjkuOTYxIDM0Ljk3NTIgMzY2LjkyNSAzMi4yNCAzNjYuOTI1IDI4LjczODRDMzY2LjkyNSAyNS4yMzY3IDM2OS45NjEgMjIuNTc2NyAzNzMuNTM4IDIyLjU3NjdaTTM3OC44NTggNzMuMDQyNUMzNzguODU4IDc1LjcwMjUgMzc2LjQyMyA3Ny43NjE0IDM3My41MzggNzcuNzYxNEMzNzAuNjUyIDc3Ljc2MTQgMzY4LjI5MyA3NS42Mjc0IDM2OC4yMTggNzMuMDQyNVY0Ni4yMTY1QzM2OC4yOTMgNDMuNjMxNiAzNzAuNzI4IDQxLjQ5NzYgMzczLjUzOCA0MS40OTc2QzM3Ni4zNDggNDEuNDk3NiAzNzguODU4IDQzLjU1NjUgMzc4Ljg1OCA0Ni4yMTY1VjczLjA0MjVaIiBmaWxsPSIjMTM0N0NFIj48L3BhdGg+CiAgPC9nPgo8L3N2Zz4=" alt="ActiMedi">
+          <h1>슬라이드 리소스 라이브러리</h1>
+          <p>사내 계정으로 로그인하고,<br>수술·진단별 발표자료를 찾아 활용해 보세요.</p>
+          <button class="btn btn-m btn-primary" data-go="f2">사내 계정으로 로그인하기</button>
+          <div class="login-foot">회복을 넘어, 일상으로 · ActiMedi 내부 시스템</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== F2. 덱 라이브러리 ===== -->
+    <section class="screen on" id="f2">
+      <div class="page-head">
+        <div>
+          <div class="eyebrow">Slide Library</div>
+          <h1>덱 라이브러리</h1>
+          <p>수술명·진단 태그로 검색하고, 필요한 장표를 찾아보세요.</p>
+        </div>
+        <button class="btn btn-s btn-primary" data-go="f4">새 자료 업로드하기</button>
+      </div>
+
+      <div class="toolbar">
+        <div class="input"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgdmlld0JveD0iMCAwIDE2IDE2IiBmaWxsPSJub25lIiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMS42IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPgogIDxjaXJjbGUgY3g9IjciIGN5PSI3IiByPSI0LjUiPjwvY2lyY2xlPjxwYXRoIGQ9Ik0xMC41IDEwLjVMMTQgMTQiPjwvcGF0aD4KPC9zdmc+" alt=""><input placeholder="수술명, 진단, 제목, 슬라이드 내용으로 검색"></div>
+        <div class="seg">
+          <button class="on">전체</button><button>내 자료</button><button>공개 자료</button>
+        </div>
+      </div>
+      <div class="filter-row">
+        <span class="lbl">태그</span>
+        <button class="fchip on">슬관절 전치환술 (TKA)</button>
+        <button class="fchip">반월상연골 봉합술</button>
+        <button class="fchip">무릎 골관절염</button>
+        <button class="fchip">전방십자인대 재건술</button>
+        <button class="fchip">회전근개 파열</button>
+        <button class="fchip">+ 태그 더보기</button>
+      </div>
+
+      <div class="deck-grid">
+        <div class="card deck-card" data-go="f3">
+          <div class="deck-thumb"><div class="ms ms-navy"><div class="bar t"></div><div class="bar l1"></div><div class="bar l2"></div><div class="bar ac"></div></div><span class="count num">24장</span></div>
+          <div class="deck-body">
+            <h4>TKA 수술 후 재활 프로토콜 표준안</h4>
+            <div class="deck-meta"><span class="badge badge-pub">공개</span><span>정형외과 박OO</span><span class="num">2026.05.28</span></div>
+            <div class="deck-tags"><span class="chip chip-sx">슬관절 전치환술</span><span class="chip chip-dx">무릎 골관절염</span></div>
+          </div>
+        </div>
+        <div class="card deck-card" data-go="f3">
+          <div class="deck-thumb"><div class="ms ms-kpi"><div class="k"><i></i><em></em></div><div class="k"><i></i><em></em></div><div class="k"><i></i><em></em></div></div><span class="count num">18장</span></div>
+          <div class="deck-body">
+            <h4>니프레시 TKA 환자 12주 임상 결과</h4>
+            <div class="deck-meta"><span class="badge badge-pub">공개</span><span>임상팀 김주현</span><span class="num">2026.05.12</span></div>
+            <div class="deck-tags"><span class="chip chip-sx">슬관절 전치환술</span><span class="chip chip-gen">임상 데이터</span></div>
+          </div>
+        </div>
+        <div class="card deck-card" data-go="f3">
+          <div class="deck-thumb"><div class="ms ms-light"><div class="bar t"></div><div class="bar l1"></div><div class="bar l2"></div><div class="bar ac"></div></div><span class="count num">31장</span><span class="flag badge badge-warn">비표준 템플릿</span></div>
+          <div class="deck-body">
+            <h4>OO병원 제안서 — 무릎 재활 솔루션 (구버전)</h4>
+            <div class="deck-meta"><span class="badge badge-priv">내 자료</span><span>김주현</span><span class="num">2025.11.03</span></div>
+            <div class="deck-tags"><span class="chip chip-sx">슬관절 전치환술</span><span class="chip chip-gen">제안서</span></div>
+          </div>
+        </div>
+        <div class="card deck-card" data-go="f3">
+          <div class="deck-thumb"><div class="ms ms-light"><div class="bar t"></div><div class="bar l1"></div><div class="bar l2"></div><div class="bar ac"></div></div><span class="count num">12장</span></div>
+          <div class="deck-body">
+            <h4>TKA 환자 설명용 — 수술 전 안내 자료</h4>
+            <div class="deck-meta"><span class="badge badge-pub">공개</span><span>간호팀 이OO</span><span class="num">2026.04.19</span></div>
+            <div class="deck-tags"><span class="chip chip-sx">슬관절 전치환술</span><span class="chip chip-gen">환자 안내</span></div>
+          </div>
+        </div>
+        <div class="card deck-card" data-go="f3">
+          <div class="deck-thumb"><div class="ms ms-navy"><div class="bar t"></div><div class="bar l1"></div><div class="bar l2"></div><div class="bar ac"></div></div><span class="count num">42장</span></div>
+          <div class="deck-body">
+            <h4>VSC 클리닉 도입 효과 — TKA 코호트 분석</h4>
+            <div class="deck-meta"><span class="badge badge-priv">내 자료</span><span>김주현</span><span class="num">2026.06.02</span></div>
+            <div class="deck-tags"><span class="chip chip-sx">슬관절 전치환술</span><span class="chip chip-dx">무릎 골관절염</span><span class="chip chip-gen">IR</span></div>
+          </div>
+        </div>
+        <div class="card deck-card" data-go="f3">
+          <div class="deck-thumb"><div class="ms ms-kpi"><div class="k"><i></i><em></em></div><div class="k"><i></i><em></em></div><div class="k"><i></i><em></em></div></div><span class="count num">9장</span></div>
+          <div class="deck-body">
+            <h4>TKA 재활 단계별 ROM 목표치 요약</h4>
+            <div class="deck-meta"><span class="badge badge-pub">공개</span><span>재활치료팀 최OO</span><span class="num">2026.03.30</span></div>
+            <div class="deck-tags"><span class="chip chip-sx">슬관절 전치환술</span><span class="chip chip-gen">치료 가이드</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="note">검색 결과 6건 · 권한 범위(내 자료 + 공개)는 서버에서 강제됩니다</div>
+    </section>
+
+    <!-- ===== F3. 덱 상세 ===== -->
+    <section class="screen" id="f3">
+      <div class="page-head">
+        <div>
+          <div class="eyebrow">Deck Detail</div>
+          <h1>덱 상세</h1>
+        </div>
+        <button class="btn btn-s btn-ghost" data-go="f2">목록으로 돌아가기</button>
+      </div>
+
+      <div class="card detail-head">
+        <div class="detail-top">
+          <div>
+            <h1>VSC 클리닉 도입 효과 — TKA 코호트 분석</h1>
+            <div class="detail-sub"><span>소유자: 김주현</span><span>·</span><span class="num">42장 · 2026.06.02 갱신</span><span>·</span><span class="num">d-7f3a</span></div>
+          </div>
+          <div class="detail-actions">
+            <button class="btn btn-s btn-secondary">파일 내려받기</button>
+            <button class="btn btn-s btn-ghost">파일 교체하기</button>
+            <button class="btn btn-s btn-ghost" style="color:var(--am-status-destructive)">삭제</button>
+          </div>
+        </div>
+
+        <div class="tag-edit">
+          <div class="lbl">태그 — 파일(custom properties)에도 함께 저장됩니다</div>
+          <div class="row">
+            <span class="chip chip-sx">슬관절 전치환술 <span class="x">×</span></span>
+            <span class="chip chip-dx">무릎 골관절염 <span class="x">×</span></span>
+            <span class="chip chip-gen">IR <span class="x">×</span></span>
+            <button class="tag-add">+ 태그 추가</button>
+          </div>
+        </div>
+
+        <div class="vis-row">
+          <div class="toggle" id="visToggle" onclick="openModal()"></div>
+          <div><b style="color:var(--am-text-strong)">전사 공개로 전환</b> — 현재 <b>내 자료(비공개)</b> 상태입니다. 공개 시 모든 구성원이 검색·활용할 수 있습니다.</div>
+        </div>
+      </div>
+
+      <div class="sec-title">슬라이드 <span class="num" style="color:var(--am-text-assistive);font-weight:500">42장</span></div>
+      <div class="slide-grid">
+        <div class="slide-cell"><div class="th"><div class="ms ms-navy"><div class="bar t"></div><div class="bar l1"></div><div class="bar ac"></div></div></div><div class="cap"><span class="num">s001 · 표지</span><span>확대</span></div></div>
+        <div class="slide-cell"><div class="th"><div class="ms ms-light"><div class="bar t"></div><div class="bar l1"></div><div class="bar l2"></div></div></div><div class="cap"><span class="num">s002 · 목차</span><span>확대</span></div></div>
+        <div class="slide-cell"><div class="th"><div class="ms ms-kpi"><div class="k"><i></i><em></em></div><div class="k"><i></i><em></em></div><div class="k"><i></i><em></em></div></div></div><div class="cap"><span class="num">s003 · KPI</span><span>확대</span></div></div>
+        <div class="slide-cell"><div class="th"><div class="ms ms-light"><div class="bar t"></div><div class="bar l1"></div><div class="bar l2"></div><div class="bar ac"></div></div></div><div class="cap"><span class="num">s004 · 본문</span><span>확대</span></div></div>
+        <div class="slide-cell"><div class="th"><div class="ms ms-light"><div class="bar t"></div><div class="bar l1"></div><div class="bar l2"></div><div class="bar ac"></div></div></div><div class="cap"><span class="num">s005 · 본문</span><span>확대</span></div></div>
+        <div class="slide-cell"><div class="th"><div class="ms ms-navy"><div class="bar t"></div><div class="bar l1"></div><div class="bar ac"></div></div></div><div class="cap"><span class="num">s006 · 디바이더</span><span>확대</span></div></div>
+        <div class="slide-cell"><div class="th"><div class="ms ms-kpi"><div class="k"><i></i><em></em></div><div class="k"><i></i><em></em></div><div class="k"><i></i><em></em></div></div></div><div class="cap"><span class="num">s007 · 차트</span><span>확대</span></div></div>
+        <div class="slide-cell"><div class="th"><div class="ms ms-light"><div class="bar t"></div><div class="bar l1"></div><div class="bar l2"></div></div></div><div class="cap"><span class="num">s008 · 본문</span><span>확대</span></div></div>
+      </div>
+      <div class="note">슬라이드를 클릭하면 확대 보기와 추출 텍스트를 확인할 수 있습니다 (목업에서는 생략)</div>
+    </section>
+
+    <!-- ===== F4. 업로드 ===== -->
+    <section class="screen" id="f4">
+      <div class="page-head">
+        <div>
+          <div class="eyebrow">Upload</div>
+          <h1>자료 업로드</h1>
+          <p>업로드한 자료는 기본 비공개로 등록되며, 태그 확정 후 검색에 노출됩니다.</p>
+        </div>
+      </div>
+
+      <div class="dropzone">
+        <h3>PPT 파일을 이곳에 끌어다 놓아 주세요</h3>
+        <p>.pptx · 여러 파일 동시 업로드 가능 · 파일에 태그가 내장된 경우 자동으로 불러옵니다</p>
+        <button class="btn btn-s btn-primary">파일 선택하기</button>
+      </div>
+
+      <!-- 인제스트 진행 중 -->
+      <div class="card up-item">
+        <div class="up-row">
+          <div class="file-ic">PPTX</div>
+          <div><div class="up-name">ACL_재건술_재활프로토콜_v3.pptx</div><div class="up-sub num">8.2MB · 26장</div></div>
+          <div class="steps">
+            <span class="step done">검사</span><span class="step done">텍스트 추출</span><span class="step run">썸네일 생성</span><span class="step">등록</span>
+          </div>
+        </div>
+        <div class="progress"><i style="width:62%"></i></div>
+      </div>
+
+      <!-- 태그 제안 확인 -->
+      <div class="card up-item">
+        <div class="up-row">
+          <div class="file-ic">PPTX</div>
+          <div><div class="up-name">TKA_수술전_환자설명_2026.pptx</div><div class="up-sub num">4.7MB · 12장 · 인제스트 완료</div></div>
+          <span class="badge badge-proc" style="margin-left:auto">태그 확인 대기</span>
+        </div>
+        <div class="suggest">
+          <div class="lbl">슬라이드 내용에서 찾은 태그 후보입니다. 채택할 태그를 확인해 주세요. (자동 확정되지 않습니다)</div>
+          <span class="sg-chip taken">슬관절 전치환술 <span style="font-size:11px;color:var(--am-text-assistive)">수술명</span><button class="ok">✓</button></span>
+          <span class="sg-chip">무릎 골관절염 <span style="font-size:11px;color:var(--am-text-assistive)">진단</span><button class="ok">✓</button><button class="no">×</button></span>
+          <span class="sg-chip">반월상연골 파열 <span style="font-size:11px;color:var(--am-text-assistive)">진단</span><button class="ok">✓</button><button class="no">×</button></span>
+          <div style="margin-top:12px;display:flex;gap:8px">
+            <button class="btn btn-xs btn-primary">선택한 태그로 등록하기</button>
+            <button class="btn btn-xs btn-tertiary">직접 태그 입력하기</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 실패 -->
+      <div class="card up-item">
+        <div class="up-row">
+          <div class="file-ic" style="background:#FDEBEC;color:#B3262B">PPTX</div>
+          <div><div class="up-name">회전근개_케이스리뷰.pptx</div><div class="up-sub">파일이 손상되어 열 수 없습니다. 다시 저장 후 업로드해 주세요.</div></div>
+          <span class="badge badge-err" style="margin-left:auto">실패</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== F5. 생성 결과 ===== -->
+    <section class="screen" id="f5">
+      <div class="page-head">
+        <div>
+          <div class="eyebrow">Generated Decks</div>
+          <h1>생성 결과</h1>
+          <p>Cowork에서 조립한 발표자료를 확인하고 내려받을 수 있습니다.</p>
+        </div>
+      </div>
+
+      <div class="card job">
+        <div class="job-top">
+          <div>
+            <h4>서울OO병원 니프레시 도입 제안 — TKA</h4>
+            <div class="job-meta num">j-20260610-0042 · 2026.06.10 14:22 생성 · 18장 · 2026.06.17 만료</div>
+          </div>
+          <span class="badge badge-ok">완료</span>
+        </div>
+        <div class="warn-box text">
+          <b>TEXT_OVERFLOW</b><span>7번 슬라이드의 본문이 영역을 약 15% 초과합니다. Cowork에서 내용을 줄여 다시 생성할 수 있습니다.</span>
+        </div>
+        <div class="previews">
+          <div class="p"><div class="ms ms-navy"><div class="bar t"></div><div class="bar l1"></div><div class="bar ac"></div></div></div>
+          <div class="p"><div class="ms ms-light"><div class="bar t"></div><div class="bar l1"></div><div class="bar l2"></div></div></div>
+          <div class="p"><div class="ms ms-kpi"><div class="k"><i></i><em></em></div><div class="k"><i></i><em></em></div><div class="k"><i></i><em></em></div></div></div>
+          <div class="p"><div class="ms ms-light"><div class="bar t"></div><div class="bar l1"></div><div class="bar l2"></div><div class="bar ac"></div></div></div>
+          <div class="p"><div class="ms ms-navy"><div class="bar t"></div><div class="bar l1"></div><div class="bar ac"></div></div></div>
+        </div>
+        <div class="job-actions">
+          <button class="btn btn-s btn-primary">PPT 내려받기</button>
+          <button class="btn btn-s btn-secondary">내 라이브러리에 등록하기</button>
+        </div>
+      </div>
+
+      <div class="card job">
+        <div class="job-top">
+          <div>
+            <h4>학회 발표용 — ACL 재건 후 조기 재활 결과</h4>
+            <div class="job-meta num">j-20260609-0031 · 2026.06.09 17:05 생성 · 22장 · 2026.06.16 만료</div>
+          </div>
+          <span class="badge badge-ok">완료</span>
+        </div>
+        <div class="warn-box theme">
+          <b>THEME_MISMATCH</b><span>서로 다른 템플릿의 슬라이드가 섞여 있습니다(3·9번). 디자인이 일부 다르게 보일 수 있으니 미리보기를 확인해 주세요.</span>
+        </div>
+        <div class="job-actions">
+          <button class="btn btn-s btn-primary">PPT 내려받기</button>
+          <button class="btn btn-s btn-ghost">미리보기 펼치기</button>
+        </div>
+      </div>
+
+      <div class="card job">
+        <div class="job-top">
+          <div>
+            <h4>무릎 골관절염 환자 교육자료 (조립 중)</h4>
+            <div class="job-meta num">j-20260610-0044 · 방금 요청됨</div>
+          </div>
+          <span class="badge badge-proc">처리 중</span>
+        </div>
+        <div class="progress" style="margin-top:14px"><i style="width:38%"></i></div>
+      </div>
+    </section>
+
+    <!-- ===== F6. 태그 사전 관리 ===== -->
+    <section class="screen" id="f6">
+      <div class="page-head">
+        <div>
+          <div class="eyebrow">Admin · Tag Dictionary</div>
+          <h1>태그 사전 관리</h1>
+          <p>수술명·진단 통제 어휘를 관리합니다. 동의어를 보강할수록 검색이 정확해집니다.</p>
+        </div>
+        <button class="btn btn-s btn-primary">사전 항목 추가하기</button>
+      </div>
+
+      <div class="sec-title">등록 요청 대기 <span class="badge badge-proc num" style="vertical-align:2px">2건</span></div>
+      <div class="card req-card">
+        <div class="grow"><div class="t">족관절 인대 재건술 <span class="chip chip-sx" style="vertical-align:2px">수술명</span></div><div class="s">요청: 재활치료팀 최OO · 2026.06.09 · "발목 자료 태깅에 필요합니다"</div></div>
+        <button class="btn btn-xs btn-primary">승인</button>
+        <button class="btn btn-xs btn-ghost">반려</button>
+      </div>
+      <div class="card req-card">
+        <div class="grow"><div class="t">동결견 <span class="chip chip-dx" style="vertical-align:2px">진단</span></div><div class="s">요청: 임상팀 박OO · 2026.06.08 · "유착성 관절낭염과 동의어 처리 필요"</div></div>
+        <button class="btn btn-xs btn-primary">승인</button>
+        <button class="btn btn-xs btn-ghost">반려</button>
+      </div>
+
+      <div class="sec-title">사전 목록</div>
+      <div class="card" style="overflow:hidden">
+        <table class="tbl">
+          <thead><tr><th>태그</th><th>분류</th><th>동의어</th><th>코드</th><th>사용 덱</th><th></th></tr></thead>
+          <tbody>
+            <tr>
+              <td><b>슬관절 전치환술</b><div class="alias">Total Knee Arthroplasty</div></td>
+              <td><span class="chip chip-sx">수술명</span></td>
+              <td class="alias">TKA · 무릎 인공관절 전치환술 · 인공슬관절 치환술</td>
+              <td><span class="code-pill">ICD-9-CM 81.54</span></td>
+              <td class="num">38</td>
+              <td><button class="btn btn-xs btn-tertiary">수정</button></td>
+            </tr>
+            <tr>
+              <td><b>전방십자인대 재건술</b><div class="alias">ACL Reconstruction</div></td>
+              <td><span class="chip chip-sx">수술명</span></td>
+              <td class="alias">ACL 재건 · 십자인대 재건</td>
+              <td><span class="code-pill">ICD-9-CM 81.45</span></td>
+              <td class="num">21</td>
+              <td><button class="btn btn-xs btn-tertiary">수정</button></td>
+            </tr>
+            <tr>
+              <td><b>무릎 골관절염</b><div class="alias">Knee Osteoarthritis</div></td>
+              <td><span class="chip chip-dx">진단</span></td>
+              <td class="alias">슬관절 골관절염 · 퇴행성 무릎 관절염</td>
+              <td><span class="code-pill">KCD M17</span></td>
+              <td class="num">45</td>
+              <td><button class="btn btn-xs btn-tertiary">수정</button></td>
+            </tr>
+            <tr>
+              <td><b>회전근개 파열</b><div class="alias">Rotator Cuff Tear</div></td>
+              <td><span class="chip chip-dx">진단</span></td>
+              <td class="alias">어깨 힘줄 파열</td>
+              <td><span class="code-pill">KCD M75.1</span></td>
+              <td class="num">12</td>
+              <td><button class="btn btn-xs btn-tertiary">수정</button></td>
+            </tr>
+            <tr>
+              <td><b>반월상연골 봉합술</b><div class="alias">Meniscus Repair</div></td>
+              <td><span class="chip chip-sx">수술명</span></td>
+              <td class="alias">반월판 봉합 · 연골판 봉합</td>
+              <td><span class="code-pill">—</span></td>
+              <td class="num">9</td>
+              <td><button class="btn btn-xs btn-tertiary">수정 · 병합</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note">중복 표기가 발견되면 "병합"으로 하나의 태그에 합치고, 참조 덱은 일괄 갱신됩니다</div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ===== 공개 전환 확인 모달 (F3) ===== -->
+<div class="modal-bg" id="modal">
+  <div class="modal">
+    <h3>이 자료를 전사 공개로 전환할까요?</h3>
+    <p>공개된 자료는 모든 구성원이 검색하고 새 발표자료의 재료로 활용할 수 있습니다. 전환 이력은 기록됩니다.</p>
+    <label class="check-row">
+      <input type="checkbox" id="phiCheck" onchange="document.getElementById('confirmBtn').disabled=!this.checked">
+      <span>이 자료에 환자 성명·등록번호·영상 등 <b>환자 식별정보가 포함되어 있지 않음</b>을 확인했습니다.</span>
+    </label>
+    <div class="modal-actions">
+      <button class="btn btn-s btn-ghost" onclick="closeModal()">취소</button>
+      <button class="btn btn-s btn-primary" id="confirmBtn" disabled onclick="confirmPublic()">공개로 전환하기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // 화면 전환
+  document.querySelectorAll("[data-go]").forEach(el => {
+    el.addEventListener("click", () => {
+      const id = el.dataset.go;
+      document.querySelectorAll(".screen").forEach(s => s.classList.remove("on"));
+      document.getElementById(id).classList.add("on");
+      document.querySelectorAll(".nav-item").forEach(n => n.classList.toggle("active", n.dataset.go === id));
+      window.scrollTo(0, 0);
+    });
+  });
+  // 공개 전환 모달
+  function openModal(){
+    const t = document.getElementById("visToggle");
+    if (t.classList.contains("on")) { t.classList.remove("on"); return; }  // 공개→비공개는 즉시
+    document.getElementById("phiCheck").checked = false;
+    document.getElementById("confirmBtn").disabled = true;
+    document.getElementById("modal").classList.add("on");
+  }
+  function closeModal(){ document.getElementById("modal").classList.remove("on"); }
+  function confirmPublic(){
+    document.getElementById("visToggle").classList.add("on");
+    closeModal();
+  }
+  document.getElementById("modal").addEventListener("click", e => { if (e.target.id === "modal") closeModal(); });
+</script>
+</body>
+</html>
