@@ -538,7 +538,7 @@ p, .am-body   { font-family: var(--am-font-body); font-size: var(--am-type-body)
             </div>
             <div class="sec-bd">
               <div class="icard">
-                <div class="top"><span class="t">신체진찰 (PE)</span><span class="st st-ok">충족</span></div>
+                <div class="top"><span class="t">신체진찰 소견 (PE)</span><span class="st st-ok">충족</span></div>
                 <textarea>내측 관절선 압통(+), McMurray test 양성, 경도 부종.</textarea>
               </div>
             </div>
@@ -651,27 +651,27 @@ p, .am-body   { font-family: var(--am-font-body); font-size: var(--am-type-body)
   let phase = "idle";         // idle | rec | analyzed
   let timerInt = null, sec = 0;
 
-  // 초진: 필수 문진 6항목(항목 단위) 판정 — H&P
-  const ITEMS = [
-    { key:"cc",   label:"주증상 (CC)",       tip:"환자가 내원한 주된 이유. 한 문장으로 요약되는 핵심 호소.", result:"ok",   note:"" },
-    { key:"hpi",  label:"현병력 (HPI)",      tip:"주증상의 발생 시점·경과·악화/완화 요인 등 상세 경과.",    result:"ok",   note:"" },
-    { key:"pmh",  label:"과거력 (PMH)",      tip:"과거 질환·수술·약물 복용력. 초진 baseline 항목 — 재진에서는 수집하지 않습니다.", result:"miss", note:"" },
-    { key:"fhsh", label:"가족력·사회력 (FH/SH)", tip:"가족 질환력과 직업·흡연·음주 등 사회력. 초진 baseline 항목 — 재진에서는 수집하지 않습니다.", result:"miss", note:"" },
-    { key:"ros",  label:"계통문진 (ROS)",     tip:"주증상 외 신체 계통 전반의 증상 유무 확인. 초진 baseline 항목 — 재진에서는 수집하지 않습니다.", result:"part", note:"근골격계만 언급됨" },
-    { key:"pe",   label:"신체진찰 (PE)",      tip:"진찰 소견. 시진·촉진·이학적 검사 결과.",                 result:"ok",   note:"" }
+  // 초진기록지 전용: 문진/병력 중심 — INITIAL_ITEMS (백엔드 정의와 1:1)
+  const INITIAL_ITEMS = [
+    { key:"CC",    label:"주증상 (CC)",       tip:"환자가 내원한 주된 이유. 한 문장으로 요약되는 핵심 호소.", result:"ok",   note:"" },
+    { key:"HPI",   label:"현병력 (HPI)",      tip:"주증상의 발생 시점·경과·악화/완화 요인 등 상세 경과.",    result:"ok",   note:"" },
+    { key:"PMH",   label:"과거력 (PMH)",      tip:"과거 질환·수술·약물 복용력. 초진 baseline 항목 — 재진에서는 수집하지 않습니다.", result:"miss", note:"" },
+    { key:"FH_SH", label:"가족력·사회력 (FH/SH)", tip:"가족 질환력과 직업·흡연·음주 등 사회력. 초진 baseline 항목 — 재진에서는 수집하지 않습니다.", result:"miss", note:"" },
+    { key:"ROS",   label:"계통문진 (ROS)",     tip:"주증상 외 신체 계통 전반의 증상 유무 확인. 초진 baseline 항목 — 재진에서는 수집하지 않습니다.", result:"part", note:"근골격계만 언급됨" },
+    { key:"PE",    label:"신체진찰 소견 (PE)", tip:"진찰 소견. 시진·촉진·이학적 검사 결과.",                 result:"ok",   note:"" }
   ];
 
-  // 재진: SOAP 4섹션 단위 판정 — 경과기록 (PRD v0.4, 기존 CC·HPI·PE 3항목 판정 안 대체)
-  const FU_ITEMS = [
-    { key:"s", label:"S — 주관적 증상/경과",  tip:"이전 방문 이후의 증상 변화·치료 반응·부작용 등 환자 진술 경과.", result:"ok",   note:"" },
-    { key:"o", label:"O — 객관적 소견",       tip:"진찰 소견과 검사 결과. 시진·촉진·이학적 검사 및 영상/검사 수치.", result:"ok",   note:"" },
-    { key:"a", label:"A — 평가 (Assessment)", tip:"경과에 대한 임상적 판단. 호전/악화 평가, 진단 유지·변경 여부.",  result:"miss", note:"" },
-    { key:"p", label:"P — 계획 (Plan)",       tip:"치료·검사·재방문 계획. 처방 변경, 추가 검사, 다음 방문 일정.",   result:"ok",   note:"" }
+  // 재진기록지 전용: SOAP — FOLLOWUP_SOAP_ITEMS (백엔드 정의와 1:1)
+  const FOLLOWUP_SOAP_ITEMS = [
+    { key:"S", label:"S — SUBJECTIVE · 주관적 증상/경과", tip:"이전 방문 이후의 증상 변화·치료 반응·부작용 등 환자 진술 경과.", result:"ok",   note:"" },
+    { key:"O", label:"O — OBJECTIVE · 객관적 소견",      tip:"진찰 소견과 검사 결과. 시진·촉진·이학적 검사 및 영상/검사 수치.", result:"ok",   note:"" },
+    { key:"A", label:"A — ASSESSMENT · 평가",            tip:"경과에 대한 임상적 판단. 호전/악화 평가, 진단 유지·변경 여부.",  result:"miss", note:"" },
+    { key:"P", label:"P — PLAN · 계획",                  tip:"치료·검사·재방문 계획. 처방 변경, 추가 검사, 다음 방문 일정.",   result:"ok",   note:"" }
   ];
 
-  // 방문 유형별 판정 단위 — 초진 6항목 / 재진 SOAP 4섹션
+  // 방문 유형별 판정 단위 — 초진: INITIAL_ITEMS(6항목) / 재진: FOLLOWUP_SOAP_ITEMS(SOAP 4섹션)
   function activeItems() {
-    return visit === "fu" ? FU_ITEMS : ITEMS;
+    return visit === "fu" ? FOLLOWUP_SOAP_ITEMS : INITIAL_ITEMS;
   }
 
   function renderChecklist() {
