@@ -9,7 +9,7 @@
 </style>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ActiMedi Hub — 진료 녹음 UI 개편 목업 (PRD v0.4)</title>
+<title>ActiMedi Hub — 진료 녹음 UI 개편 목업 (PRD v0.5)</title>
 <style>
 /* =============================================================
    ActiMedi — Self-hosted brand fonts (offline fallback)
@@ -377,14 +377,16 @@ p, .am-body   { font-family: var(--am-font-body); font-size: var(--am-type-body)
   .st-regen { background:var(--am-blue-50); color:var(--am-blue-700); }
   .icard textarea { width:100%; border:1px solid var(--am-ink-100); border-radius:12px; padding:10px 12px; font:inherit; font-size:13.5px; color:var(--am-text-neutral); min-height:64px; resize:vertical; background:var(--am-ink-10); }
   .icard textarea:focus { outline:none; border-color:var(--am-blue); box-shadow:0 0 0 4px rgba(30,90,240,.12); }
+  .icard textarea[readonly] { background:var(--am-ink-50); color:var(--am-text-alternative); }
   .icard.miss { border-color:#F5C6C8; background:#FFFBFB; }
   .chip { display:inline-flex; align-items:center; gap:6px; height:28px; padding:0 12px; border-radius:12px; font-size:12.5px; font-weight:600; background:var(--am-blue-50); color:var(--am-blue-800); margin:0 6px 6px 0; }
-  .chip a { color:var(--am-blue); font-size:11px; text-decoration:none; }
+  .chip a { color:var(--am-blue); font-size:11px; text-decoration:none; cursor:pointer; }
   .ro-block { border:1px dashed var(--am-ink-200); border-radius:14px; padding:13px 16px; font-size:13.5px; color:var(--am-text-alternative); background:var(--am-ink-10); }
-  .src-link { font-size:11.5px; color:var(--am-blue); cursor:pointer; }
+  .src-link { font-size:11.5px; color:var(--am-blue); cursor:pointer; margin-top:8px; }
   /* 재진 SOAP 통짜 기술 영역 */
   .free-text { width:100%; border:1px solid var(--am-ink-100); border-radius:14px; padding:14px 16px; font:inherit; font-size:13.5px; line-height:1.6; color:var(--am-text-neutral); min-height:120px; resize:vertical; background:var(--am-ink-10); }
   .free-text:focus { outline:none; border-color:var(--am-blue); box-shadow:0 0 0 4px rgba(30,90,240,.12); }
+  .free-text[readonly] { background:var(--am-ink-50); color:var(--am-text-alternative); }
   .rev-foot { display:flex; gap:10px; justify-content:flex-end; margin-top:18px; }
   .prd-note { font-size:11px; color:var(--am-text-assistive); text-align:center; margin-top:26px; }
 </style>
@@ -431,7 +433,7 @@ p, .am-body   { font-family: var(--am-font-body); font-size: var(--am-type-body)
             <button id="vNew" class="on" onclick="setVisit('new')">초진</button>
             <button id="vFu" onclick="setVisit('fu')">재진</button>
           </div>
-          <div class="emr-hint"><span class="dot"></span>EMR 자동 판별: 초진 · 수동 변경 가능</div>
+          <div class="emr-hint"><span class="dot"></span>방문 유형은 수동 선택입니다 (HIS/EMR 연동 없음)</div>
           <button class="btn btn-s btn-ghost" style="width:100%;margin-top:14px">녹음 내역 보기</button>
         </div></div>
       </div>
@@ -474,7 +476,7 @@ p, .am-body   { font-family: var(--am-font-body); font-size: var(--am-type-body)
         </div>
       </div>
     </div>
-    <div class="prd-note">PRD v0.4 · FR-1 방문 유형 — 초진: 6항목 판정 / 재진: SOAP 4섹션(S/O/A/P) 단위 판정, PMH·FH/SH·ROS 미수집 / FR-2 녹음 직후 일괄 분석(Phase 1) / FR-3 누락 알림 3접점 — 데모: 녹음 시작 → 종료(분석) → 저장 순서로 눌러보세요</div>
+    <div class="prd-note">PRD v0.5 · FR-1 방문 유형 — 초진: 6항목 판정 / 재진: SOAP 4섹션(S/O/A/P) 단위 판정, PMH·FH/SH·ROS 미수집 · 방문 유형 수동 선택(EMR 미연동) / FR-2 녹음 직후 일괄 분석(Phase 1) / FR-3 누락 알림 3접점 — 데모: 녹음 시작 → 종료(분석) → 저장 순서로 눌러보세요</div>
   </div>
 
   <!-- ============== Screen B : 결과 검토 ============== -->
@@ -533,7 +535,7 @@ p, .am-body   { font-family: var(--am-font-body); font-size: var(--am-type-body)
           <div class="sec open">
             <div class="sec-hd" onclick="toggleSec(this)">
               <div class="mark mark-o">O</div>
-              <div><div class="ttl">Objective — 신체진찰·검사</div><div class="sub">PE — 항목 카드 (+ 검사 결과 연동 시)</div></div>
+              <div><div class="ttl">Objective — 신체진찰·검사</div><div class="sub">PE — 항목 카드</div></div>
               <span class="chev">▼</span>
             </div>
             <div class="sec-bd">
@@ -566,7 +568,7 @@ p, .am-body   { font-family: var(--am-font-body); font-size: var(--am-type-body)
           <div class="sec open">
             <div class="sec-hd" onclick="toggleSec(this)">
               <div class="mark mark-o">O</div>
-              <div><div class="ttl">Objective — 객관적 소견</div><div class="sub">단일 기술 영역 (통짜) — 진찰 소견 + 검사 결과 (연동 시)</div></div>
+              <div><div class="ttl">Objective — 객관적 소견</div><div class="sub">단일 기술 영역 (통짜) — 진찰 소견·검사 결과</div></div>
               <span class="chev">▼</span>
             </div>
             <div class="sec-bd">
@@ -580,22 +582,23 @@ p, .am-body   { font-family: var(--am-font-body); font-size: var(--am-type-body)
       <div class="sec">
         <div class="sec-hd" onclick="toggleSec(this)">
           <div class="mark mark-a">A</div>
-          <div><div class="ttl">Assessment — 파생 데이터 (읽기 전용)</div><div class="sub">의료용어 추출 · 진단 후보</div></div>
+          <div><div class="ttl">Assessment — 파생 데이터 (확정 전 수정 가능)</div><div class="sub">의료용어 추출 · 진단 후보</div></div>
           <span class="chev">▼</span>
         </div>
         <div class="sec-bd">
-          <div class="ro-note">파생 데이터는 직접 편집할 수 없습니다. 수정은 S/O의 원문에서 시작하세요 (원문 수정 시 "재생성 필요"로 표시됩니다).</div>
+          <div class="ro-note">파생 데이터는 <b>확정 전까지 직접 수정</b>할 수 있습니다. 수정 내용은 감사 로그에 기록되며, 확정 후에는 읽기 전용으로 잠깁니다. 원문 수정 시 "재생성 필요"가 표시되고, 재생성은 수동 수정과 충돌 시 덮어쓰지 않습니다.</div>
           <div class="icard">
             <div class="top"><span class="t">의료용어</span><span class="st st-regen">재생성 필요 — HPI 원문 수정됨</span><button class="btn btn-xs btn-secondary">재생성</button></div>
             <div>
-              <span class="chip">내측 반월상연골 <a onclick="jumpSrc()">원본 보기</a></span>
-              <span class="chip">McMurray 양성 <a onclick="jumpSrc()">원본 보기</a></span>
-              <span class="chip">관절선 압통 <a onclick="jumpSrc()">원본 보기</a></span>
+              <span class="chip">내측 반월상연골 <a onclick="jumpSrc()">원본 보기</a><a onclick="if(!finalized)this.parentElement.remove()" title="삭제 (확정 전)">×</a></span>
+              <span class="chip">McMurray 양성 <a onclick="jumpSrc()">원본 보기</a><a onclick="if(!finalized)this.parentElement.remove()" title="삭제 (확정 전)">×</a></span>
+              <span class="chip">관절선 압통 <a onclick="jumpSrc()">원본 보기</a><a onclick="if(!finalized)this.parentElement.remove()" title="삭제 (확정 전)">×</a></span>
             </div>
           </div>
           <div class="icard">
-            <div class="top"><span class="t">진단 후보</span></div>
-            <div class="ro-block">1. 내측 반월상연골 파열 의증 &nbsp;2. 무릎 골관절염 (감별 필요) <div class="src-link" onclick="jumpSrc()">원본 텍스트 보기 (초진: 항목 카드 · 재진: 해당 SOAP 섹션)</div></div>
+            <div class="top"><span class="t">진단 후보</span><span class="st st-part" id="editedA" style="display:none">수동 수정됨 — 감사 로그 기록</span></div>
+            <textarea oninput="markEdited('editedA')">1. 내측 반월상연골 파열 의증  2. 무릎 골관절염 (감별 필요)</textarea>
+            <div class="src-link" onclick="jumpSrc()">원본 텍스트 보기 (초진: 항목 카드 · 재진: 해당 SOAP 섹션)</div>
           </div>
         </div>
       </div>
@@ -604,13 +607,14 @@ p, .am-body   { font-family: var(--am-font-body); font-size: var(--am-type-body)
       <div class="sec">
         <div class="sec-hd" onclick="toggleSec(this)">
           <div class="mark mark-p">P</div>
-          <div><div class="ttl">Plan — 파생 데이터 (읽기 전용)</div><div class="sub">치료계획</div></div>
+          <div><div class="ttl">Plan — 파생 데이터 (확정 전 수정 가능)</div><div class="sub">치료계획</div></div>
           <span class="chev">▼</span>
         </div>
         <div class="sec-bd">
           <div class="icard">
-            <div class="top"><span class="t">치료계획</span><button class="btn btn-xs btn-secondary">재생성</button></div>
-            <div class="ro-block">무릎 MRI 처방 · NSAIDs 2주 처방 · 2주 후 재진 (MRI 결과 확인) <div class="src-link" onclick="jumpSrc()">원본 텍스트 보기 (의료진 발화 4)</div></div>
+            <div class="top"><span class="t">치료계획</span><span class="st st-part" id="editedP" style="display:none">수동 수정됨 — 감사 로그 기록</span><button class="btn btn-xs btn-secondary">재생성</button></div>
+            <textarea oninput="markEdited('editedP')">무릎 MRI 처방 · NSAIDs 2주 처방 · 2주 후 재진 (MRI 결과 확인)</textarea>
+            <div class="src-link" onclick="jumpSrc()">원본 텍스트 보기 (의료진 발화 4)</div>
           </div>
         </div>
       </div>
@@ -618,9 +622,9 @@ p, .am-body   { font-family: var(--am-font-body); font-size: var(--am-type-body)
 
     <div class="rev-foot">
       <button class="btn btn-s btn-ghost">임시 저장</button>
-      <button class="btn btn-s btn-primary" style="height:46px;padding:0 32px">검토 완료 · 확정</button>
+      <button class="btn btn-s btn-primary" id="btnFinal" style="height:46px;padding:0 32px" onclick="finalizeRecord(this)">검토 완료 · 확정</button>
     </div>
-    <div class="prd-note">PRD v0.4 · FR-4 — 초진: 항목 카드(H&amp;P) / 재진: SOAP 4섹션 통짜(S/O 단일 기술 영역) · 파생 직접 편집 금지 · evidence_span 기반 원본 점프</div>
+    <div class="prd-note">PRD v0.5 · FR-4 — 초진: 항목 카드(H&amp;P) / 재진: SOAP 4섹션 통짜(S/O 단일 기술 영역) · 파생 데이터 확정 전 수정 가능, 확정 시 잠금 (OQ #3 해소) · evidence_span 기반 원본 점프</div>
   </div>
 </div>
 
@@ -709,7 +713,7 @@ p, .am-body   { font-family: var(--am-font-body); font-size: var(--am-type-body)
     visit = v;
     document.getElementById("vNew").classList.toggle("on", v === "new");
     document.getElementById("vFu").classList.toggle("on", v === "fu");
-    renderChecklist(); // 방문 유형 변경 시 판정 기준 즉시 갱신 (AC) — LLM 재호출 없이 정책 레이어만 갱신
+    renderChecklist(); // 방문 유형 변경 시 판정 기준 즉시 갱신 (AC)
   }
 
   // ===== 녹음 데모 =====
@@ -788,6 +792,18 @@ p, .am-body   { font-family: var(--am-font-body); font-size: var(--am-type-body)
       bs.textContent = "SOAP 3/4 충족 · A(평가) 발화 미확인";
       bs.className = "badge b-score";
     }
+  }
+
+  // ===== OQ#3 확정 (v0.5): 파생 데이터는 확정 전까지 수정 가능, 확정 시 전체 잠금 =====
+  let finalized = false;
+  function markEdited(id) { if (!finalized) document.getElementById(id).style.display = "inline-flex"; }
+  function finalizeRecord(btn) {
+    finalized = true;
+    document.querySelectorAll("#scrB textarea").forEach(t => t.setAttribute("readonly", "readonly"));
+    btn.textContent = "확정됨 · 읽기 전용"; btn.disabled = true;
+    document.querySelectorAll("#scrB .ttl").forEach(el => {
+      el.textContent = el.textContent.replace("(확정 전 수정 가능)", "(확정됨 — 읽기 전용)");
+    });
   }
 
   function toggleSec(hd) { hd.parentElement.classList.toggle("open"); }
