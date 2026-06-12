@@ -9,7 +9,7 @@
 </style>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ActiMedi Hub — 진료 녹음 UI 개편 목업 (PRD v0.3)</title>
+<title>ActiMedi Hub — 진료 녹음 UI 개편 목업 (PRD v0.4)</title>
 <style>
 /* =============================================================
    ActiMedi — Self-hosted brand fonts (offline fallback)
@@ -460,10 +460,10 @@ p, .am-body   { font-family: var(--am-font-body); font-size: var(--am-type-body)
 
       <!-- Right : FR-3B 체크리스트 -->
       <div class="card">
-        <div class="hd">필수 문진 체크리스트<div class="chk-sub" id="chkSub">분석 전 — 녹음 종료 시 자동 분석됩니다</div></div>
+        <div class="hd"><span id="chkTitle">필수 문진 체크리스트</span><div class="chk-sub" id="chkSub">분석 전 — 녹음 종료 시 자동 분석됩니다</div></div>
         <div class="bd">
           <div class="chk-list" id="chkList"></div>
-          <div class="fu-note" id="fuNote" style="display:none">재진은 경과기록(SOAP)으로, <b>CC·HPI·PE 3항목만 판정</b>합니다. 과거력(PMH)·가족력·사회력(FH/SH)·계통문진(ROS)은 재진 기록지에서 제외되어 표시·판정·알림 대상이 아닙니다.</div>
+          <div class="fu-note" id="fuNote" style="display:none">재진은 경과기록(SOAP)으로, 체크리스트도 <b>S·O·A·P 4섹션 단위로 판정</b>합니다. 초진 baseline 항목(PMH·FH/SH·ROS)은 재진에서 수집·판정하지 않습니다.</div>
           <div class="legend">
             <i style="background:var(--am-status-positive)"></i>충족
             <i style="background:var(--am-status-cautionary)"></i>부분
@@ -474,7 +474,7 @@ p, .am-body   { font-family: var(--am-font-body); font-size: var(--am-type-body)
         </div>
       </div>
     </div>
-    <div class="prd-note">PRD v0.3 · FR-1 방문 유형 — 재진은 CC·HPI·PE만 판정, PMH·FH/SH·ROS 제외 (2026-06-12 확정) / FR-2 녹음 직후 일괄 분석(Phase 1) / FR-3 누락 알림 3접점 — 데모: 녹음 시작 → 종료(분석) → 저장 순서로 눌러보세요</div>
+    <div class="prd-note">PRD v0.4 · FR-1 방문 유형 — 초진: 6항목 판정 / 재진: SOAP 4섹션(S/O/A/P) 단위 판정, PMH·FH/SH·ROS 미수집 / FR-2 녹음 직후 일괄 분석(Phase 1) / FR-3 누락 알림 3접점 — 데모: 녹음 시작 → 종료(분석) → 저장 순서로 눌러보세요</div>
   </div>
 
   <!-- ============== Screen B : 결과 검토 ============== -->
@@ -557,7 +557,7 @@ p, .am-body   { font-family: var(--am-font-body); font-size: var(--am-type-body)
               <span class="chev">▼</span>
             </div>
             <div class="sec-bd">
-              <div class="ro-note">재진 기록지는 항목 카드 없이 통짜로 기술합니다. 항목별 충족 상태(CC·HPI·PE)는 녹음 화면의 체크리스트(FR-3)에서 표시됩니다.</div>
+              <div class="ro-note">재진 기록지는 항목 카드 없이 통짜로 기술합니다. 섹션별 충족 상태(S/O/A/P)는 녹음 화면의 체크리스트(FR-3)에서 표시됩니다.</div>
               <textarea class="free-text">지난 방문(5/29) 이후 NSAIDs 복용 지속. 우측 무릎 통증 VAS 6→3으로 호전, 계단 하행 시 통증 빈도 감소. 부종은 보행 운동 후 간헐적으로 재발. 약물 관련 위장 불편감 등 부작용 호소 없음.</textarea>
             </div>
           </div>
@@ -620,7 +620,7 @@ p, .am-body   { font-family: var(--am-font-body); font-size: var(--am-type-body)
       <button class="btn btn-s btn-ghost">임시 저장</button>
       <button class="btn btn-s btn-primary" style="height:46px;padding:0 32px">검토 완료 · 확정</button>
     </div>
-    <div class="prd-note">PRD v0.3 · FR-4 — 초진: 항목 카드(H&amp;P) / 재진: SOAP 4섹션 통짜(S/O 단일 기술 영역) · 파생 직접 편집 금지 · evidence_span 기반 원본 점프</div>
+    <div class="prd-note">PRD v0.4 · FR-4 — 초진: 항목 카드(H&amp;P) / 재진: SOAP 4섹션 통짜(S/O 단일 기술 영역) · 파생 직접 편집 금지 · evidence_span 기반 원본 점프</div>
   </div>
 </div>
 
@@ -651,29 +651,33 @@ p, .am-body   { font-family: var(--am-font-body); font-size: var(--am-type-body)
   let phase = "idle";         // idle | rec | analyzed
   let timerInt = null, sec = 0;
 
-  // 재진(fu)에서 fuExcluded 항목은 기록지·판정 대상에서 제외 — 체크리스트에 표시하지 않음 (2026-06-12 확정, 기존 '선택/회색' 안 폐기)
+  // 초진: 필수 문진 6항목(항목 단위) 판정 — H&P
   const ITEMS = [
     { key:"cc",   label:"주증상 (CC)",       tip:"환자가 내원한 주된 이유. 한 문장으로 요약되는 핵심 호소.", result:"ok",   note:"" },
-    { key:"hpi",  label:"현병력 (HPI)",      fuLabel:"현병력 (HPI) — 경과 중심",
-      tip:"주증상의 발생 시점·경과·악화/완화 요인 등 상세 경과.",
-      fuTip:"재진에서는 이전 방문 이후의 증상 변화·치료 반응·부작용 중심으로 청취합니다.", result:"ok", note:"" },
-    { key:"pmh",  label:"과거력 (PMH)",      tip:"과거 질환·수술·약물 복용력. 초진 baseline 항목 — 재진 기록지에는 포함되지 않습니다.", result:"miss", note:"", fuExcluded:true },
-    { key:"fhsh", label:"가족력·사회력 (FH/SH)", tip:"가족 질환력과 직업·흡연·음주 등 사회력. 초진 baseline 항목 — 재진 기록지에는 포함되지 않습니다.", result:"miss", note:"", fuExcluded:true },
-    { key:"ros",  label:"계통문진 (ROS)",     tip:"주증상 외 신체 계통 전반의 증상 유무 확인. 초진 baseline 항목 — 재진 기록지에는 포함되지 않습니다.", result:"part", note:"근골격계만 언급됨", fuExcluded:true },
+    { key:"hpi",  label:"현병력 (HPI)",      tip:"주증상의 발생 시점·경과·악화/완화 요인 등 상세 경과.",    result:"ok",   note:"" },
+    { key:"pmh",  label:"과거력 (PMH)",      tip:"과거 질환·수술·약물 복용력. 초진 baseline 항목 — 재진에서는 수집하지 않습니다.", result:"miss", note:"" },
+    { key:"fhsh", label:"가족력·사회력 (FH/SH)", tip:"가족 질환력과 직업·흡연·음주 등 사회력. 초진 baseline 항목 — 재진에서는 수집하지 않습니다.", result:"miss", note:"" },
+    { key:"ros",  label:"계통문진 (ROS)",     tip:"주증상 외 신체 계통 전반의 증상 유무 확인. 초진 baseline 항목 — 재진에서는 수집하지 않습니다.", result:"part", note:"근골격계만 언급됨" },
     { key:"pe",   label:"신체진찰 (PE)",      tip:"진찰 소견. 시진·촉진·이학적 검사 결과.",                 result:"ok",   note:"" }
   ];
 
-  // 방문 유형별 활성 항목 — 초진 6항목, 재진 3항목(CC·HPI·PE)
+  // 재진: SOAP 4섹션 단위 판정 — 경과기록 (PRD v0.4, 기존 CC·HPI·PE 3항목 판정 안 대체)
+  const FU_ITEMS = [
+    { key:"s", label:"S — 주관적 증상/경과",  tip:"이전 방문 이후의 증상 변화·치료 반응·부작용 등 환자 진술 경과.", result:"ok",   note:"" },
+    { key:"o", label:"O — 객관적 소견",       tip:"진찰 소견과 검사 결과. 시진·촉진·이학적 검사 및 영상/검사 수치.", result:"ok",   note:"" },
+    { key:"a", label:"A — 평가 (Assessment)", tip:"경과에 대한 임상적 판단. 호전/악화 평가, 진단 유지·변경 여부.",  result:"miss", note:"" },
+    { key:"p", label:"P — 계획 (Plan)",       tip:"치료·검사·재방문 계획. 처방 변경, 추가 검사, 다음 방문 일정.",   result:"ok",   note:"" }
+  ];
+
+  // 방문 유형별 판정 단위 — 초진 6항목 / 재진 SOAP 4섹션
   function activeItems() {
-    return visit === "fu" ? ITEMS.filter(it => !it.fuExcluded) : ITEMS;
+    return visit === "fu" ? FU_ITEMS : ITEMS;
   }
 
   function renderChecklist() {
     const el = document.getElementById("chkList");
     el.innerHTML = "";
     activeItems().forEach(it => {
-      const label = (visit === "fu" && it.fuLabel) ? it.fuLabel : it.label;
-      const tip   = (visit === "fu" && it.fuTip)   ? it.fuTip   : it.tip;
       let cls = "pre", icon = "·", stxt = "분석 전";
       if (phase === "analyzed") {
         if (it.result === "ok")        { cls = "ok";   icon = "✓"; stxt = "발화에서 확인됨"; }
@@ -683,18 +687,19 @@ p, .am-body   { font-family: var(--am-font-body); font-size: var(--am-type-body)
       el.innerHTML += `
         <div class="chk ${cls}" onclick="this.classList.toggle('tipOn')">
           <div class="ic">${icon}</div>
-          <div><div class="t">${label}</div><div class="s">${stxt}</div></div>
-          <div class="tip">${tip}</div>
+          <div><div class="t">${it.label}</div><div class="s">${stxt}</div></div>
+          <div class="tip">${it.tip}</div>
         </div>`;
     });
     document.getElementById("fuNote").style.display = visit === "fu" ? "block" : "none";
+    document.getElementById("chkTitle").textContent = visit === "fu" ? "기록 완성도 체크리스트 (SOAP)" : "필수 문진 체크리스트";
     const sub = document.getElementById("chkSub");
-    const scope = visit === "fu" ? "재진 — CC·HPI·PE 3항목 판정" : "초진 — 6항목 판정";
+    const scope = visit === "fu" ? "재진 — SOAP 4섹션 판정" : "초진 — 6항목 판정";
     sub.textContent = (phase === "analyzed" ? "분석 완료 — 녹음 직후 일괄 분석 (Phase 1)" :
                        phase === "rec" ? "녹음 중 — 종료 시 자동 분석됩니다" : "분석 전 — 녹음 종료 시 자동 분석됩니다") + " · " + scope;
   }
 
-  // 재진 제외 항목은 required_missing 에 포함되지 않음 (정책 레이어에서 비활성)
+  // 누락 판정 — 초진: 항목 단위 / 재진: SOAP 섹션 단위 (초진 baseline 항목은 재진 판정 대상에 없음)
   function requiredMissing() {
     return activeItems().filter(it => it.result === "miss");
   }
@@ -780,8 +785,8 @@ p, .am-body   { font-family: var(--am-font-body); font-size: var(--am-type-body)
       bs.className = "badge b-score";
     } else {
       bv.textContent = "재진 · 경과기록(SOAP 4섹션) · 수정 가능";
-      bs.textContent = "필수 항목 3/3 충족 (CC·HPI·PE)";
-      bs.className = "badge b-ok";
+      bs.textContent = "SOAP 3/4 충족 · A(평가) 발화 미확인";
+      bs.className = "badge b-score";
     }
   }
 
