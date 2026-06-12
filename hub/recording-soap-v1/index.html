@@ -9,7 +9,7 @@
 </style>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ActiMedi Hub — 진료 녹음 UI 개편 목업 (PRD v0.1)</title>
+<title>ActiMedi Hub — 진료 녹음 UI 개편 목업 (PRD v0.3)</title>
 <style>
 /* =============================================================
    ActiMedi — Self-hosted brand fonts (offline fallback)
@@ -317,13 +317,12 @@ p, .am-body   { font-family: var(--am-font-body); font-size: var(--am-type-body)
   .chk.miss .ic { background:var(--am-status-destructive); }
   .chk.miss { border-color:#F5C6C8; background:#FFF7F7; }
   .chk.miss .t { color:#B3262B; }
-  .chk.opt { opacity:.55; }
-  .chk.opt .ic { background:var(--am-ink-200); }
-  .chk .tag-opt { position:absolute; right:11px; top:11px; font-size:10.5px; font-weight:700; color:var(--am-ink-400); background:var(--am-ink-50); border-radius:99px; padding:2px 8px; }
   .chk .tip { display:none; position:absolute; z-index:30; left:8px; right:8px; top:calc(100% + 4px); background:var(--am-ink-800); color:#fff; border-radius:12px; padding:10px 12px; font-size:12px; line-height:1.45; box-shadow:0 8px 20px rgba(12,30,107,.25); }
   .chk.tipOn .tip { display:block; }
   .legend { font-size:11px; color:var(--am-text-assistive); margin-top:12px; line-height:1.7; }
   .legend i { display:inline-block; width:9px; height:9px; border-radius:99px; margin:0 4px 0 8px; }
+  /* 재진 제외 항목 안내 (2026-06-12 확정 정책) */
+  .fu-note { border:1px solid var(--am-blue-100); background:var(--am-blue-50); border-radius:12px; padding:10px 12px; font-size:11.5px; line-height:1.5; color:var(--am-blue-800); margin-top:10px; }
 
   /* ===== Toast (FR-3A) ===== */
   .toast { position:fixed; left:50%; transform:translateX(-50%); bottom:96px; background:var(--am-ink-800); color:#fff; border-radius:16px; padding:14px 20px; font-size:13.5px; display:none; align-items:center; gap:12px; box-shadow:0 12px 30px rgba(12,30,107,.30); z-index:40; max-width:560px; }
@@ -351,6 +350,7 @@ p, .am-body   { font-family: var(--am-font-body); font-size: var(--am-type-body)
   .badge { display:inline-flex; align-items:center; gap:5px; height:24px; padding:0 10px; border-radius:999px; font-size:11.5px; font-weight:700; }
   .b-visit { background:var(--am-blue-50); color:var(--am-blue-700); }
   .b-score { background:#FDF1DF; color:#9A6310; }
+  .b-ok { background:#E6F6EE; color:#157A4B; }
   .rev-head .grow { flex:1; }
   .soap { display:flex; flex-direction:column; gap:12px; }
   .sec { background:var(--am-white); border:1px solid var(--am-ink-100); border-radius:20px; overflow:hidden; box-shadow:0 2px 10px rgba(12,30,107,.06); }
@@ -374,16 +374,17 @@ p, .am-body   { font-family: var(--am-font-body); font-size: var(--am-type-body)
   .st-ok { background:#E6F6EE; color:#157A4B; }
   .st-part { background:#FDF1DF; color:#9A6310; }
   .st-miss { background:#FDEBEC; color:#B3262B; }
-  .st-opt { background:var(--am-ink-50); color:var(--am-ink-400); }
   .st-regen { background:var(--am-blue-50); color:var(--am-blue-700); }
   .icard textarea { width:100%; border:1px solid var(--am-ink-100); border-radius:12px; padding:10px 12px; font:inherit; font-size:13.5px; color:var(--am-text-neutral); min-height:64px; resize:vertical; background:var(--am-ink-10); }
   .icard textarea:focus { outline:none; border-color:var(--am-blue); box-shadow:0 0 0 4px rgba(30,90,240,.12); }
   .icard.miss { border-color:#F5C6C8; background:#FFFBFB; }
-  .icard.opt { opacity:.6; }
   .chip { display:inline-flex; align-items:center; gap:6px; height:28px; padding:0 12px; border-radius:12px; font-size:12.5px; font-weight:600; background:var(--am-blue-50); color:var(--am-blue-800); margin:0 6px 6px 0; }
   .chip a { color:var(--am-blue); font-size:11px; text-decoration:none; }
   .ro-block { border:1px dashed var(--am-ink-200); border-radius:14px; padding:13px 16px; font-size:13.5px; color:var(--am-text-alternative); background:var(--am-ink-10); }
   .src-link { font-size:11.5px; color:var(--am-blue); cursor:pointer; }
+  /* 재진 SOAP 통짜 기술 영역 */
+  .free-text { width:100%; border:1px solid var(--am-ink-100); border-radius:14px; padding:14px 16px; font:inherit; font-size:13.5px; line-height:1.6; color:var(--am-text-neutral); min-height:120px; resize:vertical; background:var(--am-ink-10); }
+  .free-text:focus { outline:none; border-color:var(--am-blue); box-shadow:0 0 0 4px rgba(30,90,240,.12); }
   .rev-foot { display:flex; gap:10px; justify-content:flex-end; margin-top:18px; }
   .prd-note { font-size:11px; color:var(--am-text-assistive); text-align:center; margin-top:26px; }
 </style>
@@ -462,20 +463,21 @@ p, .am-body   { font-family: var(--am-font-body); font-size: var(--am-type-body)
         <div class="hd">필수 문진 체크리스트<div class="chk-sub" id="chkSub">분석 전 — 녹음 종료 시 자동 분석됩니다</div></div>
         <div class="bd">
           <div class="chk-list" id="chkList"></div>
+          <div class="fu-note" id="fuNote" style="display:none">재진은 경과기록(SOAP)으로, <b>CC·HPI·PE 3항목만 판정</b>합니다. 과거력(PMH)·가족력·사회력(FH/SH)·계통문진(ROS)은 재진 기록지에서 제외되어 표시·판정·알림 대상이 아닙니다.</div>
           <div class="legend">
             <i style="background:var(--am-status-positive)"></i>충족
             <i style="background:var(--am-status-cautionary)"></i>부분
             <i style="background:var(--am-status-destructive)"></i>누락
-            <i style="background:var(--am-ink-200)"></i>분석 전/선택
+            <i style="background:var(--am-ink-200)"></i>분석 전
             <div style="margin-top:4px">항목을 누르면 설명이 표시됩니다 (FR-3B)</div>
           </div>
         </div>
       </div>
     </div>
-    <div class="prd-note">PRD v0.1 · FR-1 방문 유형 / FR-2 녹음 직후 일괄 분석(Phase 1) / FR-3 누락 알림 3접점 — 데모: 녹음 시작 → 종료(분석) → 저장 순서로 눌러보세요</div>
+    <div class="prd-note">PRD v0.3 · FR-1 방문 유형 — 재진은 CC·HPI·PE만 판정, PMH·FH/SH·ROS 제외 (2026-06-12 확정) / FR-2 녹음 직후 일괄 분석(Phase 1) / FR-3 누락 알림 3접점 — 데모: 녹음 시작 → 종료(분석) → 저장 순서로 눌러보세요</div>
   </div>
 
-  <!-- ============== Screen B : SOAP 결과 검토 ============== -->
+  <!-- ============== Screen B : 결과 검토 ============== -->
   <div id="scrB">
     <div class="rev-head">
       <div>
@@ -483,58 +485,98 @@ p, .am-body   { font-family: var(--am-font-body); font-size: var(--am-type-body)
         <div class="meta num">2026.06.10 14:22 · 진료실1 · 09분 42초</div>
       </div>
       <div class="grow"></div>
-      <span class="badge b-visit">초진 · 수정 가능</span>
-      <span class="badge b-score">필수 항목 4/6 충족 · PMH 누락</span>
+      <div class="demo-switch" style="margin-left:0">
+        <button id="rvNew" class="on" onclick="setRevVisit('new')">초진 (H&amp;P)</button>
+        <button id="rvFu" onclick="setRevVisit('fu')">재진 (SOAP)</button>
+      </div>
+      <span class="badge b-visit" id="bVisit">초진 · 종합 병력청취(H&amp;P) · 수정 가능</span>
+      <span class="badge b-score" id="bScore">필수 항목 4/6 충족 · PMH 누락</span>
     </div>
 
     <div class="soap">
-      <!-- S -->
-      <div class="sec open">
-        <div class="sec-hd" onclick="toggleSec(this)">
-          <div class="mark mark-s">S</div>
-          <div><div class="ttl">Subjective — 환자 진술</div><div class="sub">CC · HPI · PMH · FH/SH · ROS</div></div>
-          <span class="chev">▼</span>
-        </div>
-        <div class="sec-bd">
-          <div class="icard">
-            <div class="top"><span class="t">주증상 (CC)</span><span class="st st-ok">충족</span></div>
-            <textarea>우측 무릎 통증 (계단 하행 시 악화)</textarea>
+
+      <!-- ===== 초진: S/O 항목 카드 (H&P) ===== -->
+      <div id="soapNew">
+        <div class="soap">
+          <!-- S -->
+          <div class="sec open">
+            <div class="sec-hd" onclick="toggleSec(this)">
+              <div class="mark mark-s">S</div>
+              <div><div class="ttl">Subjective — 환자 진술</div><div class="sub">CC · HPI · PMH · FH/SH · ROS — 항목 카드</div></div>
+              <span class="chev">▼</span>
+            </div>
+            <div class="sec-bd">
+              <div class="icard">
+                <div class="top"><span class="t">주증상 (CC)</span><span class="st st-ok">충족</span></div>
+                <textarea>우측 무릎 통증 (계단 하행 시 악화)</textarea>
+              </div>
+              <div class="icard">
+                <div class="top"><span class="t">현병력 (HPI)</span><span class="st st-ok">충족</span></div>
+                <textarea>3주 전 발생, 초기 시큰거림에서 1주 전부터 부종 동반. 계단 하행 시 통증 악화.</textarea>
+              </div>
+              <div class="icard miss">
+                <div class="top"><span class="t">과거력 (PMH)</span><span class="st st-miss">누락 — 발화에서 확인되지 않음</span></div>
+                <textarea placeholder="발화에서 확인되지 않았습니다. 확인된 내용이 있으면 직접 입력하세요."></textarea>
+              </div>
+              <div class="icard">
+                <div class="top"><span class="t">가족력·사회력 (FH/SH)</span><span class="st st-miss">누락</span></div>
+                <textarea placeholder="발화에서 확인되지 않았습니다."></textarea>
+              </div>
+              <div class="icard">
+                <div class="top"><span class="t">계통문진 (ROS)</span><span class="st st-part">부분 — 근골격계만 언급됨</span></div>
+                <textarea>근골격계 외 소화·수면 이상 없음 언급. 그 외 계통 미청취.</textarea>
+              </div>
+            </div>
           </div>
-          <div class="icard">
-            <div class="top"><span class="t">현병력 (HPI)</span><span class="st st-ok">충족</span></div>
-            <textarea>3주 전 발생, 초기 시큰거림에서 1주 전부터 부종 동반. 계단 하행 시 통증 악화.</textarea>
-          </div>
-          <div class="icard miss">
-            <div class="top"><span class="t">과거력 (PMH)</span><span class="st st-miss">누락 — 발화에서 확인되지 않음</span></div>
-            <textarea placeholder="발화에서 확인되지 않았습니다. 확인된 내용이 있으면 직접 입력하세요."></textarea>
-          </div>
-          <div class="icard">
-            <div class="top"><span class="t">가족력·사회력 (FH/SH)</span><span class="st st-miss">누락</span></div>
-            <textarea placeholder="발화에서 확인되지 않았습니다."></textarea>
-          </div>
-          <div class="icard">
-            <div class="top"><span class="t">계통문진 (ROS)</span><span class="st st-part">부분 — 근골격계만 언급됨</span></div>
-            <textarea>근골격계 외 소화·수면 이상 없음 언급. 그 외 계통 미청취.</textarea>
+
+          <!-- O -->
+          <div class="sec open">
+            <div class="sec-hd" onclick="toggleSec(this)">
+              <div class="mark mark-o">O</div>
+              <div><div class="ttl">Objective — 신체진찰·검사</div><div class="sub">PE — 항목 카드 (+ 검사 결과 연동 시)</div></div>
+              <span class="chev">▼</span>
+            </div>
+            <div class="sec-bd">
+              <div class="icard">
+                <div class="top"><span class="t">신체진찰 (PE)</span><span class="st st-ok">충족</span></div>
+                <textarea>내측 관절선 압통(+), McMurray test 양성, 경도 부종.</textarea>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- O -->
-      <div class="sec open">
-        <div class="sec-hd" onclick="toggleSec(this)">
-          <div class="mark mark-o">O</div>
-          <div><div class="ttl">Objective — 신체진찰·검사</div><div class="sub">PE (+ 검사 결과 연동 시)</div></div>
-          <span class="chev">▼</span>
-        </div>
-        <div class="sec-bd">
-          <div class="icard">
-            <div class="top"><span class="t">신체진찰 (PE)</span><span class="st st-ok">충족</span></div>
-            <textarea>내측 관절선 압통(+), McMurray test 양성, 경도 부종.</textarea>
+      <!-- ===== 재진: S/O 단일 기술 영역 — SOAP 4섹션 통짜 (2026-06-12 확정) ===== -->
+      <div id="soapFu" style="display:none">
+        <div class="soap">
+          <!-- S -->
+          <div class="sec open">
+            <div class="sec-hd" onclick="toggleSec(this)">
+              <div class="mark mark-s">S</div>
+              <div><div class="ttl">Subjective — 주관적 증상/경과</div><div class="sub">단일 기술 영역 (통짜) — 증상 변화 · 치료 반응 · 부작용</div></div>
+              <span class="chev">▼</span>
+            </div>
+            <div class="sec-bd">
+              <div class="ro-note">재진 기록지는 항목 카드 없이 통짜로 기술합니다. 항목별 충족 상태(CC·HPI·PE)는 녹음 화면의 체크리스트(FR-3)에서 표시됩니다.</div>
+              <textarea class="free-text">지난 방문(5/29) 이후 NSAIDs 복용 지속. 우측 무릎 통증 VAS 6→3으로 호전, 계단 하행 시 통증 빈도 감소. 부종은 보행 운동 후 간헐적으로 재발. 약물 관련 위장 불편감 등 부작용 호소 없음.</textarea>
+            </div>
+          </div>
+
+          <!-- O -->
+          <div class="sec open">
+            <div class="sec-hd" onclick="toggleSec(this)">
+              <div class="mark mark-o">O</div>
+              <div><div class="ttl">Objective — 객관적 소견</div><div class="sub">단일 기술 영역 (통짜) — 진찰 소견 + 검사 결과 (연동 시)</div></div>
+              <span class="chev">▼</span>
+            </div>
+            <div class="sec-bd">
+              <textarea class="free-text">부종 감소, 내측 관절선 압통 경도 잔존. McMurray test 음성 전환. ROM 회복. MRI(6/3): 내측 반월상연골 후각부 1도 신호변화, 파열 소견 없음.</textarea>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- A -->
+      <!-- A (공통 — 파생) -->
       <div class="sec">
         <div class="sec-hd" onclick="toggleSec(this)">
           <div class="mark mark-a">A</div>
@@ -553,12 +595,12 @@ p, .am-body   { font-family: var(--am-font-body); font-size: var(--am-type-body)
           </div>
           <div class="icard">
             <div class="top"><span class="t">진단 후보</span></div>
-            <div class="ro-block">1. 내측 반월상연골 파열 의증 &nbsp;2. 무릎 골관절염 (감별 필요) <div class="src-link" onclick="jumpSrc()">원본 텍스트 보기 (HPI · PE)</div></div>
+            <div class="ro-block">1. 내측 반월상연골 파열 의증 &nbsp;2. 무릎 골관절염 (감별 필요) <div class="src-link" onclick="jumpSrc()">원본 텍스트 보기 (초진: 항목 카드 · 재진: 해당 SOAP 섹션)</div></div>
           </div>
         </div>
       </div>
 
-      <!-- P -->
+      <!-- P (공통 — 파생) -->
       <div class="sec">
         <div class="sec-hd" onclick="toggleSec(this)">
           <div class="mark mark-p">P</div>
@@ -578,7 +620,7 @@ p, .am-body   { font-family: var(--am-font-body); font-size: var(--am-type-body)
       <button class="btn btn-s btn-ghost">임시 저장</button>
       <button class="btn btn-s btn-primary" style="height:46px;padding:0 32px">검토 완료 · 확정</button>
     </div>
-    <div class="prd-note">PRD v0.1 · FR-4 — 1차(필수 항목 원문) / 2차(파생 데이터) 2계층 · 파생 직접 편집 금지 · evidence_span 기반 원본 점프</div>
+    <div class="prd-note">PRD v0.3 · FR-4 — 초진: 항목 카드(H&amp;P) / 재진: SOAP 4섹션 통짜(S/O 단일 기술 영역) · 파생 직접 편집 금지 · evidence_span 기반 원본 점프</div>
   </div>
 </div>
 
@@ -609,42 +651,52 @@ p, .am-body   { font-family: var(--am-font-body); font-size: var(--am-type-body)
   let phase = "idle";         // idle | rec | analyzed
   let timerInt = null, sec = 0;
 
+  // 재진(fu)에서 fuExcluded 항목은 기록지·판정 대상에서 제외 — 체크리스트에 표시하지 않음 (2026-06-12 확정, 기존 '선택/회색' 안 폐기)
   const ITEMS = [
     { key:"cc",   label:"주증상 (CC)",       tip:"환자가 내원한 주된 이유. 한 문장으로 요약되는 핵심 호소.", result:"ok",   note:"" },
-    { key:"hpi",  label:"현병력 (HPI)",      tip:"주증상의 발생 시점·경과·악화/완화 요인 등 상세 경과.",    result:"ok",   note:"" },
-    { key:"pmh",  label:"과거력 (PMH)",      tip:"과거 질환·수술·약물 복용력. 재진 시 변경된 경우에만 필수.", result:"miss", note:"", fuOpt:true },
-    { key:"fhsh", label:"가족력·사회력 (FH/SH)", tip:"가족 질환력과 직업·흡연·음주 등 사회력.",             result:"miss", note:"", fuOpt:true },
-    { key:"ros",  label:"계통문진 (ROS)",     tip:"주증상 외 신체 계통 전반의 증상 유무 확인.",              result:"part", note:"근골격계만 언급됨", fuOpt:true },
+    { key:"hpi",  label:"현병력 (HPI)",      fuLabel:"현병력 (HPI) — 경과 중심",
+      tip:"주증상의 발생 시점·경과·악화/완화 요인 등 상세 경과.",
+      fuTip:"재진에서는 이전 방문 이후의 증상 변화·치료 반응·부작용 중심으로 청취합니다.", result:"ok", note:"" },
+    { key:"pmh",  label:"과거력 (PMH)",      tip:"과거 질환·수술·약물 복용력. 초진 baseline 항목 — 재진 기록지에는 포함되지 않습니다.", result:"miss", note:"", fuExcluded:true },
+    { key:"fhsh", label:"가족력·사회력 (FH/SH)", tip:"가족 질환력과 직업·흡연·음주 등 사회력. 초진 baseline 항목 — 재진 기록지에는 포함되지 않습니다.", result:"miss", note:"", fuExcluded:true },
+    { key:"ros",  label:"계통문진 (ROS)",     tip:"주증상 외 신체 계통 전반의 증상 유무 확인. 초진 baseline 항목 — 재진 기록지에는 포함되지 않습니다.", result:"part", note:"근골격계만 언급됨", fuExcluded:true },
     { key:"pe",   label:"신체진찰 (PE)",      tip:"진찰 소견. 시진·촉진·이학적 검사 결과.",                 result:"ok",   note:"" }
   ];
+
+  // 방문 유형별 활성 항목 — 초진 6항목, 재진 3항목(CC·HPI·PE)
+  function activeItems() {
+    return visit === "fu" ? ITEMS.filter(it => !it.fuExcluded) : ITEMS;
+  }
 
   function renderChecklist() {
     const el = document.getElementById("chkList");
     el.innerHTML = "";
-    ITEMS.forEach(it => {
-      const optional = (visit === "fu" && it.fuOpt);
+    activeItems().forEach(it => {
+      const label = (visit === "fu" && it.fuLabel) ? it.fuLabel : it.label;
+      const tip   = (visit === "fu" && it.fuTip)   ? it.fuTip   : it.tip;
       let cls = "pre", icon = "·", stxt = "분석 전";
       if (phase === "analyzed") {
-        if (optional && it.result === "miss") { cls = "opt"; icon = "–"; stxt = "선택 항목 — 변경 시에만"; }
-        else if (it.result === "ok")   { cls = "ok";   icon = "✓"; stxt = "발화에서 확인됨"; }
+        if (it.result === "ok")        { cls = "ok";   icon = "✓"; stxt = "발화에서 확인됨"; }
         else if (it.result === "part") { cls = "part"; icon = "!"; stxt = it.note; }
         else                            { cls = "miss"; icon = "!"; stxt = "발화에서 확인되지 않음"; }
-      } else if (optional) { cls = "opt"; icon = "–"; stxt = "선택 항목 (재진)"; }
+      }
       el.innerHTML += `
         <div class="chk ${cls}" onclick="this.classList.toggle('tipOn')">
           <div class="ic">${icon}</div>
-          <div><div class="t">${it.label}</div><div class="s">${stxt}</div></div>
-          ${optional ? '<span class="tag-opt">선택</span>' : ''}
-          <div class="tip">${it.tip}</div>
+          <div><div class="t">${label}</div><div class="s">${stxt}</div></div>
+          <div class="tip">${tip}</div>
         </div>`;
     });
+    document.getElementById("fuNote").style.display = visit === "fu" ? "block" : "none";
     const sub = document.getElementById("chkSub");
-    sub.textContent = phase === "analyzed" ? "분석 완료 — 녹음 직후 일괄 분석 (Phase 1)" :
-                      phase === "rec" ? "녹음 중 — 종료 시 자동 분석됩니다" : "분석 전 — 녹음 종료 시 자동 분석됩니다";
+    const scope = visit === "fu" ? "재진 — CC·HPI·PE 3항목 판정" : "초진 — 6항목 판정";
+    sub.textContent = (phase === "analyzed" ? "분석 완료 — 녹음 직후 일괄 분석 (Phase 1)" :
+                       phase === "rec" ? "녹음 중 — 종료 시 자동 분석됩니다" : "분석 전 — 녹음 종료 시 자동 분석됩니다") + " · " + scope;
   }
 
+  // 재진 제외 항목은 required_missing 에 포함되지 않음 (정책 레이어에서 비활성)
   function requiredMissing() {
-    return ITEMS.filter(it => it.result === "miss" && !(visit === "fu" && it.fuOpt));
+    return activeItems().filter(it => it.result === "miss");
   }
 
   // ===== FR-1 =====
@@ -652,7 +704,7 @@ p, .am-body   { font-family: var(--am-font-body); font-size: var(--am-type-body)
     visit = v;
     document.getElementById("vNew").classList.toggle("on", v === "new");
     document.getElementById("vFu").classList.toggle("on", v === "fu");
-    renderChecklist(); // 방문 유형 변경 시 판정 기준 즉시 갱신 (AC)
+    renderChecklist(); // 방문 유형 변경 시 판정 기준 즉시 갱신 (AC) — LLM 재호출 없이 정책 레이어만 갱신
   }
 
   // ===== 녹음 데모 =====
@@ -702,7 +754,8 @@ p, .am-body   { font-family: var(--am-font-body); font-size: var(--am-type-body)
   }
   function doSave() {
     document.getElementById("confirm").classList.remove("on");
-    showScr("B");  // 저장 후 결과 검토 화면으로
+    setRevVisit(visit);  // 결과 화면을 녹음 시 선택한 방문 유형으로 표시
+    showScr("B");        // 저장 후 결과 검토 화면으로
   }
 
   // ===== 화면 전환 / SOAP =====
@@ -713,10 +766,31 @@ p, .am-body   { font-family: var(--am-font-body); font-size: var(--am-type-body)
     document.getElementById("tabB").classList.toggle("on", s==="B");
     window.scrollTo(0,0);
   }
+
+  // ===== FR-4: 결과 검토 — 초진(항목 카드) / 재진(SOAP 통짜) 전환 =====
+  function setRevVisit(v) {
+    document.getElementById("soapNew").style.display = v === "new" ? "block" : "none";
+    document.getElementById("soapFu").style.display  = v === "fu"  ? "block" : "none";
+    document.getElementById("rvNew").classList.toggle("on", v === "new");
+    document.getElementById("rvFu").classList.toggle("on", v === "fu");
+    const bv = document.getElementById("bVisit"), bs = document.getElementById("bScore");
+    if (v === "new") {
+      bv.textContent = "초진 · 종합 병력청취(H&P) · 수정 가능";
+      bs.textContent = "필수 항목 4/6 충족 · PMH 누락";
+      bs.className = "badge b-score";
+    } else {
+      bv.textContent = "재진 · 경과기록(SOAP 4섹션) · 수정 가능";
+      bs.textContent = "필수 항목 3/3 충족 (CC·HPI·PE)";
+      bs.className = "badge b-ok";
+    }
+  }
+
   function toggleSec(hd) { hd.parentElement.classList.toggle("open"); }
-  function jumpSrc() { // evidence_span 기반 원본 점프 데모
-    document.querySelectorAll(".sec")[0].classList.add("open");
-    document.querySelectorAll(".sec")[0].scrollIntoView({behavior:"smooth"});
+  function jumpSrc() { // evidence_span 기반 원본 점프 데모 — 초진: 항목 카드, 재진: 해당 SOAP 섹션
+    const visible = document.getElementById("soapFu").style.display === "none" ? "soapNew" : "soapFu";
+    const target = document.querySelector(`#${visible} .sec`);
+    target.classList.add("open");
+    target.scrollIntoView({behavior:"smooth"});
   }
 
   renderChecklist();
