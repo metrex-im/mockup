@@ -67,6 +67,15 @@ h1,h2,h3,h4{font-family:var(--font-head);margin:0;letter-spacing:-.012em}
 .sectionhead .count{font-family:var(--font-head);font-weight:800;color:var(--am-blue);font-size:18px}
 .sectionhead .note{margin-left:auto;font-size:13px;color:var(--ink-400)}
 
+/* ---------- Category filter ---------- */
+.filterbar{display:flex;flex-wrap:wrap;gap:8px;margin:0 2px 18px}
+.fbtn{display:inline-flex;align-items:center;gap:7px;height:36px;padding:0 15px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--ink-600);font-family:var(--font-head);font-weight:600;font-size:13.5px;cursor:pointer;transition:all .12s}
+.fbtn:hover{border-color:var(--am-blue);color:var(--am-blue)}
+.fbtn.active{background:var(--am-blue);border-color:var(--am-blue);color:#fff}
+.fbtn .n{font-family:var(--font-head);font-weight:800;font-size:12px;min-width:18px;height:18px;padding:0 5px;display:inline-flex;align-items:center;justify-content:center;border-radius:999px;background:var(--ink-50);color:var(--ink-500)}
+.fbtn:hover .n{background:var(--am-blue-50);color:var(--am-blue)}
+.fbtn.active .n{background:rgba(255,255,255,.22);color:#fff}
+
 /* ---------- Headline cards ---------- */
 .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
 .card{background:#fff;border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow-sm);padding:22px 22px 18px;display:flex;flex-direction:column;transition:box-shadow .15s,transform .15s}
@@ -158,11 +167,21 @@ h1,h2,h3,h4{font-family:var(--font-head);margin:0;letter-spacing:-.012em}
     <span class="note">임상·학술적 가치 순 · 단순 행정 공지 제외</span>
   </div>
 
+  <!-- ===== Category filter ===== -->
+  <div class="filterbar" id="filterbar">
+    <button class="fbtn active" data-cat="all">전체 <span class="n"></span></button>
+    <button class="fbtn" data-cat="무릎 정형외과">무릎 정형외과 <span class="n"></span></button>
+    <button class="fbtn" data-cat="의료 AI / 예측">의료 AI / 예측 <span class="n"></span></button>
+    <button class="fbtn" data-cat="DTx / SaMD">DTx / SaMD <span class="n"></span></button>
+    <button class="fbtn" data-cat="임상 가이드라인">임상 가이드라인 <span class="n"></span></button>
+    <button class="fbtn" data-cat="연수강좌">연수강좌 <span class="n"></span></button>
+  </div>
+
   <!-- ===== Headline cards ===== -->
-  <div class="grid">
+  <div class="grid" id="grid">
 
     <!-- 1 -->
-    <article class="card">
+    <article class="card" data-cat="무릎 정형외과">
       <div class="top">
         <span class="rank">1</span>
         <span class="pill pubmed">PubMed</span>
@@ -176,7 +195,7 @@ h1,h2,h3,h4{font-family:var(--font-head);margin:0;letter-spacing:-.012em}
     </article>
 
     <!-- 2 -->
-    <article class="card">
+    <article class="card" data-cat="의료 AI / 예측">
       <div class="top">
         <span class="rank">2</span>
         <span class="pill pubmed">PubMed</span>
@@ -190,7 +209,7 @@ h1,h2,h3,h4{font-family:var(--font-head);margin:0;letter-spacing:-.012em}
     </article>
 
     <!-- 3 -->
-    <article class="card">
+    <article class="card" data-cat="DTx / SaMD">
       <div class="top">
         <span class="rank">3</span>
         <span class="pill pubmed">PubMed</span>
@@ -204,7 +223,7 @@ h1,h2,h3,h4{font-family:var(--font-head);margin:0;letter-spacing:-.012em}
     </article>
 
     <!-- 4 -->
-    <article class="card">
+    <article class="card" data-cat="임상 가이드라인">
       <div class="top">
         <span class="rank">4</span>
         <span class="pill jkma">JKMA</span>
@@ -218,7 +237,7 @@ h1,h2,h3,h4{font-family:var(--font-head);margin:0;letter-spacing:-.012em}
     </article>
 
     <!-- 5 -->
-    <article class="card">
+    <article class="card" data-cat="무릎 정형외과">
       <div class="top">
         <span class="rank">5</span>
         <span class="pill pubmed">PubMed</span>
@@ -232,7 +251,7 @@ h1,h2,h3,h4{font-family:var(--font-head);margin:0;letter-spacing:-.012em}
     </article>
 
     <!-- 6 -->
-    <article class="card">
+    <article class="card" data-cat="연수강좌">
       <div class="top">
         <span class="rank">6</span>
         <span class="pill korarthro">대한관절경학회</span>
@@ -253,5 +272,42 @@ h1,h2,h3,h4{font-family:var(--font-head);margin:0;letter-spacing:-.012em}
   </div>
 
 </main>
+
+<script>
+(function(){
+  var btns = Array.prototype.slice.call(document.querySelectorAll('.fbtn'));
+  var cards = Array.prototype.slice.call(document.querySelectorAll('.card[data-cat]'));
+  var countEl = document.querySelector('.sectionhead .count');
+
+  // 카테고리별 건수 배지 채우기
+  btns.forEach(function(b){
+    var cat = b.getAttribute('data-cat');
+    var n = (cat === 'all') ? cards.length
+          : cards.filter(function(c){ return c.getAttribute('data-cat') === cat; }).length;
+    var badge = b.querySelector('.n');
+    if (badge) badge.textContent = n;
+    // 해당 카테고리 동향이 없는 버튼은 흐리게(클릭은 가능)
+    if (n === 0 && cat !== 'all') b.style.opacity = '.45';
+  });
+
+  function apply(cat){
+    var shown = 0;
+    cards.forEach(function(c){
+      var match = (cat === 'all') || (c.getAttribute('data-cat') === cat);
+      c.style.display = match ? '' : 'none';
+      if (match) shown++;
+    });
+    if (countEl) countEl.textContent = shown + '건';
+  }
+
+  btns.forEach(function(b){
+    b.addEventListener('click', function(){
+      btns.forEach(function(x){ x.classList.remove('active'); });
+      b.classList.add('active');
+      apply(b.getAttribute('data-cat'));
+    });
+  });
+})();
+</script>
 </body>
 </html>
