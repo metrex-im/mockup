@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RISE-K · 주간 학술 동향</title>
+<link rel="preconnect" href="https://fastly.jsdelivr.net" crossorigin>
+<style>
+@import url("https://fastly.jsdelivr.net/gh/sunn-us/SUITE/fonts/variable/woff2/SUITE-Variable.css");
+@import url("https://fastly.jsdelivr.net/gh/sunn-us/SUIT/fonts/variable/woff2/SUIT-Variable.css");
+
+:root{
+  --am-blue:#1E5AF0; --am-blue-700:#1342CC; --am-blue-100:#E3EBFF; --am-blue-50:#F3F6FF;
+  --am-navy:#0C1E6B; --am-sky:#38D2FF; --am-sky-50:#ECFAFF; --am-sky-700:#1F9CC8;
+  --am-yellow:#FFCF2C;
+  --ink-900:#101010; --ink-700:#262A33; --ink-600:#3A3F4B; --ink-500:#555B68;
+  --ink-400:#7C8290; --ink-300:#A8ADBA; --ink-100:#E5E7EC; --ink-50:#F3F4F7; --ink-30:#F8F9FB;
+  --line:#E5E7EC;
+  --shadow-sm:0 2px 6px rgba(12,30,107,.06),0 1px 2px rgba(12,30,107,.04);
+  --shadow-md:0 8px 20px rgba(12,30,107,.08),0 2px 4px rgba(12,30,107,.04);
+  --shadow-brand:0 12px 32px rgba(30,90,240,.18),0 4px 12px rgba(30,90,240,.14);
+  --font-head:"SUITE Variable","Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif;
+  --font-body:"SUIT Variable","Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--ink-50);font-family:var(--font-body);color:var(--ink-900);-webkit-font-smoothing:antialiased;font-feature-settings:"ss01","tnum"}
+a{text-decoration:none;color:inherit}
+h1,h2,h3,h4{font-family:var(--font-head);margin:0;letter-spacing:-.012em}
+
+/* ---------- Top app bar ---------- */
+.appbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:36px;height:64px;padding:0 28px;background:#fff;border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:9px;font-family:var(--font-head);font-weight:800;font-size:20px;letter-spacing:-.02em;color:var(--ink-900)}
+.brand .mark{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,#2E6CFF,#1342CC);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 10px rgba(30,90,240,.35)}
+.brand .mark svg{width:17px;height:17px}
+.nav{display:flex;align-items:center;gap:26px;font-family:var(--font-head);font-weight:600;font-size:15px;color:var(--ink-500)}
+.nav .item{padding:4px 0;cursor:pointer;position:relative}
+.nav .item:hover{color:var(--ink-700)}
+.nav .item.active{color:var(--am-blue);font-weight:700}
+.appbar .right{margin-left:auto;display:flex;align-items:center;gap:16px}
+.hospital{font-size:14px;color:var(--ink-500)}
+.user{display:flex;align-items:center;gap:7px;height:38px;padding:0 14px;border:1px solid var(--line);border-radius:999px;font-weight:600;font-size:14px;background:#fff}
+.user .dot{width:16px;height:16px;border-radius:50%;border:1.6px solid var(--am-yellow);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--am-yellow);font-weight:800}
+
+/* ---------- Page ---------- */
+.wrap{max-width:1280px;margin:0 auto;padding:28px 28px 64px}
+.pagehead{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin:6px 2px 18px}
+.pagehead h1{font-size:30px;font-weight:800;letter-spacing:-.02em}
+.pagehead .sub{margin-top:7px;font-size:14px;color:var(--ink-500)}
+.btn{display:inline-flex;align-items:center;gap:7px;height:40px;padding:0 16px;border-radius:999px;font-family:var(--font-head);font-weight:700;font-size:14px;cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--ink-700);transition:all .12s}
+.btn:hover{border-color:var(--ink-300)}
+.btn svg{width:15px;height:15px}
+
+/* ---------- Overview banner ---------- */
+.overview{background:#fff;border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow-sm);padding:24px 26px;margin-bottom:22px;position:relative;overflow:hidden}
+.overview::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:linear-gradient(180deg,var(--am-blue),var(--am-sky))}
+.overview .eyebrow{font-family:var(--font-head);font-weight:700;font-size:11px;letter-spacing:.11em;text-transform:uppercase;color:var(--am-blue)}
+.overview h2{font-size:20px;font-weight:800;margin:8px 0 12px}
+.overview p{font-size:15px;line-height:1.7;color:var(--ink-700);margin:0;max-width:980px}
+.sourcebar{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px;padding-top:16px;border-top:1px dashed var(--line)}
+.srcchip{display:inline-flex;align-items:center;gap:8px;height:34px;padding:0 14px;border-radius:999px;background:var(--am-blue-50);font-size:13px;font-weight:600;color:var(--ink-700)}
+.srcchip b{font-family:var(--font-head);color:var(--am-blue);font-weight:800}
+.srcchip .meta{margin-left:auto;color:var(--ink-400);font-weight:600}
+
+/* ---------- Section heading ---------- */
+.sectionhead{display:flex;align-items:baseline;gap:10px;margin:4px 2px 14px}
+.sectionhead h3{font-size:18px;font-weight:800}
+.sectionhead .count{font-family:var(--font-head);font-weight:800;color:var(--am-blue);font-size:18px}
+.sectionhead .note{margin-left:auto;font-size:13px;color:var(--ink-400)}
+
+/* ---------- Headline cards ---------- */
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+.card{background:#fff;border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow-sm);padding:22px 22px 18px;display:flex;flex-direction:column;transition:box-shadow .15s,transform .15s}
+.card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px)}
+.card .top{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.rank{flex:none;width:30px;height:30px;border-radius:9px;background:var(--am-navy);color:#fff;font-family:var(--font-head);font-weight:800;font-size:15px;display:flex;align-items:center;justify-content:center}
+.pill{display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:999px;font-size:12px;font-weight:700;font-family:var(--font-head);letter-spacing:-.01em}
+.pill.pubmed{background:#E3EBFF;color:var(--am-blue-700)}
+.pill.korarthro{background:#ECFAFF;color:var(--am-sky-700)}
+.pill.koreaknee{background:#EAF6EE;color:#1FAE6B}
+.pill.jkma{background:#FFF4C7;color:#9a7400}
+.cat{font-size:12px;font-weight:600;color:var(--ink-400)}
+.card .date{margin-left:auto;font-size:13px;color:var(--ink-400);font-family:var(--font-head);font-weight:600}
+.card h4{font-size:16.5px;font-weight:700;line-height:1.42;color:var(--ink-900);margin-bottom:10px}
+.card .summary{font-size:14px;line-height:1.62;color:var(--ink-600);margin:0 0 14px}
+.signif{background:var(--am-blue-50);border-left:3px solid var(--am-blue);border-radius:8px;padding:11px 13px;font-size:13.5px;line-height:1.55;color:var(--ink-700)}
+.signif b{font-family:var(--font-head);color:var(--am-blue-700);font-weight:700}
+.card .foot{margin-top:auto;padding-top:14px;display:flex;align-items:center;justify-content:space-between}
+.src-inline{font-size:13px;color:var(--ink-400);font-weight:600}
+.golink{display:inline-flex;align-items:center;gap:5px;font-family:var(--font-head);font-weight:700;font-size:13px;color:var(--am-blue)}
+.golink:hover{color:var(--am-blue-700)}
+.golink svg{width:14px;height:14px}
+
+.footer{margin-top:34px;text-align:center;font-size:12.5px;color:var(--ink-400);line-height:1.7}
+.footer .legal{color:var(--ink-300)}
+
+@media (max-width:900px){.grid{grid-template-columns:1fr}.nav{display:none}}
+</style>
+</head>
+<body>
+
+<!-- ===== App bar ===== -->
+<header class="appbar">
+  <div class="brand">
+    <span class="mark">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M5 19V8.5a3.5 3.5 0 0 1 3.5-3.5H13a4 4 0 0 1 0 8H8.5" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M11.5 13.5 18 19.5" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </span>
+    RISE-K
+  </div>
+  <nav class="nav">
+    <span class="item">환자 관리</span>
+    <span class="item">오늘의 환자</span>
+    <span class="item">진료 녹음</span>
+    <span class="item">논문 관리</span>
+    <span class="item active">학술 동향</span>
+  </nav>
+  <div class="right">
+    <span class="hospital">명지병원</span>
+    <span class="user"><span class="dot">!</span> 김주현님 ⌄</span>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ===== Page header ===== -->
+  <div class="pagehead">
+    <div>
+      <h1>주간 학술 동향</h1>
+      <div class="sub">수집 기간 2026.06.15 ~ 2026.06.22 · 매주 월요일 09:00 자동 업데이트</div>
+    </div>
+    <button class="btn">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M4 12a8 8 0 0 1 13.7-5.6M20 12a8 8 0 0 1-13.7 5.6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M17 3v4h-4M7 21v-4h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      지난 동향 보기
+    </button>
+  </div>
+
+  <!-- ===== Overview banner ===== -->
+  <section class="overview">
+    <div class="eyebrow">이번 주 종합</div>
+    <h2>무릎 골관절염 보존치료와 ACL 재건 후 재활에서 운동·디지털치료 근거가 두드러진 한 주</h2>
+    <p>
+      이번 주 동향은 크게 세 흐름으로 모입니다. 첫째, 무릎 골관절염의 보존적 관리에서 구조화된 운동치료의 통증·기능 개선 효과를 보고한 무작위 대조 연구가 다수 등재되어, 수술 전 보존치료 단계의 근거가 강화되고 있습니다. 둘째, 전방십자인대(ACL) 재건 후 복귀 시점 판단에 환자보고결과(PROM)와 동적 균형 검사를 결합한 예측 모델 연구가 이어지며 객관적 복귀 기준 논의가 활발합니다. 셋째, 정형외과 재활 영역에서 디지털치료기기(DTx)·원격 모니터링의 순응도와 임상적 유효성을 다룬 보고가 늘어, 측정 가능한 운동처방이라는 방향과 맞닿아 있습니다. 국내에서는 대한슬관절학회·대한관절경학회의 연수강좌 일정이 공지되었습니다.
+    </p>
+    <div class="sourcebar">
+      <span class="srcchip">PubMed <b>8</b></span>
+      <span class="srcchip">JKMA <b>3</b></span>
+      <span class="srcchip">대한관절경학회 <b>2</b></span>
+      <span class="srcchip">대한슬관절학회 <b>1</b></span>
+      <span class="srcchip" style="background:var(--ink-30)">후보 <b style="color:var(--ink-600)">76</b>건 → 선별 <b>14</b>건<span class="meta"></span></span>
+    </div>
+  </section>
+
+  <!-- ===== Section heading ===== -->
+  <div class="sectionhead">
+    <h3>주요 동향</h3><span class="count">14건</span>
+    <span class="note">임상·학술적 가치 순 · 단순 행정 공지 제외</span>
+  </div>
+
+  <!-- ===== Headline cards ===== -->
+  <div class="grid">
+
+    <!-- 1 -->
+    <article class="card">
+      <div class="top">
+        <span class="rank">1</span>
+        <span class="pill pubmed">PubMed</span>
+        <span class="cat">무릎 정형외과</span>
+        <span class="date">2026.06.19</span>
+      </div>
+      <h4>Structured exercise therapy vs. usual care in knee osteoarthritis: a multicenter randomized controlled trial</h4>
+      <p class="summary">중등도 무릎 골관절염 환자 312명을 대상으로 12주 구조화 운동치료군과 일반 관리군을 비교한 다기관 RCT입니다. 1차 결과인 WOMAC 통증 점수에서 운동치료군이 유의하게 큰 개선(−18.4 vs −7.1, p&lt;0.001)을 보였고, 6개월 시점까지 효과가 유지되었습니다. 진통제 사용량과 보행 속도에서도 일관된 이점이 관찰되었습니다.</p>
+      <div class="signif"><b>임상적 의의</b> · 수술 전 보존치료 단계에서 운동처방의 표준화 근거를 보강하며, 보존적 평가–운동치료 경로 설계에 직접 인용할 수 있는 1차 근거입니다.</div>
+      <div class="foot"><span class="src-inline">N Engl J Med · IF 96.2</span><a class="golink" href="#">바로가기 <svg viewBox="0 0 24 24" fill="none"><path d="M7 17 17 7M9 7h8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div>
+    </article>
+
+    <!-- 2 -->
+    <article class="card">
+      <div class="top">
+        <span class="rank">2</span>
+        <span class="pill pubmed">PubMed</span>
+        <span class="cat">의료 AI / 예측</span>
+        <span class="date">2026.06.18</span>
+      </div>
+      <h4>Machine-learning prediction of safe return-to-sport after ACL reconstruction using PROM and Y-balance data</h4>
+      <p class="summary">ACL 재건 환자 1,047명의 환자보고결과(IKDC·KOOS)와 동적 균형 검사(Y-balance)를 결합해 안전한 스포츠 복귀 시점을 예측하는 머신러닝 모델을 제시했습니다. 외부 검증 코호트에서 AUC 0.86을 기록했고, 단일 근력 지표보다 다지표 결합 모델의 판별력이 높았습니다.</p>
+      <div class="signif"><b>임상적 의의</b> · 복귀 판단을 임상의 경험에 의존하던 관행에서 객관적·재현 가능한 기준으로 전환할 가능성을 보여줍니다. PROM·기능검사 수집 흐름과 연계됩니다.</div>
+      <div class="foot"><span class="src-inline">Am J Sports Med</span><a class="golink" href="#">바로가기 <svg viewBox="0 0 24 24" fill="none"><path d="M7 17 17 7M9 7h8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div>
+    </article>
+
+    <!-- 3 -->
+    <article class="card">
+      <div class="top">
+        <span class="rank">3</span>
+        <span class="pill pubmed">PubMed</span>
+        <span class="cat">DTx / SaMD</span>
+        <span class="date">2026.06.17</span>
+      </div>
+      <h4>Digital therapeutic for home-based knee rehabilitation: adherence and functional outcomes at 24 weeks</h4>
+      <p class="summary">앱 기반 가정 무릎 재활 디지털치료기기(DTx)를 24주간 적용한 전향적 연구로, 원격 모니터링군의 운동 순응도가 대조군 대비 31%p 높았습니다. Lysholm·Tegner 점수 개선폭도 유의하게 컸으며, 이탈률은 낮았습니다.</p>
+      <div class="signif"><b>임상적 의의</b> · 측정 가능한 운동처방과 원격 순응도 관리가 실제 기능 개선으로 이어짐을 시사합니다. 보존·수술 후 추적관리 경로 모두에 적용 여지가 있습니다.</div>
+      <div class="foot"><span class="src-inline">npj Digital Medicine</span><a class="golink" href="#">바로가기 <svg viewBox="0 0 24 24" fill="none"><path d="M7 17 17 7M9 7h8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div>
+    </article>
+
+    <!-- 4 -->
+    <article class="card">
+      <div class="top">
+        <span class="rank">4</span>
+        <span class="pill jkma">JKMA</span>
+        <span class="cat">임상 가이드라인</span>
+        <span class="date">2026.06.01</span>
+      </div>
+      <h4>슬관절 골관절염의 단계별 보존치료 권고안 개정 — 운동치료·체중관리 우선순위</h4>
+      <p class="summary">대한의사협회지 최신호에 게재된 종설로, 무릎 골관절염 보존치료의 단계별 권고를 갱신했습니다. 약물 이전에 운동치료·체중관리를 1차로 권고하고, 주사·수술의 적응 시점을 구체화했습니다.</p>
+      <div class="signif"><b>임상적 의의</b> · 국내 진료 맥락에 맞춘 권고로, 환자 설명자료와 보존적 평가 단계 워크플로에 바로 반영할 수 있습니다.</div>
+      <div class="foot"><span class="src-inline">JKMA · v.69(6)</span><a class="golink" href="#">바로가기 <svg viewBox="0 0 24 24" fill="none"><path d="M7 17 17 7M9 7h8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div>
+    </article>
+
+    <!-- 5 -->
+    <article class="card">
+      <div class="top">
+        <span class="rank">5</span>
+        <span class="pill pubmed">PubMed</span>
+        <span class="cat">무릎 정형외과</span>
+        <span class="date">2026.06.16</span>
+      </div>
+      <h4>High tibial osteotomy vs. unicompartmental arthroplasty for medial knee OA: 5-year comparative outcomes</h4>
+      <p class="summary">내측 구획 골관절염에서 근위경골절골술(HTO)과 부분치환술(UKA)의 5년 추적 결과를 비교했습니다. 통증·기능 점수는 두 군 모두 유의하게 개선되었고, 활동 수준이 높은 젊은 환자군에서 HTO의 운동 복귀 지표가 더 우수했습니다.</p>
+      <div class="signif"><b>임상적 의의</b> · 환자 연령·활동 수준에 따른 술식 선택 상담에 활용할 수 있는 중기 비교 근거입니다.</div>
+      <div class="foot"><span class="src-inline">Knee Surg Sports Traumatol Arthrosc</span><a class="golink" href="#">바로가기 <svg viewBox="0 0 24 24" fill="none"><path d="M7 17 17 7M9 7h8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div>
+    </article>
+
+    <!-- 6 -->
+    <article class="card">
+      <div class="top">
+        <span class="rank">6</span>
+        <span class="pill korarthro">대한관절경학회</span>
+        <span class="cat">연수강좌</span>
+        <span class="date">2026.06.20</span>
+      </div>
+      <h4>2026 대한관절경학회 추계 연수강좌 — 무릎·어깨 관절경 술기 라이브 서저리 안내</h4>
+      <p class="summary">10월 개최 예정인 추계 연수강좌 사전등록 공지입니다. 무릎·어깨 관절경 핵심 술기 라이브 서저리와 ACL 재건 최신 트렌드 세션이 포함됩니다.</p>
+      <div class="signif"><b>학술적 의의</b> · 관절경 술기 업데이트와 재건 트렌드를 직접 확인할 수 있는 국내 주요 연수 기회입니다.</div>
+      <div class="foot"><span class="src-inline">대한관절경학회 공지</span><a class="golink" href="#">바로가기 <svg viewBox="0 0 24 24" fill="none"><path d="M7 17 17 7M9 7h8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div>
+    </article>
+
+  </div>
+
+  <div class="footer">
+    선별 14건 중 6건 표시 · 나머지 동향은 카드 하단에서 더 보기<br>
+    <span class="legal">본 동향은 의료진 내부 열람용 참고 자료이며, 진료 판단의 근거 자료로 활용 시 원문 확인이 필요합니다. · RISE-K by ActiMedi</span>
+  </div>
+
+</main>
+</body>
+</html>
