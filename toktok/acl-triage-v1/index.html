@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>톡톡 · ACL 진료 문진</title>
+<style>@import url("https://fastly.jsdelivr.net/gh/sunn-us/SUITE/fonts/variable/woff2/SUITE-Variable.css");@import url("https://fastly.jsdelivr.net/gh/sunn-us/SUIT/fonts/variable/woff2/SUIT-Variable.css");:root{--am-blue:#1E5AF0;--am-navy:#0C1E6B;--am-skyblue:#38D2FF;--am-white:#FFFFFF;--am-blue-800:#0A2DA8;--am-blue-700:#1342CC;--am-blue-300:#93B2FF;--am-blue-200:#C5D5FF;--am-blue-100:#E3EBFF;--am-blue-50:#F3F6FF;--am-sky-900:#0B6B92;--am-sky-100:#D6F4FF;--am-sky-50:#ECFAFF;--am-ink-900:#101010;--am-ink-100:#E5E7EC;--am-ink-30:#F8F9FB;--am-status-positive:#1FAE6B;--am-status-destructive:#E5484D;--am-text-strong:#101010;--am-text-neutral:#262A33;--am-text-alternative:#555B68;--am-text-assistive:#A8ADBA;--am-surface-page:#FFFFFF;--am-surface-elev:#F8F9FB;--am-surface-sunken:#F3F4F7;--am-line:#E5E7EC;--am-line-strong:#C9CDD6;--am-focus-ring:rgba(30,90,240,0.35);--am-radius-sm:8px;--am-radius-md:12px;--am-radius-lg:16px;--am-radius-pill:999px;--am-shadow-xs:0 1px 2px rgba(12,30,107,0.06);--am-shadow-sm:0 2px 6px rgba(12,30,107,0.06), 0 1px 2px rgba(12,30,107,0.04);--am-shadow-md:0 8px 20px rgba(12,30,107,0.08), 0 2px 4px rgba(12,30,107,0.04);--am-shadow-brand:0 12px 32px rgba(30,90,240,0.22), 0 4px 12px rgba(30,90,240,0.18);--am-font-head:"SUITE Variable", "SUITE", -apple-system, BlinkMacSystemFont,
+"Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;--am-font-body:"SUIT Variable", "SUIT", -apple-system, BlinkMacSystemFont,
+"Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;--am-font-num:"SUIT Variable", "SUIT", ui-monospace, "SF Mono", Menlo, monospace;--am-type-display-1:56px;--am-type-display-2:44px;--am-type-h1:36px;--am-type-h2:28px;--am-type-h3:22px;--am-type-h4:18px;--am-type-body-lg:17px;--am-type-body:15px;--am-type-caption:12px;--am-type-micro:11px;}html, body { font-family: var(--am-font-body); font-feature-settings: "ss01", "tnum"; color: var(--am-text-strong); background: var(--am-surface-page); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }</style>
+<style>*{box-sizing:border-box;}
+body{margin:0;background:var(--am-surface-sunken);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
+.app{width:100%;max-width:640px;height:min(880px,92vh);background:var(--am-white);border-radius:var(--am-radius-lg);
+box-shadow:var(--am-shadow-md);display:flex;flex-direction:column;overflow:hidden;}
+.hd{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--am-line);}
+.hd .mark{width:44px;height:44px;border-radius:13px;background:var(--am-blue);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.hd .ttl{font-family:var(--am-font-head);font-weight:700;font-size:19px;color:var(--am-text-strong);line-height:1.1;}
+.hd .sub{display:flex;align-items:center;gap:7px;margin-top:3px;font-size:12.5px;color:var(--am-text-alternative);}
+.hd .guide{display:inline-flex;align-items:center;gap:3px;color:var(--am-blue);font-weight:600;}
+.hd .status{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--am-text-alternative);align-self:flex-start;}
+.hd .dot{width:7px;height:7px;border-radius:50%;background:var(--am-status-positive);}
+.chat{flex:1;overflow-y:auto;background:var(--am-surface-elev);padding:22px 20px 8px;}
+.row{margin-bottom:18px;display:flex;}
+.row.user{justify-content:flex-end;}
+.bot{max-width:90%;color:var(--am-text-neutral);font-size:15px;line-height:1.55;white-space:pre-wrap;}
+.bot .q{font-weight:600;color:var(--am-text-strong);}
+.bot .tag{display:inline-block;font-family:var(--am-font-head);font-size:11px;font-weight:700;letter-spacing:.03em;
+color:var(--am-blue-700);background:var(--am-blue-50);border-radius:6px;padding:2px 7px;margin-bottom:6px;}
+.bot .tag.exam{color:#8A4B00;background:#FFF1DF;}
+.bubble{max-width:82%;background:var(--am-blue);color:#fff;font-size:15px;font-weight:500;line-height:1.5;
+padding:12px 16px;border-radius:16px;border-bottom-right-radius:6px;}
+.zone{margin-bottom:8px;}
+.chips{display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end;}
+.chip{font-family:var(--am-font-body);font-size:14.5px;font-weight:500;color:var(--am-text-neutral);
+background:var(--am-white);border:1px solid var(--am-line-strong);border-radius:var(--am-radius-pill);
+padding:11px 18px;cursor:pointer;transition:.12s;line-height:1.3;max-width:100%;text-align:center;}
+.chip:hover{border-color:var(--am-blue-300);}
+.chip.on{background:var(--am-blue);border-color:var(--am-blue);color:#fff;}
+textarea.ta{width:100%;min-height:84px;resize:none;font-family:var(--am-font-body);font-size:15px;color:var(--am-text-strong);
+background:var(--am-white);border:1px solid var(--am-line-strong);border-radius:var(--am-radius-md);padding:14px 16px;line-height:1.5;}
+textarea.ta:focus{outline:none;border-color:var(--am-blue);box-shadow:0 0 0 3px var(--am-focus-ring);}
+.beighton{background:var(--am-white);border:1px solid var(--am-line);border-radius:var(--am-radius-md);box-shadow:var(--am-shadow-xs);overflow:hidden;}
+.bg-row{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--am-line);}
+.bg-row:last-of-type{border-bottom:none;}
+.bg-name{flex:1;font-size:14px;color:var(--am-text-neutral);line-height:1.4;}
+.bg-name small{display:block;color:var(--am-text-assistive);font-size:12px;margin-top:1px;}
+.bg-side{display:flex;gap:7px;}
+.pip{min-width:42px;text-align:center;font-family:var(--am-font-body);font-size:13px;font-weight:600;color:var(--am-text-alternative);
+background:var(--am-ink-30);border:1px solid var(--am-line-strong);border-radius:var(--am-radius-sm);padding:7px 0;cursor:pointer;user-select:none;transition:.12s;}
+.pip.on{background:var(--am-blue);border-color:var(--am-blue);color:#fff;}
+.bg-score{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;background:var(--am-blue-50);}
+.bg-score .s{font-family:var(--am-font-head);font-weight:800;font-size:18px;color:var(--am-navy);}
+.bg-score .badge{font-family:var(--am-font-head);font-size:12px;font-weight:700;padding:4px 10px;border-radius:var(--am-radius-pill);}
+.bg-score .badge.hi{background:#FCEAEA;color:var(--am-status-destructive);}
+.bg-score .badge.lo{background:var(--am-ink-100);color:var(--am-text-alternative);}
+.sum{background:var(--am-white);border:1px solid var(--am-line);border-radius:var(--am-radius-md);box-shadow:var(--am-shadow-sm);overflow:hidden;}
+.sum-top{padding:16px 18px;border-bottom:1px solid var(--am-line);}
+.sum-top.surg{background:var(--am-blue-50);} .sum-top.cons{background:var(--am-sky-50);}
+.sum-top .lbl{font-size:12px;font-weight:700;letter-spacing:.04em;font-family:var(--am-font-head);}
+.sum-top.surg .lbl{color:var(--am-blue-700);} .sum-top.cons .lbl{color:var(--am-sky-900);}
+.sum-top .cls{font-family:var(--am-font-head);font-weight:800;font-size:22px;color:var(--am-navy);margin-top:4px;}
+.sum-top .cls small{font-weight:500;font-size:13.5px;color:var(--am-text-alternative);display:block;margin-top:4px;line-height:1.45;}
+.sum-list{padding:6px 18px 4px;}
+.sum-item{display:flex;justify-content:space-between;gap:14px;padding:10px 0;border-bottom:1px solid var(--am-line);font-size:13.5px;}
+.sum-item:last-child{border-bottom:none;}
+.sum-item .k{color:var(--am-text-alternative);flex-shrink:0;}
+.sum-item .v{color:var(--am-text-strong);font-weight:500;text-align:right;}
+.sum-item .v.flag{color:var(--am-blue);font-weight:700;}
+.stage{margin:14px 18px;border-radius:var(--am-radius-md);padding:14px 16px;border:1px solid;}
+.stage.surg{background:var(--am-blue-50);border-color:var(--am-blue-100);}
+.stage.cons{background:var(--am-sky-50);border-color:var(--am-sky-100);}
+.stage .sh{font-family:var(--am-font-head);font-weight:700;font-size:14px;margin-bottom:8px;}
+.stage.surg .sh{color:var(--am-blue-800);} .stage.cons .sh{color:var(--am-sky-900);}
+.stage ul{margin:0;padding-left:17px;color:var(--am-text-neutral);font-size:13px;line-height:1.65;}
+.stage .step{font-size:13px;color:var(--am-text-neutral);line-height:1.6;}
+.stage .step b{font-weight:600;color:var(--am-text-strong);}
+.src{margin:0 18px 16px;font-size:11.5px;color:var(--am-text-assistive);line-height:1.5;}
+.ft{display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:14px 20px;border-top:1px solid var(--am-line);background:var(--am-white);}
+.ft .hint{margin-right:auto;font-size:12px;color:var(--am-text-assistive);}
+.btn{font-family:var(--am-font-head);font-weight:700;font-size:15px;border-radius:var(--am-radius-pill);padding:12px 26px;cursor:pointer;border:1px solid transparent;transition:.12s;}
+.btn.skip{background:var(--am-white);border-color:var(--am-line-strong);color:var(--am-text-alternative);}
+.btn.next{background:var(--am-blue);color:#fff;box-shadow:var(--am-shadow-brand);}
+.btn.next:hover{background:var(--am-blue-700);}
+.btn.next:disabled{background:var(--am-blue-200);box-shadow:none;cursor:not-allowed;}
+.progress{height:3px;background:var(--am-blue-100);}
+.progress > i{display:block;height:100%;background:var(--am-blue);width:0;transition:width .3s;}</style>
+</head>
+<body>
+<div class="app">
+  <div class="hd">
+    <div class="mark" aria-hidden="true">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8A8.5 8.5 0 1 1 21 11.5z"/>
+        <path d="M12 8v6M9 11h6"/>
+      </svg>
+    </div>
+    <div>
+      <div class="ttl">톡톡</div>
+      <div class="sub">정형외과 진료 문진
+        <span class="guide">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.4 8.4 8 11 4.6-2.6 8-6 8-11V5z"/><path d="m9 12 2 2 4-4"/></svg>
+          ACL 알고리즘 기반
+        </span>
+      </div>
+    </div>
+    <div class="status"><span class="dot"></span>진료 준비 완료</div>
+  </div>
+  <div class="progress"><i id="bar"></i></div>
+  <div class="chat" id="chat"></div>
+  <div class="ft">
+    <span class="hint" id="hint"></span>
+    <button class="btn skip" id="skip" style="display:none">건너뛰기</button>
+    <button class="btn next" id="next" disabled>다음</button>
+  </div>
+</div>
+<script>
+const state={};
+
+const STEPS=[
+ {key:'period',kind:'single',tag:'Q0 · 손상 시기',
+  intro:['ACL 진료 문진을 시작합니다. 환자분과 함께 답변을 채워주세요.'],
+  bot:['언제쯤 다치셨나요?'],
+  options:['1주 이내','2–6주 전','6주–3개월 전','3개월–1년 전','1년 이상 전'],
+  acuteSet:['1주 이내','2–6주 전']},
+
+ {key:'mechanism',kind:'single',tag:'Q0 · 손상 기전',
+  bot:['어떤 동작에서 다치셨나요?'],
+  options:['방향 전환 중 (비접촉)','무릎이 뒤로 꺾임 (과신전)','상대와 부딪힘 (접촉·충돌)','잘 모르겠음']},
+
+ {key:'signs',kind:'multi',tag:'Q0 · 손상 당시',skippable:true,
+  bot:['수상 당시 신호가 있었나요? (해당 모두)'],
+  options:['"뚝/펑" 소리 (Pop)','수 시간 내 부종 (혈관절증)','해당 없음']},
+
+ {key:'history',kind:'single',tag:'Q1 · 이전 이력',
+  bot:['같은 쪽 무릎에 이전 ACL·동측 손상 진단이나 수술 이력이 있나요?'],
+  options:['없음 (초발)','ACL 진단만 (수술 안 함)','ACL 재건술 이력 (Revision)']},
+
+ {key:'graft',kind:'single',tag:'Q1 · 이전 Graft',cond:s=>s.history==='ACL 재건술 이력 (Revision)',
+  bot:['이전 재건술 Graft 종류는?'],
+  options:['BTB','햄스트링 (HS)','대퇴사두근건 (QT)','동종건 (Allograft)','불명']},
+
+ {key:'concomitant',kind:'multi',tag:'Q1 · 동반 손상',
+  bot:['동반 손상이 있나요? (해당 모두)'],
+  options:['반월상연골 손상','연골 손상','다중 인대 손상 (PCL·MCL·LCL·PLC)','없음']},
+
+ {key:'level',kind:'single',tag:'Q2 · 활동 수준',
+  bot:['활동 수준은 어느 정도인가요?'],
+  options:['Level I — 선수 / 피벗 스포츠 주 2회↑ (축구·농구·스키)',
+           'Level II — 방향 전환 레저 (테니스·배드민턴·등산)',
+           'Level III — 직선 운동 (조깅·수영·사이클)',
+           'Level IV — 일상생활 위주']},
+
+ {key:'age',kind:'single',tag:'Q2 · 연령',
+  bot:['연령대는?'],
+  options:['20세 미만','20–34세','35–49세','50세 이상']},
+
+ {key:'beighton',kind:'beighton',tag:'Q3 · 관절 유연성 (Beighton)',
+  bot:['Beighton Score를 측정해주세요. 해당 부위를 눌러 점수를 매깁니다 (9점 만점, ≥4 → Hyperlaxity).']},
+
+ {key:'exam',kind:'examGate',tag:'신체진찰',
+  bot:['신체진찰 소견을 입력해주세요.']},
+
+ {key:'givingway',kind:'single',tag:'Q4 · 무릎 불안정성',cond:s=>s.acuity==='만성',
+  bot:['Giving-way(무릎 빠짐·흔들림)가 있었나요?'],
+  options:['없음','1회','2회 이상']},
+
+ {key:'symptom',kind:'text',placeholder:'예: 계단 내려갈 때 불안정, 통증',
+  bot:['현재 주 증상·호소를 입력해주세요.']},
+
+ {key:'preference',kind:'single',tag:'Q5 · 치료 선호',cond:s=>!surgeryConfirmed(s),
+  bot:['수술과 재활(보존)을 충분히 설명한 뒤, 환자가 선호하는 방향은? (Shared Decision-Making)'],
+  options:['수술을 원함','재활 먼저 원함','권고를 따름']},
+
+ {key:'done',kind:'summary',bot:[]}
+];
+
+const BEIGHTON=[
+ ['새끼손가락 과신전 ≥90°','양측 각 1점',2],
+ ['엄지 → 전완부 접촉','양측 각 1점',2],
+ ['팔꿈치 과신전 ≥10°','양측 각 1점',2],
+ ['무릎 과신전 ≥10°','양측 각 1점',2],
+ ['선 자세 손바닥 바닥 닿기','1점',1]
+];
+
+function isLevel12(s){return /Level I |Level II /.test(String(s.level));}
+function absoluteSurgery(s){
+  const c=s.concomitant||[];
+  const meniscusOrMulti=c.includes('반월상연골 손상')||c.includes('다중 인대 손상 (PCL·MCL·LCL·PLC)');
+  const youthHigh=s.age==='20세 미만'&&isLevel12(s);
+  return meniscusOrMulti||youthHigh;
+}
+function examPositive(s){
+  const e=s.exam||{};
+  return e.pivot==='Grade I↑'||e.lachman==='중등도 이상'||e.stress==='≥5mm';
+}
+// 순서도 판정: 수술로 확정되는 경우 (Q5 생략 조건과 동일)
+function surgeryConfirmed(s){
+  if(absoluteSurgery(s)) return true;
+  if(s.acuity==='만성'){
+    if(examPositive(s)) return true;                       // Gate1 양성 → 수술
+    // Gate1 음성 → Gate2: Giving-way≥2 또는 Level I·II
+    if(s.givingway==='2회 이상') return true;
+    if(isLevel12(s)) return true;
+    return false;
+  }else{ // 급성: 진찰 제한 → <35세+Level I·II / 동반손상 / (환자선호는 Q5에서)
+    const young=(s.age==='20세 미만'||s.age==='20–34세')&&isLevel12(s);
+    return young; // 동반손상은 absoluteSurgery에서 이미 처리
+  }
+}
+
+const chat=document.getElementById('chat'),nextBtn=document.getElementById('next'),
+      skipBtn=document.getElementById('skip'),bar=document.getElementById('bar'),hint=document.getElementById('hint');
+let idx=-1,draft=null;
+
+function botRow(html){const r=document.createElement('div');r.className='row';const b=document.createElement('div');b.className='bot';b.innerHTML=html;r.appendChild(b);chat.appendChild(r);}
+function userRow(t){const r=document.createElement('div');r.className='row user';const b=document.createElement('div');b.className='bubble';b.textContent=t;r.appendChild(b);chat.appendChild(r);}
+function scrollDown(){chat.scrollTop=chat.scrollHeight;}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/\n/g,'<br>');}
+
+function enterStep(i){
+  idx=i;draft=null;const st=STEPS[i];
+  bar.style.width=Math.min(100,(i/(STEPS.length-1))*100)+'%';
+  (st.intro||[]).forEach(line=>botRow(esc(line)));
+  (st.bot||[]).forEach((line,k)=>{
+    let html=esc(line);
+    const exam=(st.tag==='신체진찰');
+    if(k===0&&st.tag) html='<span class="tag'+(exam?' exam':'')+'">'+st.tag+'</span><br><span class="q">'+esc(line)+'</span>';
+    else if(k===0) html='<span class="q">'+esc(line)+'</span>';
+    botRow(html);
+  });
+  if(st.kind==='summary'){renderSummary();return;}
+  renderZone(st);syncFooter(st);scrollDown();
+}
+
+function renderZone(st){
+  const zone=document.createElement('div');zone.className='zone';zone.id='zone';
+  if(st.kind==='single'||st.kind==='multi'){
+    const w=document.createElement('div');w.className='chips';
+    st.options.forEach(opt=>{const c=document.createElement('div');c.className='chip';c.textContent=opt;
+      c.onclick=()=>{
+        if(st.kind==='single'){[...w.children].forEach(x=>x.classList.remove('on'));c.classList.add('on');draft=opt;}
+        else{c.classList.toggle('on');draft=[...w.children].filter(x=>x.classList.contains('on')).map(x=>x.textContent);if(!draft.length)draft=null;}
+        syncFooter(st);};
+      w.appendChild(c);});
+    zone.appendChild(w);
+  }else if(st.kind==='text'){
+    const ta=document.createElement('textarea');ta.className='ta';ta.placeholder=st.placeholder||'';
+    ta.oninput=()=>{draft=ta.value.trim()||null;syncFooter(st);};zone.appendChild(ta);
+  }else if(st.kind==='beighton'){zone.appendChild(buildBeighton(st));}
+  else if(st.kind==='examGate'){zone.appendChild(buildExam(st));}
+  chat.appendChild(zone);
+}
+
+function buildBeighton(st){
+  const card=document.createElement('div');card.className='beighton';
+  draft={pts:Array(BEIGHTON.length).fill(0),score:0,sides:BEIGHTON.map((b)=>Array(b[2]).fill(false))};
+  const score=document.createElement('div');
+  BEIGHTON.forEach((b,i)=>{
+    const row=document.createElement('div');row.className='bg-row';
+    const name=document.createElement('div');name.className='bg-name';
+    name.innerHTML=b[0]+'<small>'+b[1]+'</small>';
+    const sideWrap=document.createElement('div');sideWrap.className='bg-side';
+    const labels=b[2]===2?['좌','우']:['해당'];
+    labels.forEach((lab,j)=>{
+      const pip=document.createElement('div');pip.className='pip';pip.textContent=lab;
+      pip.onclick=()=>{pip.classList.toggle('on');draft.sides[i][j]=pip.classList.contains('on');recalc();};
+      sideWrap.appendChild(pip);
+    });
+    row.appendChild(name);row.appendChild(sideWrap);card.appendChild(row);
+  });
+  score.className='bg-score';
+  score.innerHTML='<span class="s" id="bgScore">0 / 9</span><span class="badge lo" id="bgBadge">정상</span>';
+  card.appendChild(score);
+  function recalc(){
+    let t=0;draft.sides.forEach(arr=>arr.forEach(v=>{if(v)t++;}));
+    draft.score=t;
+    document.getElementById('bgScore').textContent=t+' / 9';
+    const badge=document.getElementById('bgBadge');
+    if(t>=4){badge.className='badge hi';badge.textContent='Hyperlaxity (≥4)';}
+    else{badge.className='badge lo';badge.textContent='정상';}
+    syncFooter(st);
+  }
+  return card;
+}
+
+function buildExam(st){
+  const card=document.createElement('div');card.className='beighton';
+  draft={pivot:null,lachman:null,stress:null};
+  const items=[
+    ['pivot','Pivot shift',['음성','Grade I↑']],
+    ['lachman','Lachman',['정상·경도','중등도 이상']],
+    ['stress','Pull-push Stress X-ray',['<5mm','≥5mm']]
+  ];
+  items.forEach(it=>{
+    const row=document.createElement('div');row.className='bg-row';
+    const name=document.createElement('div');name.className='bg-name';name.textContent=it[1];
+    const wrap=document.createElement('div');wrap.className='bg-side';
+    it[2].forEach(opt=>{
+      const pip=document.createElement('div');pip.className='pip';pip.style.minWidth='66px';pip.textContent=opt;
+      pip.onclick=()=>{[...wrap.children].forEach(x=>x.classList.remove('on'));pip.classList.add('on');draft[it[0]]=opt;syncFooter(st);};
+      wrap.appendChild(pip);
+    });
+    row.appendChild(name);row.appendChild(wrap);card.appendChild(row);
+  });
+  return card;
+}
+
+function answered(st){
+  if(st.kind==='multi')return Array.isArray(draft)&&draft.length>0;
+  if(st.kind==='beighton')return draft&&typeof draft.score==='number';
+  if(st.kind==='examGate')return draft&&draft.pivot&&draft.lachman&&draft.stress;
+  return draft!=null&&draft!=='';
+}
+function syncFooter(st){nextBtn.disabled=!answered(st);skipBtn.style.display=st.skippable?'':'none';}
+
+function bubbleText(st,v){
+  if(st.kind==='multi')return v.join(', ');
+  if(st.kind==='beighton')return 'Beighton '+v.score+'/9'+(v.score>=4?' · Hyperlaxity':'');
+  if(st.kind==='examGate')return 'Pivot '+v.pivot+' · Lachman '+v.lachman+' · Stress '+v.stress;
+  return v;
+}
+function applyFx(st,v){
+  state[st.key]=v;
+  if(st.key==='period'){state.acuity=st.acuteSet.includes(v)?'급성':'만성';}
+}
+function nextIndex(i){let j=i+1;while(j<STEPS.length&&STEPS[j].cond&&!STEPS[j].cond(state))j++;return j;}
+
+nextBtn.onclick=()=>{const st=STEPS[idx];if(!answered(st))return;const v=draft;applyFx(st,v);
+  const z=document.getElementById('zone');if(z)z.remove();userRow(bubbleText(st,v));enterStep(nextIndex(idx));};
+skipBtn.onclick=()=>{const st=STEPS[idx];state[st.key]='건너뜀';const z=document.getElementById('zone');if(z)z.remove();userRow('건너뛰기');enterStep(nextIndex(idx));};
+
+function renderSummary(){
+  nextBtn.style.display='none';skipBtn.style.display='none';hint.textContent='문진 완료 — 전문의 승인 후 적용';bar.style.width='100%';
+
+  const acu=state.acuity||'—',surgery=surgeryConfirmed(state);
+  // 판정 근거 텍스트
+  let reason=[];
+  if(absoluteSurgery(state)) reason.push('절대 적응증');
+  if(acu==='만성'&&examPositive(state)) reason.push('신체진찰 양성');
+  if(acu==='만성'&&!examPositive(state)&&state.givingway==='2회 이상') reason.push('Giving-way ≥2회');
+  if(isLevel12(state)) reason.push('Level I·II');
+  const path = surgery?'수술 경로':'보존(재활) 경로';
+
+  botRow('문진과 진찰 입력을 종합한 잠정 판정입니다. 최종 결정은 전문의가 확정합니다.');
+
+  const z=document.createElement('div');z.className='zone';
+  const sum=document.createElement('div');sum.className='sum';
+  sum.innerHTML='<div class="sum-top '+(surgery?'surg':'cons')+'"><div class="lbl">'+acu+' · 잠정 경로</div>'+
+    '<div class="cls">'+path+'<small>'+(surgery?('근거: '+(reason.join(' · ')||'알고리즘 기준')) :'신체진찰 음성 + 추가 적응증 없음 → 보존 후 재분류')+'</small></div></div>';
+  const list=document.createElement('div');list.className='sum-list';
+  const e=state.exam||{};
+  const rows=[
+    ['손상 시기',(state.period||'—')+' ('+acu+')'],
+    ['손상 기전',state.mechanism||'—'],
+    ['이전 이력',(state.history||'—')+(state.graft?' · Graft '+state.graft:'')],
+    ['동반 손상',(Array.isArray(state.concomitant)?state.concomitant.join(', '):state.concomitant)||'—'],
+    ['활동 수준',String(state.level||'—').split(' — ')[0]],
+    ['연령대',state.age||'—'],
+    ['Beighton',state.beighton?(state.beighton.score+'/9'+(state.beighton.score>=4?' (Hyperlaxity)':'')):'—'],
+    ['신체진찰','Pivot '+(e.pivot||'—')+' · Lachman '+(e.lachman||'—')+' · Stress '+(e.stress||'—')],
+    ['Giving-way',acu==='급성'?'급성 — 생략':(state.givingway||'—')],
+    ['주 증상',state.symptom||'—'],
+    ['치료 선호',surgery?'수술 확정 — 선호 문항 생략':(state.preference||'—')]
+  ];
+  rows.forEach(r=>{const it=document.createElement('div');it.className='sum-item';
+    const flag=(r[0]==='신체진찰'&&examPositive(state))||(r[0]==='Beighton'&&state.beighton&&state.beighton.score>=4)||(r[0]==='치료 선호'&&surgery);
+    it.innerHTML='<span class="k">'+r[0]+'</span><span class="v'+(flag?' flag':'')+'">'+r[1]+'</span>';list.appendChild(it);});
+  sum.appendChild(list);z.appendChild(sum);chat.appendChild(z);
+
+  if(surgery){
+    const surg=document.createElement('div');surg.className='stage surg';
+    const allr = (e.pivot==='Grade I↑') || (state.beighton&&state.beighton.score>=4) || state.age==='20세 미만'
+                 || state.history==='ACL 재건술 이력 (Revision)' || isLevel12(state);
+    const biobrace = allr || state.history==='ACL 재건술 이력 (Revision)' || (state.beighton&&state.beighton.score>=4) || state.age==='20세 미만';
+    surg.innerHTML='<div class="sh">수술 경로</div>'+
+      '<div class="step"><b>ALLR 적응증</b> — Pivot II↑ / Beighton ≥4 / 20세 미만 / Revision / Level I·II 선수 / 고에너지 → '+
+        '<b>'+(allr?'ACLR + ALLR 권고':'ACLR 단독')+'</b></div>'+
+      '<div class="step" style="margin-top:6px"><b>Graft 선택</b> — '+(state.graft&&state.graft!=='불명'? '이전 '+state.graft+' 기반 재선택' : '초발/표준')+' (BTB→ST·QT, HS→QT, QT→HS·동종건). 소아: Femur Epiphyseal + Tibia Trans-physeal</div>'+
+      '<div class="step" style="margin-top:6px"><b>Bio-brace</b> — '+(biobrace?'적용 검토':'생략 가능')+' → 수술 시행 · 전문의 승인</div>'+
+      (acu==='급성'&&Array.isArray(state.concomitant)&&state.concomitant.includes('반월상연골 손상')?'<div class="step" style="margin-top:6px;color:var(--am-blue-800)"><b>급성:</b> 부종 소실 후(3–6주) 수술 예정</div>':'');
+    chat.appendChild(surg);
+  }else{
+    const cons=document.createElement('div');cons.className='stage cons';
+    cons.innerHTML='<div class="sh">보존(재활) 경로</div>'+
+      '<div class="step"><b>6주 NMST</b> 후 Fitzgerald Coper 4기준 재분류</div>'+
+      '<ul style="margin-top:6px"><li>Hop LSI ≥80% · KOS-ADL ≥80점 · Global ≥60점 · Giving-way ≤1회</li>'+
+      '<li>충족 → Potential Coper (보존 지속) / 미충족 → Non-coper (수술 전환)</li></ul>'+
+      '<div class="step" style="margin-top:8px"><b>3개월</b>: Balance LSI &gt;90% · 근력 LSI &gt;70% → 달리기 복귀</div>'+
+      '<div class="step" style="margin-top:6px"><b>9개월 삼중 기준</b> ① 최소 9개월 ② 대퇴사두근 LSI ≥90% + Hop ≥80% ③ ACL-RSI 47–65</div>';
+    chat.appendChild(cons);
+  }
+
+  const src=document.createElement('div');src.className='src';
+  src.innerHTML='명지병원 「김진구라면」 · 정지원 교수 · 논문 7편 + PubMed 37편 · 전문의 최종 승인 후 적용';
+  chat.appendChild(src);
+
+  const reset=document.createElement('div');reset.style.cssText='display:flex;justify-content:flex-end;margin:6px 18px 16px;';
+  const rb=document.createElement('button');rb.className='btn skip';rb.textContent='처음부터 다시';rb.onclick=()=>location.reload();
+  reset.appendChild(rb);chat.appendChild(reset);
+  scrollDown();
+}
+
+enterStep(0);
+</script>
+</body>
+</html>
