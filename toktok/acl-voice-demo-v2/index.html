@@ -7,27 +7,27 @@
 <style>
   *{box-sizing:border-box;}
   :root{
-    --blue:#1E5AF0;--blue700:#1342CC;--blue50:#F3F6FF;--blue100:#E3EBFF;--navy:#0C1E6B;
+    --blue:#1E5AF0;--blue700:#1342CC;--blue800:#0A2DA8;--blue50:#F3F6FF;--blue100:#E3EBFF;--navy:#0C1E6B;
     --amber:#B5560A;--amber-bg:#FFF4EC;--amber-bd:#F6C99A;
     --ink:#101010;--neutral:#262A33;--alt:#555B68;--assist:#A8ADBA;
     --line:#E5E7EC;--line2:#C9CDD6;--elev:#F8F9FB;--sunken:#F3F4F7;--ok:#1FAE6B;--red:#E5484D;
+    --sky50:#ECFAFF;--sky100:#D6F4FF;--sky900:#0B6B92;
     --r-sm:8px;--r-md:12px;--r-lg:16px;--r-pill:999px;
     --font:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif;
   }
-  body{margin:0;font-family:var(--font);background:var(--sunken);color:var(--neutral);
-       -webkit-font-smoothing:antialiased;padding:18px;}
+  body{margin:0;font-family:var(--font);background:var(--sunken);color:var(--neutral);-webkit-font-smoothing:antialiased;padding:18px;}
   .wrap{max-width:980px;margin:0 auto;display:grid;grid-template-columns:1fr 1.25fr;gap:16px;}
   @media(max-width:820px){.wrap{grid-template-columns:1fr;}}
   .card{background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:0 2px 10px rgba(12,30,107,.05);}
+  .hidden{display:none!important;}
   /* header */
   .hd{grid-column:1/-1;display:flex;align-items:center;gap:12px;padding:14px 18px;}
   .mark{width:42px;height:42px;border-radius:12px;background:var(--blue);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
   .ttl{font-weight:800;font-size:18px;color:var(--ink);line-height:1.1;}
   .sub{font-size:12.5px;color:var(--alt);margin-top:2px;}
   .env{margin-left:auto;font-size:11.5px;color:var(--alt);text-align:right;line-height:1.5;}
-  .env b{font-weight:700;}
-  .env .ok{color:var(--ok);} .env .no{color:var(--red);}
-  /* mic panel */
+  .env b{font-weight:700;} .env .ok{color:var(--ok);} .env .no{color:var(--red);}
+  /* mic */
   .mic-h{font-weight:700;font-size:14px;color:var(--ink);padding:14px 18px 0;}
   .mic-body{padding:14px 18px 18px;}
   .recbtn{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;border:none;cursor:pointer;
@@ -35,29 +35,24 @@
     padding:13px;box-shadow:0 8px 22px rgba(30,90,240,.25);transition:.15s;}
   .recbtn.rec{background:var(--red);box-shadow:0 8px 22px rgba(229,72,77,.28);}
   .recbtn:disabled{background:var(--line2);box-shadow:none;cursor:not-allowed;}
-  .pulse{width:9px;height:9px;border-radius:50%;background:#fff;}
-  .recbtn.rec .pulse{animation:p 1s infinite;}
+  .pulse{width:9px;height:9px;border-radius:50%;background:#fff;} .recbtn.rec .pulse{animation:p 1s infinite;}
   @keyframes p{0%,100%{opacity:1;}50%{opacity:.3;}}
-  .status{font-size:12px;color:var(--alt);margin-top:10px;min-height:16px;}
-  .status.busy{color:var(--blue);}
+  .status{font-size:12px;color:var(--alt);margin-top:10px;min-height:16px;} .status.busy{color:var(--blue);}
   .tlabel{font-size:11.5px;font-weight:700;color:var(--assist);letter-spacing:.04em;margin:14px 0 6px;text-transform:uppercase;}
   textarea.tx{width:100%;min-height:120px;resize:vertical;font-family:var(--font);font-size:13.5px;line-height:1.55;color:var(--neutral);
     border:1px solid var(--line2);border-radius:var(--r-md);padding:12px 14px;background:#fff;}
   textarea.tx:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(30,90,240,.18);}
-  .interim{color:var(--assist);}
   .btnrow{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
   .btn{font-family:var(--font);font-weight:700;font-size:13px;border-radius:var(--r-pill);padding:10px 16px;cursor:pointer;border:1px solid transparent;transition:.12s;}
   .btn.primary{background:var(--blue);color:#fff;} .btn.primary:hover{background:var(--blue700);}
   .btn.primary:disabled{background:var(--blue100);color:#fff;cursor:not-allowed;}
   .btn.ghost{background:#fff;border-color:var(--line2);color:var(--alt);} .btn.ghost:hover{border-color:var(--blue);}
   /* questionnaire */
-  .q-h{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 0;}
-  .q-h .t{font-weight:700;font-size:14px;color:var(--ink);}
+  .q-h{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 0;gap:10px;}
+  .q-h .t{font-weight:700;font-size:14px;color:var(--ink);} .q-h .env{font-size:11px;}
   .q-body{padding:8px 18px 14px;max-height:560px;overflow-y:auto;}
   @media(max-width:820px){.q-body{max-height:none;}}
-  .field{padding:13px 0;border-bottom:1px solid var(--line);}
-  .field:last-child{border-bottom:none;}
-  .field.hidden{display:none;}
+  .field{padding:13px 0;border-bottom:1px solid var(--line);} .field:last-child{border-bottom:none;}
   .ftag{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.03em;color:var(--blue700);background:var(--blue50);border-radius:6px;padding:2px 7px;}
   .fq{font-size:13.5px;color:var(--ink);font-weight:500;margin:6px 0 9px;line-height:1.4;}
   .opts{display:flex;flex-wrap:wrap;gap:7px;}
@@ -68,33 +63,55 @@
   .opt.confirmed{background:var(--blue);border-color:var(--blue);color:#fff;}
   .meta{margin-top:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:11.5px;}
   .pill{border-radius:var(--r-pill);padding:3px 9px;font-weight:700;font-size:11px;}
-  .pill.ai{background:var(--amber-bg);color:var(--amber);}
-  .pill.conf{background:var(--blue);color:#fff;}
-  .pill.need{background:#FCEAEA;color:var(--red);}
+  .pill.ai{background:var(--amber-bg);color:var(--amber);} .pill.conf{background:var(--blue);color:#fff;} .pill.need{background:#FCEAEA;color:var(--red);}
   .ev{color:var(--alt);font-style:italic;flex:1;min-width:120px;}
-  .confirm{font-family:var(--font);font-weight:700;font-size:11.5px;border:none;cursor:pointer;
-    background:var(--blue);color:#fff;border-radius:var(--r-pill);padding:6px 12px;}
-  .confirm.done{background:var(--elev);color:var(--ok);border:1px solid var(--line);cursor:default;}
+  .confirm{font-family:var(--font);font-weight:700;font-size:11.5px;border:none;cursor:pointer;background:var(--blue);color:#fff;border-radius:var(--r-pill);padding:6px 12px;}
   .num{display:flex;align-items:center;gap:8px;}
   .num button{width:30px;height:30px;border-radius:8px;border:1px solid var(--line2);background:#fff;font-size:16px;cursor:pointer;color:var(--neutral);}
   .num .val{font-weight:800;font-size:16px;color:var(--navy);min-width:46px;text-align:center;}
   .free{width:100%;font-family:var(--font);font-size:13px;border:1px solid var(--line2);border-radius:var(--r-md);padding:9px 12px;}
   .free:focus{outline:none;border-color:var(--blue);}
-  /* verdict */
-  .verdict{grid-column:1/-1;}
-  .v-body{padding:16px 18px;}
-  .v-top{border-radius:var(--r-md);padding:14px 16px;margin-bottom:12px;}
-  .v-top.surg{background:var(--blue50);} .v-top.cons{background:#ECFAFF;} .v-top.wait{background:var(--elev);}
-  .v-lbl{font-size:11.5px;font-weight:700;letter-spacing:.04em;color:var(--alt);}
-  .v-path{font-size:20px;font-weight:800;color:var(--navy);margin-top:3px;}
-  .v-reason{font-size:12.5px;color:var(--alt);margin-top:5px;line-height:1.5;}
-  .disclaim{font-size:11px;color:var(--assist);margin-top:10px;line-height:1.5;}
+  /* action footer (intake) */
+  .actbar{grid-column:1/-1;display:flex;align-items:center;gap:14px;padding:14px 18px;}
+  .actbar .hint{font-size:12px;color:var(--alt);flex:1;line-height:1.5;}
+  .gobtn{font-family:var(--font);font-weight:800;font-size:15px;border:none;border-radius:var(--r-pill);padding:13px 24px;cursor:pointer;
+    background:var(--blue);color:#fff;box-shadow:0 8px 22px rgba(30,90,240,.22);white-space:nowrap;}
+  .gobtn:disabled{background:var(--blue100);box-shadow:none;cursor:not-allowed;}
   .note{grid-column:1/-1;font-size:12px;color:var(--alt);background:#fff;border:1px solid var(--line);border-radius:var(--r-md);padding:12px 16px;line-height:1.6;}
   .note b{color:var(--neutral);}
+  /* result screen */
+  #screen-result{max-width:680px;margin:0 auto;}
+  .rtop{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+  .backbtn{font-family:var(--font);font-weight:700;font-size:13px;border:1px solid var(--line2);background:#fff;color:var(--alt);border-radius:var(--r-pill);padding:9px 16px;cursor:pointer;}
+  .backbtn:hover{border-color:var(--blue);color:var(--blue);}
+  .rtitle{font-weight:800;font-size:16px;color:var(--ink);}
+  .v-top{border-radius:var(--r-md) var(--r-md) 0 0;padding:18px 20px;}
+  .v-top.surg{background:var(--blue50);} .v-top.cons{background:var(--sky50);}
+  .v-lbl{font-size:12px;font-weight:700;letter-spacing:.04em;}
+  .v-top.surg .v-lbl{color:var(--blue700);} .v-top.cons .v-lbl{color:var(--sky900);}
+  .v-path{font-size:23px;font-weight:800;color:var(--navy);margin-top:4px;}
+  .v-reason{font-size:13px;color:var(--alt);margin-top:6px;line-height:1.5;}
+  .sum-list{padding:4px 20px;}
+  .sum-item{display:flex;justify-content:space-between;gap:14px;padding:11px 0;border-bottom:1px solid var(--line);font-size:13.5px;}
+  .sum-item:last-child{border-bottom:none;}
+  .sum-item .k{color:var(--alt);flex-shrink:0;} .sum-item .v{color:var(--ink);font-weight:500;text-align:right;}
+  .sum-item .v.flag{color:var(--blue);font-weight:700;}
+  .stage{margin:16px 20px 4px;border-radius:var(--r-md);padding:15px 17px;border:1px solid;}
+  .stage.surg{background:var(--blue50);border-color:var(--blue100);} .stage.cons{background:var(--sky50);border-color:var(--sky100);}
+  .stage .sh{font-weight:700;font-size:14px;margin-bottom:9px;} .stage.surg .sh{color:var(--blue800);} .stage.cons .sh{color:var(--sky900);}
+  .stage .step{font-size:13px;color:var(--neutral);line-height:1.6;margin-top:7px;} .stage .step:first-of-type{margin-top:0;}
+  .stage .step b{font-weight:700;color:var(--ink);}
+  .tagline{display:inline-flex;flex-wrap:wrap;gap:6px;margin-top:5px;}
+  .crit{font-size:11.5px;font-weight:700;border-radius:var(--r-pill);padding:3px 9px;}
+  .crit.on{background:var(--blue);color:#fff;} .crit.off{background:var(--elev);color:var(--assist);border:1px solid var(--line);}
+  .stage ul{margin:7px 0 0;padding-left:17px;color:var(--neutral);font-size:13px;line-height:1.65;}
+  .disclaim{padding:14px 20px 18px;font-size:11.5px;color:var(--assist);line-height:1.55;}
 </style>
 </head>
 <body>
-<div class="wrap">
+
+<!-- ===================== 화면 1: 문진 ===================== -->
+<div class="wrap" id="screen-intake">
 
   <div class="card hd">
     <div class="mark" aria-hidden="true">
@@ -104,7 +121,7 @@
     </div>
     <div>
       <div class="ttl">톡톡 · 실시간 음성 문진 데모</div>
-      <div class="sub">대화를 음성인식 → LLM이 답안 제안 → 의사가 확정</div>
+      <div class="sub">대화를 음성인식 → LLM이 답안 제안 → 의사가 확정 → 결정 화면</div>
     </div>
     <div class="env" id="env"></div>
   </div>
@@ -125,19 +142,29 @@
   </div>
 
   <div class="card">
-    <div class="q-h"><span class="t">2. 문진 답안</span><span class="env" id="legend">AI 제안(점선)을 확인 후 확정하세요</span></div>
+    <div class="q-h"><span class="t">2. 문진 답안</span><span class="env">AI 제안(점선)을 확인 후 확정</span></div>
     <div class="q-body" id="qbody"></div>
   </div>
 
-  <div class="card verdict">
-    <div class="v-body" id="verdict"></div>
+  <div class="card actbar">
+    <div class="hint" id="readyHint"></div>
+    <button class="gobtn" id="goResult" disabled>최종 결정 보기 →</button>
   </div>
 
   <div class="note">
-    <b>동작 안내.</b> 음성인식은 Chrome·Edge에서 마이크 권한 허용 시 작동합니다(권한이 없으면 녹취를 직접 입력하거나 예시를 사용하세요).
-    AI 자동 매핑은 이 화면이 Claude.ai 안에서 열렸을 때 내장 모델로 동작하며, 외부에서 열면 자동으로 <b>규칙 기반 모의 매핑</b>으로 대체됩니다.
-    어느 경우든 AI가 채운 답은 미확정 상태이며 <b>판정은 의사가 확정한 값으로만</b> 계산됩니다.
+    <b>동작 안내.</b> 음성인식은 Chrome·Edge에서 마이크 권한 허용 시 작동합니다(권한이 없으면 녹취를 직접 입력하거나 예시 사용).
+    AI 자동 매핑은 Claude.ai 안에서 열렸을 때 내장 모델로 동작하며, 외부에서 열면 <b>규칙 기반 모의 매핑</b>으로 대체됩니다.
+    AI가 채운 답은 미확정이며 <b>결정은 의사가 확정한 값으로만</b> 계산됩니다.
   </div>
+</div>
+
+<!-- ===================== 화면 2: 결정 ===================== -->
+<div id="screen-result" class="hidden">
+  <div class="rtop">
+    <button class="backbtn" id="back">← 문진으로</button>
+    <div class="rtitle">최종 결정 (전문의 검토용)</div>
+  </div>
+  <div class="card" id="resultCard"></div>
 </div>
 
 <script>
@@ -170,10 +197,8 @@ const QUESTIONS=[
   options:['수술을 원함','재활 먼저 원함','권고를 따름']}
 ];
 
-// 확정값 저장: id -> {value, confirmed:true}  / 드래프트: id -> {value, confirmed:false, conf, ev}
 const ans={};
 function cval(id){const a=ans[id];return a&&a.confirmed?a.value:undefined;}
-
 function isChronic(s){const p=s.period;return p!==undefined&&p>=2;}
 function isLevel12(s){return s.level===0||s.level===1;}
 function absoluteSurgery(s){
@@ -181,6 +206,13 @@ function absoluteSurgery(s){
   const mm=Array.isArray(c)&&(c.includes(0)||c.includes(2));
   const youth=s.age===0&&isLevel12(s);
   return mm||youth;
+}
+function absoluteReasons(s){
+  const c=s.concomitant||[],r=[];
+  if(Array.isArray(c)&&c.includes(0))r.push('반월상연골 동반');
+  if(Array.isArray(c)&&c.includes(2))r.push('다중 인대 동반');
+  if(s.age===0&&isLevel12(s))r.push('20세 미만 + Level I·II');
+  return r;
 }
 function examPositive(s){return s.pivot===1||s.lachman===1||s.stress===1;}
 function surgeryConfirmed(s){
@@ -197,18 +229,16 @@ function surgeryConfirmed(s){
 }
 function confirmedState(){const s={};QUESTIONS.forEach(q=>{const v=cval(q.id);if(v!==undefined)s[q.id]=v;});return s;}
 
-/* ---------------- 렌더 ---------------- */
+/* ---------------- 문진 렌더 ---------------- */
 const qbody=document.getElementById('qbody');
 function visible(q){return !q.cond || q.cond(confirmedState());}
-
 function render(){
   qbody.innerHTML='';
   QUESTIONS.forEach(q=>{
     if(!visible(q))return;
     const a=ans[q.id];
     const f=document.createElement('div');f.className='field';
-    let html='<span class="ftag">'+q.tag+'</span><div class="fq">'+q.q+'</div>';
-    f.innerHTML=html;
+    f.innerHTML='<span class="ftag">'+q.tag+'</span><div class="fq">'+q.q+'</div>';
     if(q.type==='single'||q.type==='multi'){
       const opts=document.createElement('div');opts.className='opts';
       q.options.forEach((opt,i)=>{
@@ -220,8 +250,7 @@ function render(){
       });
       f.appendChild(opts);
     }else if(q.type==='number'){
-      const n=document.createElement('div');n.className='num';
-      const cur=a?a.value:0;
+      const n=document.createElement('div');n.className='num';const cur=a?a.value:0;
       n.innerHTML='<button>−</button><span class="val">'+cur+' / 9'+(cur>=4?' · Hyperlaxity':'')+'</span><button>+</button>';
       const [minus,,plus]=n.childNodes;
       minus.onclick=()=>setNum(q,Math.max(0,(a?a.value:0)-1));
@@ -230,232 +259,237 @@ function render(){
     }else if(q.type==='free'){
       const ta=document.createElement('input');ta.className='free';ta.placeholder='예: 계단 내려갈 때 불안정';
       if(a)ta.value=a.value;
-      ta.oninput=()=>{ans[q.id]={value:ta.value,confirmed:true};updateVerdict();};
+      ta.oninput=()=>{ans[q.id]={value:ta.value,confirmed:true};updateReady();};
       f.appendChild(ta);
     }
-    // meta row
     if(a && q.type!=='free'){
       const m=document.createElement('div');m.className='meta';
-      if(a.confirmed){
-        m.innerHTML='<span class="pill conf">확정</span>';
-      }else{
+      if(a.confirmed){m.innerHTML='<span class="pill conf">확정</span>';}
+      else{
         const pct=Math.round((a.conf||0)*100);
         m.innerHTML='<span class="pill '+(pct>=60?'ai':'need')+'">AI 제안 · '+pct+'%</span>'+
           (a.ev?'<span class="ev">“'+a.ev+'”</span>':'<span class="ev">근거 약함 — 확인 필요</span>');
         const c=document.createElement('button');c.className='confirm';c.textContent='확정';
-        c.onclick=()=>{ans[q.id]={value:a.value,confirmed:true};render();updateVerdict();};
+        c.onclick=()=>{ans[q.id]={value:a.value,confirmed:true};render();};
         m.appendChild(c);
       }
       f.appendChild(m);
     }
     qbody.appendChild(f);
   });
-  updateVerdict();
+  updateReady();
 }
 function pickManual(q,i){
   if(q.type==='multi'){
     let arr=(ans[q.id]&&Array.isArray(ans[q.id].value))?ans[q.id].value.slice():[];
     arr.includes(i)?arr=arr.filter(x=>x!==i):arr.push(i);
-    ans[q.id]={value:arr,confirmed:true}; // 의사가 직접 고르면 즉시 확정
-  }else{
-    ans[q.id]={value:i,confirmed:true};
-  }
+    ans[q.id]={value:arr,confirmed:true};
+  }else{ans[q.id]={value:i,confirmed:true};}
   render();
 }
 function setNum(q,v){ans[q.id]={value:v,confirmed:true};render();}
 
-/* ---------------- 판정 ---------------- */
-function updateVerdict(){
+/* ---------------- 결정 준비 상태 ---------------- */
+const goBtn=document.getElementById('goResult'),readyHint=document.getElementById('readyHint');
+function updateReady(){
   const s=confirmedState();
-  const v=document.getElementById('verdict');
-  const haveCore = s.period!==undefined && s.level!==undefined && s.age!==undefined;
-  if(!haveCore){
-    v.innerHTML='<div class="v-top wait"><div class="v-lbl">판정 대기</div><div class="v-path">입력 확정 중…</div>'+
-      '<div class="v-reason">최소 손상 시기·활동 수준·연령이 확정되면 잠정 경로를 계산합니다. 확정된 값만 반영됩니다.</div></div>';
-    return;
-  }
+  const ready = s.period!==undefined && s.level!==undefined && s.age!==undefined;
+  goBtn.disabled=!ready;
+  readyHint.textContent = ready
+    ? '핵심 입력(손상 시기·활동 수준·연령)이 확정되었습니다. 결정 화면으로 이동할 수 있습니다.'
+    : '결정 화면을 보려면 최소 손상 시기·활동 수준·연령을 확정하세요. (확정된 값만 판정에 반영)';
+}
+
+/* ---------------- 결정 화면 ---------------- */
+const labelOf=(id,v)=>{const q=QUESTIONS.find(x=>x.id===id);if(!q||!q.options)return v;return q.options[v];};
+function buildResult(){
+  const s=confirmedState();
   const surgery=surgeryConfirmed(s), acu=isChronic(s)?'만성':'급성';
-  let reason=[];
-  if(absoluteSurgery(s))reason.push('절대 적응증');
+  // 근거
+  let reason=[].concat(absoluteReasons(s));
   if(isChronic(s)&&examPositive(s))reason.push('신체진찰 양성');
   if(isChronic(s)&&!examPositive(s)&&s.givingway===2)reason.push('Giving-way ≥2회');
-  if(isLevel12(s))reason.push('Level I·II');
-  v.innerHTML='<div class="v-top '+(surgery?'surg':'cons')+'"><div class="v-lbl">'+acu+' · 잠정 경로</div>'+
-    '<div class="v-path">'+(surgery?'수술 경로':'보존(재활) 경로')+'</div>'+
-    '<div class="v-reason">'+(surgery?('근거: '+(reason.join(' · ')||'알고리즘 기준')):'신체진찰 음성 + 추가 적응증 없음 → 6주 NMST 후 Coper 재분류')+'</div></div>'+
-    '<div class="disclaim">잠정 결과입니다. 모든 입력은 의사가 확정한 값이며, 최종 결정·책임은 전문의에게 있습니다. (명지병원 「김진구라면」 알고리즘 기반)</div>';
-}
+  if(!absoluteSurgery(s)&&isLevel12(s))reason.push('Level I·II');
+  if(!surgery && !isChronic(s))reason=[];
 
-/* ---------------- STT (Web Speech API) ---------------- */
+  const grafts=['BTB','햄스트링 (HS)','대퇴사두근건 (QT)','동종건 (Allograft)','불명'];
+  // 요약 행
+  const rows=[
+    ['손상 시기', s.period!==undefined?labelOf('period',s.period)+' ('+acu+')':'—', false],
+    ['손상 기전', s.mechanism!==undefined?labelOf('mechanism',s.mechanism):'—', false],
+    ['이전 이력', s.history!==undefined?(labelOf('history',s.history)+(s.graft!==undefined?' · Graft '+grafts[s.graft]:'')):'—', s.history===2],
+    ['동반 손상', Array.isArray(s.concomitant)?s.concomitant.map(i=>labelOf('concomitant',i)).join(', '):'—',
+        Array.isArray(s.concomitant)&&(s.concomitant.includes(0)||s.concomitant.includes(2))],
+    ['활동 수준', s.level!==undefined?labelOf('level',s.level).split(' — ')[0]:'—', isLevel12(s)],
+    ['연령대', s.age!==undefined?labelOf('age',s.age):'—', s.age===0],
+    ['Beighton', s.beighton!==undefined?(s.beighton+'/9'+(s.beighton>=4?' (Hyperlaxity)':'')):'—', s.beighton>=4],
+    ['신체진찰', 'Pivot '+(s.pivot!==undefined?labelOf('pivot',s.pivot):'—')+' · Lachman '+(s.lachman!==undefined?labelOf('lachman',s.lachman):'—')+' · Stress '+(s.stress!==undefined?labelOf('stress',s.stress):'—'), examPositive(s)],
+    ['Giving-way', acu==='급성'?'급성 — 생략':(s.givingway!==undefined?labelOf('givingway',s.givingway):'—'), s.givingway===2],
+    ['주 증상', (ans.symptom&&ans.symptom.value)?ans.symptom.value:'—', false],
+    ['치료 선호', surgery?'수술 확정 — 선호 문항 생략':(s.preference!==undefined?labelOf('preference',s.preference):'—'), surgery]
+  ];
+
+  let html='<div class="v-top '+(surgery?'surg':'cons')+'">'+
+    '<div class="v-lbl">'+acu+' · 잠정 경로</div>'+
+    '<div class="v-path">'+(surgery?'수술 경로':'보존(재활) 경로')+'</div>'+
+    '<div class="v-reason">'+(surgery?('근거: '+(reason.join(' · ')||'알고리즘 기준')):'신체진찰 음성 + 추가 적응증 없음 → 6주 NMST 후 Coper 재분류')+'</div></div>';
+
+  html+='<div class="sum-list">';
+  rows.forEach(r=>{html+='<div class="sum-item"><span class="k">'+r[0]+'</span><span class="v'+(r[2]?' flag':'')+'">'+r[1]+'</span></div>';});
+  html+='</div>';
+
+  if(surgery){
+    // ALLR 적응증: 실제 입력값 기반
+    const crit=[
+      ['Pivot 양성', s.pivot===1],
+      ['Beighton ≥4', s.beighton>=4],
+      ['20세 미만', s.age===0],
+      ['Revision', s.history===2],
+      ['Level I·II', isLevel12(s)]
+    ];
+    const allrOn=crit.some(c=>c[1]);
+    const onList=crit.filter(c=>c[1]).map(c=>c[0]);
+    let tags='';crit.forEach(c=>{tags+='<span class="crit '+(c[1]?'on':'off')+'">'+c[0]+'</span>';});
+    const graftLine = s.history===2
+      ? '이전 '+(s.graft!==undefined?grafts[s.graft]:'재건')+' 기반 재선택 (BTB→ST·QT, HS→QT, QT→HS·동종건)'
+      : '초발/표준 (자가건 우선)';
+    const biobrace = allrOn || s.history===2;
+    html+='<div class="stage surg"><div class="sh">수술 경로 상세</div>'+
+      '<div class="step"><b>ALLR 적응증</b> (해당 항목 기준) <div class="tagline">'+tags+'</div>'+
+        '<div style="margin-top:6px">→ <b>'+(allrOn?('ACLR + ALLR 권고'+(onList.length?' · 해당: '+onList.join(', '):'')):'ACLR 단독')+'</b></div></div>'+
+      '<div class="step"><b>Graft 선택</b> — '+graftLine+'. 소아: Femur Epiphyseal + Tibia Trans-physeal</div>'+
+      '<div class="step"><b>Bio-brace</b> — '+(biobrace?'적용 검토':'생략 가능')+' → 수술 시행 · 전문의 승인</div>'+
+      ((acu==='급성'&&Array.isArray(s.concomitant)&&s.concomitant.includes(0))
+        ? '<div class="step" style="color:var(--blue800)"><b>급성 + 반월상연골:</b> 부종 소실 후(3–6주) 수술 예정</div>' : '')+
+      '</div>';
+  }else{
+    html+='<div class="stage cons"><div class="sh">보존(재활) 경로 상세</div>'+
+      '<div class="step"><b>6주 NMST</b> 후 Fitzgerald Coper 4기준 재분류</div>'+
+      '<ul><li>Hop LSI ≥80% · KOS-ADL ≥80점 · Global ≥60점 · Giving-way ≤1회</li>'+
+      '<li>충족 → Potential Coper (보존 지속) / 미충족 → Non-coper (수술 전환)</li></ul>'+
+      '<div class="step"><b>3개월</b>: Balance LSI &gt;90% · 근력 LSI &gt;70% → 달리기 복귀</div>'+
+      '<div class="step"><b>9개월 삼중 기준</b> ① 최소 9개월 ② 대퇴사두근 LSI ≥90% + Hop ≥80% ③ ACL-RSI 47–65</div>'+
+      '</div>';
+  }
+  html+='<div class="disclaim">잠정 결과입니다. 모든 입력은 의사가 확정한 값이며, 적응증·근거는 입력값에 따라 자동 표시됩니다. 최종 결정·책임은 전문의에게 있습니다. (명지병원 「김진구라면」 ACL 알고리즘 기반 · 논문 7편 + PubMed 37편)</div>';
+  document.getElementById('resultCard').innerHTML=html;
+}
+function showResult(){buildResult();document.getElementById('screen-intake').classList.add('hidden');document.getElementById('screen-result').classList.remove('hidden');window.scrollTo(0,0);}
+function showIntake(){document.getElementById('screen-result').classList.add('hidden');document.getElementById('screen-intake').classList.remove('hidden');window.scrollTo(0,0);}
+goBtn.onclick=showResult;
+document.getElementById('back').onclick=showIntake;
+
+/* ---------------- STT ---------------- */
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 let recog=null,recording=false,baseText='';
-const recBtn=document.getElementById('rec'),recLabel=document.getElementById('reclabel'),
-      statusEl=document.getElementById('status'),tx=document.getElementById('tx');
+const recBtn=document.getElementById('rec'),recLabel=document.getElementById('reclabel'),statusEl=document.getElementById('status'),tx=document.getElementById('tx');
 function setStatus(t,busy){statusEl.textContent=t;statusEl.className='status'+(busy?' busy':'');}
-
 if(SR){
   recog=new SR();recog.lang='ko-KR';recog.continuous=true;recog.interimResults=true;
-  recog.onresult=(e)=>{
-    let interim='',final='';
-    for(let i=e.resultIndex;i<e.results.length;i++){
-      const t=e.results[i][0].transcript;
-      if(e.results[i].isFinal)final+=t; else interim+=t;
-    }
-    if(final)baseText=(baseText+' '+final).trim();
-    tx.value=baseText+(interim?' '+interim:'');
-  };
-  recog.onerror=(e)=>{setStatus('음성인식 오류: '+e.error+' (녹취를 직접 입력하거나 예시를 사용하세요)');recording=false;syncRec();};
+  recog.onresult=(e)=>{let interim='',final='';
+    for(let i=e.resultIndex;i<e.results.length;i++){const t=e.results[i][0].transcript;if(e.results[i].isFinal)final+=t;else interim+=t;}
+    if(final)baseText=(baseText+' '+final).trim();tx.value=baseText+(interim?' '+interim:'');};
+  recog.onerror=(e)=>{setStatus('음성인식 오류: '+e.error+' (녹취를 직접 입력하거나 예시 사용)');recording=false;syncRec();};
   recog.onend=()=>{if(recording){try{recog.start();}catch(_){}}};
-}else{
-  recBtn.disabled=true;setStatus('이 브라우저는 Web Speech API를 지원하지 않습니다. 녹취를 직접 입력하거나 예시를 사용하세요.');
-}
+}else{recBtn.disabled=true;setStatus('이 브라우저는 Web Speech API를 지원하지 않습니다. 녹취를 직접 입력하거나 예시를 사용하세요.');}
 function syncRec(){recBtn.classList.toggle('rec',recording);recLabel.textContent=recording?'녹음 중지':'녹음 시작';}
-recBtn.onclick=()=>{
-  if(!recog)return;
+recBtn.onclick=()=>{if(!recog)return;
   if(recording){recording=false;recog.stop();syncRec();setStatus('중지됨. 「AI로 답안 자동 채움」을 눌러보세요.');}
-  else{baseText=tx.value.trim();recording=true;try{recog.start();}catch(_){}
-       syncRec();setStatus('듣는 중… 환자·의사 대화를 말해보세요.',true);}
-};
+  else{baseText=tx.value.trim();recording=true;try{recog.start();}catch(_){}syncRec();setStatus('듣는 중… 환자·의사 대화를 말해보세요.',true);}};
 
-/* ---------------- 자동 채움: LLM → 실패 시 규칙 기반 ---------------- */
+/* ---------------- 자동 채움 ---------------- */
 const envEl=document.getElementById('env');
-let llmAvailable=null; // unknown
-function schemaForPrompt(){
-  return QUESTIONS.filter(q=>q.options).map(q=>({id:q.id,type:q.type,options:q.options}));
-}
+let llmAvailable=null;
+function schemaForPrompt(){return QUESTIONS.filter(q=>q.options).map(q=>({id:q.id,type:q.type,options:q.options}));}
 async function callLLM(transcript){
   const sys='당신은 한국어 의사-환자 진료 대화를 고정 문진 스키마로 매핑합니다. '+
     '각 문항에 대해 녹취에 근거가 있으면 답하세요. single=옵션 인덱스 정수, multi=인덱스 배열, number(beighton)=0~9 정수. '+
-    '근거 없으면 value를 null. 각 항목에 confidence(0~1)와 evidence(근거가 된 원문 짧은 인용, 없으면 "")를 포함. '+
-    'JSON 객체만 출력(설명·마크다운 금지). 키는 문항 id.';
-  const user='스키마:\n'+JSON.stringify(schemaForPrompt())+
-    '\n\nbeighton 문항: 대화에 Beighton 점수가 언급되면 0~9 정수, 없으면 null.'+
-    '\n\n녹취:\n"""'+transcript+'"""\n\nJSON:';
-  const res=await fetch('https://api.anthropic.com/v1/messages',{
-    method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,
-      messages:[{role:'user',content:sys+'\n\n'+user}]})
-  });
+    '근거 없으면 value를 null. 각 항목에 confidence(0~1)와 evidence(근거가 된 원문 짧은 인용, 없으면 "")를 포함. JSON 객체만 출력. 키는 문항 id.';
+  const user='스키마:\n'+JSON.stringify(schemaForPrompt())+'\n\nbeighton: 점수 언급 시 0~9, 없으면 null.\n\n녹취:\n"""'+transcript+'"""\n\nJSON:';
+  const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,messages:[{role:'user',content:sys+'\n\n'+user}]})});
   if(!res.ok)throw new Error('api '+res.status);
   const data=await res.json();
   const text=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('');
-  const clean=text.replace(/```json/g,'').replace(/```/g,'').trim();
-  return JSON.parse(clean);
+  return JSON.parse(text.replace(/```json/g,'').replace(/```/g,'').trim());
 }
-
-/* 규칙 기반 폴백 (오프라인/외부 실행용 데모) */
 function mockMap(t){
   const out={};const tl=t.toLowerCase();
   const has=(...ks)=>ks.some(k=>tl.includes(k.toLowerCase()));
   const ev=(k)=>{const i=tl.indexOf(k.toLowerCase());return i<0?'':t.slice(Math.max(0,i-6),i+k.length+6).trim();};
-  // period
   let pv=null,pe='';
   const wk=t.match(/(\d+)\s*주/),mo=t.match(/(\d+)\s*(개월|달)/),yr=t.match(/(\d+)\s*년/);
-  if(wk){const n=+wk[1];pv=n<=1?0:(n<=6?1:2);pe=wk[0];}
-  else if(mo){const n=+mo[1];pv=n<3?2:(n<12?3:4);pe=mo[0];}
-  else if(yr){pv=4;pe=yr[0];}
+  if(wk){const n=+wk[1];pv=n<=1?0:(n<=6?1:2);pe=wk[0];}else if(mo){const n=+mo[1];pv=n<3?2:(n<12?3:4);pe=mo[0];}else if(yr){pv=4;pe=yr[0];}
   if(pv!==null)out.period={value:pv,confidence:.8,evidence:pe};
-  // mechanism
-  if(has('비접촉','방향','틀','꺾이')&&!has('과신전','뒤로')) out.mechanism={value:0,confidence:.7,evidence:ev('방향')||ev('비접촉')};
-  else if(has('과신전','뒤로')) out.mechanism={value:1,confidence:.7,evidence:ev('과신전')||ev('뒤로')};
-  else if(has('부딪','충돌','접촉','태클')) out.mechanism={value:2,confidence:.7,evidence:ev('부딪')};
-  // signs
+  if(has('비접촉','방향','틀','꺾이')&&!has('과신전','뒤로'))out.mechanism={value:0,confidence:.7,evidence:ev('방향')||ev('비접촉')};
+  else if(has('과신전','뒤로'))out.mechanism={value:1,confidence:.7,evidence:ev('과신전')||ev('뒤로')};
+  else if(has('부딪','충돌','접촉','태클'))out.mechanism={value:2,confidence:.7,evidence:ev('부딪')};
   let sg=[];if(has('뚝','펑','소리','팝','pop'))sg.push(0);if(has('부었','붓','부종'))sg.push(1);
   if(sg.length)out.signs={value:sg,confidence:.75,evidence:ev('소리')||ev('부')};
-  // history
-  if(has('재건','수술받','수술 받','revision','리비전')) out.history={value:2,confidence:.7,evidence:ev('재건')||ev('수술')};
-  else if(has('진단만','진단 받','처음 진단')) out.history={value:1,confidence:.6,evidence:ev('진단')};
-  else if(has('처음','없','초발')) out.history={value:0,confidence:.6,evidence:ev('처음')};
-  // graft
-  if(has('BTB','슬개')) out.graft={value:0,confidence:.6,evidence:'BTB'};
-  else if(has('햄스트링','HS')) out.graft={value:1,confidence:.6,evidence:'햄스트링'};
-  else if(has('대퇴사두','QT')) out.graft={value:2,confidence:.6,evidence:'QT'};
-  else if(has('동종','allograft')) out.graft={value:3,confidence:.6,evidence:'동종건'};
-  // concomitant
+  if(has('재건','수술받','수술 받','revision','리비전'))out.history={value:2,confidence:.7,evidence:ev('재건')||ev('수술')};
+  else if(has('진단만','진단 받','처음 진단'))out.history={value:1,confidence:.6,evidence:ev('진단')};
+  else if(has('처음','없','초발'))out.history={value:0,confidence:.6,evidence:ev('처음')};
+  if(has('BTB','슬개'))out.graft={value:0,confidence:.6,evidence:'BTB'};
+  else if(has('햄스트링','HS'))out.graft={value:1,confidence:.6,evidence:'햄스트링'};
+  else if(has('대퇴사두','QT'))out.graft={value:2,confidence:.6,evidence:'QT'};
+  else if(has('동종','allograft'))out.graft={value:3,confidence:.6,evidence:'동종건'};
   let cc=[];if(has('반월'))cc.push(0);if(has('연골')&&!has('반월상연골'))cc.push(1);
   if(has('PCL','MCL','LCL','다중 인대','복합 인대'))cc.push(2);
   if(cc.length)out.concomitant={value:cc,confidence:.7,evidence:ev('반월')||ev('인대')};
   else if(has('동반 없','없'))out.concomitant={value:[3],confidence:.5,evidence:''};
-  // level
-  if(has('선수','농구','축구','스키','핸드볼','격투')) out.level={value:0,confidence:.7,evidence:ev('선수')||ev('농구')};
-  else if(has('테니스','배드민턴','등산')) out.level={value:1,confidence:.65,evidence:ev('테니스')};
-  else if(has('조깅','수영','사이클','달리기')) out.level={value:2,confidence:.6,evidence:ev('조깅')};
-  else if(has('일상','운동 안','특별한 운동')) out.level={value:3,confidence:.55,evidence:''};
-  // age
+  if(has('선수','농구','축구','스키','핸드볼','격투'))out.level={value:0,confidence:.7,evidence:ev('선수')||ev('농구')};
+  else if(has('테니스','배드민턴','등산'))out.level={value:1,confidence:.65,evidence:ev('테니스')};
+  else if(has('조깅','수영','사이클','달리기'))out.level={value:2,confidence:.6,evidence:ev('조깅')};
+  else if(has('일상','운동 안','특별한 운동'))out.level={value:3,confidence:.55,evidence:''};
   const am=t.match(/(\d+)\s*세/)||t.match(/(\d+)\s*살/);
   if(am){const n=+am[1];out.age={value:n<20?0:(n<35?1:(n<50?2:3)),confidence:.85,evidence:am[0]};}
-  // beighton
   const bm=t.match(/beighton[^0-9]*(\d)/i)||t.match(/(\d)\s*점/);
   if(bm)out.beighton={value:Math.min(9,+bm[1]),confidence:.7,evidence:bm[0]};
-  // exam
-  if(has('pivot','피벗')) out.pivot={value:has('양성','grade i','그레이드','1')?1:0,confidence:.6,evidence:ev('pivot')||ev('피벗')};
-  if(has('lachman','라크만','라흐만')) out.lachman={value:has('중등도','양성','2')?1:0,confidence:.6,evidence:ev('lachman')||ev('라')};
-  if(has('stress','5mm','스트레스')) out.stress={value:has('5mm','이상','초과')?1:0,confidence:.55,evidence:ev('mm')};
-  // givingway
-  if(has('빠지','꺾','흔들','giving','지지않')){
-    const gm=t.match(/(\d+)\s*번/)||t.match(/(\d+)\s*회/);
-    const n=gm?+gm[1]:1;out.givingway={value:n>=2?2:(n===1?1:0),confidence:.6,evidence:ev('빠지')||ev('꺾')};
-  }
+  if(has('pivot','피벗'))out.pivot={value:has('양성','grade i','그레이드','1')?1:0,confidence:.6,evidence:ev('pivot')||ev('피벗')};
+  if(has('lachman','라크만','라흐만'))out.lachman={value:has('중등도','양성','2')?1:0,confidence:.6,evidence:ev('lachman')||ev('라')};
+  if(has('stress','5mm','스트레스'))out.stress={value:has('5mm','이상','초과')?1:0,confidence:.55,evidence:ev('mm')};
+  if(has('빠지','꺾','흔들','giving','지지않')){const gm=t.match(/(\d+)\s*번/)||t.match(/(\d+)\s*회/);const n=gm?+gm[1]:1;out.givingway={value:n>=2?2:(n===1?1:0),confidence:.6,evidence:ev('빠지')||ev('꺾')};}
   return out;
 }
-
 function applyMappings(map){
   let n=0;
   QUESTIONS.forEach(q=>{
-    const m=map[q.id];if(!m)return;
-    let val=m.value;
-    if(val===null||val===undefined)return;
+    const m=map[q.id];if(!m)return;let val=m.value;if(val===null||val===undefined)return;
     if(q.type==='multi'&&!Array.isArray(val))val=[val];
-    if((q.type==='single'||q.type==='multi')){
-      const max=q.options.length-1;
+    if(q.type==='single'||q.type==='multi'){const max=q.options.length-1;
       if(q.type==='single'&&(val<0||val>max))return;
-      if(q.type==='multi'){val=val.filter(x=>x>=0&&x<=max);if(!val.length)return;}
-    }
-    if(q.type==='number'){val=Math.max(0,Math.min(9,parseInt(val)||0));}
-    // 이미 의사가 확정한 답은 덮어쓰지 않음
+      if(q.type==='multi'){val=val.filter(x=>x>=0&&x<=max);if(!val.length)return;}}
+    if(q.type==='number')val=Math.max(0,Math.min(9,parseInt(val)||0));
     if(ans[q.id]&&ans[q.id].confirmed)return;
-    ans[q.id]={value:val,confirmed:false,conf:m.confidence||0.5,ev:(m.evidence||'').slice(0,40)};
-    n++;
+    ans[q.id]={value:val,confirmed:false,conf:m.confidence||0.5,ev:(m.evidence||'').slice(0,40)};n++;
   });
   return n;
 }
-
 const analyzeBtn=document.getElementById('analyze');
 analyzeBtn.onclick=async()=>{
-  const t=tx.value.trim();
-  if(!t){setStatus('먼저 대화를 입력하거나 예시를 불러오세요.');return;}
-  analyzeBtn.disabled=true;
-  setStatus('AI가 대화를 분석해 답안을 제안하는 중…',true);
+  const t=tx.value.trim();if(!t){setStatus('먼저 대화를 입력하거나 예시를 불러오세요.');return;}
+  analyzeBtn.disabled=true;setStatus('AI가 대화를 분석해 답안을 제안하는 중…',true);
   let map=null,usedLLM=false;
-  try{ map=await callLLM(t); usedLLM=true; llmAvailable=true; }
-  catch(err){ map=mockMap(t); usedLLM=false; llmAvailable=false; }
-  const n=applyMappings(map);
-  render();
+  try{map=await callLLM(t);usedLLM=true;llmAvailable=true;}catch(err){map=mockMap(t);usedLLM=false;llmAvailable=false;}
+  const n=applyMappings(map);render();
   setStatus(n+'개 문항에 '+(usedLLM?'Claude':'규칙 기반(모의)')+' 제안을 채웠습니다. 점선 항목을 확인 후 「확정」하세요.');
-  refreshEnv(usedLLM);
-  analyzeBtn.disabled=false;
+  refreshEnv();analyzeBtn.disabled=false;
 };
-function refreshEnv(usedLLM){
+function refreshEnv(){
   const stt=SR?'<span class="ok">사용 가능</span>':'<span class="no">미지원</span>';
-  const llm = llmAvailable===null?'<span>대기</span>':(llmAvailable?'<span class="ok">Claude 연결</span>':'<span class="no">모의(외부)</span>');
+  const llm=llmAvailable===null?'<span>대기</span>':(llmAvailable?'<span class="ok">Claude 연결</span>':'<span class="no">모의(외부)</span>');
   envEl.innerHTML='STT <b>'+stt+'</b> · LLM <b>'+llm+'</b>';
 }
 refreshEnv();
-
 document.getElementById('sample').onclick=()=>{
   tx.value='환자: 한 3주 전에 농구하다가 비접촉으로 무릎이 확 꺾였어요. 그때 뚝 소리가 나고 몇 시간 만에 많이 부었어요. '+
     '의사: 이전에 같은 무릎 다치거나 수술한 적 있으세요? 환자: 아니요 처음이에요. '+
     '의사: 평소 운동 많이 하세요? 환자: 네 아마추어 농구선수예요. 나이는 24세입니다. '+
     '의사: 무릎이 빠지거나 흔들리는 느낌은요? 환자: 2번 정도 꺾이는 느낌 있었어요. '+
     '의사: Lachman 중등도, pivot shift 양성이네요. 반월상연골도 같이 손상됐습니다.';
-  baseText=tx.value;
-  setStatus('예시 대화를 불러왔습니다. 「AI로 답안 자동 채움」을 눌러보세요.');
+  baseText=tx.value;setStatus('예시 대화를 불러왔습니다. 「AI로 답안 자동 채움」을 눌러보세요.');
 };
-document.getElementById('clearAll').onclick=()=>{
-  for(const k in ans)delete ans[k];tx.value='';baseText='';
-  setStatus('초기화했습니다.');render();
-};
-
+document.getElementById('clearAll').onclick=()=>{for(const k in ans)delete ans[k];tx.value='';baseText='';setStatus('초기화했습니다.');render();};
 render();
 </script>
 </body>
