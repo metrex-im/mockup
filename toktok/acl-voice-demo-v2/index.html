@@ -105,12 +105,78 @@
   .crit.on{background:var(--blue);color:#fff;} .crit.off{background:var(--elev);color:var(--assist);border:1px solid var(--line);}
   .stage ul{margin:7px 0 0;padding-left:17px;color:var(--neutral);font-size:13px;line-height:1.65;}
   .disclaim{padding:14px 20px 18px;font-size:11.5px;color:var(--assist);line-height:1.55;}
+  /* patient picker */
+  #screen-patient{max-width:680px;margin:0 auto;}
+  .pp-h{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+  .pp-title{font-weight:800;font-size:18px;color:var(--ink);} .pp-sub{font-size:12.5px;color:var(--alt);margin-top:2px;}
+  .pp-body{padding:16px 18px;}
+  .srch{display:flex;align-items:center;gap:9px;border:1px solid var(--line2);border-radius:var(--r-pill);padding:10px 16px;}
+  .srch input{flex:1;border:none;outline:none;font-family:var(--font);font-size:14px;color:var(--ink);background:transparent;}
+  .plist{margin-top:12px;display:flex;flex-direction:column;gap:8px;}
+  .prow{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:var(--r-md);padding:12px 14px;cursor:pointer;transition:.1s;}
+  .prow:hover{border-color:var(--blue);background:var(--blue50);}
+  .pav{width:38px;height:38px;border-radius:50%;background:var(--blue50);color:var(--blue700);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0;}
+  .pmeta{flex:1;min-width:0;}
+  .pname{font-weight:700;font-size:14px;color:var(--ink);} .pname small{font-weight:500;color:var(--alt);font-size:12px;margin-left:6px;}
+  .pdesc{font-size:12px;color:var(--alt);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .pgo{font-size:12px;font-weight:700;color:var(--blue);white-space:nowrap;}
+  .pempty{font-size:13px;color:var(--assist);padding:14px 4px;text-align:center;}
+  .pnew{margin-top:12px;border-top:1px dashed var(--line2);padding-top:12px;}
+  /* patient chip in intake header */
+  .pchip{display:flex;align-items:center;gap:8px;background:var(--blue50);border:1px solid var(--blue100);border-radius:var(--r-pill);padding:6px 8px 6px 12px;}
+  .pchip .nm{font-size:12.5px;font-weight:700;color:var(--blue700);} .pchip .nm small{font-weight:500;color:var(--alt);margin-left:5px;}
+  .pchip button{border:none;background:#fff;color:var(--alt);font-size:11px;font-weight:700;border-radius:var(--r-pill);padding:5px 10px;cursor:pointer;border:1px solid var(--line2);}
+  .pchip button:hover{border-color:var(--blue);color:var(--blue);}
+  /* SOAP record */
+  .soap-wrap{max-width:680px;margin:18px auto 0;}
+  .rec-head{padding:14px 18px 10px;}
+  .rec-head .rh{font-weight:800;font-size:16px;color:var(--ink);}
+  .rec-head .rs{font-size:12px;color:var(--alt);margin-top:3px;line-height:1.5;}
+  .sec{border-top:1px solid var(--line);padding:14px 18px;}
+  .sec-h{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+  .sec-h .badge{width:26px;height:26px;border-radius:8px;background:var(--blue50);color:var(--blue700);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0;}
+  .sec-h .nm{font-weight:700;font-size:14px;color:var(--ink);} .sec-h .nm small{display:block;font-weight:500;font-size:11.5px;color:var(--assist);margin-top:1px;}
+  .it{border:1px solid var(--line);border-radius:var(--r-md);padding:12px 14px;margin-top:8px;}
+  .it.miss{border-color:#F3C6C6;background:#FEF6F6;} .it.part{border-color:var(--amber-bd);background:var(--amber-bg);}
+  .it-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:7px;}
+  .it-k{font-size:12.5px;font-weight:700;color:var(--ink);}
+  .it-st{font-size:10.5px;font-weight:700;border-radius:var(--r-pill);padding:3px 9px;white-space:nowrap;}
+  .it-st.ok{background:#E3F6EC;color:#1FAE6B;} .it-st.miss{background:#FCEAEA;color:var(--red);} .it-st.part{background:#FFEFD9;color:var(--amber);}
+  .it-v{font-size:13px;color:var(--neutral);line-height:1.5;white-space:pre-wrap;} .it-v.muted{color:var(--assist);}
 </style>
 </head>
 <body>
 
+<!-- ===================== 화면 0: 환자 선택 ===================== -->
+<div id="screen-patient">
+  <div class="pp-h">
+    <div class="mark" aria-hidden="true">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8A8.5 8.5 0 1 1 21 11.5z"/><path d="M12 8v6M9 11h6"/>
+      </svg>
+    </div>
+    <div>
+      <div class="pp-title">톡톡 · 환자 선택</div>
+      <div class="pp-sub">문진을 시작할 환자를 선택하세요 (데모용 더미 목록)</div>
+    </div>
+  </div>
+  <div class="card pp-body">
+    <div class="srch">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A8ADBA" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input id="psearch" placeholder="이름 · 등록번호로 검색">
+    </div>
+    <div class="plist" id="plist"></div>
+    <div class="pnew">
+      <button class="btn ghost" id="pnew" style="width:100%">+ 신규 환자로 시작 (미지정)</button>
+    </div>
+  </div>
+  <div class="note" style="max-width:none">
+    <b>데모 안내.</b> 실제 EMR 조회가 아니라 더미 환자 목록에서 선택만 합니다. 선택한 환자의 과거 이력은 문진에 자동 반영되지 않으며, 모든 입력은 의사가 직접 확정합니다.
+  </div>
+</div>
+
 <!-- ===================== 화면 1: 문진 ===================== -->
-<div class="wrap" id="screen-intake">
+<div class="wrap hidden" id="screen-intake">
 
   <div class="card hd">
     <div class="mark" aria-hidden="true">
@@ -123,6 +189,10 @@
       <div class="sub">대화를 음성인식 → LLM이 답안 제안 → 의사가 확정 → 결정 화면</div>
     </div>
     <div class="env" id="env"></div>
+  </div>
+
+  <div class="card hd" style="border-top:1px solid var(--line);grid-column:1/-1;padding-top:12px">
+    <div class="pchip" id="pchip"><span class="nm">환자 미지정</span><button id="pchange">환자 변경</button></div>
   </div>
 
   <div class="card">
@@ -164,6 +234,7 @@
     <div class="rtitle">최종 결정 (전문의 검토용)</div>
   </div>
   <div class="card" id="resultCard"></div>
+  <div class="soap-wrap"><div class="card" id="soapCard"></div></div>
 </div>
 
 <script>
@@ -373,10 +444,139 @@ function buildResult(){
   html+='<div class="disclaim">잠정 결과입니다. 모든 입력은 의사가 확정한 값이며, 적응증·근거는 입력값에 따라 자동 표시됩니다. 최종 결정·책임은 전문의에게 있습니다. (명지병원 「김진구라면」 ACL 알고리즘 기반 · 논문 7편 + PubMed 37편)</div>';
   document.getElementById('resultCard').innerHTML=html;
 }
-function showResult(){buildResult();document.getElementById('screen-intake').classList.add('hidden');document.getElementById('screen-result').classList.remove('hidden');window.scrollTo(0,0);}
-function showIntake(){document.getElementById('screen-result').classList.add('hidden');document.getElementById('screen-intake').classList.remove('hidden');window.scrollTo(0,0);}
+function showResult(){buildResult();buildSOAP();document.getElementById('screen-intake').classList.add('hidden');document.getElementById('screen-result').classList.remove('hidden');window.scrollTo(0,0);}
+function showIntake(){document.getElementById('screen-patient').classList.add('hidden');document.getElementById('screen-result').classList.add('hidden');document.getElementById('screen-intake').classList.remove('hidden');window.scrollTo(0,0);}
+function showPatient(){document.getElementById('screen-intake').classList.add('hidden');document.getElementById('screen-result').classList.add('hidden');document.getElementById('screen-patient').classList.remove('hidden');window.scrollTo(0,0);}
 goBtn.onclick=showResult;
 document.getElementById('back').onclick=showIntake;
+
+/* ---------------- 환자 선택 (더미) ---------------- */
+const PATIENTS=[
+  {id:'2024-0473',name:'김민준',sex:'M',age:24,memo:'우슬관절 통증 · 농구 부상력'},
+  {id:'2023-1180',name:'이서연',sex:'F',age:31,memo:'좌측 무릎 불안정감 · 등산'},
+  {id:'2022-0925',name:'박도현',sex:'M',age:17,memo:'축구 선수 · 비접촉 수상'},
+  {id:'2021-0612',name:'최은우',sex:'F',age:44,memo:'계단 통증 · 보존치료 이력'},
+  {id:'2020-1507',name:'정하준',sex:'M',age:52,memo:'퇴행성 변화 동반 · 일상생활'},
+  {id:'2024-0388',name:'한지아',sex:'F',age:28,memo:'ACL 재건술 이력(동종건) · 재파열 의심'}
+];
+let patient=null;
+const plist=document.getElementById('plist'),psearch=document.getElementById('psearch'),pchipEl=document.getElementById('pchip');
+function renderPatients(){
+  const q=(psearch.value||'').trim().toLowerCase();
+  const rows=PATIENTS.filter(p=>!q||p.name.toLowerCase().includes(q)||p.id.toLowerCase().includes(q));
+  plist.innerHTML='';
+  if(!rows.length){plist.innerHTML='<div class="pempty">검색 결과가 없습니다.</div>';return;}
+  rows.forEach(p=>{
+    const row=document.createElement('div');row.className='prow';
+    row.innerHTML='<div class="pav">'+p.name[0]+'</div>'+
+      '<div class="pmeta"><div class="pname">'+p.name+'<small>'+p.sex+' · '+p.age+'세 · '+p.id+'</small></div>'+
+      '<div class="pdesc">'+p.memo+'</div></div><div class="pgo">선택 →</div>';
+    row.onclick=()=>selectPatient(p);
+    plist.appendChild(row);
+  });
+}
+function setChip(){
+  pchipEl.innerHTML = patient
+    ? '<span class="nm">'+patient.name+'<small>'+patient.sex+' · '+patient.age+'세 · '+patient.id+'</small></span><button id="pchange">환자 변경</button>'
+    : '<span class="nm">환자 미지정</span><button id="pchange">환자 선택</button>';
+  document.getElementById('pchange').onclick=showPatient;
+}
+function selectPatient(p){patient=p;setChip();showIntake();}
+psearch.oninput=renderPatients;
+document.getElementById('pnew').onclick=()=>{patient=null;setChip();showIntake();};
+
+/* ---------------- SOAP 초진 기록지 ---------------- */
+function statusBadge(kind){ // 'ok'|'miss'|'part'
+  const map={ok:['ok','충족'],miss:['miss','누락'],part:['part','부분']};
+  const m=map[kind];return '<span class="it-st '+m[0]+'">'+m[1]+'</span>';
+}
+function item(k,kind,extra,val){
+  const cls = kind==='miss'?' miss':(kind==='part'?' part':'');
+  const vcls = (kind==='miss')?' muted':'';
+  return '<div class="it'+cls+'"><div class="it-top"><span class="it-k">'+k+'</span>'+statusBadge(kind)+
+    (extra?'<span class="it-st part" style="background:transparent;color:var(--alt);font-weight:600">'+extra+'</span>':'')+
+    '</div><div class="it-v'+vcls+'">'+val+'</div></div>';
+}
+function buildSOAP(){
+  const s=confirmedState();
+  const surgery=surgeryConfirmed(s), acu=isChronic(s)?'만성':'급성';
+  const grafts=['BTB','햄스트링(HS)','대퇴사두근건(QT)','동종건(Allograft)','불명'];
+  const opt=(id)=>{const v=s[id];return v!==undefined?labelOf(id,v):null;};
+
+  // S
+  const cc = (ans.symptom&&ans.symptom.value)? ans.symptom.value : null;
+  const hpiParts=[];
+  if(opt('period'))hpiParts.push(opt('period')+' 발생('+acu+')');
+  if(opt('mechanism'))hpiParts.push(opt('mechanism'));
+  if(Array.isArray(s.signs)&&s.signs.length){const sg=s.signs.map(i=>labelOf('signs',i)).filter(x=>x!=='해당 없음');if(sg.length)hpiParts.push(sg.join('·'));}
+  const hpi=hpiParts.length?hpiParts.join(', ')+'.':null;
+  const pmh = (s.history!==undefined && s.history!==0)
+    ? labelOf('history',s.history)+(s.graft!==undefined?' · 이전 Graft '+grafts[s.graft]:'')
+    : (s.history===0?'특이 ACL·동측 손상 이력 없음(초발)':null);
+  const rosParts=[];
+  if(opt('level'))rosParts.push('활동 '+opt('level').split(' — ')[0]);
+  if(acu==='만성'&&opt('givingway'))rosParts.push('Giving-way '+opt('givingway'));
+  const ros = rosParts.length? '근골격계: '+rosParts.join(', ')+'. 그 외 계통 미청취.' : null;
+
+  // O
+  const peParts=[];
+  if(opt('pivot'))peParts.push('Pivot '+opt('pivot'));
+  if(opt('lachman'))peParts.push('Lachman '+opt('lachman'));
+  if(opt('stress'))peParts.push('Stress X-ray '+opt('stress'));
+  if(s.beighton!==undefined)peParts.push('Beighton '+s.beighton+'/9'+(s.beighton>=4?'(Hyperlaxity)':''));
+  const pe=peParts.length?peParts.join(', ')+'.':null;
+
+  // A
+  let reason=[].concat(absoluteReasons(s));
+  if(isChronic(s)&&examPositive(s))reason.push('신체진찰 양성');
+  if(isChronic(s)&&!examPositive(s)&&s.givingway===2)reason.push('Giving-way ≥2회');
+  if(!absoluteSurgery(s)&&isLevel12(s))reason.push('Level I·II');
+  const aText = (acu+' ACL 손상 — '+(surgery?'수술 경로':'보존(재활) 경로')+
+    (surgery?(' (근거: '+(reason.join(' · ')||'알고리즘 기준')+')'):' (신체진찰 음성 + 추가 적응증 없음)'));
+
+  // P
+  let pText;
+  if(surgery){
+    const allr=(s.pivot===1)||(s.beighton>=4)||(s.age===0)||(s.history===2)||isLevel12(s);
+    pText=(allr?'ACLR + ALLR':'ACLR 단독')+
+      (s.history===2?(' · 이전 '+grafts[s.graft!==undefined?s.graft:4]+' 기반 Graft 재선택'):' · Graft 표준')+
+      ((acu==='급성'&&Array.isArray(s.concomitant)&&s.concomitant.includes(0))?' · 부종 소실 후(3–6주) 수술':'')+
+      ' · 수술 후 단계별 재활. 전문의 승인 후 시행.';
+  }else{
+    pText='6주 NMST 후 Coper 4기준 재분류 → 충족 시 보존 지속, 미충족 시 수술 전환. 복귀: 9개월 삼중 기준(대퇴사두근 LSI ≥90% · Hop ≥80% · ACL-RSI 47–65).';
+  }
+
+  const pinfo = patient ? (patient.name+' · '+patient.sex+'/'+patient.age+'세 · '+patient.id) : '환자 미지정 (신규)';
+  let html='<div class="rec-head"><div class="rh">초진 기록지 (SOAP)</div>'+
+    '<div class="rs">'+pinfo+' · 확정값 자동 매핑 · 「검토 완료·확정」 전까지 수정 가능</div></div>';
+
+  // S section
+  html+='<div class="sec"><div class="sec-h"><span class="badge">S</span><span class="nm">Subjective — 환자 진술<small>CC · HPI · PMH · FH/SH · ROS</small></span></div>';
+  html+=item('주증상 (CC)', cc?'ok':'miss', '', cc||'발화에서 확인되지 않았습니다. 직접 입력하세요.');
+  html+=item('현병력 (HPI)', hpi?'ok':'miss', '', hpi||'발화에서 확인되지 않았습니다.');
+  html+=item('과거력 (PMH)', pmh?'ok':'miss', pmh?'':'발화에서 확인되지 않음', pmh||'이 문진 범위 밖 — 직접 입력하세요.');
+  html+=item('가족력·사회력 (FH/SH)', 'miss', '발화에서 확인되지 않음', '이 문진 범위 밖 — 직접 입력하세요.');
+  html+=item('계통문진 (ROS)', ros?'part':'miss', ros?'근골격계 위주':'', ros||'발화에서 확인되지 않았습니다.');
+  html+='</div>';
+
+  // O section
+  html+='<div class="sec"><div class="sec-h"><span class="badge">O</span><span class="nm">Objective — 신체진찰·검사<small>PE</small></span></div>';
+  html+=item('신체진찰 소견 (PE)', pe?'ok':'miss', '', pe||'발화에서 확인되지 않았습니다.');
+  html+='</div>';
+
+  // A section
+  html+='<div class="sec"><div class="sec-h"><span class="badge">A</span><span class="nm">Assessment — 평가·판정<small>잠정 경로 · 근거</small></span></div>';
+  html+=item('평가 (A)', 'ok', '문진 확정 기반', aText);
+  html+='</div>';
+
+  // P section
+  html+='<div class="sec"><div class="sec-h"><span class="badge">P</span><span class="nm">Plan — 치료계획<small>수술/보존 경로</small></span></div>';
+  html+=item('치료계획 (P)', 'ok', '', pText);
+  html+='</div>';
+
+  html+='<div class="disclaim">초진 기록지는 ACL 문진 확정값에서 자동 매핑한 초안입니다. PMH·FH/SH 등 이 문진 범위를 벗어나는 항목은 누락으로 표시되며 의사가 직접 채웁니다. 최종 책임은 전문의에게 있습니다.</div>';
+  document.getElementById('soapCard').innerHTML=html;
+}
 
 /* ---------------- STT ---------------- */
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
@@ -489,7 +689,7 @@ document.getElementById('sample').onclick=()=>{
   baseText=tx.value;setStatus('예시 대화를 불러왔습니다. 「AI로 답안 자동 채움」을 눌러보세요.');
 };
 document.getElementById('clearAll').onclick=()=>{for(const k in ans)delete ans[k];tx.value='';baseText='';setStatus('초기화했습니다.');render();};
-render();
+render();renderPatients();setChip();
 </script>
 </body>
 </html>
