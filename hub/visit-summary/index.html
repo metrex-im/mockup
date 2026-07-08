@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>액티메디 · 진료 내용 안내</title>
+<style>
+:root{
+  --blue:#1E5AF0; --blue700:#1342CC; --blue50:#F3F6FF; --blue100:#E3EBFF;
+  --navy:#0C1E6B; --amber:#B5560A; --amber-bg:#FFF4EC; --amber-bd:#F6C99A;
+  --ink:#101010; --neutral:#262A33; --alt:#555B68; --assist:#A8ADBA;
+  --line:#E5E7EC; --line2:#C9CDD6; --elev:#F8F9FB; --sunken:#F3F4F7;
+  --ok:#1FAE6B; --red:#E5484D;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:var(--sunken);
+  font-family:-apple-system,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+  color:var(--ink);
+}
+.phone{max-width:420px;margin:0 auto;min-height:100vh;background:var(--sunken);position:relative;padding-bottom:120px}
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 2px 8px rgba(12,30,107,.05)}
+
+/* ── 헤더 ── */
+.header{padding:26px 20px 18px;text-align:center}
+.logo-row{display:inline-flex;align-items:center;gap:8px;margin-bottom:10px}
+.logo{width:30px;height:30px;border-radius:9px;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px}
+.logo-text{font-size:17px;font-weight:800;color:var(--navy);letter-spacing:-.2px}
+.header h1{font-size:20px;font-weight:700;color:var(--ink)}
+.header .date{font-size:12.5px;color:var(--assist);margin-top:6px}
+
+/* ── 본문 ── */
+.body-area{padding:0 16px}
+.summary{padding:22px 20px}
+.patient-line{display:flex;align-items:center;gap:9px;padding-bottom:14px;border-bottom:1px solid var(--line);margin-bottom:16px}
+.avatar{width:36px;height:36px;border-radius:50%;background:var(--blue100);color:var(--blue700);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px}
+.patient-line .name{font-size:14.5px;font-weight:700}
+.patient-line .clinic{font-size:12px;color:var(--alt);margin-top:1px}
+.summary-text p{font-size:14.5px;line-height:1.85;color:var(--neutral);margin-bottom:14px}
+.summary-text p:last-child{margin-bottom:0}
+.summary-text b{color:var(--navy)}
+.notice{margin-top:16px;background:var(--blue50);border:1px solid var(--blue100);border-radius:12px;padding:12px 14px;font-size:12.5px;line-height:1.6;color:var(--alt)}
+
+/* ── 하단 고정 버튼 ── */
+.bottom-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:420px;padding:14px 16px calc(14px + env(safe-area-inset-bottom));background:rgba(255,255,255,.96);border-top:1px solid var(--line);display:flex;gap:10px;z-index:30}
+.btn{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:7px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;padding:14px 0;border:1px solid transparent;transition:background .15s}
+.btn-secondary{background:#fff;color:var(--blue);border-color:var(--blue)}
+.btn-secondary:active{background:var(--blue50)}
+.btn-primary{background:var(--blue);color:#fff}
+.btn-primary:active{background:var(--blue700)}
+
+/* ── 톡톡 미설치 안내 ── */
+.app-notice{position:fixed;bottom:96px;left:50%;transform:translateX(-50%) translateY(10px);width:calc(100% - 48px);max-width:372px;background:var(--navy);color:#fff;font-size:13.5px;line-height:1.55;font-weight:600;border-radius:12px;padding:14px 18px;opacity:0;pointer-events:none;transition:all .25s;box-shadow:0 6px 20px rgba(12,30,107,.35);z-index:40;text-align:center}
+.app-notice.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── 오류 화면 공통 ── */
+.state-screen{padding:80px 28px 40px;text-align:center}
+.state-icon{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:28px;font-weight:800}
+.state-icon.expired{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-bd)}
+.state-icon.error{background:#FDEEEE;color:var(--red);border:1px solid #F5B9BB}
+.state-screen h2{font-size:18px;font-weight:700;margin-bottom:10px}
+.state-screen p{font-size:14px;line-height:1.7;color:var(--alt);margin-bottom:26px}
+.state-screen .btn{flex:none;width:100%;max-width:260px}
+.hidden{display:none !important}
+
+/* ── 인쇄 ── */
+@media print{
+  .bottom-bar,.app-notice{display:none !important}
+  body{background:#fff}
+  .card{border:none;box-shadow:none}
+}
+</style>
+</head>
+<body>
+<div class="phone">
+
+  <!-- ── 정상 화면 ── -->
+  <div id="normalView">
+    <div class="header">
+      <div class="logo-row">
+        <div class="logo">A</div>
+        <span class="logo-text">액티메디</span>
+      </div>
+      <h1>진료 내용 안내</h1>
+      <div class="date">2026년 7월 8일 (수) · 액티메디 정형외과</div>
+    </div>
+
+    <div class="body-area">
+      <div class="card summary">
+        <div class="patient-line">
+          <div class="avatar">김</div>
+          <div>
+            <div class="name">김민준님</div>
+            <div class="clinic">제1진료실 · 박정형 원장</div>
+          </div>
+        </div>
+        <div class="summary-text" data-key="환자용-진료내용-텍스트">
+          <p>오늘 진료에서는 <b>무릎 앞십자인대 손상</b>에 대해 살펴보았어요. 3주 전 농구를 하다 다치신 오른쪽 무릎을 진찰한 결과, 무릎을 안정적으로 잡아 주는 인대가 일부 손상되었을 가능성이 확인되었습니다.</p>
+          <p>정확한 손상 정도를 확인하기 위해 <b>MRI 검사</b>를 예약해 드렸어요. 검사 일정은 별도 안내 문자로 알려드릴 예정이니 조금만 기다려 주세요.</p>
+          <p>회복될 때까지는 점프, 급격한 방향 전환처럼 무릎에 무리가 가는 동작은 피해 주시는 것이 좋아요. 대신 진료실에서 안내해 드린 <b>재활 운동</b>을 하루 2회, 무리하지 않는 범위에서 꾸준히 해 주시면 회복에 큰 도움이 됩니다.</p>
+          <p>통증이 심해지거나 무릎이 심하게 붓는 경우에는 기다리지 마시고 바로 병원으로 연락 주세요. 궁금한 점은 아래 <b>톡톡 상담</b>으로 언제든 편하게 물어보실 수 있어요.</p>
+        </div>
+        <div class="notice">이 안내는 진료 내용을 이해하기 쉽게 정리한 것으로, 처방전이나 진단서를 대신하지 않습니다.</div>
+      </div>
+    </div>
+
+    <div class="bottom-bar">
+      <button class="btn btn-secondary" data-key="pdf-저장-버튼" onclick="handlePdfSaveButtonClick()">PDF 저장</button>
+      <button class="btn btn-primary" data-key="톡톡상담-버튼" onclick="handleToktokConsultButtonClick()">톡톡으로 상담하기</button>
+    </div>
+
+    <div class="app-notice" id="appNotice" data-key="톡톡미설치-안내">톡톡 앱이 설치되어 있지 않아 스토어로 이동합니다</div>
+  </div>
+
+  <!-- ── 토큰 오류 화면 (?state=expired) ── -->
+  <div id="expiredView" class="hidden state-screen" data-key="토큰오류-화면">
+    <div class="state-icon expired">!</div>
+    <h2>링크가 만료되었거나 올바르지 않습니다</h2>
+    <p>진료 내용 확인 링크는 보안을 위해 일정 기간만 유효합니다.<br>병원에 다시 발송을 요청해 주세요.</p>
+    <button class="btn btn-secondary" onclick="handleContactClinicButtonClick()">병원에 문의하기</button>
+  </div>
+
+  <!-- ── 조회 실패 화면 (?state=error) ── -->
+  <div id="errorView" class="hidden state-screen">
+    <div class="state-icon error">✕</div>
+    <h2>진료 내용을 불러오지 못했습니다</h2>
+    <p>일시적인 오류로 진료 내용을 불러올 수 없어요.<br>잠시 후 다시 시도해 주세요.</p>
+    <button class="btn btn-primary" data-key="조회-재시도-버튼" onclick="handleRetryButtonClick()">다시 시도</button>
+  </div>
+
+</div>
+
+<script>
+/* ── URL 파라미터에 따른 화면 분기 ── */
+const applyStateFromUrl = () => {
+  const state = new URLSearchParams(window.location.search).get('state');
+  if (state === 'expired') {
+    document.getElementById('normalView').classList.add('hidden');
+    document.getElementById('expiredView').classList.remove('hidden');
+  } else if (state === 'error') {
+    document.getElementById('normalView').classList.add('hidden');
+    document.getElementById('errorView').classList.remove('hidden');
+  }
+};
+
+/* ── PDF 저장 ── */
+const handlePdfSaveButtonClick = () => {
+  window.print();
+};
+
+/* ── 톡톡 상담 (앱 스킴 호출 + 미설치 폴백) ── */
+let noticeTimer;
+const handleToktokConsultButtonClick = () => {
+  const openedAt = Date.now();
+  const iframe = document.createElement('iframe');
+  iframe.style.display = 'none';
+  iframe.src = 'toktok://consult?visit=20260708-013';
+  document.body.appendChild(iframe);
+
+  setTimeout(() => {
+    document.body.removeChild(iframe);
+    // 앱 전환이 일어나면 탭이 hidden 상태가 되어 안내를 띄우지 않음
+    if (!document.hidden && Date.now() - openedAt >= 2000) {
+      showAppNotice();
+    }
+  }, 2000);
+};
+
+const showAppNotice = () => {
+  const notice = document.getElementById('appNotice');
+  notice.classList.add('show');
+  clearTimeout(noticeTimer);
+  noticeTimer = setTimeout(() => notice.classList.remove('show'), 3200);
+};
+
+/* ── 오류 화면 버튼 ── */
+const handleRetryButtonClick = () => {
+  window.location.href = window.location.pathname; // state 파라미터 제거 후 재조회
+};
+const handleContactClinicButtonClick = () => {
+  window.location.href = 'tel:021234567';
+};
+
+applyStateFromUrl();
+</script>
+</body>
+</html>
