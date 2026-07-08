@@ -1,0 +1,1595 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280">
+<title>허브 · 진료 녹음 (개편) — ACLP-4303 목업</title>
+<style>
+:root{
+  --blue:#1E5AF0; --blue700:#1342CC; --blue50:#F3F6FF; --blue100:#E3EBFF;
+  --navy:#0C1E6B; --amber:#B5560A; --amber-bg:#FFF4EC; --amber-bd:#F6C99A;
+  --ink:#101010; --neutral:#262A33; --alt:#555B68; --assist:#A8ADBA;
+  --line:#E5E7EC; --line2:#C9CDD6; --elev:#F8F9FB; --sunken:#F3F4F7;
+  --ok:#1FAE6B; --red:#E5484D;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:var(--sunken);
+  font-family:-apple-system,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+  color:var(--ink);
+  min-width:1280px;
+}
+.wrap{width:1280px;margin:0 auto;padding:24px 32px 48px}
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 2px 8px rgba(12,30,107,.05)}
+
+/* ── 상단 헤더 & 탭 ── */
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:20px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand .logo{width:32px;height:32px;border-radius:9px;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px}
+.brand h1{font-size:19px;font-weight:700;color:var(--navy)}
+.brand .sub{font-size:12px;color:var(--assist);margin-left:4px}
+.visit-type-chip{font-size:11px;font-weight:800;color:var(--blue);background:var(--blue50);border:1px solid var(--blue100);border-radius:999px;padding:4px 10px;white-space:nowrap}
+.doc-status-chip{font-size:11px;font-weight:800;color:var(--alt);background:var(--elev);border:1px solid var(--line);border-radius:999px;padding:4px 10px;white-space:nowrap}
+.doc-status-chip.draft{color:var(--amber);background:var(--amber-bg);border-color:var(--amber-bd)}
+.doc-status-chip.completed{color:var(--ok);background:#EEF9F4;border-color:#B9E8D2}
+
+/* ── 레이아웃 ── */
+.layout{display:grid;grid-template-columns:280px 1fr;gap:20px;align-items:start}
+
+/* ── 좌측 컬럼 ── */
+.side{display:flex;flex-direction:column;gap:14px}
+.side .card{padding:16px}
+.field-label{font-size:12px;font-weight:600;color:var(--alt);margin-bottom:6px;display:block}
+select.room,.select-control{width:100%;padding:10px 12px;border:1px solid var(--line2);border-radius:10px;font-size:14px;color:var(--ink);background:#fff;font-family:inherit}
+.patient{display:flex;align-items:center;gap:12px}
+.avatar{width:44px;height:44px;min-width:44px;flex:0 0 44px;border-radius:50%;background:var(--blue100);color:var(--blue700);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px}
+.patient > div:not(.avatar){min-width:0}
+.patient .name{font-size:16px;font-weight:700}
+.patient .meta{font-size:12.5px;color:var(--alt);margin-top:2px}
+.patient .visit-chip{flex:0 0 auto;margin-left:auto;font-size:11px;font-weight:700;color:var(--blue);background:var(--blue50);border:1px solid var(--blue100);border-radius:999px;padding:3px 9px;white-space:nowrap}
+.patient-select{margin-bottom:12px}
+.patient-card{position:relative}
+.visit-history-head{display:flex;align-items:center;justify-content:space-between;margin-top:14px;margin-bottom:8px}
+.visit-history-title{font-size:12px;font-weight:700;color:var(--alt)}
+.visit-history-current{font-size:12px;color:var(--neutral);line-height:1.45;background:var(--elev);border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin-bottom:8px}
+.btn-history{padding:7px 10px;background:#fff;color:var(--blue);border:1px solid var(--blue100);border-radius:9px;font-size:12.5px}
+.btn-history:hover{background:var(--blue50)}
+.calendar-popover{position:absolute;left:16px;top:166px;width:560px;display:none;grid-template-columns:300px 1fr;gap:12px;background:#fff;border:1px solid var(--line2);border-radius:14px;padding:14px;box-shadow:0 12px 34px rgba(12,30,107,.18);z-index:20}
+.calendar-popover.on{display:grid}
+.calendar-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.calendar-nav button{width:32px;height:30px;border:1px solid var(--line2);border-radius:8px;background:#fff;color:var(--neutral);font-size:16px;cursor:pointer}
+.calendar-nav button:disabled{background:var(--elev);color:var(--assist);cursor:default}
+.calendar-month{font-size:14px;font-weight:800;color:var(--navy)}
+.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.calendar-weekday{height:24px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--assist)}
+.calendar-day{height:34px;border:1px solid transparent;border-radius:8px;background:#fff;color:var(--neutral);font-size:12.5px;font-weight:700;font-family:inherit;cursor:pointer}
+.calendar-day.has-visit{background:var(--blue50);border-color:var(--blue100);color:var(--blue700)}
+.calendar-day.selected{background:var(--blue);border-color:var(--blue);color:#fff}
+.calendar-day:disabled{color:var(--assist);cursor:default}
+.visit-list-title{font-size:12px;font-weight:800;color:var(--navy);margin-bottom:8px}
+.visit-list{display:flex;flex-direction:column;gap:8px;max-height:244px;overflow-y:auto}
+.visit-list-item{width:100%;text-align:left;border:1px solid var(--line);background:#fff;border-radius:10px;padding:9px 10px;font-family:inherit;cursor:pointer}
+.visit-list-item.active{border-color:var(--blue);background:var(--blue50)}
+.visit-list-item-title{font-size:12.5px;font-weight:800;color:var(--neutral);margin-bottom:3px}
+.visit-list-item-meta{font-size:11.5px;color:var(--alt)}
+.visit-rule{font-size:12px;color:var(--alt);line-height:1.5;margin-bottom:10px}
+.visit-type-btn{height:36px;border:1px solid var(--line2);border-radius:10px;background:#fff;color:var(--alt);font-size:13px;font-weight:700;font-family:inherit;cursor:pointer}
+.visit-type-btn.active{background:var(--blue50);border-color:var(--blue);color:var(--blue)}
+.visit-actions{display:grid;grid-template-columns:1fr;gap:8px;margin-top:10px}
+.btn-continue{width:100%;padding:10px 0;background:#fff;color:var(--blue);border:1px solid var(--blue)}
+.btn-continue:hover{background:var(--blue50)}
+.btn-start{width:100%;padding:10px 0;background:var(--navy);color:#fff}
+.btn-start:hover{background:#07174F}
+.btn-start:disabled,.btn-continue:disabled{background:var(--elev);border-color:var(--line);color:var(--assist);cursor:default}
+.mode-note{font-size:12px;color:var(--alt);line-height:1.5;margin-top:10px;min-height:18px}
+.readonly-banner{display:none;margin-bottom:12px;border:1px solid var(--amber-bd);background:var(--amber-bg);color:var(--amber);border-radius:10px;padding:9px 12px;font-size:12.5px;font-weight:700}
+.readonly-banner.on{display:block}
+.readonly-mode button.chip,.readonly-mode .answer-input,.readonly-mode .answer-textarea{pointer-events:none}
+.empty-state{display:none;border:1px dashed var(--line2);background:var(--elev);border-radius:12px;padding:34px 20px;text-align:center;color:var(--alt)}
+.empty-state.on{display:block}
+.empty-state-title{font-size:15px;font-weight:800;color:var(--navy);margin-bottom:8px}
+.empty-state-desc{font-size:13px;line-height:1.55}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:12px;font-size:14.5px;font-weight:700;cursor:pointer;font-family:inherit;border:1px solid transparent;transition:background .15s}
+.btn-record{width:100%;padding:13px 0;background:var(--blue);color:#fff}
+.btn-record:hover{background:var(--blue700)}
+.btn-record:disabled{background:var(--assist);cursor:default}
+.btn-record.recording{background:var(--red)}
+.rec-dot{width:9px;height:9px;border-radius:50%;background:#fff;display:none}
+.recording .rec-dot{display:inline-block;animation:blink 1s infinite}
+@keyframes blink{50%{opacity:.25}}
+.rec-time{font-size:12px;color:var(--alt);text-align:center;margin-top:8px;min-height:15px}
+
+.stt-title{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--neutral);margin-bottom:8px}
+.stt-live{font-size:10.5px;font-weight:700;color:var(--red);border:1px solid var(--red);border-radius:999px;padding:1px 7px;display:none}
+.stt-live.on{display:inline-block}
+.stt-box{height:160px;overflow-y:auto;background:var(--elev);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:12.5px;line-height:1.65;color:var(--neutral)}
+.stt-box .placeholder{color:var(--assist)}
+.stt-line{margin-bottom:6px}
+.stt-line b{color:var(--navy);font-weight:700;margin-right:4px}
+
+/* ── 우측 패널 공통 ── */
+.panel{display:flex;flex-direction:column;height:calc(100vh - 116px);max-height:calc(100vh - 116px);padding:22px 24px;overflow:hidden}
+.panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+.panel-head h2{font-size:16px;font-weight:700;color:var(--navy)}
+.panel-actions{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:34px;flex:1}
+.panel-action-left{display:flex;align-items:center;gap:10px}
+.panel-action-right{display:flex;align-items:center;gap:10px;margin-left:auto}
+.question-count-chip{font-size:11px;font-weight:800;color:var(--neutral);background:var(--elev);border:1px solid var(--line);border-radius:999px;padding:4px 10px;white-space:nowrap}
+.updating{display:inline-flex;align-items:center;gap:7px;min-width:150px;visibility:hidden;opacity:0;font-size:12.5px;font-weight:600;color:var(--amber);background:var(--amber-bg);border:1px solid var(--amber-bd);border-radius:999px;padding:5px 13px}
+.updating.on{visibility:visible;opacity:1}
+.spinner{width:13px;height:13px;border:2px solid var(--amber-bd);border-top-color:var(--amber);border-radius:50%;animation:spin .8s linear infinite;flex:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+.btn-secondary{padding:8px 14px;background:#fff;color:var(--blue);border:1px solid var(--blue100);border-radius:10px;font-size:13px}
+.btn-secondary:hover{background:var(--blue50)}
+.btn-secondary:disabled{background:var(--elev);border-color:var(--line);color:var(--assist);cursor:default}
+
+/* ── 문진 답안 항목 ── */
+.q-grid{flex:1;min-height:0;display:flex;flex-direction:column;gap:10px;overflow-y:auto;padding-right:4px}
+.q-item{display:grid;grid-template-columns:70px 1fr;border:1px solid var(--line);border-radius:12px;background:#fff;min-height:118px;overflow:hidden}
+.q-head{background:var(--elev);border-right:1px solid var(--line);padding:12px 14px}
+.q-number{font-size:13px;font-weight:800;color:var(--blue700);margin-bottom:6px}
+.q-content{padding:12px 14px;min-width:0}
+.q-label{font-size:13px;font-weight:800;color:var(--neutral);margin-bottom:8px}
+.q-body{min-height:70px}
+.q-empty{display:block;font-size:12px;color:var(--assist);margin-top:6px;min-height:18px}
+.q-control{display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-height:32px}
+.chip{display:inline-block;font-size:13px;font-weight:600;border-radius:8px;padding:5px 10px;line-height:1.35}
+button.chip{cursor:pointer;font-family:inherit}
+.chip-suggest{color:var(--ok);background:#EEF9F4;border:1.5px solid #B9E8D2}
+.chip-suggest-low{color:var(--amber);background:var(--amber-bg);border:1.5px solid var(--amber-bd)}
+.chip-user{color:var(--blue700);background:var(--blue50);border:1.5px solid var(--blue)}
+.chip-option{color:var(--alt);background:#fff;border:1px solid var(--line2)}
+.chip-option.pending{color:var(--neutral);background:var(--elev);border:1px solid var(--line2)}
+.answer-input{width:220px;height:32px;border:1.5px solid #B9E8D2;background:#EEF9F4;border-radius:9px;padding:6px 10px;font-size:13px;font-weight:700;color:var(--ok);font-family:inherit}
+.answer-input.pending{border:1px solid var(--line2);background:#fff;color:var(--neutral);font-weight:600}
+.answer-input.low{border-color:var(--amber-bd);background:var(--amber-bg);color:var(--amber)}
+.answer-input.user{border:1.5px solid var(--blue);background:var(--blue50);color:var(--blue700)}
+.answer-textarea{width:100%;min-height:42px;border:1.5px solid #B9E8D2;background:#EEF9F4;border-radius:9px;padding:7px 10px;font-size:13px;font-weight:600;color:var(--ok);font-family:inherit;resize:none}
+.answer-textarea.pending{border:1px solid var(--line2);background:#fff;color:var(--neutral)}
+.answer-textarea.low{border-color:var(--amber-bd);background:var(--amber-bg);color:var(--amber)}
+.answer-textarea.user{border:1.5px solid var(--blue);background:var(--blue50);color:var(--blue700)}
+.badge{display:inline-block;font-size:10.5px;font-weight:700;border-radius:999px;padding:2px 8px;vertical-align:middle;margin-left:6px}
+.badge-ai{color:var(--ok);background:#EEF9F4;border:1px solid #B9E8D2}
+.badge-weak{color:var(--amber);background:var(--amber-bg);border:1px solid var(--amber-bd)}
+.badge-user{color:var(--blue700);background:var(--blue50);border:1px solid var(--blue100)}
+.evidence{display:block;font-size:12px;color:var(--alt);font-style:italic;margin-top:6px;min-height:18px}
+.weak-note{display:block;font-size:11.5px;font-weight:700;color:var(--red);margin-top:4px}
+.visit-action-cta{flex:none;border:1px solid var(--line);background:#fff;border-radius:12px;padding:14px 16px;margin-top:12px}
+.visit-action-desc{font-size:12.5px;color:var(--alt);line-height:1.5;margin-bottom:10px}
+.visit-action-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.visit-action-row.single{grid-template-columns:1fr}
+.visit-action-row .btn{width:100%;padding:10px 0}
+
+/* ── SOAP (재진) ── */
+.soap-grid{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr;gap:12px;overflow-y:auto;padding-right:4px}
+.soap-card{border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:#fff}
+.soap-tag{display:inline-flex;width:26px;height:26px;align-items:center;justify-content:center;border-radius:8px;background:var(--blue50);color:var(--blue700);font-weight:800;font-size:13px;margin-right:8px}
+.soap-head{display:flex;align-items:center;margin-bottom:9px;font-size:13.5px;font-weight:700;color:var(--neutral)}
+.soap-body{font-size:13px;line-height:1.7;color:var(--neutral);min-height:74px}
+.soap-body .add{color:var(--amber)}
+.soap-body textarea{width:100%;min-height:96px;border:1px solid var(--blue100);background:var(--blue50);border-radius:9px;padding:9px 11px;font-size:13px;line-height:1.6;color:var(--ink);font-family:inherit;resize:vertical}
+.comment-area{flex:none;margin-top:16px;border-top:1px solid var(--line);padding-top:16px}
+.comment-area textarea{width:100%;min-height:72px;border:1px solid var(--line2);border-radius:10px;padding:10px 12px;font-size:13.5px;font-family:inherit;resize:vertical;color:var(--ink)}
+.comment-area textarea:focus{outline:2px solid var(--blue100);border-color:var(--blue)}
+.comment-note{font-size:12px;color:var(--assist);margin-top:6px}
+.btn-primary{padding:11px 24px;background:var(--blue);color:#fff}
+.btn-primary:hover{background:var(--blue700)}
+.btn-primary:disabled{background:var(--assist);cursor:default}
+.btn-primary .spinner{border-color:rgba(255,255,255,.4);border-top-color:#fff}
+
+/* ── 토스트 ── */
+.toast{position:fixed;left:50%;bottom:36px;transform:translateX(-50%) translateY(16px);background:var(--navy);color:#fff;font-size:14px;font-weight:600;border-radius:12px;padding:13px 24px;opacity:0;pointer-events:none;transition:all .25s;box-shadow:0 6px 20px rgba(12,30,107,.3);z-index:100}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.dialog-backdrop{position:fixed;inset:0;background:rgba(12,30,107,.28);display:none;align-items:center;justify-content:center;z-index:90}
+.dialog-backdrop.on{display:flex}
+.dialog{width:360px;background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 18px 50px rgba(12,30,107,.24);padding:20px}
+.dialog.review-dialog{width:760px;max-width:calc(100vw - 48px);max-height:calc(100vh - 72px);display:flex;flex-direction:column}
+.dialog h3{font-size:17px;color:var(--navy);margin-bottom:8px}
+.dialog p{font-size:13px;color:var(--alt);line-height:1.55;margin-bottom:16px}
+.dialog-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.dialog-actions.single{grid-template-columns:1fr}
+.dialog-cancel{margin-top:10px;width:100%;padding:9px 0;border:1px solid var(--line2);border-radius:10px;background:#fff;color:var(--alt);font-weight:700;font-family:inherit;cursor:pointer}
+.review-content{border:1px solid var(--line);border-radius:12px;background:var(--elev);padding:12px;overflow-y:auto;min-height:0;margin-bottom:14px}
+.review-item{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:10px}
+.review-item:last-child{margin-bottom:0}
+.review-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+.review-title{font-size:13px;font-weight:800;color:var(--navy)}
+.review-meta{display:flex;align-items:center;gap:6px;flex:none}
+.review-badge{font-size:11px;font-weight:800;border-radius:999px;padding:3px 8px}
+.review-badge.ai{color:var(--ok);background:#EEF9F4;border:1px solid #B9E8D2}
+.review-badge.user{color:var(--blue700);background:var(--blue50);border:1px solid var(--blue100)}
+.review-badge.weak{color:var(--amber);background:var(--amber-bg);border:1px solid var(--amber-bd)}
+.review-answer{font-size:13.5px;font-weight:700;color:var(--neutral);line-height:1.55}
+.review-evidence{font-size:12px;color:var(--alt);font-style:italic;line-height:1.5;margin-top:7px}
+.review-soap-tag{display:inline-flex;width:28px;height:28px;align-items:center;justify-content:center;border-radius:8px;background:var(--blue50);color:var(--blue700);font-size:13px;font-weight:900;margin-right:8px}
+.review-soap-title{display:flex;align-items:center;font-size:13.5px;font-weight:800;color:var(--navy);margin-bottom:8px}
+.review-soap-textarea{width:100%;min-height:84px;border:1px solid var(--line2);border-radius:10px;padding:10px 12px;font-size:13.5px;line-height:1.55;color:var(--neutral);font-family:inherit;resize:vertical}
+.review-soap-textarea:focus{outline:2px solid var(--blue100);border-color:var(--blue)}
+.send-overlay{position:fixed;inset:0;background:rgba(12,30,107,.35);display:none;align-items:center;justify-content:center;z-index:80}
+.send-overlay.on{display:flex}
+.send-modal{width:920px;max-width:calc(100vw - 48px);background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 20px 60px rgba(12,30,107,.25);overflow:hidden}
+.send-modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;border-bottom:1px solid var(--line)}
+.send-modal-head h2{font-size:16.5px;font-weight:700;color:var(--navy)}
+.send-modal-head .sub{font-size:12.5px;color:var(--assist);margin-top:3px}
+.send-modal-body{display:grid;grid-template-columns:1fr 1fr}
+.preview-col{padding:20px 24px}
+.preview-col + .preview-col{border-left:1px solid var(--line)}
+.col-title{font-size:13px;font-weight:700;color:var(--alt);margin-bottom:12px}
+.kakao-room{background:#B2C7DA;border-radius:12px;padding:16px 14px;min-height:300px}
+.kakao-sender{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.kakao-sender .k-avatar{width:32px;height:32px;border-radius:12px;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800}
+.kakao-sender .k-name{font-size:12px;color:#3d4b59;font-weight:600}
+.kakao-bubble{background:#FEF01B;border-radius:4px 14px 14px 14px;padding:14px;max-width:270px;margin-left:40px;box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.kakao-bubble .k-title{font-size:12px;font-weight:800;color:#3a2929;margin-bottom:6px}
+.kakao-bubble .k-text{font-size:13px;line-height:1.6;color:#241f0d}
+.kakao-btns{display:flex;flex-direction:column;gap:6px;margin-top:12px}
+.kakao-btn{background:#fff;border:none;border-radius:8px;padding:9px 0;font-size:12.5px;font-weight:700;color:#333;font-family:inherit}
+.kakao-time{font-size:10.5px;color:#5b6b7a;margin:5px 0 0 42px}
+.content-preview{background:var(--elev);border:1px solid var(--line);border-radius:12px;padding:18px;height:300px;overflow-y:auto}
+.content-preview h3{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:10px}
+.content-preview p{font-size:13px;line-height:1.75;color:var(--neutral);margin-bottom:12px}
+.preview-loading{display:none;align-items:center;gap:8px;color:var(--amber);font-size:13px;font-weight:800;margin-bottom:10px}
+.preview-loading.on{display:flex}
+.send-modal-foot{display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:16px 24px;border-top:1px solid var(--line);background:var(--elev)}
+.hidden{display:none !important}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo">A</div>
+      <h1>진료 녹음</h1>
+      <span class="sub">허브 · 개편 시안</span>
+    </div>
+  </div>
+
+  <div class="layout">
+
+    <!-- ── 좌측 컬럼 ── -->
+    <div class="side">
+      <div class="card">
+        <label class="field-label" for="roomSelect">진료실</label>
+        <select class="room" id="roomSelect" data-key="진료실-선택-셀렉트">
+          <option>제1진료실 · 박정형 원장</option>
+          <option>제2진료실 · 이수민 원장</option>
+          <option>제3진료실 · 최재활 원장</option>
+        </select>
+      </div>
+
+      <div class="card patient-card">
+        <label class="field-label" for="patientSelect">환자</label>
+        <select class="select-control patient-select" id="patientSelect" data-key="환자-선택-셀렉트" onchange="handlePatientSelectChange()"></select>
+        <div class="patient" id="patientInfo">
+          <div class="avatar" id="patientAvatar">김</div>
+          <div>
+            <div class="name" id="patientName">김민준</div>
+            <div class="meta" id="patientMeta">M / 24세 · 차트번호 20260708-013</div>
+          </div>
+          <span class="visit-chip" id="visitChip">초진</span>
+        </div>
+
+        <div class="visit-history-head">
+          <span class="visit-history-title">진료 기록</span>
+          <button class="btn btn-history" id="visitCalendarBtn" data-key="진료기록-달력-버튼" onclick="handleVisitCalendarButtonClick()">진료 선택</button>
+        </div>
+        <div class="visit-history-current" id="visitHistoryCurrent"></div>
+        <div class="calendar-popover" id="calendarPopover" data-key="진료기록-달력-팝오버">
+          <div>
+            <div class="calendar-nav">
+              <button type="button" id="visitFirstDateBtn" onclick="handleVisitDateMoveButtonClick('first')" aria-label="가장 처음 진료일">‹‹</button>
+              <button type="button" id="visitPrevDateBtn" onclick="handleVisitDateMoveButtonClick('prev')" aria-label="이전 진료일">‹</button>
+              <div class="calendar-month" id="calendarMonthLabel">2026년 7월</div>
+              <button type="button" id="visitNextDateBtn" onclick="handleVisitDateMoveButtonClick('next')" aria-label="다음 진료일">›</button>
+              <button type="button" id="visitLastDateBtn" onclick="handleVisitDateMoveButtonClick('last')" aria-label="가장 마지막 진료일">››</button>
+            </div>
+            <div class="calendar-grid" id="calendarGrid"></div>
+          </div>
+          <div>
+            <div class="visit-list-title" id="visitListTitle">선택 날짜 진료 기록</div>
+            <div class="visit-list" id="visitList"></div>
+          </div>
+        </div>
+        <div class="visit-rule" id="visitRule">기존 진료를 선택하거나 새 진료를 시작할 수 있습니다.</div>
+        <div class="visit-actions">
+          <button class="btn btn-continue" id="visitContinueBtn" data-key="기존진료-이어하기-버튼" onclick="handleVisitContinueButtonClick()">이어하기</button>
+          <button class="btn btn-start" id="visitStartBtn" data-key="새진료-시작-버튼" onclick="handleVisitStartButtonClick()">새 진료 시작</button>
+        </div>
+        <div class="mode-note" id="modeNote"></div>
+      </div>
+
+      <div class="card">
+        <button class="btn btn-record" id="recordBtn" data-key="녹음-시작-버튼" onclick="handleRecordButtonClick()">
+          <span class="rec-dot"></span><span id="recordBtnLabel">녹음 시작</span>
+        </button>
+        <div class="rec-time" id="recTime"></div>
+      </div>
+
+      <div class="card">
+        <div class="stt-title">실시간 STT <span class="stt-live" id="sttLive">LIVE</span></div>
+        <div class="stt-box" id="sttBox">
+          <span class="placeholder">녹음을 시작하면 대화 내용이 실시간으로 표시됩니다.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 우측: 초진 — 문진 답안 ── -->
+    <div class="card panel" id="panelFirst" data-key="문진답안-패널">
+      <div class="readonly-banner" id="readonlyBannerFirst">과거 진료는 조회만 가능합니다.</div>
+      <div class="panel-head">
+        <h2>문진 답안</h2>
+        <div class="panel-actions">
+          <div class="panel-action-left">
+            <button class="btn btn-secondary" id="recordReviewBtn" data-key="진료기록-검토-버튼" onclick="handleRecordReviewButtonClick()">진료기록 검토</button>
+            <span class="updating" id="updatingFirst" data-key="답안-갱신중-인디케이터">
+              <span class="spinner"></span>문진 답안 갱신 중
+            </span>
+          </div>
+          <div class="panel-action-right">
+            <span class="question-count-chip" id="questionCountChip">0/0</span>
+            <span class="doc-status-chip" id="docStatusChipFirst">초기</span>
+            <span class="visit-type-chip" id="visitTypeChipFirst">초진</span>
+          </div>
+        </div>
+      </div>
+      <div class="empty-state" id="emptyStateFirst">
+        <div class="empty-state-title">선택된 진료가 없습니다</div>
+        <div class="empty-state-desc">새 진료 시작 버튼을 눌러서 진료를 시작해 주세요.</div>
+      </div>
+      <div class="q-grid" id="qGrid"></div>
+      <div class="visit-action-cta" id="visitActionCtaFirst" data-key="진료-CTA">
+        <div class="visit-action-desc" id="visitActionDescFirst">검토를 완료해야 진료 내용을 발송할 수 있습니다.</div>
+        <div class="visit-action-row">
+          <button class="btn btn-primary" id="sendVisitButtonFirst" data-key="진료내용-발송-버튼" onclick="handlePatientSendButtonClick()">발송</button>
+          <button class="btn btn-secondary" id="recordReviewCtaBtn" data-key="진료기록-검토-CTA" onclick="handleRecordReviewButtonClick()">검토</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 우측: 재진 — SOAP ── -->
+    <div class="card panel hidden" id="panelRevisit">
+      <div class="readonly-banner" id="readonlyBannerRevisit">과거 진료는 조회만 가능합니다.</div>
+      <div class="panel-head">
+        <h2>SOAP 노트</h2>
+        <div class="panel-actions">
+          <div class="panel-action-left">
+            <span class="updating" id="updatingRevisit" data-key="답안-갱신중-인디케이터">
+              <span class="spinner"></span>SOAP 갱신 중
+            </span>
+          </div>
+          <div class="panel-action-right">
+            <span class="doc-status-chip" id="docStatusChipRevisit">초기</span>
+            <span class="visit-type-chip" id="visitTypeChipRevisit">재진</span>
+          </div>
+        </div>
+      </div>
+      <div class="empty-state" id="emptyStateRevisit">
+        <div class="empty-state-title">선택된 진료가 없습니다</div>
+        <div class="empty-state-desc">새 진료 시작 버튼을 눌러서 진료를 시작해 주세요.</div>
+      </div>
+      <div class="soap-grid" data-key="soap-섹션-영역" id="soapGrid"></div>
+
+      <div class="comment-area">
+        <label class="field-label" for="commentInput">통합 코멘트</label>
+        <textarea id="commentInput" data-key="통합코멘트-입력" placeholder="검토 완료 시 반영할 코멘트를 입력하세요. 예) 지난 진료 대비 부기 호전 강조" oninput="handleRevisitCommentInputChange()"></textarea>
+        <div class="comment-note" data-key="코멘트-비저장-안내">코멘트는 저장되지 않으며 검토 완료 시 SOAP에 반영됩니다</div>
+      </div>
+      <div class="visit-action-cta" id="visitActionCtaRevisit" data-key="진료-CTA">
+        <div class="visit-action-desc" id="visitActionDescRevisit">검토를 완료해야 진료 내용을 발송할 수 있습니다.</div>
+        <div class="visit-action-row">
+          <button class="btn btn-primary" id="sendVisitButtonRevisit" data-key="진료내용-발송-버튼" onclick="handlePatientSendButtonClick()">발송</button>
+          <button class="btn btn-secondary" id="recordReviewCtaBtnRevisit" data-key="진료기록-검토-CTA" onclick="handleRecordReviewButtonClick()">검토</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="send-overlay" id="sendPreviewOverlay">
+  <div class="send-modal" data-key="발송미리보기-모달">
+    <div class="send-modal-head">
+      <div>
+        <h2>환자 발송 미리보기</h2>
+        <div class="sub" id="sendPreviewPatient">김민준 · 카카오톡 알림톡으로 발송됩니다</div>
+      </div>
+    </div>
+    <div class="send-modal-body">
+      <div class="preview-col">
+        <div class="col-title">카카오톡 메시지 미리보기</div>
+        <div class="kakao-room" data-key="카톡메시지-미리보기-영역">
+          <div class="kakao-sender">
+            <div class="k-avatar">A</div>
+            <div class="k-name">액티메디</div>
+          </div>
+          <div class="kakao-bubble">
+            <div class="k-title">[액티메디]</div>
+            <div class="k-text" id="kakaoPreviewText">김민준님, 오늘 진료 내용을 확인해 보세요</div>
+            <div class="kakao-btns">
+              <button class="kakao-btn" type="button">진료 내용 확인</button>
+              <button class="kakao-btn" type="button">톡톡으로 상담하기</button>
+            </div>
+          </div>
+          <div class="kakao-time">오후 3:42</div>
+        </div>
+      </div>
+      <div class="preview-col">
+        <div class="col-title">환자가 보게 될 진료 내용</div>
+        <div class="content-preview" data-key="진료내용-미리보기-영역">
+          <div class="preview-loading" id="sendPreviewLoading"><span class="spinner"></span>발송 내용 생성 중</div>
+          <h3>오늘 진료 내용 안내</h3>
+          <div id="sendPreviewContent">
+            <p>오늘 진료에서는 불편하신 부위와 증상을 확인하고, 필요한 검사와 관리 계획을 안내드렸습니다.</p>
+            <p>당분간은 무리가 되는 동작을 피하고, 안내받은 운동과 생활 관리를 꾸준히 진행해 주세요.</p>
+            <p>궁금한 점이 있으시면 톡톡으로 편하게 문의해 주세요.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="send-modal-foot">
+      <button class="btn btn-secondary" onclick="handlePreviewCloseButtonClick()">취소</button>
+      <button class="btn btn-primary" id="sendConfirmBtn" onclick="handleSendConfirmButtonClick()">발송하기</button>
+    </div>
+  </div>
+</div>
+<div class="dialog-backdrop" id="visitTypeDialog" role="dialog" aria-modal="true" aria-labelledby="visitTypeDialogTitle">
+  <div class="dialog">
+    <h3 id="visitTypeDialogTitle">진료 유형 선택</h3>
+    <p>기존 진료 기록이 없는 환자입니다. 새 진료를 초진 또는 재진으로 시작해 주세요.</p>
+    <div class="dialog-actions">
+      <button class="visit-type-btn" data-key="새진료-초진-다이얼로그-버튼" onclick="handleVisitTypeDialogButtonClick('first')">초진</button>
+      <button class="visit-type-btn" data-key="새진료-재진-다이얼로그-버튼" onclick="handleVisitTypeDialogButtonClick('revisit')">재진</button>
+    </div>
+    <button class="dialog-cancel" onclick="handleVisitTypeDialogCloseButtonClick()">취소</button>
+  </div>
+</div>
+<div class="dialog-backdrop" id="recordReviewDialog" role="dialog" aria-modal="true" aria-labelledby="recordReviewDialogTitle">
+  <div class="dialog review-dialog">
+    <h3 id="recordReviewDialogTitle">진료 기록 검토</h3>
+    <p id="recordReviewDialogDesc">진료 기록을 확인한 뒤 검토 완료를 눌러주세요.</p>
+    <div class="review-content" id="recordReviewDialogContent"></div>
+    <div class="dialog-actions single" id="recordReviewDialogActions">
+      <button class="btn btn-primary" id="recordReviewCompleteBtn" onclick="handleRecordReviewCompleteButtonClick()">검토 완료</button>
+    </div>
+    <button class="dialog-cancel" onclick="handleRecordReviewDialogCloseButtonClick()">닫기</button>
+  </div>
+</div>
+<div class="dialog-backdrop" id="confirmActionDialog" role="dialog" aria-modal="true" aria-labelledby="confirmActionDialogTitle">
+  <div class="dialog">
+    <h3 id="confirmActionDialogTitle">확인</h3>
+    <p id="confirmActionDialogDesc">진행하시겠습니까?</p>
+    <div class="dialog-actions" id="confirmActionDialogActions">
+      <button class="btn btn-secondary" id="confirmActionDialogCancelBtn" onclick="handleConfirmActionDialogCloseButtonClick()">취소</button>
+      <button class="btn btn-primary" id="confirmActionDialogPrimaryBtn">확인</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ─────────── 더미 데이터 ─────────── */
+const sttLineList = [
+  { speaker: '의사', text: '어디가 불편해서 오셨어요?' },
+  { speaker: '환자', text: '3주 전에 농구하다가 무릎을 다쳤는데, 아직도 아파서요.' },
+  { speaker: '의사', text: '다칠 때 상황이 어땠는지 기억나세요?' },
+  { speaker: '환자', text: '점프하고 내려오면서 무릎이 안쪽으로 돌아갔어요. 뚝 소리가 났고요.' },
+  { speaker: '의사', text: '그 전에도 같은 부위를 다친 적이 있나요?' },
+  { speaker: '환자', text: '음… 예전엔… 괜찮았던 것 같은데… 잘 기억이 안 나요.' },
+  { speaker: '의사', text: '운동은 평소에 자주 하시는 편인가요?' },
+  { speaker: '환자', text: '네, 일주일에 세 번은 농구를 해요. 동호회 활동도 하고요.' },
+  { speaker: '의사', text: '지금 걷거나 계단 내려갈 때는 어떠세요?' },
+  { speaker: '환자', text: '계단 내려갈 때 무릎이 자꾸 꺾이는 느낌이 들어요. 불안해서 힘을 못 주겠어요.' },
+  { speaker: '의사', text: '나이가 어떻게 되시죠?' },
+  { speaker: '환자', text: '스물넷이요.' },
+  { speaker: '의사', text: '알겠습니다. 검사 한번 해 볼게요. 편하게 누워 보세요.' },
+  { speaker: '의사', text: '라흐만 검사에서 전방 전위가 관찰되네요. MRI를 찍어 보는 게 좋겠습니다.' }
+];
+
+const todayDateText = '2026-07-08';
+
+const patientCandidateList = [
+  {
+    id: 'patient-1',
+    name: '김민준',
+    sex: 'M',
+    age: 24,
+    chartNo: '20260708-013',
+    visitList: [
+      { id: 'visit-today-k-1', label: '무릎 통증 초진', date: todayDateText, time: '10:20', visitType: 'first', status: 'completed', isToday: true, isNew: false },
+      { id: 'visit-today-k-2', label: '운동 복귀 상담', date: todayDateText, time: '15:10', visitType: 'revisit', status: 'notStarted', isToday: true, isNew: false },
+      { id: 'visit-past-k-1', label: '발목 염좌 경과 확인', date: '2026-06-24', time: '11:00', visitType: 'revisit', status: 'completed', isToday: false, isNew: false },
+      { id: 'visit-past-k-2', label: '좌측 발목 초진', date: '2026-06-10', time: '09:40', visitType: 'first', status: 'completed', isToday: false, isNew: false },
+      { id: 'new', label: '새 진료', date: todayDateText, time: '', visitType: 'revisit', status: 'new', isToday: true, isNew: true }
+    ]
+  },
+  {
+    id: 'patient-2',
+    name: '이서연',
+    sex: 'F',
+    age: 36,
+    chartNo: '20260622-041',
+    visitList: [
+      { id: 'visit-today-1', label: '무릎 통증 재평가', date: todayDateText, time: '09:30', visitType: 'revisit', status: 'completed', isToday: true, isNew: false },
+      { id: 'visit-past-1', label: '재활 경과 확인', date: '2026-06-22', time: '14:00', visitType: 'revisit', status: 'completed', isToday: false, isNew: false },
+      { id: 'visit-past-1b', label: 'MRI 결과 상담', date: '2026-06-22', time: '16:30', visitType: 'revisit', status: 'completed', isToday: false, isNew: false },
+      { id: 'visit-past-2', label: '초기 문진', date: '2026-05-30', time: '10:00', visitType: 'first', status: 'completed', isToday: false, isNew: false },
+      { id: 'new', label: '새 진료', date: todayDateText, time: '', visitType: 'revisit', status: 'new', isToday: true, isNew: true }
+    ]
+  },
+  {
+    id: 'patient-3',
+    name: '박도윤',
+    sex: 'M',
+    age: 51,
+    chartNo: '20260530-008',
+    visitList: [
+      { id: 'visit-past-3', label: '허리 통증 초진', date: '2026-05-30', time: '13:20', visitType: 'first', status: 'completed', isToday: false, isNew: false },
+      { id: 'visit-past-4', label: '물리치료 경과 확인', date: '2026-06-13', time: '11:10', visitType: 'revisit', status: 'completed', isToday: false, isNew: false },
+      { id: 'new', label: '새 진료', date: todayDateText, time: '', visitType: 'revisit', status: 'new', isToday: true, isNew: true }
+    ]
+  }
+];
+
+const questionItemList = [
+  { label: '주 증상', type: 'single', typeLabel: '단일 선택', value: '우측 무릎 통증', optionList: ['우측 무릎 통증', '좌측 무릎 통증', '허리 통증'], conf: 88, evidence: '…무릎이 자꾸 꺾이는 느낌이 들어요…', weak: false },
+  { label: '동반 증상', type: 'multiple', typeLabel: '다중 선택', valueList: ['불안정감', '계단 하행 시 통증'], optionList: ['불안정감', '계단 하행 시 통증', '야간통', '잠김 증상'], conf: 76, evidence: '…계단 내려갈 때 무릎이 자꾸 꺾이는 느낌…', weak: false },
+  { label: '손상 후 경과 기간', type: 'number', typeLabel: '숫자', value: '3주', conf: 82, evidence: '…3주 전에 농구하다가…', weak: false },
+  { label: '손상 기전', type: 'text', typeLabel: '텍스트 입력', value: '농구 중 점프 후 착지하면서 무릎이 안쪽으로 돌아감. 뚝 소리가 났다고 진술.', conf: 79, evidence: '…점프하고 내려오면서 무릎이 안쪽으로 돌아갔어요…', weak: false },
+  { label: '이전 손상 이력', type: 'single', typeLabel: '단일 선택', value: '없음(추정)', optionList: ['없음(추정)', '있음', '확인 필요'], conf: 45, evidence: '…예전엔… 괜찮았던 것 같은데…', weak: true },
+  { label: '운동 빈도', type: 'number', typeLabel: '숫자', value: '주 3회', conf: 84, evidence: '…일주일에 세 번은 농구를 해요…', weak: false },
+  { label: '환자 연령', type: 'number', typeLabel: '숫자', value: '24세', conf: 96, evidence: '…스물넷이요…', weak: false },
+  { label: '생활/활동 배경', type: 'text', typeLabel: '텍스트 입력', value: '아마추어 농구 동호회 활동 중이며 스포츠 복귀 의지가 높음.', conf: 72, evidence: '…동호회 활동도 하고요…', weak: false }
+];
+
+const soapSectionList = [
+  { tag: 'S', title: 'Subjective', base: '우측 무릎 통증 3주째 지속. 지난 내원 대비 부기는 감소하였으나 계단 하행 시 불안정감 호소.' },
+  { tag: 'O', title: 'Objective',  base: '관절가동범위 0–120°. 경도 삼출액. 대퇴사두근 위축 경미.' },
+  { tag: 'A', title: 'Assessment', base: '우측 전방십자인대 부분 파열 의증. 보존적 치료 경과 관찰 중.' },
+  { tag: 'P', title: 'Plan',       base: '재활 운동 프로그램 2주 연장. 4주 후 MRI 추적 검사 예정.' }
+];
+
+const soapUpdateList = [
+  { idx: 0, text: ' 야간 통증은 소실되었다고 진술.' },
+  { idx: 1, text: ' 라흐만 검사 양성(전방 전위 경도), 슬개골 압통 없음.' },
+  { idx: 2, text: ' 불안정성 지속으로 수술적 치료 필요성 재평가 요함.' },
+  { idx: 3, text: ' 니프레시 홈케어 프로그램 병행 안내, 톡톡 상담 연동 예정.' }
+];
+
+const GENERATION_POLLING_INTERVAL_MS = 3000;
+const DOCUMENT_STATUS_LABEL = {
+  initial: '초기',
+  draft: '작성중',
+  completed: '완료'
+};
+
+/* ─────────── 상태 ─────────── */
+let recording = false;
+let sttTimer, clockTimer;
+let sttIdx = 0, qIdx = 0, soapIdx = 0, elapsedSec = 0;
+let patientIdSelected = patientCandidateList[0].id;
+let visitIdSelected = 'visit-today-k-2';
+let calendarDateSelected = todayDateText;
+let visitTypeSelected = 'first';
+let visitMode = 'view';
+let readonlyMode = false;
+const documentStatusMap = {
+  first: 'initial',
+  revisit: 'initial'
+};
+const generationStateMap = {
+  first: { status: 'idle', pollCount: 0, timer: undefined, failedOnce: false },
+  revisit: { status: 'idle', pollCount: 0, timer: undefined, failedOnce: false }
+};
+let revisitCommentAnalyzedLast = '';
+const sendPreviewGenerationState = {
+  status: 'idle',
+  pollCount: 0,
+  timer: undefined
+};
+const questionAnswerStateList = questionItemList.map(() => ({
+  source: 'pending'
+}));
+
+/* ─────────── 초기 렌더 ─────────── */
+const renderQuestionGrid = () => {
+  const grid = document.getElementById('qGrid');
+  grid.innerHTML = questionItemList.map((item, i) => `
+    <div class="q-item" data-key="문진답안-항목" id="qItem-${i}">
+      <div class="q-head">
+        <div class="q-number">Q.${i}</div>
+      </div>
+      <div class="q-content">
+        <div class="q-label">${item.label}</div>
+        <div class="q-body" id="qBody-${i}">${renderQuestionPendingBody(item, i)}</div>
+      </div>
+    </div>`).join('');
+  updateQuestionCountChip();
+};
+
+const updateQuestionCountChip = () => {
+  const count = questionAnswerStateList.filter((state) => state.source !== 'pending').length;
+  document.getElementById('questionCountChip').textContent = count + '/' + questionItemList.length;
+};
+
+const renderSoapGrid = () => {
+  const grid = document.getElementById('soapGrid');
+  grid.innerHTML = soapSectionList.map((section, i) => `
+    <div class="soap-card" id="soapCard-${i}">
+      <div class="soap-head"><span class="soap-tag">${section.tag}</span>${section.title}</div>
+      <div class="soap-body" id="soapBody-${i}">${section.base}</div>
+    </div>`).join('');
+};
+
+const renderPatientSelect = () => {
+  const select = document.getElementById('patientSelect');
+  select.innerHTML = patientCandidateList.map((patient) => `
+    <option value="${patient.id}">${patient.name} · 기존 진료 ${patient.visitList.filter((visit) => !visit.isNew).length}건</option>
+  `).join('');
+  select.value = patientIdSelected;
+};
+
+const renderVisitCalendar = () => {
+  const patient = getPatientSelected();
+  const visitDateList = getVisitDateList(patient);
+  const selectedDate = new Date(calendarDateSelected + 'T00:00:00');
+  const year = selectedDate.getFullYear();
+  const month = selectedDate.getMonth();
+  const firstDate = new Date(year, month, 1);
+  const lastDate = new Date(year, month + 1, 0);
+  const startOffset = firstDate.getDay();
+  const dayCount = lastDate.getDate();
+  const visitDateSet = new Set(visitDateList);
+  const weekdayList = ['일', '월', '화', '수', '목', '금', '토'];
+  const dayButtonList = [];
+  weekdayList.forEach((weekday) => {
+    dayButtonList.push('<div class="calendar-weekday">' + weekday + '</div>');
+  });
+  for (let i = 0; i < startOffset; i += 1) {
+    dayButtonList.push('<button class="calendar-day" disabled></button>');
+  }
+  for (let day = 1; day <= dayCount; day += 1) {
+    const dateText = formatDateText(year, month + 1, day);
+    const hasVisit = visitDateSet.has(dateText);
+    const className = 'calendar-day' +
+      (hasVisit ? ' has-visit' : '') +
+      (hasVisit && dateText === calendarDateSelected ? ' selected' : '');
+    const disabled = hasVisit ? '' : ' disabled';
+    const click = hasVisit ? ' onclick="handleCalendarDateClick(\'' + dateText + '\')"' : '';
+    dayButtonList.push('<button class="' + className + '"' + click + disabled + '>' + day + '</button>');
+  }
+  document.getElementById('calendarMonthLabel').textContent = year + '년 ' + (month + 1) + '월';
+  document.getElementById('calendarGrid').innerHTML = dayButtonList.join('');
+  renderVisitDateMoveButtons();
+  renderVisitListForDate();
+};
+
+const renderVisitDateMoveButtons = () => {
+  const dateList = getVisitDateList(getPatientSelected());
+  const prevIndex = getPreviousVisitDateIndex(dateList, calendarDateSelected);
+  const nextIndex = getNextVisitDateIndex(dateList, calendarDateSelected);
+  document.getElementById('visitFirstDateBtn').disabled = prevIndex < 0;
+  document.getElementById('visitPrevDateBtn').disabled = prevIndex < 0;
+  document.getElementById('visitNextDateBtn').disabled = nextIndex < 0;
+  document.getElementById('visitLastDateBtn').disabled = nextIndex < 0;
+};
+
+const renderVisitListForDate = () => {
+  const visitList = getVisitListForDate(calendarDateSelected);
+  const title = document.getElementById('visitListTitle');
+  const list = document.getElementById('visitList');
+  title.textContent = calendarDateSelected + ' 진료 기록';
+  if (visitList.length === 0) {
+    list.innerHTML = '<div class="visit-list-item"><div class="visit-list-item-title">진료 기록 없음</div><div class="visit-list-item-meta">기록이 있는 날짜를 선택하세요.</div></div>';
+    return;
+  }
+  list.innerHTML = visitList.map((visit) => {
+    const visitTypeLabel = visit.visitType === 'first' ? '초진' : '재진';
+    const className = 'visit-list-item' + (visit.id === visitIdSelected ? ' active' : '');
+    return '<button class="' + className + '" onclick="handleVisitListItemClick(\'' + visit.id + '\')">' +
+      '<div class="visit-list-item-title">' + visit.time + ' · ' + visit.label + '</div>' +
+      '<div class="visit-list-item-meta">' + visitTypeLabel + ' · ' + (visit.isToday ? '오늘 진료' : '과거 진료') + '</div>' +
+    '</button>';
+  }).join('');
+};
+
+const renderVisitHistoryCurrent = () => {
+  const visit = getVisitSelected();
+  if (!visit) {
+    document.getElementById('visitHistoryCurrent').textContent = '오늘 선택된 진료가 없습니다.';
+    return;
+  }
+  const visitTypeLabel = visit.visitType === 'first' ? '초진' : '재진';
+  const suffix = visit.isNew ? '새 진료' : visit.isToday ? '오늘 기존 진료' : '과거 진료';
+  document.getElementById('visitHistoryCurrent').textContent =
+    visit.date + (visit.time ? ' ' + visit.time : '') + ' · ' + visit.label + ' · ' + visitTypeLabel + ' · ' + suffix;
+};
+
+const renderPatientVisitControls = () => {
+  const patient = getPatientSelected();
+  const visit = getVisitSelected();
+  const rule = document.getElementById('visitRule');
+  const continueBtn = document.getElementById('visitContinueBtn');
+  const modeNote = document.getElementById('modeNote');
+  document.getElementById('patientAvatar').textContent = patient.name.slice(0, 1);
+  document.getElementById('patientName').textContent = patient.name;
+  document.getElementById('patientMeta').textContent = patient.sex + ' / ' + patient.age + '세 · 차트번호 ' + patient.chartNo;
+
+  if (!visit) {
+    continueBtn.classList.add('hidden');
+    document.getElementById('recordReviewBtn').classList.add('hidden');
+    document.getElementById('visitStartBtn').disabled = false;
+    rule.textContent = '오늘 선택된 진료가 없습니다. 새 진료를 시작할 수 있습니다.';
+    modeNote.textContent = '새 진료 시작 버튼을 눌러서 진료를 시작해 주세요.';
+    document.getElementById('visitChip').textContent = visitTypeSelected === 'first' ? '초진' : '재진';
+    renderVisitHistoryCurrent();
+    renderVisitContentState();
+    return;
+  }
+
+  document.getElementById('recordReviewBtn').classList.toggle('hidden', visit.visitType === 'first');
+
+  if (!visit.isNew) {
+    visitTypeSelected = visit.visitType;
+  }
+  if (visit.isNew && hasPastVisit(patient)) {
+    visitTypeSelected = 'revisit';
+  }
+
+  if (!visit.isNew && !visit.isToday) {
+    rule.textContent = '과거 진료는 조회만 가능하며, 필요하면 오늘 새 진료를 시작할 수 있습니다.';
+    continueBtn.classList.toggle('hidden', recording);
+    modeNote.textContent = visit.date + ' 진료 기록을 조회 중입니다.';
+  } else if (!visit.isNew && visit.isToday) {
+    rule.textContent = '오늘 기존 진료는 이어서 하거나 새 진료를 시작할 수 있습니다.';
+    continueBtn.classList.toggle('hidden', recording);
+    modeNote.textContent = visit.date + ' 기존 진료가 선택되어 있습니다.';
+  } else {
+    rule.textContent = hasPastVisit(patient)
+      ? '진료 이력이 있어 새 진료는 재진으로 시작됩니다.'
+      : '진료 이력이 없으면 진료 시작 시 초진 또는 재진을 선택할 수 있습니다.';
+    continueBtn.classList.add('hidden');
+    modeNote.textContent = visit.date + ' 새 진료를 시작할 수 있습니다.';
+  }
+  document.getElementById('visitStartBtn').disabled = !(visit.status === 'completed' || !visitIdSelected);
+  document.getElementById('visitChip').textContent = visitTypeSelected === 'first' ? '초진' : '재진';
+  renderVisitHistoryCurrent();
+  renderVisitContentState();
+};
+
+const getPatientSelected = () => {
+  return patientCandidateList.find((patient) => patient.id === patientIdSelected) || patientCandidateList[0];
+};
+
+const getVisitSelected = () => {
+  if (!visitIdSelected) return undefined;
+  const patient = getPatientSelected();
+  return patient.visitList.find((visit) => visit.id === visitIdSelected);
+};
+
+const getVisitListForDate = (dateText) => {
+  return getPatientSelected().visitList
+    .filter((visit) => !visit.isNew && visit.date === dateText)
+    .sort((a, b) => a.time.localeCompare(b.time));
+};
+
+const getTodayLastVisit = (patient) => {
+  return patient.visitList
+    .filter((visit) => !visit.isNew && visit.isToday)
+    .sort((a, b) => b.time.localeCompare(a.time))[0];
+};
+
+const getVisitDateList = (patient) => {
+  return [...new Set(patient.visitList.filter((visit) => !visit.isNew).map((visit) => visit.date))].sort();
+};
+
+const getPreviousVisitDateIndex = (dateList, referenceDate) => {
+  for (let i = dateList.length - 1; i >= 0; i -= 1) {
+    if (dateList[i] < referenceDate) return i;
+  }
+  return -1;
+};
+
+const getNextVisitDateIndex = (dateList, referenceDate) => {
+  return dateList.findIndex((dateText) => dateText > referenceDate);
+};
+
+const formatDateText = (year, month, day) => {
+  return year + '-' + String(month).padStart(2, '0') + '-' + String(day).padStart(2, '0');
+};
+
+const hasPastVisit = (patient) => {
+  return patient.visitList.some((visit) => !visit.isNew);
+};
+
+const renderVisitContentState = () => {
+  const visit = getVisitSelected();
+  const hasVisitSelected = Boolean(visit);
+  document.getElementById('emptyStateFirst').classList.toggle('on', !hasVisitSelected);
+  document.getElementById('emptyStateRevisit').classList.toggle('on', !hasVisitSelected);
+  document.getElementById('visitTypeChipFirst').classList.toggle('hidden', !hasVisitSelected);
+  document.getElementById('visitTypeChipRevisit').classList.toggle('hidden', !hasVisitSelected);
+  document.getElementById('docStatusChipFirst').classList.toggle('hidden', !hasVisitSelected);
+  document.getElementById('docStatusChipRevisit').classList.toggle('hidden', !hasVisitSelected);
+  document.getElementById('questionCountChip').classList.toggle('hidden', !hasVisitSelected);
+  document.getElementById('qGrid').classList.toggle('hidden', !hasVisitSelected);
+  document.getElementById('soapGrid').classList.toggle('hidden', !hasVisitSelected);
+  document.querySelector('#panelRevisit .comment-area').classList.toggle('hidden', !hasVisitSelected);
+  const showFirstActionCta = hasVisitSelected && visit.visitType === 'first';
+  document.getElementById('visitActionCtaFirst').classList.toggle('hidden', !showFirstActionCta);
+  renderSendCtaState(visit);
+  renderDocumentStatusChips();
+};
+
+const renderDocumentStatusChips = () => {
+  updateDocumentStatusChip('docStatusChipFirst', documentStatusMap.first);
+  updateDocumentStatusChip('docStatusChipRevisit', documentStatusMap.revisit);
+};
+
+const updateDocumentStatusChip = (id, status) => {
+  const chip = document.getElementById(id);
+  chip.textContent = DOCUMENT_STATUS_LABEL[status];
+  chip.classList.toggle('draft', status === 'draft');
+  chip.classList.toggle('completed', status === 'completed');
+};
+
+const renderSendCtaState = (visit) => {
+  const hasVisitSelected = Boolean(visit);
+  const sendEnabled = hasVisitSelected && visit.status === 'completed' && documentStatusMap[visit.visitType] === 'completed';
+  const desc = sendEnabled
+    ? '환자가 확인할 진료 내용을 미리보고 카카오톡 알림톡으로 발송할 수 있습니다.'
+    : '검토를 완료해야 진료 내용을 발송할 수 있습니다.';
+  document.getElementById('visitActionCtaRevisit').classList.toggle('hidden', !hasVisitSelected || visit.visitType !== 'revisit');
+  document.getElementById('visitActionDescFirst').textContent = desc;
+  document.getElementById('visitActionDescRevisit').textContent = desc;
+  document.getElementById('sendVisitButtonFirst').disabled = !sendEnabled;
+  document.getElementById('sendVisitButtonRevisit').disabled = !sendEnabled;
+};
+
+const applyVisitMode = () => {
+  const visit = getVisitSelected();
+  if (!visit) {
+    readonlyMode = false;
+    document.getElementById('readonlyBannerFirst').classList.remove('on');
+    document.getElementById('readonlyBannerRevisit').classList.remove('on');
+    document.getElementById('recordBtn').disabled = true;
+    document.getElementById('recordBtnLabel').textContent = '녹음 시작';
+    document.getElementById('recTime').textContent = '진료를 시작하면 녹음할 수 있습니다';
+    renderVisitContentState();
+    return;
+  }
+  readonlyMode = !visit.isToday || documentStatusMap[visit.visitType] === 'completed';
+  const readonlyMessage = visit.isToday
+    ? '완료된 문서는 조회 상태입니다. 재진은 통합 코멘트 변경 후 검토에서 다시 생성할 수 있습니다.'
+    : '과거 진료는 조회만 가능합니다.';
+  document.getElementById('readonlyBannerFirst').textContent = readonlyMessage;
+  document.getElementById('readonlyBannerRevisit').textContent = readonlyMessage;
+  document.getElementById('panelFirst').classList.toggle('readonly-mode', readonlyMode);
+  document.getElementById('panelRevisit').classList.toggle('readonly-mode', readonlyMode);
+  document.getElementById('readonlyBannerFirst').classList.toggle('on', readonlyMode);
+  document.getElementById('readonlyBannerRevisit').classList.toggle('on', readonlyMode);
+  document.getElementById('recordBtn').disabled = visit.status !== 'inProgress';
+  document.getElementById('recordBtnLabel').textContent = recording ? '녹음 종료' : '녹음 시작';
+  if (!recording) {
+    document.getElementById('recTime').textContent = visit.status === 'inProgress' ? '' : '진료가 시작되면 녹음할 수 있습니다';
+  }
+};
+
+const setVisitPanel = (visitType) => {
+  const visitTypeLabel = visitType === 'first' ? '초진' : '재진';
+  document.getElementById('visitTypeChipFirst').textContent = visitTypeLabel;
+  document.getElementById('visitTypeChipRevisit').textContent = visitTypeLabel;
+  if (visitType === 'first') {
+    document.getElementById('panelFirst').classList.remove('hidden');
+    document.getElementById('panelRevisit').classList.add('hidden');
+    document.getElementById('visitChip').textContent = '초진';
+    return;
+  }
+  document.getElementById('panelRevisit').classList.remove('hidden');
+  document.getElementById('panelFirst').classList.add('hidden');
+  document.getElementById('visitChip').textContent = '재진';
+};
+
+const handlePatientSelectChange = () => {
+  patientIdSelected = document.getElementById('patientSelect').value;
+  const todayLastVisit = getTodayLastVisit(getPatientSelected());
+  visitIdSelected = todayLastVisit ? todayLastVisit.id : undefined;
+  calendarDateSelected = todayLastVisit ? todayLastVisit.date : todayDateText;
+  visitMode = todayLastVisit ? 'view' : 'none';
+  visitTypeSelected = todayLastVisit ? todayLastVisit.visitType : (hasPastVisit(getPatientSelected()) ? 'revisit' : 'first');
+  syncDocumentStatusFromVisit(todayLastVisit);
+  renderVisitCalendar();
+  renderPatientVisitControls();
+  setVisitPanel(visitTypeSelected);
+  applyVisitMode();
+};
+
+const handleVisitCalendarButtonClick = () => {
+  document.getElementById('calendarPopover').classList.toggle('on');
+  renderVisitCalendar();
+};
+
+const handleCalendarDateClick = (dateText) => {
+  calendarDateSelected = dateText;
+  renderVisitCalendar();
+};
+
+const handleVisitListItemClick = (visitId) => {
+  selectVisit(visitId);
+  document.getElementById('calendarPopover').classList.remove('on');
+};
+
+const handleVisitDateMoveButtonClick = (direction) => {
+  const dateList = getVisitDateList(getPatientSelected());
+  let nextIndex = -1;
+  if (direction === 'first') nextIndex = 0;
+  if (direction === 'prev') nextIndex = getPreviousVisitDateIndex(dateList, calendarDateSelected);
+  if (direction === 'next') nextIndex = getNextVisitDateIndex(dateList, calendarDateSelected);
+  if (direction === 'last') nextIndex = dateList.length - 1;
+  if (nextIndex < 0) return;
+  const nextDate = dateList[nextIndex] || calendarDateSelected;
+  handleCalendarDateClick(nextDate);
+};
+
+const selectVisit = (visitId) => {
+  visitIdSelected = visitId;
+  const selectedVisit = getVisitSelected();
+  calendarDateSelected = selectedVisit.date;
+  visitMode = selectedVisit.isNew ? 'new' : 'view';
+  visitTypeSelected = selectedVisit.visitType;
+  syncDocumentStatusFromVisit(selectedVisit);
+  renderVisitCalendar();
+  renderPatientVisitControls();
+  setVisitPanel(visitTypeSelected);
+  applyVisitMode();
+};
+
+const syncDocumentStatusFromVisit = (visit) => {
+  if (!visit) return;
+  if (visit.status === 'completed' && documentStatusMap[visit.visitType] === 'initial') {
+    documentStatusMap[visit.visitType] = 'completed';
+  }
+  if (visit.status === 'notStarted' || visit.status === 'new') {
+    documentStatusMap[visit.visitType] = 'initial';
+  }
+};
+
+const startNewVisit = (visitType) => {
+  visitIdSelected = 'new';
+  getVisitSelected().status = 'inProgress';
+  calendarDateSelected = todayDateText;
+  visitMode = 'new';
+  visitTypeSelected = visitType;
+  resetDocumentGenerationState(visitType);
+  document.getElementById('calendarPopover').classList.remove('on');
+  renderVisitCalendar();
+  renderPatientVisitControls();
+  setVisitPanel(visitTypeSelected);
+  applyVisitMode();
+};
+
+const handleVisitTypeDialogButtonClick = (visitType) => {
+  document.getElementById('visitTypeDialog').classList.remove('on');
+  startNewVisit(visitType);
+  showToast((visitType === 'first' ? '초진' : '재진') + ' 새 진료를 시작합니다.');
+};
+
+const resetDocumentGenerationState = (visitType) => {
+  const state = generationStateMap[visitType];
+  clearInterval(state.timer);
+  state.status = 'idle';
+  state.pollCount = 0;
+  state.failedOnce = false;
+  documentStatusMap[visitType] = 'initial';
+  renderDocumentGenerationLoading(visitType, false);
+  renderDocumentStatusChips();
+};
+
+const handleVisitTypeDialogCloseButtonClick = () => {
+  document.getElementById('visitTypeDialog').classList.remove('on');
+};
+
+const openConfirmActionDialog = (title, desc, primaryText, onConfirm, cancelVisible = true) => {
+  document.getElementById('confirmActionDialogTitle').textContent = title;
+  document.getElementById('confirmActionDialogDesc').textContent = desc;
+  const primaryBtn = document.getElementById('confirmActionDialogPrimaryBtn');
+  primaryBtn.textContent = primaryText;
+  primaryBtn.onclick = onConfirm;
+  document.getElementById('confirmActionDialogCancelBtn').classList.toggle('hidden', !cancelVisible);
+  document.getElementById('confirmActionDialogActions').classList.toggle('single', !cancelVisible);
+  document.getElementById('confirmActionDialog').classList.add('on');
+};
+
+const handleConfirmActionDialogCloseButtonClick = () => {
+  document.getElementById('confirmActionDialog').classList.remove('on');
+};
+
+const handleVisitContinueButtonClick = () => {
+  const visit = getVisitSelected();
+  if (!visit) return;
+  if (visit.isNew) return;
+  if (!visit.isToday) {
+    openConfirmActionDialog(
+      '과거 진료 이어하기',
+      '오늘 진료만 이어서 진행할 수 있습니다. 새 진료가 필요하면 환자 카드의 새 진료 시작 버튼을 눌러주세요.',
+      '확인',
+      handleConfirmActionDialogCloseButtonClick,
+      false
+    );
+    return;
+  }
+  visit.status = 'inProgress';
+  visitMode = 'continue';
+  readonlyMode = false;
+  renderPatientVisitControls();
+  setVisitPanel(visit.visitType);
+  applyVisitMode();
+  showToast('오늘 기존 진료를 이어서 진행합니다.');
+};
+
+const handleVisitStartButtonClick = () => {
+  const visit = getVisitSelected();
+  if (visit && visit.status !== 'completed') return;
+  if (hasPastVisit(getPatientSelected())) {
+    startNewVisit('revisit');
+    showToast('재진 새 진료를 시작합니다.');
+    return;
+  }
+  document.getElementById('visitTypeDialog').classList.add('on');
+};
+
+/* ─────────── 녹음 토글 ─────────── */
+const handleRecordButtonClick = () => {
+  const visit = getVisitSelected();
+  if (!visit || visit.status !== 'inProgress') {
+    showToast('진료가 시작된 상태에서만 녹음할 수 있습니다.');
+    return;
+  }
+  recording ? stopRecording() : startRecording();
+};
+
+const startRecording = () => {
+  const visit = getVisitSelected();
+  if (!visit) return;
+  visit.status = 'inProgress';
+  visitMode = 'continue';
+  recording = true;
+  const btn = document.getElementById('recordBtn');
+  btn.classList.add('recording');
+  btn.setAttribute('data-key', '녹음-종료-버튼');
+  document.getElementById('recordBtnLabel').textContent = '녹음 종료';
+  document.getElementById('sttLive').classList.add('on');
+  if (sttIdx === 0) document.getElementById('sttBox').innerHTML = '';
+
+  clockTimer = setInterval(() => {
+    elapsedSec += 1;
+    const mm = String(Math.floor(elapsedSec / 60)).padStart(2, '0');
+    const ss = String(elapsedSec % 60).padStart(2, '0');
+    document.getElementById('recTime').textContent = '녹음 중 · ' + mm + ':' + ss;
+  }, 1000);
+
+  sttTimer = setInterval(appendSttLine, 2000);
+  requestDocumentGeneration(visit.visitType);
+  renderPatientVisitControls();
+  applyVisitMode();
+};
+
+const stopRecording = () => {
+  recording = false;
+  clearInterval(sttTimer);
+  clearInterval(clockTimer);
+  const btn = document.getElementById('recordBtn');
+  btn.classList.remove('recording');
+  btn.setAttribute('data-key', '녹음-시작-버튼');
+  document.getElementById('recordBtnLabel').textContent = '녹음 시작';
+  document.getElementById('sttLive').classList.remove('on');
+  document.getElementById('recTime').textContent = '녹음 종료됨';
+  const visit = getVisitSelected();
+  if (visit) {
+    visit.status = 'completed';
+    visitMode = 'view';
+    renderPatientVisitControls();
+    applyVisitMode();
+  }
+};
+
+const appendSttLine = () => {
+  if (sttIdx >= sttLineList.length) return;
+  const line = sttLineList[sttIdx];
+  const box = document.getElementById('sttBox');
+  const div = document.createElement('div');
+  div.className = 'stt-line';
+  div.innerHTML = '<b>' + line.speaker + '</b>' + line.text;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+  sttIdx += 1;
+};
+
+/* ─────────── 비동기 생성 요청 + 결과 폴링 ─────────── */
+const requestDocumentGeneration = (visitType, force = false) => {
+  const state = generationStateMap[visitType];
+  if (!force && (state.status === 'requested' || state.status === 'polling' || state.status === 'completed')) return;
+  clearInterval(state.timer);
+  state.status = 'requested';
+  state.pollCount = 0;
+  if (visitType === 'revisit') {
+    revisitCommentAnalyzedLast = document.getElementById('commentInput').value.trim();
+  }
+  documentStatusMap[visitType] = 'draft';
+  renderDocumentStatusChips();
+  renderDocumentGenerationLoading(visitType, true);
+  showToast((visitType === 'first' ? '문진 답변' : 'SOAP') + ' 생성 요청을 보냈습니다.');
+  state.timer = setInterval(() => pollDocumentGenerationResult(visitType), GENERATION_POLLING_INTERVAL_MS);
+};
+
+const pollDocumentGenerationResult = (visitType) => {
+  const state = generationStateMap[visitType];
+  if (state.status === 'completed') {
+    clearInterval(state.timer);
+    renderDocumentGenerationLoading(visitType, false);
+    return;
+  }
+  state.status = 'polling';
+  state.pollCount += 1;
+  const resultStatus = getMockGenerationResultStatus(visitType, state.pollCount);
+  if (resultStatus === 'failed') {
+    clearInterval(state.timer);
+    state.status = 'failed';
+    renderDocumentGenerationLoading(visitType, false);
+    showToast((visitType === 'first' ? '문진 답변' : 'SOAP') + ' 생성 실패로 다시 요청합니다.');
+    requestDocumentGeneration(visitType);
+    return;
+  }
+  if (resultStatus !== 'completed') return;
+  clearInterval(state.timer);
+  state.status = 'completed';
+  applyDocumentGenerationResult(visitType);
+  renderDocumentGenerationLoading(visitType, false);
+  showToast((visitType === 'first' ? '문진 답변' : 'SOAP') + ' 생성 결과 조회가 완료되었습니다.');
+};
+
+const getMockGenerationResultStatus = (visitType, pollCount) => {
+  const state = generationStateMap[visitType];
+  if (visitType === 'revisit' && pollCount === 1 && !state.failedOnce) {
+    state.failedOnce = true;
+    return 'failed';
+  }
+  return pollCount >= 2 ? 'completed' : 'processing';
+};
+
+const renderDocumentGenerationLoading = (visitType, visible) => {
+  const updatingId = visitType === 'first' ? 'updatingFirst' : 'updatingRevisit';
+  const label = visitType === 'first' ? '문진 답변 생성 중' : 'SOAP 생성 중';
+  const updating = document.getElementById(updatingId);
+  updating.innerHTML = '<span class="spinner"></span>' + label;
+  updating.classList.toggle('on', visible);
+};
+
+const applyDocumentGenerationResult = (visitType) => {
+  if (visitType === 'first') {
+    while (qIdx < questionItemList.length) {
+      fillQuestionItem(qIdx++);
+    }
+    return;
+  }
+  while (soapIdx < soapUpdateList.length) {
+    appendSoapUpdate(soapIdx++);
+  }
+};
+
+const fillQuestionItem = (i) => {
+  const item = questionItemList[i];
+  const state = questionAnswerStateList[i];
+  if (state.source === 'user') {
+    renderQuestionBody(i);
+    return;
+  }
+  state.source = 'ai';
+  state.value = item.value;
+  state.valueList = item.valueList ? [...item.valueList] : undefined;
+  renderQuestionBody(i);
+  updateQuestionCountChip();
+};
+
+const renderQuestionPendingBody = (item, i) => {
+  return '<div class="q-control">' + renderQuestionControl(item, 'pending', i) + '</div>' +
+    '<span class="q-empty">녹음 내용에서 답안을 자동 추출하면 이 영역에 AI 제안이 표시됩니다</span>' +
+    '<span class="evidence" data-key="답안-근거-문구"></span>';
+};
+
+const renderQuestionBody = (i) => {
+  const item = questionItemList[i];
+  const state = questionAnswerStateList[i];
+  const body = document.getElementById('qBody-' + i);
+  const status = state.source;
+  const control = renderQuestionControl(item, status, i);
+  const badge = renderQuestionBadge(item, status);
+  const weakNote = state.source === 'ai' && item.conf < 60
+    ? '<span class="weak-note">AI 추천율 낮음 — 확인 필요</span>'
+    : '';
+  const evidence = state.source === 'pending'
+    ? ''
+    : '“' + item.evidence + '”';
+  body.innerHTML =
+    '<div class="q-control">' + control + badge + '</div>' +
+    weakNote +
+    '<span class="evidence" data-key="답안-근거-문구">' + evidence + '</span>';
+};
+
+const renderQuestionBadge = (item, status) => {
+  if (status === 'user') return '<span class="badge badge-user">의사 선택</span>';
+  if (status !== 'ai') return '';
+  return item.conf < 60
+    ? '<span class="badge badge-weak" data-key="답안-확신도-배지">AI 제안 · ' + item.conf + '%</span>'
+    : '<span class="badge badge-ai" data-key="답안-확신도-배지">AI 제안 · ' + item.conf + '%</span>';
+};
+
+const renderQuestionControl = (item, status, questionIndex) => {
+  const aiChipClassName = item.conf < 60 ? 'chip chip-suggest-low' : 'chip chip-suggest';
+  const chipClassName = status === 'user'
+      ? 'chip chip-user'
+      : aiChipClassName;
+  const pending = status === 'pending';
+  const state = Number.isInteger(questionIndex) ? questionAnswerStateList[questionIndex] : undefined;
+  if (item.type === 'single') {
+    return item.optionList.map((option) => {
+      const selected = !pending && option === (state?.value || item.value);
+      const className = !pending && selected ? chipClassName : 'chip chip-option pending';
+      return '<button class="' + className + '" onclick="handleQuestionOptionClick(' + questionIndex + ', \'' + option + '\')">' + option + '</button>';
+    }).join('');
+  }
+  if (item.type === 'multiple') {
+    return item.optionList.map((option) => {
+      const valueList = state?.valueList || item.valueList || [];
+      const selected = !pending && valueList.includes(option);
+      const className = !pending && selected ? chipClassName : 'chip chip-option pending';
+      return '<button class="' + className + '" onclick="handleQuestionOptionClick(' + questionIndex + ', \'' + option + '\')">' + option + '</button>';
+    }).join('');
+  }
+  if (item.type === 'number') {
+    const value = pending ? '' : (state?.value || item.value);
+    const className = status === 'user'
+      ? 'answer-input user'
+      : pending
+        ? 'answer-input pending'
+        : item.conf < 60 ? 'answer-input low' : 'answer-input';
+    return '<input class="' + className + '" value="' + value + '" placeholder="숫자 답안" oninput="handleQuestionInputChange(' + questionIndex + ', this.value)" onblur="renderQuestionBody(' + questionIndex + ')">';
+  }
+  const value = pending ? '' : (state?.value || item.value);
+  const className = status === 'user'
+    ? 'answer-textarea user'
+    : pending
+      ? 'answer-textarea pending'
+      : item.conf < 60 ? 'answer-textarea low' : 'answer-textarea';
+  return '<textarea class="' + className + '" placeholder="텍스트 답안" oninput="handleQuestionInputChange(' + questionIndex + ', this.value)" onblur="renderQuestionBody(' + questionIndex + ')">' + value + '</textarea>';
+};
+
+const handleQuestionOptionClick = (questionIndex, option) => {
+  if (readonlyMode) return;
+  const item = questionItemList[questionIndex];
+  const state = questionAnswerStateList[questionIndex];
+  if (item.type === 'single') {
+    state.value = option;
+  }
+  if (item.type === 'multiple') {
+    const baseValueList = state.source === 'pending'
+      ? []
+      : state.valueList || item.valueList || [];
+    state.valueList = baseValueList.includes(option)
+      ? baseValueList.filter((value) => value !== option)
+      : [...baseValueList, option];
+  }
+  state.source = 'user';
+  documentStatusMap.first = 'draft';
+  renderDocumentStatusChips();
+  renderQuestionBody(questionIndex);
+  updateQuestionCountChip();
+};
+
+const handleQuestionInputChange = (questionIndex, value) => {
+  if (readonlyMode) return;
+  const state = questionAnswerStateList[questionIndex];
+  state.source = 'user';
+  state.value = value;
+  documentStatusMap.first = 'draft';
+  renderDocumentStatusChips();
+  updateQuestionCountChip();
+};
+
+const handleRevisitCommentInputChange = () => {
+  const visit = getVisitSelected();
+  if (!visit || !visit.isToday) return;
+  if (documentStatusMap.revisit !== 'completed' && shouldRequestRevisitCommentAnalysis()) {
+    documentStatusMap.revisit = 'draft';
+    renderDocumentStatusChips();
+  }
+};
+
+const handleRecordReviewButtonClick = () => {
+  const visit = getVisitSelected();
+  if (!visit) {
+    showToast('검토할 진료를 먼저 선택해 주세요.');
+    return;
+  }
+  if (recording) {
+    stopRecording();
+    requestDocumentGeneration(visit.visitType, true);
+    showToast('녹음을 종료하고 STT를 서버로 전송했습니다. 분석 완료 후 검토할 수 있습니다.');
+    return;
+  }
+  if (isDocumentGenerationPending(visit.visitType)) {
+    showToast('분석이 완료되어야 검토할 수 있습니다.');
+    return;
+  }
+  if (visit.visitType === 'revisit' && shouldRequestRevisitCommentAnalysis()) {
+    if (documentStatusMap.revisit === 'completed') {
+      openConfirmActionDialog(
+        'SOAP 다시 생성',
+        '이미 완료된 진료입니다. 통합 코멘트 변경 사항을 반영해 SOAP를 다시 생성하시겠습니까?',
+        '다시 생성',
+        () => {
+          handleConfirmActionDialogCloseButtonClick();
+          documentStatusMap.revisit = 'draft';
+          renderDocumentStatusChips();
+          applyVisitMode();
+          requestDocumentGeneration('revisit', true);
+          showToast('SOAP를 다시 생성합니다. 완료 후 검토할 수 있습니다.');
+        }
+      );
+      return;
+    }
+    requestDocumentGeneration('revisit', true);
+    showToast('통합 코멘트 변경 사항을 분석 요청했습니다. 완료 후 검토할 수 있습니다.');
+    return;
+  }
+  const isFirstVisit = visit.visitType === 'first';
+  const visitTypeLabel = isFirstVisit ? '문진 답안' : '최종 SOAP';
+  const desc = visit.status === 'completed'
+    ? '이미 검토가 완료된 진료입니다. 필요한 경우 내용을 확인만 할 수 있습니다.'
+    : visitTypeLabel + '를 빠르게 확인한 뒤 검토 완료를 눌러주세요.';
+  document.getElementById('recordReviewDialogTitle').textContent = isFirstVisit ? '문진 답안 검토' : '최종 SOAP 검토';
+  document.getElementById('recordReviewDialogDesc').textContent = desc;
+  document.getElementById('recordReviewDialogContent').innerHTML = isFirstVisit
+    ? renderFirstVisitReviewContent()
+    : renderRevisitReviewContent();
+  document.getElementById('recordReviewDialog').classList.add('on');
+};
+
+const isDocumentGenerationPending = (visitType) => {
+  const status = generationStateMap[visitType].status;
+  return status === 'requested' || status === 'polling';
+};
+
+const shouldRequestRevisitCommentAnalysis = () => {
+  const comment = document.getElementById('commentInput').value.trim();
+  return Boolean(comment) && comment !== revisitCommentAnalyzedLast;
+};
+
+const handleRecordReviewDialogCloseButtonClick = () => {
+  document.getElementById('recordReviewDialog').classList.remove('on');
+};
+
+const handleRecordReviewCompleteButtonClick = () => {
+  const visit = getVisitSelected();
+  if (!visit) {
+    showToast('검토할 진료를 먼저 선택해 주세요.');
+    handleRecordReviewDialogCloseButtonClick();
+    return;
+  }
+  if (recording) {
+    stopRecording();
+    requestDocumentGeneration(visit.visitType, true);
+    handleRecordReviewDialogCloseButtonClick();
+    showToast('녹음을 종료하고 STT를 서버로 전송했습니다. 분석 완료 후 검토할 수 있습니다.');
+    return;
+  }
+  if (isDocumentGenerationPending(visit.visitType)) {
+    showToast('분석이 완료되어야 검토할 수 있습니다.');
+    return;
+  }
+  const documentCompleted = documentStatusMap[visit.visitType] === 'completed';
+  if (visit.visitType === 'revisit' && shouldRequestRevisitCommentAnalysis()) {
+    if (documentCompleted) {
+      openConfirmActionDialog(
+        'SOAP 다시 생성',
+        '이미 완료된 진료입니다. 통합 코멘트 변경 사항을 반영해 SOAP를 다시 생성하시겠습니까?',
+        '다시 생성',
+        () => {
+          handleConfirmActionDialogCloseButtonClick();
+          handleRecordReviewDialogCloseButtonClick();
+          documentStatusMap.revisit = 'draft';
+          renderDocumentStatusChips();
+          applyVisitMode();
+          requestDocumentGeneration('revisit', true);
+          showToast('SOAP를 다시 생성합니다. 완료 후 검토할 수 있습니다.');
+        }
+      );
+      return;
+    }
+    requestDocumentGeneration('revisit', true);
+    handleRecordReviewDialogCloseButtonClick();
+    showToast('통합 코멘트 변경 사항을 분석 요청했습니다. 완료 후 검토할 수 있습니다.');
+    return;
+  }
+  if (visit.visitType === 'revisit') {
+    applyRevisitReviewEdits();
+  }
+  if (documentCompleted) {
+    showToast('이미 완료되었습니다.');
+    handleRecordReviewDialogCloseButtonClick();
+    return;
+  }
+  visit.status = 'completed';
+  documentStatusMap[visit.visitType] = 'completed';
+  visitMode = 'view';
+  renderPatientVisitControls();
+  applyVisitMode();
+  renderDocumentStatusChips();
+  handleRecordReviewDialogCloseButtonClick();
+  showToast('검토가 완료되었습니다.');
+};
+
+const applyRevisitReviewEdits = () => {
+  soapSectionList.forEach((section, i) => {
+    const input = document.getElementById('reviewSoapInput-' + i);
+    const body = document.getElementById('soapBody-' + i);
+    if (!input || !body) return;
+    body.textContent = input.value.trim() || section.base;
+    body.dataset.commentApplied = i === 3 ? 'true' : 'false';
+  });
+};
+
+const renderFirstVisitReviewContent = () => {
+  return questionItemList.map((item, i) => {
+    const state = questionAnswerStateList[i];
+    const source = state.source === 'user' ? 'user' : 'ai';
+    const sourceLabel = source === 'user' ? '의사 선택' : 'AI 추천';
+    const confidenceClassName = item.conf < 60 ? 'review-badge weak' : 'review-badge ai';
+    const confidenceBadge = source === 'ai'
+      ? '<span class="' + confidenceClassName + '">AI 제안 ' + item.conf + '%</span>'
+      : '';
+    const evidence = source === 'ai' && item.evidence
+      ? '<div class="review-evidence">근거: ' + escapeHtml(item.evidence) + '</div>'
+      : '';
+    return '<div class="review-item">' +
+      '<div class="review-head">' +
+        '<div class="review-title">Q.' + i + ' ' + escapeHtml(item.label) + '</div>' +
+        '<div class="review-meta">' +
+          '<span class="review-badge ' + source + '">' + sourceLabel + '</span>' +
+          confidenceBadge +
+        '</div>' +
+      '</div>' +
+      '<div class="review-answer">' + escapeHtml(getQuestionReviewAnswerText(item, state)) + '</div>' +
+      evidence +
+    '</div>';
+  }).join('');
+};
+
+const getQuestionReviewAnswerText = (item, state) => {
+  if (item.type === 'multiple') {
+    const valueList = state.valueList || item.valueList || [];
+    return valueList.length > 0 ? valueList.join(', ') : '답변 없음';
+  }
+  return state.value || item.value || '답변 없음';
+};
+
+const renderRevisitReviewContent = () => {
+  const comment = document.getElementById('commentInput').value.trim();
+  return soapSectionList.map((section, i) => {
+    const body = document.getElementById('soapBody-' + i);
+    const baseText = body ? body.textContent.trim() : section.base;
+    const commentText = comment && i === 3 && body?.dataset.commentApplied !== 'true'
+      ? baseText + ' 통합 코멘트 반영: ' + comment
+      : baseText;
+    return '<div class="review-item">' +
+      '<div class="review-soap-title"><span class="review-soap-tag">' + section.tag + '</span>' + escapeHtml(section.title) + '</div>' +
+      '<textarea class="review-soap-textarea" id="reviewSoapInput-' + i + '">' + escapeHtml(commentText) + '</textarea>' +
+    '</div>';
+  }).join('');
+};
+
+const escapeHtml = (value) => {
+  return String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+};
+
+const handlePatientSendButtonClick = () => {
+  const visit = getVisitSelected();
+  if (!visit || visit.status !== 'completed' || documentStatusMap[visit.visitType] !== 'completed') {
+    showToast('검토를 완료해야 진료 내용을 발송할 수 있습니다.');
+    return;
+  }
+  const patient = getPatientSelected();
+  document.getElementById('sendPreviewPatient').textContent = patient.name + ' · 카카오톡 알림톡으로 발송됩니다';
+  document.getElementById('kakaoPreviewText').textContent = patient.name + '님, 오늘 진료 내용을 확인해 보세요';
+  document.getElementById('sendPreviewOverlay').classList.add('on');
+  requestSendPreviewGeneration();
+};
+
+const handlePreviewCloseButtonClick = () => {
+  document.getElementById('sendPreviewOverlay').classList.remove('on');
+  if (sendPreviewGenerationState.status === 'requested' || sendPreviewGenerationState.status === 'polling') {
+    clearInterval(sendPreviewGenerationState.timer);
+    sendPreviewGenerationState.status = 'idle';
+  }
+  document.getElementById('sendPreviewLoading').classList.remove('on');
+  document.getElementById('sendPreviewContent').classList.remove('hidden');
+  resetSendButton();
+};
+
+const resetSendButton = () => {
+  const btn = document.getElementById('sendConfirmBtn');
+  btn.disabled = sendPreviewGenerationState.status !== 'completed';
+  btn.innerHTML = '발송하기';
+};
+
+const requestSendPreviewGeneration = () => {
+  if (sendPreviewGenerationState.status === 'requested' || sendPreviewGenerationState.status === 'polling') return;
+  sendPreviewGenerationState.status = 'requested';
+  sendPreviewGenerationState.pollCount = 0;
+  document.getElementById('sendPreviewLoading').classList.add('on');
+  document.getElementById('sendPreviewContent').classList.add('hidden');
+  document.getElementById('sendConfirmBtn').disabled = true;
+  sendPreviewGenerationState.timer = setInterval(pollSendPreviewGenerationResult, GENERATION_POLLING_INTERVAL_MS);
+};
+
+const pollSendPreviewGenerationResult = () => {
+  sendPreviewGenerationState.status = 'polling';
+  sendPreviewGenerationState.pollCount += 1;
+  if (sendPreviewGenerationState.pollCount === 1) return;
+  clearInterval(sendPreviewGenerationState.timer);
+  sendPreviewGenerationState.status = 'completed';
+  document.getElementById('sendPreviewLoading').classList.remove('on');
+  document.getElementById('sendPreviewContent').classList.remove('hidden');
+  document.getElementById('sendConfirmBtn').disabled = false;
+  showToast('발송 내용 생성이 완료되었습니다.');
+};
+
+const handleSendConfirmButtonClick = () => {
+  if (sendPreviewGenerationState.status !== 'completed') {
+    showToast('발송 내용 생성이 완료된 뒤 발송할 수 있습니다.');
+    return;
+  }
+  const btn = document.getElementById('sendConfirmBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>발송 중...';
+  setTimeout(() => {
+    document.getElementById('sendPreviewOverlay').classList.remove('on');
+    resetSendButton();
+    showToast(getPatientSelected().name + '님에게 진료 내용이 발송되었습니다.');
+  }, 1200);
+};
+
+const appendSoapUpdate = (i) => {
+  const update = soapUpdateList[i];
+  const body = document.getElementById('soapBody-' + update.idx);
+  if (!body || body.querySelector('textarea')) return;
+  body.innerHTML += '<span class="add">' + update.text + '</span>';
+};
+
+/* ─────────── 토스트 ─────────── */
+let toastTimer;
+const showToast = (message) => {
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
+};
+
+renderQuestionGrid();
+renderSoapGrid();
+renderPatientSelect();
+syncDocumentStatusFromVisit(getVisitSelected());
+renderVisitCalendar();
+renderPatientVisitControls();
+setVisitPanel(visitTypeSelected);
+applyVisitMode();
+</script>
+</body>
+</html>
