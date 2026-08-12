@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ACLP-4424 · 환자 리포트 보기·발송 목업</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+<style>
+  :root{
+    --blue:#1E5AF0; --blue-600:#1B4FD6; --blue-050:#EEF3FF;
+    --navy:#0B1F4D;
+    --mono-900:#111827; --mono-700:#374151; --mono-500:#6B7280; --mono-400:#9CA3AF;
+    --mono-300:#D1D5DB; --mono-200:#E5E7EB; --mono-100:#F3F4F6; --mono-050:#F9FAFB;
+    --green-050:#ECFDF3; --green-500:#16A34A; --green-700:#15803D;
+    --amber-050:#FFFBEB; --amber-500:#D97706;
+    --white:#fff; --shadow:0 1px 2px rgba(16,24,40,.06),0 1px 3px rgba(16,24,40,.10);
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:'Pretendard',-apple-system,system-ui,sans-serif;background:var(--mono-100);color:var(--mono-900);-webkit-font-smoothing:antialiased}
+  button{font-family:inherit;cursor:pointer}
+
+  /* demo control bar */
+  .demobar{position:sticky;top:0;z-index:50;background:var(--navy);color:#fff;display:flex;gap:8px;align-items:center;padding:10px 18px;flex-wrap:wrap}
+  .demobar b{font-size:13px;letter-spacing:.2px;margin-right:6px}
+  .demobar .step{font-size:12px;color:#cdd7f0}
+  .demobar button{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:8px;padding:6px 10px;font-size:12px;font-weight:600}
+  .demobar button.on{background:var(--blue);border-color:var(--blue)}
+
+  /* top nav */
+  .topnav{background:#fff;border-bottom:1px solid var(--mono-200);display:flex;align-items:center;gap:30px;padding:0 26px;height:64px}
+  .logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:20px;color:var(--navy)}
+  .logo .mark{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--blue),#4C82FF);display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;font-weight:800}
+  .nav-sep{width:1px;height:22px;background:var(--mono-200)}
+  .nav-links{display:flex;gap:26px;font-size:15px;color:var(--mono-500);font-weight:600}
+  .nav-links a{color:var(--mono-500);text-decoration:none}
+  .nav-links a.active{color:var(--blue);font-weight:700}
+  .topnav .right{margin-left:auto;display:flex;align-items:center;gap:14px;font-size:14px;color:var(--mono-500)}
+  .acct{border:1px solid var(--mono-200);border-radius:10px;padding:8px 12px;display:flex;gap:8px;align-items:center;font-weight:600;color:var(--mono-700)}
+  .acct .dot{color:var(--amber-500)}
+
+  /* layout */
+  .wrap{display:flex;gap:20px;padding:22px 26px;max-width:1520px;margin:0 auto;align-items:flex-start}
+  .side{width:300px;flex:none;display:flex;flex-direction:column;gap:16px}
+  .card{background:#fff;border:1px solid var(--mono-200);border-radius:var(--radius);box-shadow:var(--shadow)}
+  .card.pad{padding:18px}
+  .label{font-size:14px;font-weight:700;color:var(--mono-700);margin-bottom:10px}
+  .select{border:1px solid var(--mono-200);border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;color:var(--mono-800);font-weight:600;font-size:15px}
+  .row-between{display:flex;justify-content:space-between;align-items:center}
+  .patient-name{font-size:19px;font-weight:800}
+  .patient-sub{font-size:13px;color:var(--mono-500);margin-top:2px}
+  .btn{border-radius:10px;padding:12px 14px;font-weight:700;font-size:15px;border:1px solid transparent;text-align:center;width:100%}
+  .btn.primary{background:var(--blue);color:#fff}
+  .btn.primary:hover{background:var(--blue-600)}
+  .btn.ghost{background:#fff;border-color:var(--mono-200);color:var(--mono-700)}
+  .btn.small{padding:8px 12px;font-size:13px;width:auto}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .chip-search{border:1px solid var(--mono-200);border-radius:8px;padding:6px 10px;font-size:12px;color:var(--mono-500);font-weight:600}
+  .stt{font-size:13px;color:var(--mono-600);line-height:1.7}
+  .stt .rec{font-weight:800;color:var(--mono-900);margin-bottom:6px}
+
+  /* main */
+  .main{flex:1;min-width:0;display:flex;flex-direction:column;gap:16px}
+  .panel{background:#fff;border:1px solid var(--mono-200);border-radius:var(--radius);box-shadow:var(--shadow);position:relative}
+  .panel-head{display:flex;align-items:center;gap:10px;padding:20px 24px 0}
+  .panel-title{font-size:19px;font-weight:800}
+  .count{background:var(--mono-100);color:var(--mono-600);border-radius:20px;padding:3px 11px;font-size:13px;font-weight:700}
+  .tags{margin-left:auto;display:flex;gap:8px;align-items:center;font-size:12px;color:var(--mono-500)}
+  .tag{border-radius:6px;padding:3px 9px;font-weight:700;font-size:12px}
+  .tag.blue{background:var(--blue-050);color:var(--blue)}
+  .tag.green{background:var(--green-050);color:var(--green-700)}
+  .qwrap{padding:18px 24px 22px;display:flex;flex-direction:column;gap:14px;max-height:560px;overflow:auto}
+  .q{border:1px dashed var(--mono-200);border-radius:12px;padding:16px 18px}
+  .q .qh{display:flex;gap:9px;align-items:center;font-weight:700;font-size:15px}
+  .q .qno{background:var(--mono-100);color:var(--mono-500);border-radius:6px;padding:2px 8px;font-size:12px;font-weight:800}
+  .opts{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}
+  .opt{border:1px solid var(--mono-200);border-radius:9px;padding:9px 14px;font-size:14px;color:var(--mono-500);font-weight:600}
+  .opt.sel{background:var(--blue);color:#fff;border-color:var(--blue)}
+  .doc-pick{background:var(--blue);color:#fff;border-radius:6px;padding:3px 9px;font-size:12px;font-weight:700;display:inline-block;margin-top:12px}
+
+  /* bottom action bar */
+  .actionbar{display:flex;gap:14px;padding:18px 24px}
+  .actionbar .btn{width:auto;flex:1;display:flex;align-items:center;justify-content:center;gap:8px}
+  .actionbar .foot{text-align:center;font-size:13px;color:var(--mono-400);padding:0 0 16px}
+  .new-badge{position:absolute;top:-9px;right:-6px;background:var(--amber-500);color:#fff;font-size:10px;font-weight:800;border-radius:20px;padding:2px 7px}
+
+  /* modal */
+  .overlay{position:fixed;inset:0;background:rgba(11,31,77,.45);display:none;align-items:center;justify-content:center;z-index:60;padding:24px}
+  .overlay.show{display:flex}
+  .modal{background:#fff;border-radius:18px;width:100%;max-width:720px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(11,31,77,.35);overflow:hidden}
+  .modal-head{padding:20px 24px;border-bottom:1px solid var(--mono-200);display:flex;align-items:center;gap:10px}
+  .modal-head .mt{font-size:18px;font-weight:800}
+  .modal-head .x{margin-left:auto;border:none;background:var(--mono-100);width:32px;height:32px;border-radius:8px;color:var(--mono-500);font-size:16px}
+  .modal-body{padding:22px 24px;overflow:auto}
+  .modal-foot{padding:16px 24px;border-top:1px solid var(--mono-200);display:flex;gap:12px;justify-content:flex-end}
+  .modal-foot .btn{width:auto}
+
+  .state-pill{font-size:12px;font-weight:800;border-radius:20px;padding:4px 12px}
+  .state-pill.edit{background:var(--blue-050);color:var(--blue)}
+  .state-pill.lock{background:var(--mono-100);color:var(--mono-500)}
+  .state-pill.done{background:var(--green-050);color:var(--green-700)}
+
+  .rep-meta{display:flex;gap:8px;align-items:center;color:var(--mono-500);font-size:13px;margin-bottom:18px}
+  .rep-meta b{color:var(--mono-800)}
+  .rep-sec{margin-bottom:18px}
+  .rep-sec .st{display:flex;align-items:center;gap:8px;font-weight:800;font-size:15px;color:var(--navy);margin-bottom:8px}
+  .rep-sec .st .ico{width:22px;height:22px;border-radius:6px;background:var(--blue-050);color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:12px}
+  .rep-text{border:1px solid var(--mono-200);border-radius:10px;padding:13px 15px;font-size:14.5px;line-height:1.75;color:var(--mono-800);background:#fff;min-height:56px}
+  .rep-text[contenteditable="true"]{background:#fff;outline:2px solid var(--blue-050);border-color:var(--blue)}
+  .rep-text[contenteditable="true"]:focus{outline:2px solid var(--blue)}
+  .lock-note{display:flex;gap:8px;align-items:center;background:var(--mono-050);border:1px solid var(--mono-200);border-radius:10px;padding:10px 13px;font-size:13px;color:var(--mono-500);margin-bottom:16px}
+  .edit-hint{font-size:13px;color:var(--blue);background:var(--blue-050);border-radius:8px;padding:8px 12px;margin-bottom:16px;display:flex;gap:8px;align-items:center}
+  .preview-frame{border:1px solid var(--mono-200);border-radius:12px;background:var(--mono-050);padding:20px 22px}
+  .preview-frame .pf-badge{display:inline-flex;gap:6px;align-items:center;background:#fff;border:1px solid var(--mono-200);border-radius:20px;padding:4px 11px;font-size:12px;font-weight:700;color:var(--mono-500);margin-bottom:14px}
+  .toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:13px 20px;border-radius:12px;font-size:14px;font-weight:600;box-shadow:0 10px 30px rgba(11,31,77,.4);z-index:80;display:none;align-items:center;gap:9px}
+  .toast.show{display:flex}
+  .toast.err{background:#B42318}
+  .sent-banner{display:none;align-items:center;gap:10px;background:var(--green-050);border:1px solid #A7F3C6;color:var(--green-700);border-radius:12px;padding:12px 16px;font-size:14px;font-weight:700;margin:0 24px 18px}
+  .sent-banner.show{display:flex}
+</style>
+</head>
+<body>
+
+<!-- DEMO CONTROL -->
+<div class="demobar">
+  <b>🧭 목업 데모</b>
+  <span class="step" id="stepLabel">1) 진료 녹음 페이지</span>
+  <span style="margin-left:auto"></span>
+  <button onclick="reset()">처음으로</button>
+</div>
+
+<!-- TOP NAV -->
+<div class="topnav">
+  <div class="logo"><span class="mark">R</span>RISE-K</div>
+  <div class="nav-sep"></div>
+  <div class="nav-links">
+    <a>환자 관리</a><a>오늘의 환자</a><a class="active">진료 녹음</a><a>논문 관리</a><a>연구 에이전트</a>
+  </div>
+  <div class="right">
+    명지병원
+    <div class="acct"><span class="dot">ⓘ</span> 명지병원 공유계정님 ▾</div>
+  </div>
+</div>
+
+<!-- BODY -->
+<div class="wrap">
+  <!-- SIDE -->
+  <aside class="side">
+    <div class="card pad">
+      <div class="label">진료실 선택</div>
+      <div class="select">수술실1 <span>▾</span></div>
+    </div>
+    <div class="card pad">
+      <div class="row-between"><div class="label" style="margin:0">환자 선택</div><span class="chip-search">🔍 검색</span></div>
+      <div style="margin-top:12px" class="row-between">
+        <div><div class="patient-name">jimmy</div><div class="patient-sub">남성 · 차트 192837162</div></div>
+        <span style="color:var(--mono-400)">✕</span>
+      </div>
+      <div style="margin-top:14px" class="row-between">
+        <div style="font-size:14px;color:var(--mono-600)">진료 <b style="color:var(--blue)">5</b> 회</div>
+        <span class="chip-search">📅 진료 선택</span>
+      </div>
+      <button class="btn ghost" style="margin-top:12px">▶ 진료 이어하기</button>
+      <button class="btn primary" style="margin-top:10px">＋ 새 진료 시작</button>
+    </div>
+    <div class="card pad">
+      <button class="btn primary">🎙 녹음 시작</button>
+      <div class="label" style="margin-top:16px">실시간 STT</div>
+      <div class="stt">
+        <div class="rec">녹음 1</div>
+        알아서 그 선택이 되는 거 종료하면요.<br><br>
+        의사: 그러면 언제 다치셨나요?<br>환자: 일주일 전이요.<br><br>
+        이렇게 해서 녹음 종료를 하면 여기 선택이 되어 있다는 건가요?<br>네, 맞아요.
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title">문진 답안</div>
+        <span class="count">13/13</span>
+        <div class="tags">
+          <span class="tag blue">초진</span><span class="tag green">완료</span>
+          <span>2026.08.12 11:24</span>
+        </div>
+      </div>
+      <div class="qwrap">
+        <div class="q">
+          <div class="qh"><span class="qno">Q.6</span> 평소 활동 수준은 어느 정도인가요?</div>
+          <div class="opts"><span class="opt">Level I — 선수/피벗</span><span class="opt">Level II — 방향전환</span><span class="opt">Level III — 직선 운동</span><span class="opt">Level IV — 일상생활</span></div>
+        </div>
+        <div class="q" style="border-color:var(--blue);border-style:solid">
+          <div class="qh"><span class="qno">Q.7</span> 환자의 연령대는 어디에 해당하나요?</div>
+          <span class="doc-pick">의사 선택</span>
+          <div class="opts"><span class="opt">20세 미만</span><span class="opt">20–34세</span><span class="opt">35–49세</span><span class="opt sel">50세 이상</span></div>
+        </div>
+        <div class="q">
+          <div class="qh"><span class="qno">Q.12</span> 현재 주 증상이나 호소를 입력해주세요.</div>
+          <div class="rep-text" style="margin-top:12px;color:var(--mono-400)">내용을 입력하세요.</div>
+        </div>
+        <div class="q">
+          <div class="qh"><span class="qno">Q.13</span> 환자의 치료 선호는 무엇인가요?</div>
+          <div class="opts"><span class="opt">수술을 원함</span><span class="opt">재활 먼저 원함</span><span class="opt">권고를 따름</span></div>
+        </div>
+      </div>
+
+      <!-- SENT banner (after send) -->
+      <div class="sent-banner" id="sentBanner">✅ 환자 리포트가 발송되었습니다. 발송된 리포트는 수정할 수 없습니다.</div>
+
+      <!-- ACTION BAR -->
+      <div class="actionbar">
+        <button class="btn primary">✉️ 진료 내용 발송</button>
+        <button class="btn ghost">🗒 진료기록 보기</button>
+        <button class="btn ghost" id="openReportBtn" data-testid="녹음-리포트-보기-버튼" onclick="openReport()" style="position:relative;border-color:var(--blue);color:var(--blue)">
+          📄 환자 리포트 보기 <span class="new-badge">NEW</span>
+        </button>
+      </div>
+      <div class="foot" style="text-align:center;font-size:13px;color:var(--mono-400);padding-bottom:16px">기존 두 버튼은 그대로 두고 ‘환자 리포트 보기’를 추가한 형태입니다.</div>
+    </div>
+  </main>
+</div>
+
+<!-- ===== 리포트 보기 화면 (편집 가능) ===== -->
+<div class="overlay" id="reportOverlay">
+  <div class="modal" data-testid="녹음-리포트-보기-패널">
+    <div class="modal-head">
+      <div class="mt">환자 리포트</div>
+      <span class="state-pill edit" id="repState">발송 전 · 수정 가능</span>
+      <button class="x" onclick="closeReport()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="rep-meta">환자 <b>jimmy</b> · 차트 192837162 · 초진 <span style="margin-left:auto">2026.08.12</span></div>
+
+      <div class="edit-hint" id="editHint">✏️ 각 항목을 눌러 내용을 고칠 수 있습니다. 고친 뒤 <b>‘수정 완료’</b>를 눌러야 저장됩니다. 저장 전에 나가면 원래대로 돌아갑니다.</div>
+
+      <div class="rep-sec">
+        <div class="st"><span class="ico">1</span> 오늘의 진단</div>
+        <div class="rep-text" data-testid="녹음-리포트-본문-입력" data-sec="diag">전방십자인대(ACL) 부분 파열이 의심됩니다. 오늘 시행한 이학적 검사와 문진 내용을 종합한 소견입니다.</div>
+      </div>
+      <div class="rep-sec">
+        <div class="st"><span class="ico">2</span> 확인된 상태</div>
+        <div class="rep-text" data-testid="녹음-리포트-본문-입력" data-sec="state">무릎의 불안정감이 있으며, 계단을 내려갈 때 불편감을 호소하셨습니다. 부기와 통증은 초기보다 다소 줄어든 상태입니다.</div>
+      </div>
+      <div class="rep-sec">
+        <div class="st"><span class="ico">3</span> 주의사항</div>
+        <div class="rep-text" data-testid="녹음-리포트-본문-입력" data-sec="care">무리한 방향 전환이나 점프 동작은 피해 주세요. 통증이 심해지거나 무릎이 크게 붓는 경우 병원에 다시 방문해 주시기 바랍니다.</div>
+      </div>
+    </div>
+    <div class="modal-foot" id="reportFoot">
+      <button class="btn ghost small" id="editBtn" onclick="startEdit()">✏️ 수정</button>
+      <button class="btn primary small" id="saveBtn" data-testid="녹음-리포트-수정완료-버튼" onclick="saveEdit()" style="display:none">✓ 수정 완료</button>
+      <button class="btn primary small" id="toPreviewBtn" data-testid="녹음-리포트-보내기-버튼" onclick="openPreview()">환자에게 보내기 →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 미리보기 (수정 불가) ===== -->
+<div class="overlay" id="previewOverlay">
+  <div class="modal" data-testid="녹음-리포트-미리보기-모달">
+    <div class="modal-head">
+      <div class="mt">발송 미리보기</div>
+      <span class="state-pill lock">🔒 수정 불가</span>
+      <button class="x" onclick="closePreview()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="lock-note">🔒 미리보기 상태입니다. 이 형태 그대로 환자에게 발송됩니다. 수정이 필요하면 ‘리포트 보기로 돌아가기’를 누르세요.</div>
+      <div class="preview-frame">
+        <span class="pf-badge">📄 환자에게 전달되는 리포트</span>
+        <div class="rep-meta">환자 <b>jimmy</b> · 명지병원 <span style="margin-left:auto">2026.08.12</span></div>
+        <div class="rep-sec"><div class="st"><span class="ico">1</span> 오늘의 진단</div><div class="rep-text" id="pvDiag" style="outline:none;border-color:var(--mono-200)"></div></div>
+        <div class="rep-sec"><div class="st"><span class="ico">2</span> 확인된 상태</div><div class="rep-text" id="pvState" style="outline:none;border-color:var(--mono-200)"></div></div>
+        <div class="rep-sec"><div class="st"><span class="ico">3</span> 주의사항</div><div class="rep-text" id="pvCare" style="outline:none;border-color:var(--mono-200)"></div></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn ghost small" data-testid="녹음-리포트-미리보기-닫기-버튼" onclick="backToReport()">← 리포트 보기로 돌아가기</button>
+      <button class="btn primary small" data-testid="녹음-리포트-발송-버튼" onclick="sendReport()">📨 발송하기</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // 원본 저장(원복 기준)
+  const original = {};
+  document.querySelectorAll('[data-sec]').forEach(el=>original[el.dataset.sec]=el.innerHTML);
+  // 저장된 값(수정 완료 시 갱신)
+  let saved = {...original};
+  let editing = false;
+  let sent = false;
+
+  const $=s=>document.querySelector(s);
+  const secs=()=>document.querySelectorAll('[data-sec]');
+  function setStep(t){$('#stepLabel').textContent=t;}
+  function toast(msg,err){const t=$('#toast');t.textContent=msg;t.className='toast show'+(err?' err':'');setTimeout(()=>t.className='toast',2200);}
+
+  function loadSaved(){secs().forEach(el=>el.innerHTML=saved[el.dataset.sec]);}
+
+  function openReport(){
+    if(sent){ openReportLocked(); return; }
+    loadSaved(); editing=false; setEditUI();
+    $('#reportOverlay').classList.add('show'); setStep('2) 환자 리포트 보기 (발송 전 · 수정 가능)');
+  }
+  function openReportLocked(){
+    loadSaved();
+    $('#repState').className='state-pill done'; $('#repState').textContent='발송 완료 · 수정 불가';
+    $('#editHint').style.display='none';
+    secs().forEach(el=>{el.contentEditable='false';el.style.outline='none';el.style.borderColor='var(--mono-200)';});
+    $('#reportFoot').innerHTML='<span style="font-size:13px;color:var(--mono-500);display:flex;align-items:center;gap:8px">🔒 이미 발송된 리포트입니다. 수정·재발송할 수 없습니다.</span>';
+    $('#reportOverlay').classList.add('show'); setStep('5) 발송 후 (잠금 상태)');
+  }
+  function closeReport(){
+    // 저장 안 한 편집은 버림 → 원복
+    if(editing){ editing=false; }
+    $('#reportOverlay').classList.remove('show'); setStep('1) 진료 녹음 페이지');
+  }
+
+  function setEditUI(){
+    secs().forEach(el=>{el.contentEditable=editing?'true':'false';});
+    $('#editBtn').style.display=editing?'none':'inline-flex';
+    $('#saveBtn').style.display=editing?'inline-flex':'none';
+    $('#toPreviewBtn').disabled=editing;
+    $('#toPreviewBtn').style.opacity=editing?'.5':'1';
+    $('#editHint').style.display=editing?'flex':'none';
+  }
+  function startEdit(){ editing=true; setEditUI(); secs()[0].focus(); }
+  function saveEdit(){
+    secs().forEach(el=>saved[el.dataset.sec]=el.innerHTML);
+    editing=false; setEditUI(); toast('✓ 수정 내용이 저장되었습니다');
+  }
+
+  function openPreview(){
+    if(editing){toast('먼저 ‘수정 완료’를 눌러 저장하세요',true);return;}
+    $('#pvDiag').innerHTML=saved.diag; $('#pvState').innerHTML=saved.state; $('#pvCare').innerHTML=saved.care;
+    $('#previewOverlay').classList.add('show'); setStep('3) 발송 미리보기 (수정 불가)');
+  }
+  function closePreview(){$('#previewOverlay').classList.remove('show');setStep('2) 환자 리포트 보기');}
+  function backToReport(){$('#previewOverlay').classList.remove('show');setStep('2) 환자 리포트 보기 (수정 가능)');}
+
+  function sendReport(){
+    // 데모: 90% 성공. 실패 시 미발송·미잠금 유지(AC-10)
+    const ok = Math.random()>0.12;
+    if(!ok){ toast('⚠️ 발송에 실패했습니다. 다시 시도해 주세요. (미발송 상태 유지)', true); return; }
+    sent=true;
+    $('#previewOverlay').classList.remove('show');
+    $('#reportOverlay').classList.remove('show');
+    $('#sentBanner').classList.add('show');
+    $('#openReportBtn').innerHTML='📄 환자 리포트 보기 <span class="new-badge" style="background:var(--green-500)">발송됨</span>';
+    toast('📨 환자에게 리포트가 발송되었습니다');
+    setStep('4) 발송 완료 (환자 리포트 보기 → 잠금)');
+  }
+
+  function reset(){
+    sent=false; editing=false; saved={...original}; loadSaved();
+    $('#sentBanner').classList.remove('show');
+    $('#repState').className='state-pill edit'; $('#repState').textContent='발송 전 · 수정 가능';
+    $('#reportFoot').innerHTML='<button class="btn ghost small" id="editBtn" onclick="startEdit()">✏️ 수정</button><button class="btn primary small" id="saveBtn" data-testid="녹음-리포트-수정완료-버튼" onclick="saveEdit()" style="display:none">✓ 수정 완료</button><button class="btn primary small" id="toPreviewBtn" data-testid="녹음-리포트-보내기-버튼" onclick="openPreview()">환자에게 보내기 →</button>';
+    $('#openReportBtn').innerHTML='📄 환자 리포트 보기 <span class="new-badge">NEW</span>';
+    $('#reportOverlay').classList.remove('show'); $('#previewOverlay').classList.remove('show');
+    setStep('1) 진료 녹음 페이지');
+  }
+</script>
+</body>
+</html>
