@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ACLP-4471 · 리포트 내용 챗봇 질의 — 목업 (plan B)</title>
+<style>
+  :root{
+    --kakao-bg:#b2c7da; --kakao-yellow:#fae100; --talk-blue:#1f5fe0;
+    --panel-card:#171c22; --panel-line:#252c34; --panel-ink:#dfe4ea;
+    --panel-muted:#7b858f; --accent:#4c8dff;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{font-family:'Apple SD Gothic Neo','Pretendard','Noto Sans KR','Malgun Gothic',sans-serif;
+       background:#0b0e12;color:var(--panel-ink);min-height:100vh;padding:28px 20px 48px}
+  .wrap{max-width:1100px;margin:0 auto}
+  header.top{margin-bottom:22px}
+  header.top h1{font-size:17px;margin:0 0 6px;font-weight:700;letter-spacing:-.2px}
+  header.top h1 .tag{background:#1d3320;color:#67d39a;font-size:11px;border-radius:5px;padding:2px 8px;margin-left:8px;vertical-align:middle;font-weight:700}
+  header.top p{margin:0;font-size:12.5px;color:var(--panel-muted);line-height:1.65}
+  header.top a{color:var(--accent);text-decoration:none}
+  .stage{display:flex;gap:26px;align-items:flex-start;flex-wrap:wrap}
+
+  .phone{width:378px;height:812px;flex:0 0 378px;background:#fff;border-radius:38px;
+         overflow:hidden;position:relative;
+         box-shadow:0 0 0 9px #23272d,0 0 0 10px #353b42,0 26px 60px rgba(0,0,0,.6)}
+  .screen{position:absolute;inset:0;display:none;flex-direction:column}
+  .screen.on{display:flex}
+  .statusbar{height:34px;flex:0 0 34px;display:flex;align-items:center;justify-content:space-between;
+             padding:0 18px;font-size:12.5px;font-weight:600;color:#111}
+  .statusbar .r{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:600}
+  .pillbat{background:#111;color:#fff;border-radius:9px;padding:1px 6px;font-size:10.5px}
+  .homebar{width:130px;height:5px;border-radius:3px;background:#111;margin:0 auto 8px;opacity:.85}
+
+  /* ===== KAKAO ===== */
+  .k-screen{background:var(--kakao-bg)}
+  .k-header{flex:0 0 auto;display:flex;align-items:center;gap:12px;padding:6px 14px 12px}
+  .k-header .back{font-size:22px;color:#111;line-height:1}
+  .k-title{flex:1;min-width:0}
+  .k-title .nm{display:flex;align-items:center;gap:5px;font-size:16.5px;font-weight:700;color:#111}
+  .k-title .badge{width:16px;height:16px;border-radius:50%;background:#1b8cff;color:#fff;font-size:10px;display:flex;align-items:center;justify-content:center;font-weight:700}
+  .k-title .sub{font-size:13px;color:#31353a;margin-top:1px}
+  .k-icons{display:flex;gap:14px;font-size:17px;color:#111}
+  .k-body{flex:1;overflow-y:auto;padding:4px 14px 12px;position:relative}
+  .k-home{position:absolute;top:6px;right:14px;width:46px;height:46px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.14);font-size:19px}
+  .k-msg{display:flex;gap:9px;margin-top:14px;align-items:flex-start}
+  .k-avatar{width:40px;height:40px;border-radius:14px;flex:0 0 40px;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden}
+  .k-avatar svg{width:26px;height:26px}
+  .k-msgcol{min-width:0;flex:1}
+  .k-sender{font-size:12.5px;color:#2b2f34;margin-bottom:5px}
+  .k-bubblerow{display:flex;align-items:flex-end;gap:6px}
+  .k-card{background:#fff;border-radius:6px;overflow:hidden;max-width:270px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+  .k-cardhead{background:var(--kakao-yellow);padding:9px 14px;font-size:14px;font-weight:800;color:#191600}
+  .k-cardbody{padding:15px 14px 13px;font-size:13.2px;line-height:1.62;color:#111}
+  .k-cardbody .ttl{font-weight:700;margin-bottom:11px}
+  .k-cardbody .sum{margin-top:12px;font-weight:700}
+  .k-cardbody ul{margin:5px 0 0;padding:0;list-style:none}
+  .k-cardbody li{position:relative;padding-left:10px;margin-bottom:2px}
+  .k-cardbody li:before{content:'·';position:absolute;left:1px}
+  .k-btns{padding:0 12px 12px;display:flex;flex-direction:column;gap:8px}
+  .k-btn{background:#f1f2f3;border:0;border-radius:5px;padding:13px 10px;font-size:13.5px;color:#111;cursor:pointer;font-family:inherit}
+  .k-btn:active{background:#e2e4e6}
+  .k-btn.primaryish{font-weight:600}
+  .k-time{font-size:11px;color:#4a5058;padding-bottom:2px;white-space:nowrap}
+  .k-foot{flex:0 0 auto;padding:8px 12px 16px}
+  .k-footbtn{background:#fff;border-radius:26px;height:50px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:15px;font-weight:600;color:#111;box-shadow:0 1px 4px rgba(0,0,0,.1)}
+
+  /* ===== STATIC IMAGE PAGE (외부 웹 · 4453 범위) ===== */
+  .w-screen{background:#eceff2}
+  .w-chrome{flex:0 0 auto;background:#f6f7f9;border-bottom:1px solid #dfe3e7;padding:6px 12px 10px}
+  .w-url{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #e2e6ea;border-radius:20px;padding:8px 14px;font-size:12px;color:#5c646d}
+  .w-url .lock{font-size:11px}
+  .w-url .u{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .w-scope{
+    margin:10px 12px 0;background:#fff6e8;border:1px solid #f0d7ac;border-radius:9px;
+    padding:9px 12px;font-size:11.5px;color:#7a5b1d;line-height:1.5
+  }
+  .w-body{flex:1;overflow-y:auto;padding:12px}
+  .w-back{flex:0 0 auto;padding:10px 12px 6px}
+  .w-backbtn{width:100%;background:#fff;border:1px solid #dfe3e7;border-radius:12px;padding:13px;
+             font-size:13.5px;color:#333;cursor:pointer;font-family:inherit}
+  .rep{border:1px solid #dfe3e7;border-radius:10px;overflow:hidden;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.05)}
+  .rep-h{background:#1f3b6e;color:#fff;padding:14px 16px}
+  .rep-h .t1{font-size:14px;font-weight:700}
+  .rep-h .t2{font-size:11px;opacity:.8;margin-top:3px}
+  .rep-meta{display:flex;gap:14px;padding:11px 16px;border-bottom:1px solid #eef0f2;font-size:11.5px;color:#4d555d}
+  .rep-meta b{color:#16181b}
+  .rep-sec{padding:14px 16px;border-bottom:1px solid #f2f4f6}
+  .rep-sec h4{margin:0 0 10px;font-size:12px;color:#1f3b6e;font-weight:700}
+  .rep-row{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+  .rep-row .lab{font-size:11.5px;color:#4d555d;width:92px;flex:0 0 92px}
+  .rep-bar{flex:1;height:8px;background:#eef1f4;border-radius:5px;overflow:hidden}
+  .rep-bar i{display:block;height:100%;border-radius:5px;background:#3f7ad1}
+  .rep-bar i.warn{background:#e8a33d}
+  .rep-row .val{font-size:11.5px;font-weight:700;color:#16181b;width:52px;text-align:right;flex:0 0 52px}
+  .rep-kv{display:flex;flex-wrap:wrap;gap:8px}
+  .rep-kv div{flex:1 1 44%;background:#f7f9fb;border-radius:8px;padding:9px 11px}
+  .rep-kv span{display:block;font-size:10.5px;color:#7e8894}
+  .rep-kv b{font-size:14px;color:#16181b}
+  .rep-foot{padding:11px 16px;background:#f7f9fb;font-size:10px;color:#8b9199;line-height:1.5}
+
+  /* ===== TOKTOK ===== */
+  .t-screen{background:#fff}
+  .t-top{flex:0 0 auto;display:flex;align-items:center;padding:2px 18px 10px}
+  .t-status{display:flex;align-items:center;gap:8px;font-size:13.5px;color:#9aa1a9}
+  .t-status .dot{width:8px;height:8px;border-radius:50%;background:#9db3d8}
+  .t-body{flex:1;overflow-y:auto;padding:0 18px 6px}
+  .t-daydiv{display:flex;align-items:center;gap:12px;margin:14px 0 22px}
+  .t-daydiv:before,.t-daydiv:after{content:'';flex:1;height:1px;background:#eceef0}
+  .t-daydiv span{font-size:13px;color:#8b9199}
+  .t-bot{font-size:15.2px;line-height:1.72;color:#16181b;white-space:pre-line}
+  .t-bot .h{font-weight:600}
+  .t-bot .date{color:#5c8ae0;font-weight:600}
+  .t-newbadge{display:inline-block;background:#eaf1ff;color:#2f62c9;font-size:10.5px;font-weight:700;
+              border-radius:4px;padding:1px 6px;margin-left:6px;vertical-align:2px}
+  .t-ground{display:inline-flex;align-items:center;gap:6px;margin-top:10px;border:1px dashed #c3d4f5;
+            background:#f5f8ff;border-radius:8px;padding:7px 11px;font-size:11.5px;color:#3f6fd0;line-height:1.4}
+  .t-warnbox{margin-top:10px;background:#fff8ec;border:1px solid #f2ddb8;border-radius:10px;
+             padding:11px 13px;font-size:12.5px;color:#7a5b1d;line-height:1.55}
+  .t-feedback{display:flex;align-items:center;gap:12px;margin:16px 0 24px;color:#9aa1a9;font-size:13px}
+  .t-feedback .icons{display:flex;gap:14px;font-size:15px}
+  .t-feedback .t{margin-left:auto;font-size:12.5px}
+  .t-user{display:flex;justify-content:flex-end;margin:20px 0}
+  .t-user span{background:var(--talk-blue);color:#fff;font-size:15.5px;font-weight:600;padding:14px 22px;border-radius:26px;max-width:76%;line-height:1.5}
+  .t-typing{display:flex;gap:5px;padding:6px 0 18px}
+  .t-typing i{width:7px;height:7px;border-radius:50%;background:#c8cdd3;animation:bl 1s infinite}
+  .t-typing i:nth-child(2){animation-delay:.15s}
+  .t-typing i:nth-child(3){animation-delay:.3s}
+  @keyframes bl{0%,60%,100%{opacity:.3}30%{opacity:1}}
+  .t-chips{flex:0 0 auto;display:flex;gap:7px;overflow-x:auto;padding:6px 16px 2px;scrollbar-width:none}
+  .t-chips::-webkit-scrollbar{display:none}
+  .t-chip{flex:0 0 auto;background:#f4f6f8;border:1px solid #e6e9ec;border-radius:18px;padding:8px 13px;font-size:12.5px;color:#48505a;cursor:pointer;font-family:inherit;white-space:nowrap}
+  .t-chip:hover{background:#eaeef3}
+  .t-inputwrap{flex:0 0 auto;padding:8px 16px 0}
+  .t-input{display:flex;align-items:center;gap:10px;background:#fff;border:1.5px solid #eceef0;border-radius:32px;padding:6px 6px 6px 20px;box-shadow:0 2px 10px rgba(0,0,0,.04)}
+  .t-input input{flex:1;border:0;outline:0;font-size:14.5px;font-family:inherit;color:#16181b;padding:14px 0}
+  .t-input input::placeholder{color:#adb4bc}
+  .t-send{width:46px;height:46px;border-radius:50%;border:0;background:#eef0f2;color:#5c646d;font-size:19px;cursor:pointer;flex:0 0 46px;transition:.15s}
+  .t-send.hot{background:var(--talk-blue);color:#fff}
+  .t-notice{flex:0 0 auto;text-align:center;padding:11px 16px 6px}
+  .t-notice .anon{font-size:12.5px;color:#8b9199}
+  .t-notice .disc{font-size:11.5px;color:#9aa1a9;margin-top:5px;line-height:1.5}
+  .t-notice .disc a{color:#7b848d;text-decoration:none;border-bottom:1px solid #d8dcdf}
+  .t-tabs{flex:0 0 auto;display:flex;border-top:1px solid #f0f1f3;padding:7px 0 12px}
+  .t-tab{flex:1;text-align:center;font-size:11.5px;color:#9aa1a9}
+  .t-tab .i{font-size:20px;display:block;margin-bottom:3px}
+  .t-tab.on{color:var(--talk-blue);font-weight:600}
+  .toast{position:absolute;left:16px;right:16px;bottom:100px;z-index:30;background:#22262c;color:#fff;
+         border-radius:12px;padding:13px 16px;font-size:13px;display:none;line-height:1.5;box-shadow:0 8px 24px rgba(0,0,0,.3)}
+  .toast.on{display:block;animation:pop .3s both}
+  @keyframes pop{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+  /* ===== panel ===== */
+  .panel{flex:1;min-width:340px}
+  .p-card{background:var(--panel-card);border:1px solid var(--panel-line);border-radius:14px;padding:16px 18px;margin-bottom:14px}
+  .p-card h2{margin:0 0 12px;font-size:13px;font-weight:700;color:#fff}
+  .steps{list-style:none;margin:0;padding:0}
+  .steps li{display:flex;gap:11px;padding:9px 10px;border-radius:9px;font-size:12.5px;color:var(--panel-muted);line-height:1.5;cursor:pointer}
+  .steps li:hover{background:#1d232a}
+  .steps li.on{background:#1b2534;color:#e8edf3}
+  .steps li .n{flex:0 0 20px;height:20px;border-radius:50%;background:#242b33;color:#98a2ad;font-size:11px;display:flex;align-items:center;justify-content:center;font-weight:700;margin-top:1px}
+  .steps li.on .n{background:var(--accent);color:#fff}
+  .steps li b{display:block;font-weight:600;margin-bottom:2px}
+  .steps li.on b{color:#fff}
+  .acmap{font-size:12px;line-height:1.7}
+  .acmap .row{display:flex;gap:10px;padding:7px 0;border-bottom:1px dashed #232a32}
+  .acmap .row:last-child{border-bottom:0}
+  .acmap .tag{flex:0 0 auto;background:#1e2833;color:#8fb6ff;border-radius:5px;padding:1px 7px;font-size:11px;font-weight:700;height:fit-content;margin-top:1px}
+  .acmap .tag.reg{background:#2a2320;color:#e8a33d}
+  .acmap .tag.open{background:#2c1f24;color:#ff7a85}
+  .acmap .tag.b{background:#1d3320;color:#67d39a}
+  .acmap .tag.out{background:#22262c;color:#8b949e}
+  .acmap .d{color:#aeb6c0}
+  .diff{font-size:12px;line-height:1.7}
+  .diff .row{display:flex;gap:9px;padding:6px 0;border-bottom:1px dashed #232a32}
+  .diff .row:last-child{border-bottom:0}
+  .diff .k{flex:0 0 78px;color:#8fb6ff;font-weight:700;font-size:11.5px;margin-top:1px}
+  .diff .v{color:#aeb6c0}
+  .note{font-size:11.5px;color:var(--panel-muted);line-height:1.65}
+  .note b{color:#cfd6de}
+  .ctrls{display:flex;gap:8px;margin-top:6px;flex-wrap:wrap}
+  .ctrl{background:#1d242c;border:1px solid #2a323b;color:#c3cbd4;border-radius:8px;padding:7px 12px;font-size:11.5px;cursor:pointer;font-family:inherit}
+  .ctrl:hover{background:#232b34}
+  .keys{width:100%;border-collapse:collapse;font-size:11.5px}
+  .keys th,.keys td{text-align:left;padding:6px 8px;border-bottom:1px solid #212830}
+  .keys th{color:#7b858f;font-weight:600;font-size:10.5px;letter-spacing:.4px}
+  .keys td code{background:#1c232b;border-radius:4px;padding:1px 6px;color:#9fd0ff;font-size:11px;font-family:ui-monospace,Menlo,monospace}
+  .keys .st{font-size:10.5px;padding:1px 6px;border-radius:4px}
+  .keys .st.new{background:#1d2b22;color:#67d39a}
+  .keys .st.chk{background:#2c2620;color:#e8b25a}
+  @media (max-width:900px){.stage{flex-direction:column}.phone{margin:0 auto}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>ACLP-4471 · 리포트 내용 챗봇 질의 — 인터랙션 목업 <span class="tag">plan B</span></h1>
+    <p>
+      앱에서 리포트 <b>이미지를 못 보여줄 때의 대비판</b>. 앱 챗봇 대화에는 검사 결과가 <b>텍스트로 이미 적혀 있고</b>,
+      이미지는 카톡 「리포트 확인하기」 → 외부 static 페이지(ACLP-4453 범위)에서 본다.
+      · <a href="https://metrex.atlassian.net/wiki/spaces/Product/pages/425984107/Plan+B.+Ver1">Plan B. Ver1</a>
+      · <a href="https://metrex-im.github.io/mockup/toktok/aclp-4471/plan-a/">plan A 목업</a>
+      · <a href="https://metrex.atlassian.net/browse/ACLP-4471">ACLP-4471</a> · 모든 데이터는 더미입니다.
+    </p>
+  </header>
+
+  <div class="stage">
+    <div class="phone">
+
+      <!-- ===== KAKAO ===== -->
+      <div class="screen k-screen on" id="scrKakao">
+        <div class="statusbar">
+          <div>U<sup>+</sup> 5:50 <span style="color:#f5c400">💬</span></div>
+          <div class="r"><span>5G</span><span class="pillbat">◗ 100</span></div>
+        </div>
+        <div class="k-header">
+          <div class="back">‹</div>
+          <div class="k-title">
+            <div class="nm">액티메디 <span class="badge">✓</span></div>
+            <div class="sub">07041325529 ⌄</div>
+          </div>
+          <div class="k-icons"><span>⌕</span><span>☰</span></div>
+        </div>
+        <div class="k-body">
+          <div class="k-home">⌂</div>
+          <div class="k-msg">
+            <div class="k-avatar">
+              <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#1f5fe0"/><path d="M9 20c3-9 11-11 14-8-3 1-5 3-6 6-1 3-4 4-8 2z" fill="#fff"/><circle cx="21" cy="10" r="2.4" fill="#ffd83d"/></svg>
+            </div>
+            <div class="k-msgcol">
+              <div class="k-sender">액티메디</div>
+              <div class="k-bubblerow">
+                <div class="k-card">
+                  <div class="k-cardhead">알림톡 도착</div>
+                  <div class="k-cardbody">
+                    <div class="ttl">[액티메디 병원] 오늘 검사 리포트 안내</div>
+                    이영구님, 안녕하세요.<br>
+                    오늘 스포츠의학센터에서 진행한 검사 결과를 정리해 보내드려요.
+                    <div class="sum">■ 오늘 검사 요약 — 8/14(금)</div>
+                    <ul>
+                      <li>무릎 기능 검사 완료</li>
+                      <li>근력·균형 측정 완료</li>
+                      <li>주관적 평가 설문 완료</li>
+                    </ul>
+                  </div>
+                  <div class="k-btns">
+                    <button class="k-btn primaryish" onclick="goWeb()">리포트 확인하기</button>
+                    <button class="k-btn" onclick="goApp()">AI 채팅 상담하기</button>
+                  </div>
+                </div>
+                <div class="k-time">오후 4:41</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="k-foot">
+          <div class="k-footbtn">⌂ 채널 홈 바로가기</div>
+          <div class="homebar" style="margin-top:12px"></div>
+        </div>
+      </div>
+
+      <!-- ===== STATIC IMAGE PAGE ===== -->
+      <div class="screen w-screen" id="scrWeb">
+        <div class="statusbar"><div></div><div class="r"><span class="pillbat">◗ 100</span></div></div>
+        <div class="w-chrome">
+          <div class="w-url"><span class="lock">🔒</span><span class="u">report.actimedi.com/r/8f2a…</span><span>⋮</span></div>
+        </div>
+        <div class="w-scope">
+          이 페이지는 <b>ACLP-4453(리포트 수신·열람) 범위</b>입니다. 접근 제어·링크 만료·로드 실패 처리는 4471 AC에 포함하지 않았습니다.
+        </div>
+        <div class="w-body">
+          <div class="rep">
+            <div class="rep-h">
+              <div class="t1">무릎 건강 종합 리포트</div>
+              <div class="t2">ACTIMEDI · 스포츠의학센터</div>
+            </div>
+            <div class="rep-meta">
+              <div>이름 <b>이영구</b></div><div>검사일 <b>2026-08-14</b></div><div>대상 <b>좌측 무릎</b></div>
+            </div>
+            <div class="rep-sec">
+              <h4>기능 검사</h4>
+              <div class="rep-row"><span class="lab">굴곡 가동범위</span><span class="rep-bar"><i style="width:82%"></i></span><span class="val">124°</span></div>
+              <div class="rep-row"><span class="lab">신전 가동범위</span><span class="rep-bar"><i style="width:91%"></i></span><span class="val">-2°</span></div>
+              <div class="rep-row"><span class="lab">단일 점프</span><span class="rep-bar"><i class="warn" style="width:58%"></i></span><span class="val">58%</span></div>
+            </div>
+            <div class="rep-sec">
+              <h4>근력 · 균형</h4>
+              <div class="rep-row"><span class="lab">신근력(좌/우)</span><span class="rep-bar"><i class="warn" style="width:64%"></i></span><span class="val" id="webVal">64%</span></div>
+              <div class="rep-row"><span class="lab">굴근력(좌/우)</span><span class="rep-bar"><i style="width:88%"></i></span><span class="val">88%</span></div>
+              <div class="rep-row"><span class="lab">정적 균형</span><span class="rep-bar"><i style="width:76%"></i></span><span class="val">76점</span></div>
+            </div>
+            <div class="rep-sec">
+              <h4>주관적 평가 · 무릎나이</h4>
+              <div class="rep-kv">
+                <div><span>IKDC</span><b>68.9점</b></div>
+                <div><span>통증(NRS)</span><b>3 / 10</b></div>
+                <div><span>Lysholm</span><b>74점</b></div>
+                <div><span>무릎나이</span><b>41세</b></div>
+              </div>
+            </div>
+            <div class="rep-foot">본 리포트는 당일 센터에서 진행된 검사 결과를 종합한 자료이며, 의료 진단·치료·처방이 아닙니다. (목업 · 더미 데이터)</div>
+          </div>
+        </div>
+        <div class="w-back">
+          <button class="w-backbtn" onclick="reset()">‹ 카톡으로 돌아가기</button>
+        </div>
+        <div class="homebar"></div>
+      </div>
+
+      <!-- ===== TOKTOK APP ===== -->
+      <div class="screen t-screen" id="scrApp">
+        <div class="statusbar"><div></div><div class="r"><span class="pillbat">◗ 100</span></div></div>
+        <div class="t-top"><div class="t-status"><span class="dot"></span> 상담 준비 완료</div></div>
+
+        <div class="t-body" id="tBody">
+          <div class="t-daydiv"><span>오늘</span></div>
+
+          <div class="t-bot" id="legacyMsg"><span class="h">[액티메디 병원] 오늘 진료 내용 안내</span>
+이영구님, 안녕하세요.
+오늘 액티2 원장님과 진행한 진료 내용을 정리해 보내드려요.</div>
+          <div class="t-feedback">
+            <span>이 답변이 도움이 되셨나요?</span>
+            <span class="icons">👍 👎 ⧉ 🔊</span><span class="t">오후 3:42</span>
+          </div>
+
+          <div id="reportSlot"></div>
+          <div id="convo"></div>
+        </div>
+
+        <div class="t-chips" id="chips"></div>
+
+        <div class="t-inputwrap">
+          <div class="t-input">
+            <input id="qInput" data-testid="상담-질문-입력"
+                   placeholder="무릎 건강에 대해 궁금한 점을 물어보세요…"
+                   oninput="hot()" onkeydown="if(event.key==='Enter')send()">
+            <button class="t-send" id="sendBtn" data-testid="상담-질문-전송-버튼" onclick="send()">↑</button>
+          </div>
+        </div>
+
+        <div class="t-notice">
+          <div class="anon">🛡 익명 처리 ·</div>
+          <div class="disc" data-testid="상담-답변-면책고지-텍스트">
+            톡톡의 답변은 의료 진단·치료·처방이 아닙니다. 증상이 지속되면 의료기관을 방문하세요. · <a href="#">참고문헌</a>
+          </div>
+        </div>
+
+        <div class="t-tabs">
+          <div class="t-tab on" data-testid="상담-화면-이동-탭"><span class="i">💬</span>상담</div>
+          <div class="t-tab"><span class="i">⚙</span>설정</div>
+          <div class="t-tab"><span class="i">👥</span>프로필</div>
+        </div>
+        <div class="homebar"></div>
+        <div class="toast" id="toast"></div>
+      </div>
+    </div>
+
+    <!-- ===== PANEL ===== -->
+    <div class="panel">
+      <div class="p-card">
+        <h2>진행 단계</h2>
+        <ul class="steps" id="stepList">
+          <li class="on" data-s="0" onclick="jump(0)"><span class="n">1</span><span><b>알림톡 도착</b>카톡은 현행과 동일. 버튼 두 개 모두 유지</span></li>
+          <li data-s="1" onclick="jump(1)"><span class="n">2</span><span><b>리포트 확인하기</b>외부 static 이미지 페이지 — <b style="color:#8b949e">이 티켓 범위 아님(4453)</b></span></li>
+          <li data-s="2" onclick="jump(2)"><span class="n">3</span><span><b>AI 채팅 상담하기</b>대화에 검사 결과가 이미 텍스트로 적혀 있다 (AC-1·12·18)</span></li>
+          <li data-s="3" onclick="jump(3)"><span class="n">4</span><span><b>근거 기반 질의</b>챗봇이 그 텍스트를 근거로 답한다 (AC-2·5·14·15)</span></li>
+        </ul>
+        <div class="ctrls">
+          <button class="ctrl" onclick="reset()">처음부터</button>
+          <button class="ctrl" onclick="simEmpty()">리포트 없음 (AC-11)</button>
+          <button class="ctrl" onclick="simFail()">확보 실패 (AC-4)</button>
+          <button class="ctrl" onclick="simUpdate()">리포트 갱신 (AC-16)</button>
+          <button class="ctrl" onclick="simExpire()">세션 만료 (AC-6)</button>
+        </div>
+      </div>
+
+      <div class="p-card">
+        <h2>이 화면이 검증하는 것</h2>
+        <div class="acmap" id="acmap"></div>
+      </div>
+
+      <div class="p-card">
+        <h2>plan A와 달라지는 지점</h2>
+        <div class="diff">
+          <div class="row"><span class="k">보는 곳</span><span class="v">앱 내 이미지 뷰어 → <b style="color:#dfe4ea">챗봇 대화의 텍스트</b> (이미지는 카톡→외부 페이지)</span></div>
+          <div class="row"><span class="k">진입 동작</span><span class="v">플로팅 버튼 → 뷰어 열기 → <b style="color:#dfe4ea">없음.</b> 들어오면 이미 적혀 있다</span></div>
+          <div class="row"><span class="k">AC-2</span><span class="v">plan A는 시나리오 없음 → 여기서는 답변에 실제 값이 인용된다</span></div>
+          <div class="row"><span class="k">AC-5</span><span class="v">[영향] → <b style="color:#dfe4ea">[신규]</b>. 수치를 알게 되므로 판정을 막는 것이 실제 규칙이 된다</span></div>
+          <div class="row"><span class="k">AC-7·10</span><span class="v"><b style="color:#ff7a85">폐기</b> — 채널 한정도, 열고 닫는 동작도 성립하지 않는다</span></div>
+          <div class="row"><span class="k">AC-14·15·16</span><span class="v">근거 범위 / 지어내지 않기 / 최신성 — plan B 전용</span></div>
+          <div class="row"><span class="k">AC-18</span><span class="v">기존 병원 안내 메시지가 그대로 유지되는지 (같은 대화 경로 공유)</span></div>
+          <div class="row"><span class="k">키</span><span class="v"><code>리포트-*</code> 전부 해당 없음 → <code>상담-리포트-*</code> 계열 신규</span></div>
+        </div>
+      </div>
+
+      <div class="p-card">
+        <h2>화면 요소 키 (논리 ID)</h2>
+        <table class="keys">
+          <thead><tr><th>요소</th><th>키</th><th>상태</th></tr></thead>
+          <tbody>
+            <tr><td>검사 결과 메시지</td><td><code>상담-리포트-결과-메시지</code></td><td><span class="st new">신규</span></td></tr>
+            <tr><td>검사일 표시</td><td><code>상담-리포트-검사일-텍스트</code></td><td><span class="st new">신규</span></td></tr>
+            <tr><td>불러오기 실패</td><td><code>상담-리포트-불러오기실패-텍스트</code></td><td><span class="st new">신규</span></td></tr>
+            <tr><td>맥락 밖 안내</td><td><code>상담-답변-맥락밖안내-텍스트</code></td><td><span class="st new">신규</span></td></tr>
+            <tr><td>질문 입력창</td><td><code>상담-질문-입력</code></td><td><span class="st chk">확인필요</span></td></tr>
+            <tr><td>전송 버튼</td><td><code>상담-질문-전송-버튼</code></td><td><span class="st chk">확인필요</span></td></tr>
+            <tr><td>면책 고지</td><td><code>상담-답변-면책고지-텍스트</code></td><td><span class="st chk">확인필요</span></td></tr>
+            <tr><td>상담 탭</td><td><code>상담-화면-이동-탭</code></td><td><span class="st chk">확인필요</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="p-card">
+        <h2>목업이 대신 정하지 않은 것</h2>
+        <div class="note">
+          <b>답변 아래 「근거」 점선 박스</b> — AC에 없는 요소입니다. Plan B 문서의 「AC 보강 검토 대상 · 답변 투명성」 항목이며 결정 전입니다.<br><br>
+          <b>결과 메시지가 쓰이는 시점</b> — 알림톡과 동시에 푸시되는지, 챗봇 진입 시 조회해 뿌리는지 미확정입니다. 여기서는 이미 도착해 있는 상태로 그렸습니다.<br><br>
+          <b>결과 텍스트의 항목 구성</b> — ACLP-4450 산출물이 나와야 확정됩니다. 외부 이미지 페이지와 <b>같은 항목</b>을 담는다는 것만 확인된 상태라, 목업에서도 두 화면의 항목을 일치시켜 두었습니다.<br><br>
+          <b>답변 문구</b> — 판정으로 읽히지 않는 선을 보여주기 위한 예시일 뿐 확정 문구가 아닙니다.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+var step=0, failMode=false, updated=false, hasReport=true, expired=false;
+
+var QA = [
+  { chip:'근력 수치가 어떻게 나왔나요', q:'근력 수치가 어떻게 나왔나요',
+    a:function(){
+      var v = updated ? '71%' : '64%';
+      return '이번 검사에서 무릎을 펴는 힘(신근력)의 좌우 비교는 '+v+'로 기록되어 있어요. '+
+             '굽히는 힘(굴근력)은 88%였습니다.\n\n'+
+             '두 값 모두 양쪽 다리를 비교한 비율이며, 재활 과정에서 균형을 확인할 때 자주 쓰는 지표예요.';
+    },
+    note:function(){ return '8월 14일 검사 결과 · 신근력(좌/우) ' + (updated?'71%':'64%'); },
+    needReport:true },
+  { chip:'이 수치 정상인가요', q:'제 근력 64%는 정상인가요',
+    a:function(){
+      return '이 수치가 정상인지 아닌지는 톡톡이 판단해 드릴 수 없어요.\n\n'+
+             '좌우 비교값은 회복 시기, 수술 여부, 원래의 좌우 차이에 따라 읽는 기준이 달라집니다. '+
+             '지금 상태가 어떤 단계인지는 검사를 진행한 센터 선생님이나 담당 의료진과 함께 확인해 주세요.';
+    },
+    note:function(){ return '8월 14일 검사 결과 · 값 확인용, 판정 없음'; },
+    needReport:true },
+  { chip:'수술해야 하나요', q:'이 수치면 수술해야 하나요',
+    a:function(){
+      return '치료 방향은 톡톡이 안내해 드릴 수 있는 범위를 벗어나요.\n\n'+
+             '검사 결과를 바탕으로 어떤 치료가 필요한지는 담당 의료진의 진료를 통해 결정됩니다. '+
+             '다음 진료 때 이 결과를 함께 보시면서 물어보시는 것을 권해요.';
+    },
+    note:null, needReport:true },
+  { chip:'제 MRI 결과는요', q:'제 MRI 결과는 어떤가요',
+    warn:'이번 검사 결과에는 MRI가 담겨 있지 않아요.',
+    a:function(){
+      return '이번 검사 결과에 담긴 항목은 기능 검사, 근력·균형, 주관적 평가와 무릎나이예요.\n\n'+
+             'MRI 결과는 여기에 포함되어 있지 않아 확인해 드릴 수 없습니다. '+
+             '영상 검사 결과는 진료 때 담당 선생님께 문의해 주세요.';
+    },
+    note:null, needReport:true },
+  { chip:'운동 수행률은요', q:'제 앱 운동 수행률은 어떻게 되나요',
+    warn:'이 결과는 센터 검사만 담고 있어요.',
+    a:function(){
+      return '이번 결과는 오늘 센터에서 진행한 검사만 담고 있어서, 앱에서 하신 운동 기록은 근거로 확인해 드리지 못해요.\n\n'+
+             '운동 수행 기록은 앱의 운동 화면에서 직접 확인하실 수 있습니다.';
+    },
+    note:null, needReport:true },
+  { chip:'무릎 스트레칭 알려주세요', q:'무릎에 좋은 스트레칭을 알려주세요',
+    a:function(){
+      return '무릎 주변 근육을 부드럽게 유지하는 데 흔히 권장되는 동작으로는 허벅지 앞쪽(대퇴사두근) 스트레칭, '+
+             '햄스트링 스트레칭, 종아리 스트레칭이 있어요.\n\n'+
+             '통증이 있는 상태에서는 무리하지 마시고, 재활 중이시라면 담당 선생님이 정해준 범위 안에서 진행해 주세요.';
+    },
+    note:null, needReport:false }
+];
+
+var AC_MAP = {
+  0:[['AC-1','결과 표시','알림톡은 현행과 동일하다 — 1-2의 출발점'],
+     ['범위 밖','4453','「리포트 확인하기」→ static 이미지 페이지는 이 티켓 범위가 아니다']],
+  1:[['범위 밖','4453','이미지 페이지의 접근 제어·만료·로드 실패는 4471 AC에 없다'],
+     ['개방','정합성','이 페이지 항목과 대화 텍스트 항목이 어긋나면 AC-15가 무너진다']],
+  2:[['AC-1','결과 표시','여는 동작 없이 대화에 이미 적혀 있다 — 1-1·1-2'],
+     ['AC-12','대상 특정','메시지에 검사일이 표시된다 — 12-1'],
+     ['AC-18','회귀','기존 진료 안내 메시지가 시각 순서대로 그대로 남는다 — 18-1'],
+     ['AC-11','미발송','리포트가 없으면 결과 메시지가 없다 — 11-1']],
+  3:[['AC-2','질의 맥락','답변에 그 환자의 검사 값이 인용된다 — 2-1'],
+     ['AC-5','판정 금지','정상 여부·치료 필요 여부를 판정하지 않는다 — 5-1·5-2'],
+     ['AC-14','근거 범위','앱 사용 이력은 근거로 쓰지 않는다 — 14-2'],
+     ['AC-15','맥락 밖','결과에 없는 값을 지어내지 않는다 — 15-1'],
+     ['AC-17','회귀','면책 고지가 기존과 동일하게 노출된다 — 17-1'],
+     ['개방','미정의','답변의 「근거」 표시는 AC에 없다']]
+};
+
+function reportHTML(isUpdate){
+  var v = isUpdate ? '71%' : '64%';
+  var badge = isUpdate ? '<span class="t-newbadge">갱신</span>' : '';
+  var time = isUpdate ? '오후 5:12' : '오후 4:41';
+  return ''+
+  '<div class="t-bot" data-testid="상담-리포트-결과-메시지"><span class="h">[액티메디 병원] 오늘 검사 결과 안내</span>'+badge+'\n'+
+  '이영구님, <span class="date" data-testid="상담-리포트-검사일-텍스트">8월 14일(금)</span> 스포츠의학센터에서 진행한 검사 결과예요.\n\n'+
+  '<span class="h">■ 기능 검사</span>\n'+
+  '· 굴곡 가동범위 124°\n'+
+  '· 신전 가동범위 -2°\n'+
+  '· 단일 점프 58%\n\n'+
+  '<span class="h">■ 근력 · 균형</span>\n'+
+  '· 신근력(좌/우) '+v+'\n'+
+  '· 굴근력(좌/우) 88%\n'+
+  '· 정적 균형 76점\n\n'+
+  '<span class="h">■ 주관적 평가 · 무릎나이</span>\n'+
+  '· IKDC 68.9점\n'+
+  '· 통증(NRS) 3 / 10\n'+
+  '· 무릎나이 41세\n\n'+
+  '궁금한 점이 있으면 아래에 편하게 물어보세요.</div>'+
+  '<div class="t-feedback"><span>이 답변이 도움이 되셨나요?</span>'+
+  '<span class="icons">👍 👎 ⧉ 🔊</span><span class="t">'+time+'</span></div>';
+}
+
+function failHTML(){
+  return '<div class="t-bot" data-testid="상담-리포트-불러오기실패-텍스트">'+
+    '검사 결과를 불러오지 못했어요. 잠시 후 다시 확인해 주세요.\n\n'+
+    '결과를 불러온 뒤에 내용을 근거로 안내해 드릴 수 있습니다.</div>'+
+    '<div class="t-feedback"><span>이 답변이 도움이 되셨나요?</span>'+
+    '<span class="icons">👍 👎 ⧉ 🔊</span><span class="t">오후 4:41</span></div>';
+}
+
+function paintReport(){
+  var slot=document.getElementById('reportSlot');
+  if(expired){ slot.innerHTML=''; return; }
+  if(!hasReport){ slot.innerHTML=''; return; }
+  if(failMode){ slot.innerHTML=failHTML(); return; }
+  slot.innerHTML = reportHTML(false) + (updated ? reportHTML(true) : '');
+}
+
+function renderMap(){
+  var rows=AC_MAP[step]||[];
+  document.getElementById('acmap').innerHTML = rows.map(function(r){
+    var cls = r[0]==='개방' ? 'tag open'
+            : r[0]==='범위 밖' ? 'tag out'
+            : (r[1]==='회귀' ? 'tag reg'
+            : (['AC-2','AC-14','AC-15','AC-16','AC-17','AC-18'].indexOf(r[0])>-1 ? 'tag b' : 'tag'));
+    return '<div class="row"><span class="'+cls+'">'+r[0]+'</span><span class="d"><b style="color:#dfe4ea">'+r[1]+'</b> · '+r[2]+'</span></div>';
+  }).join('');
+  var lis=document.querySelectorAll('#stepList li');
+  for(var i=0;i<lis.length;i++){ lis[i].className=(parseInt(lis[i].dataset.s,10)===step)?'on':''; }
+}
+
+function renderChips(){
+  document.getElementById('chips').innerHTML = QA.map(function(x,i){
+    return '<button class="t-chip" onclick="ask('+i+')">'+x.chip+'</button>';
+  }).join('');
+}
+
+function show(id){
+  document.getElementById('scrKakao').classList.toggle('on', id==='k');
+  document.getElementById('scrWeb').classList.toggle('on', id==='w');
+  document.getElementById('scrApp').classList.toggle('on', id==='a');
+}
+
+function goWeb(){ show('w'); step=1; renderMap(); }
+function goApp(){
+  show('a'); paintReport(); step=2; renderMap(); scroll();
+  if(expired){ toast('AC-6 · 로그인이 만료되어 검사 결과가 표시되지 않습니다. (시나리오 6-1)'); }
+  else if(failMode){ toast('AC-4 · 결과를 불러오지 못했습니다. 빈 결과 메시지는 표시되지 않습니다. (4-1)'); }
+  else if(!hasReport){ toast('AC-11 · 발송된 리포트가 없어 검사 결과 메시지가 없습니다. (11-1)'); }
+}
+
+function hot(){
+  var v=document.getElementById('qInput').value.trim();
+  document.getElementById('sendBtn').classList.toggle('hot', v.length>0);
+}
+
+function ask(i){ render(QA[i]); }
+
+function send(){
+  var el=document.getElementById('qInput'); var q=el.value.trim();
+  el.value=''; hot();
+  if(!q){ render(QA[0]); return; }
+  render({ q:q, needReport:false,
+    a:function(){ return '질문 내용에 따라 톡톡 현행 답변 정책에 맞는 답변이 제공됩니다.\n\n(목업이므로 자유 입력에는 고정 안내만 표시합니다. 위 질문 칩으로 AC별 동작을 확인해 주세요.)'; },
+    note:null });
+}
+
+function render(x){
+  var convo=document.getElementById('convo');
+  var u=document.createElement('div');
+  u.className='t-user'; u.innerHTML='<span></span>';
+  u.firstChild.textContent=x.q;
+  convo.appendChild(u); scroll();
+
+  var typing=document.createElement('div');
+  typing.className='t-typing'; typing.innerHTML='<i></i><i></i><i></i>';
+  convo.appendChild(typing); scroll();
+
+  setTimeout(function(){
+    typing.remove();
+    var blocked = x.needReport && (failMode || !hasReport || expired);
+
+    var b=document.createElement('div');
+    b.className='t-bot';
+    if(blocked){
+      if(expired){
+        b.textContent='로그인이 만료되어 검사 결과를 확인할 수 없어요. 다시 로그인한 뒤 물어봐 주세요.';
+        toast('AC-6 시나리오 6-2 · 만료 상태에서는 검사 값이 답변에 포함되지 않습니다.');
+      } else if(failMode){
+        b.textContent='지금은 검사 결과를 확인할 수 없어요. 잠시 후 다시 시도해 주세요.\n\n결과를 불러온 뒤에 내용을 근거로 안내해 드릴 수 있습니다.';
+        toast('AC-4 시나리오 4-2 · 근거를 확보하지 못한 상태에서 값을 지어내지 않습니다.');
+      } else {
+        b.textContent='아직 받으신 검사 결과가 없어서 수치를 확인해 드리지 못해요.\n\n검사 결과가 도착하면 이 대화창에 안내해 드릴게요.';
+        toast('AC-2 시나리오 2-2 · 검사 결과가 없으면 수치를 인용한 답변이 나오지 않습니다.');
+      }
+      convo.appendChild(b); addFeedback(convo);
+      step=3; renderMap(); scroll(); return;
+    }
+
+    b.textContent=x.a();
+    convo.appendChild(b);
+
+    if(x.warn){
+      var w=document.createElement('div');
+      w.className='t-warnbox';
+      w.setAttribute('data-testid','상담-답변-맥락밖안내-텍스트');
+      w.textContent=x.warn;
+      b.after(w);
+    }
+    var note=x.note?x.note():null;
+    if(note){
+      var g=document.createElement('div');
+      g.className='t-ground';
+      g.innerHTML='<span>📎</span><span><b>근거</b> · '+note+'</span>';
+      convo.appendChild(g);
+    }
+    addFeedback(convo);
+    step=3; renderMap(); scroll();
+  },1000);
+}
+
+function addFeedback(convo){
+  var fb=document.createElement('div');
+  fb.className='t-feedback';
+  fb.innerHTML='<span>이 답변이 도움이 되셨나요?</span><span class="icons">👍 👎 ⧉ 🔊</span><span class="t">오후 4:44</span>';
+  convo.appendChild(fb);
+}
+
+function scroll(){
+  var b=document.getElementById('tBody');
+  setTimeout(function(){ b.scrollTop=b.scrollHeight; },40);
+}
+
+function toast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('on');
+  clearTimeout(t._x); t._x=setTimeout(function(){ t.classList.remove('on'); },3800);
+}
+
+function simEmpty(){ hasReport=false; failMode=false; expired=false; updated=false; goApp(); }
+function simFail(){ hasReport=true; failMode=true; expired=false; updated=false; goApp(); }
+function simExpire(){ hasReport=true; failMode=false; expired=true; updated=false; goApp(); }
+function simUpdate(){
+  hasReport=true; failMode=false; expired=false; updated=true;
+  var wv=document.getElementById('webVal'); if(wv){ wv.textContent='71%'; }
+  goApp(); step=3; renderMap();
+  toast('AC-16 · 갱신된 결과가 새 메시지로 추가되었습니다(신근력 64% → 71%). 다시 물어보면 최신 값이 근거가 됩니다. (16-1·16-2)');
+}
+
+function reset(){
+  hasReport=true; failMode=false; expired=false; updated=false;
+  var wv=document.getElementById('webVal'); if(wv){ wv.textContent='64%'; }
+  document.getElementById('convo').innerHTML='';
+  document.getElementById('reportSlot').innerHTML='';
+  document.getElementById('qInput').value=''; hot();
+  show('k'); step=0; renderMap();
+}
+
+function jump(s){
+  if(s===0){ reset(); return; }
+  if(s===1){ goWeb(); return; }
+  if(s===2){ goApp(); return; }
+  if(s===3){ goApp(); ask(0); return; }
+}
+
+renderChips(); renderMap();
+</script>
+</body>
+</html>
