@@ -97,6 +97,7 @@
   .chip.count { background:var(--mono-100); color:var(--mono-700); font-size:13px; font-weight:700; }
   .chip.visit { background:var(--primary-50); color:var(--primary-600); }
   .chip.disease { background:#F3EEFF; color:#5B3FBF; }
+  .chip.disease.unknown { background:var(--mono-100); color:var(--mono-500); font-style:italic; }
   .chip.status-drafting { background:var(--primary-50); color:var(--primary-600); }
   .chip.status-completed { background:var(--green-50); color:var(--green-700); }
   .panel-date { font-size:13px; color:var(--mono-500); }
@@ -221,6 +222,7 @@
   <label><input type="checkbox" id="toggleDiff" checked /> 변경 지점(NEW) 표시</label>
   <label><input type="checkbox" id="toggleKeys" /> 논리 ID(키) 표시</label>
   <label><input type="checkbox" id="toggleBefore" /> 변경 전 다이얼로그로 보기</label>
+  <label><input type="checkbox" id="toggleLegacy" /> 기존 진료(UNKNOWN) 보기</label>
   <span class="hint">※ 실제 화면이 아닌 검토용 목업입니다.</span>
 </div>
 
@@ -420,7 +422,11 @@
       </tr>
       <tr>
         <th>진료기록 헤더</th>
-        <td>진료 유형 칩 옆에 <b>질환 칩</b> 신규 추가. 기존 진료는 백필로 '전방십자인대(ACL) 파열' 표시</td>
+        <td>진료 유형 칩 옆에 <b>질환 칩</b> 신규 추가</td>
+      </tr>
+      <tr>
+        <th>기존 진료 백필</th>
+        <td>질환 값이 없던 기존 진료는 모두 <b>'UNKNOWN'</b>으로 채워짐(회색 칩). UNKNOWN은 <b>기존 데이터 전용</b> 값이라 새 진료의 질환 선택 목록에는 나오지 않는다 — 상단 '기존 진료(UNKNOWN) 보기' 토글로 확인</td>
       </tr>
       <tr>
         <th>신규 키</th>
@@ -581,6 +587,8 @@
   $('confirmBtn').onclick = function () {
     var isFollowUp = visitTypeSelected === 'FOLLOW_UP';
     // 진료 유형 분기(AC-4): 초진 → 문진 답안(H&P), 재진 → SOAP. 질환과 무관하게 형식이 갈린다.
+    $('toggleLegacy').checked = false;
+    $('chipDiseaseHp').classList.remove('unknown');
     $('chipDiseaseHp').textContent = diseaseSelected;
     $('chipDiseaseSoap').textContent = diseaseSelected;
     $('panelEmptyWrap').style.display = 'none';
@@ -588,6 +596,25 @@
     $('panelSoap').style.display = isFollowUp ? 'flex' : 'none';
     $('ctaCard').style.display = 'flex';
     closeAll();
+  };
+
+  // --- 기존 진료(UNKNOWN) 보기 — AC-3 백필 결과 확인용 ---
+  $('toggleLegacy').onchange = function () {
+    if (!this.checked) {
+      $('panelEmptyWrap').style.display = 'flex';
+      $('panelHp').style.display = 'none';
+      $('panelSoap').style.display = 'none';
+      $('ctaCard').style.display = 'none';
+      return;
+    }
+    // 질환 축 배포 전에 만들어진 진료 — 백필로 UNKNOWN이 채워진 상태.
+    var chip = $('chipDiseaseHp');
+    chip.textContent = 'UNKNOWN';
+    chip.classList.add('unknown');
+    $('panelEmptyWrap').style.display = 'none';
+    $('panelHp').style.display = 'flex';
+    $('panelSoap').style.display = 'none';
+    $('ctaCard').style.display = 'flex';
   };
 
   // --- 목업 토글 ---
