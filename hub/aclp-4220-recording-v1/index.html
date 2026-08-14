@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ACLP-4220 무릎 수술군 확장 — 진료 녹음 화면 목업</title>
+<style>
+  :root {
+    --primary-900:#020F27; --primary-700:#0D3F9C; --primary-600:#0651DB; --primary-500:#1467FF;
+    --primary-400:#4B93FF; --primary-100:#CCE5FF; --primary-50:#EBF5FF;
+    --mono-900:#000000; --mono-800:#24262E; --mono-700:#393C47; --mono-600:#565A67;
+    --mono-500:#6F7685; --mono-400:#9398A5; --mono-300:#B4B7C0; --mono-200:#D2D4DA;
+    --mono-100:#E8E9ED; --mono-50:#F6F7F8;
+    --green-50:#E9F7EF; --green-700:#1B7A45;
+    --yellow-50:#FEF7E6; --yellow-700:#8A6100;
+    --red-50:#FDECEC; --red-600:#D93636;
+  }
+  * { box-sizing: border-box; margin:0; padding:0; }
+  body {
+    font-family: Pretendard, -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+    background: var(--mono-50); color: var(--mono-800); font-size:14px; line-height:1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ---------- 목업 컨트롤 바 (실제 화면 아님) ---------- */
+  .mock-bar {
+    position: sticky; top:0; z-index:100;
+    display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+    padding:10px 20px; background:var(--primary-900); color:#fff; font-size:13px;
+  }
+  .mock-bar .tag { background:rgba(255,255,255,.15); padding:2px 8px; border-radius:4px; font-weight:600; letter-spacing:.02em; }
+  .mock-bar .spacer { flex:1; }
+  .mock-bar label { display:flex; align-items:center; gap:6px; cursor:pointer; user-select:none; }
+  .mock-bar .hint { color:rgba(255,255,255,.6); }
+
+  /* ---------- 앱 프레임 ---------- */
+  .app { max-width:1440px; margin:20px auto; padding:0 20px 40px; }
+  .page-header {
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    padding:16px 0 14px;
+  }
+  .page-title { font-size:20px; font-weight:700; color:var(--mono-900); }
+  .header-right { display:flex; align-items:center; gap:8px; }
+  .chip-warn { background:var(--yellow-50); color:var(--yellow-700); border-radius:4px; padding:4px 10px; font-size:13px; }
+  .badge-fail { display:flex; align-items:center; gap:6px; background:var(--red-50); color:var(--red-600); border-radius:6px; padding:6px 12px; font-size:14px; border:0; cursor:pointer; }
+
+  .page-body { display:flex; gap:20px; align-items:stretch; min-height:660px; }
+  aside.left { width:280px; flex:0 0 280px; display:flex; flex-direction:column; gap:16px; }
+  main.right { flex:1; min-width:0; display:flex; flex-direction:column; gap:16px; }
+
+  .card { border:1px solid var(--mono-200); border-radius:12px; background:#fff; padding:16px; }
+  .card.tight { padding:0; overflow:hidden; }
+
+  .label { font-size:13px; color:var(--mono-600); margin-bottom:6px; display:block; }
+  .field {
+    width:100%; height:40px; border:1px solid var(--mono-200); border-radius:8px;
+    padding:0 12px; font-size:14px; color:var(--mono-800); background:#fff;
+  }
+
+  .btn {
+    display:inline-flex; align-items:center; justify-content:center; gap:6px;
+    border-radius:8px; font-size:14px; font-weight:500; cursor:pointer; border:1px solid transparent;
+    padding:0 14px; height:40px; white-space:nowrap;
+  }
+  .btn.filled { background:var(--primary-500); color:#fff; }
+  .btn.filled:hover { background:var(--primary-600); }
+  .btn.outlined { background:#fff; color:var(--mono-700); border-color:var(--mono-200); }
+  .btn.outlined:hover { border-color:var(--mono-300); background:var(--mono-50); }
+  .btn.sm { height:32px; font-size:13px; padding:0 10px; }
+  .btn.xl { height:52px; font-size:15px; }
+  .btn.full { width:100%; }
+  .btn:disabled { opacity:.4; cursor:not-allowed; }
+
+  .patient-title-row { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:12px; }
+  .patient-title { font-size:14px; font-weight:600; color:var(--mono-800); }
+  .patient-name { font-size:16px; font-weight:700; color:var(--mono-900); }
+  .patient-sub { font-size:13px; color:var(--mono-500); margin-top:2px; }
+  .visit-row { display:flex; align-items:stretch; gap:8px; margin:12px 0; }
+  .visit-count { display:flex; align-items:center; gap:4px; white-space:nowrap; padding:0 4px; color:var(--mono-600); font-size:14px; }
+  .visit-count b { font-size:20px; font-weight:700; color:var(--primary-600); }
+  .stack { display:flex; flex-direction:column; gap:8px; }
+
+  .rec-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+  .rec-title { font-size:14px; font-weight:600; color:var(--mono-800); }
+  .stt-box { border:1px solid var(--mono-100); background:var(--mono-50); border-radius:8px; padding:10px; min-height:76px; font-size:13px; color:var(--mono-400); }
+
+  /* 우측 패널 */
+  .panel { border:1px solid var(--mono-200); border-radius:12px; background:#fff; display:flex; flex-direction:column; flex:1; min-height:0; overflow:hidden; }
+  .panel-head {
+    display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;
+    border-bottom:1px solid var(--mono-200); padding:12px 16px;
+  }
+  .panel-head-left { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .panel-head-right { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .panel-title { font-size:16px; font-weight:700; color:var(--mono-900); }
+  .chip { border-radius:6px; padding:3px 8px; font-size:12px; font-weight:600; }
+  .chip.count { background:var(--mono-100); color:var(--mono-700); font-size:13px; font-weight:700; }
+  .chip.visit { background:var(--primary-50); color:var(--primary-600); }
+  .chip.disease { background:#F3EEFF; color:#5B3FBF; }
+  .chip.status-drafting { background:var(--primary-50); color:var(--primary-600); }
+  .chip.status-completed { background:var(--green-50); color:var(--green-700); }
+  .panel-date { font-size:13px; color:var(--mono-500); }
+  .panel-body { flex:1; min-height:0; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:10px; }
+  .panel-empty { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; padding:40px 16px; color:var(--mono-400); font-size:14px; }
+  .panel-empty .glyph { font-size:34px; color:var(--mono-300); }
+
+  .q-card { border:1px solid var(--mono-200); border-radius:10px; padding:12px 14px; }
+  .q-num { font-size:12px; font-weight:700; color:var(--primary-600); }
+  .q-text { font-size:14px; color:var(--mono-800); margin-top:2px; }
+  .q-ans { margin-top:8px; font-size:14px; color:var(--mono-600); background:var(--mono-50); border-radius:6px; padding:8px 10px; }
+  .q-ai { display:inline-block; margin-top:6px; font-size:12px; color:var(--primary-600); background:var(--primary-50); border-radius:4px; padding:2px 6px; }
+
+  /* SOAP */
+  .soap-section { display:flex; flex-direction:column; gap:4px; }
+  .soap-head { display:flex; align-items:center; gap:8px; }
+  .soap-letter { width:28px; height:28px; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; font-size:16px; font-weight:700; }
+  .soap-letter.s { background:var(--primary-50); color:var(--primary-600); }
+  .soap-letter.o { background:var(--green-50); color:var(--green-700); }
+  .soap-letter.a { background:#F3EEFF; color:#6D3FD1; }
+  .soap-letter.p { background:#FDECF3; color:#C2246B; }
+  .soap-label { font-size:14px; font-weight:700; color:var(--mono-800); }
+  .soap-text { background:var(--mono-50); border-radius:8px; padding:10px 12px; font-size:14px; color:var(--mono-800); white-space:pre-wrap; }
+  .soap-evi { font-size:12px; color:var(--mono-500); padding-left:2px; }
+  .soap-comment { border-top:1px solid var(--mono-200); padding:16px; display:flex; flex-direction:column; gap:6px; flex-shrink:0; }
+  .soap-comment-head { display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+  .soap-comment-title { font-size:13px; font-weight:600; color:var(--mono-700); }
+  .soap-comment-notice { font-size:12px; color:var(--mono-400); }
+  .soap-comment textarea { width:100%; height:110px; resize:none; border:1px solid var(--mono-200); border-radius:8px; padding:10px 12px; font-size:14px; font-family:inherit; color:var(--mono-800); }
+  .soap-comment textarea::placeholder { color:var(--mono-300); }
+
+  .cta-card { border:1px solid var(--mono-200); border-radius:12px; background:#fff; padding:16px; display:flex; flex-direction:column; gap:8px; }
+  .cta-row { display:flex; gap:8px; }
+  .cta-row .btn { flex:1; }
+  .cta-reason { text-align:center; color:var(--mono-400); font-size:13px; }
+
+  /* ---------- 다이얼로그 ---------- */
+  .backdrop {
+    position:fixed; inset:0; background:rgba(0,0,0,.45); display:none;
+    align-items:center; justify-content:center; z-index:80; padding:20px;
+  }
+  .backdrop.open { display:flex; }
+  .dialog { width:480px; max-width:100%; background:#fff; border-radius:16px; padding:24px; box-shadow:0 20px 60px rgba(0,0,0,.25); }
+  .dialog.narrow { width:400px; }
+  .dialog-title { font-size:18px; font-weight:700; color:var(--mono-900); }
+  .dialog-sub { font-size:14px; color:var(--mono-600); margin-top:10px; }
+  .dialog-actions { display:flex; gap:8px; margin-top:24px; }
+  .dialog-actions .btn { flex:1; height:48px; }
+
+  .section-label { display:flex; align-items:center; gap:6px; font-size:13px; font-weight:600; color:var(--mono-700); margin-bottom:8px; }
+  .section-label .req { color:var(--red-600); }
+  .order-pill { font-size:11px; font-weight:700; color:#fff; background:var(--primary-500); border-radius:999px; width:18px; height:18px; display:inline-flex; align-items:center; justify-content:center; }
+
+  /* 질환 셀렉트 */
+  .select-wrap { position:relative; }
+  .select-trigger {
+    width:100%; height:48px; border:1px solid var(--mono-200); border-radius:10px; background:#fff;
+    display:flex; align-items:center; justify-content:space-between; gap:8px;
+    padding:0 14px; font-size:15px; color:var(--mono-400); cursor:pointer; text-align:left;
+  }
+  .select-trigger.has-value { color:var(--mono-900); font-weight:600; border-color:var(--primary-400); }
+  .select-trigger .caret { color:var(--mono-400); font-size:12px; }
+  .select-list {
+    display:none; position:absolute; left:0; right:0; top:52px; z-index:5;
+    background:#fff; border:1px solid var(--mono-200); border-radius:10px; box-shadow:0 12px 32px rgba(0,0,0,.14);
+    max-height:280px; overflow-y:auto; padding:6px;
+  }
+  .select-list.open { display:block; }
+  .select-option {
+    width:100%; text-align:left; border:0; background:transparent; border-radius:8px;
+    padding:10px 12px; font-size:14px; color:var(--mono-800); cursor:pointer; display:flex; align-items:center; justify-content:space-between; gap:8px;
+  }
+  .select-option:hover { background:var(--mono-50); }
+  .select-option.selected { background:var(--primary-50); color:var(--primary-600); font-weight:700; }
+  .select-option .check { color:var(--primary-500); font-weight:700; }
+
+  /* 진료 유형 버튼 */
+  .visit-type-row { display:flex; gap:12px; }
+  .visit-type-btn {
+    flex:1; height:64px; border:1px solid var(--mono-200); border-radius:10px; background:#fff;
+    font-size:16px; color:var(--mono-700); cursor:pointer;
+  }
+  .visit-type-btn.selected { border-color:var(--primary-500); background:var(--primary-50); color:var(--primary-600); font-weight:600; }
+  .default-note { font-size:12px; color:var(--mono-400); margin-top:8px; }
+
+  .divider { height:1px; background:var(--mono-100); margin:20px 0; }
+
+  /* ---------- 키 오버레이 ---------- */
+  [data-key] { position:relative; }
+  body.show-keys [data-key]::after {
+    content: attr(data-key);
+    position:absolute; left:0; top:-9px; z-index:60;
+    background:#111827; color:#8BE9A0; font-size:9px; line-height:1.4;
+    padding:1px 4px; border-radius:3px; white-space:nowrap; pointer-events:none;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing:-.01em;
+  }
+  body.show-keys [data-key] { outline:1px dashed rgba(20,103,255,.5); outline-offset:1px; }
+
+  /* ---------- NEW 마커 ---------- */
+  body.show-diff [data-new]::before {
+    content:'NEW'; position:absolute; right:-6px; top:-8px; z-index:55;
+    background:#E11D48; color:#fff; font-size:9px; font-weight:800; letter-spacing:.04em;
+    padding:1px 5px; border-radius:999px;
+  }
+  body.show-diff [data-new] { position:relative; box-shadow:0 0 0 2px rgba(225,29,72,.35); border-radius:8px; }
+
+  .legend { margin-top:24px; border:1px solid var(--mono-200); border-radius:12px; background:#fff; padding:16px 20px; }
+  .legend h3 { font-size:14px; font-weight:700; margin-bottom:10px; color:var(--mono-900); }
+  .legend table { width:100%; border-collapse:collapse; font-size:13px; }
+  .legend th, .legend td { text-align:left; padding:6px 10px; border-bottom:1px solid var(--mono-100); vertical-align:top; }
+  .legend th { color:var(--mono-500); font-weight:600; width:150px; }
+  .legend code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size:12px; background:var(--mono-50); padding:1px 5px; border-radius:4px; }
+  .legend .del { text-decoration:line-through; color:var(--mono-400); }
+</style>
+</head>
+<body>
+
+<div class="mock-bar">
+  <span class="tag">ACLP-4220</span>
+  <span>진료 녹음 — 무릎 수술군 확장 목업</span>
+  <span class="spacer"></span>
+  <label><input type="checkbox" id="toggleDiff" checked /> 변경 지점(NEW) 표시</label>
+  <label><input type="checkbox" id="toggleKeys" /> 논리 ID(키) 표시</label>
+  <label><input type="checkbox" id="toggleBefore" /> 변경 전 다이얼로그로 보기</label>
+  <span class="hint">※ 실제 화면이 아닌 검토용 목업입니다.</span>
+</div>
+
+<div class="app">
+
+  <!-- 헤더 -->
+  <div class="page-header">
+    <div class="page-title">진료 녹음</div>
+    <div class="header-right">
+      <span class="chip-warn">이 기능은 크롬에 최적화되어 있습니다.</span>
+    </div>
+  </div>
+
+  <div class="page-body">
+
+    <!-- ================= 좌측 ================= -->
+    <aside class="left">
+
+      <!-- 진료실 선택 -->
+      <div class="card">
+        <span class="label">진료실 선택</span>
+        <select class="field" data-key="녹음-진료실-선택-셀렉트">
+          <option>본관 3진료실</option>
+          <option>본관 4진료실</option>
+        </select>
+      </div>
+
+      <!-- 환자 / 진료 카드 -->
+      <div class="card">
+        <div class="patient-title-row">
+          <span class="patient-title">환자 선택</span>
+          <button class="btn outlined sm" data-key="녹음-환자-검색-버튼">🔍 검색</button>
+        </div>
+
+        <div>
+          <div class="patient-name">김민준</div>
+          <div class="patient-sub">남 · 차트 00124857</div>
+        </div>
+
+        <div class="visit-row">
+          <div class="visit-count">진료 <b>3</b>회</div>
+          <button class="btn outlined" style="flex:1" data-key="녹음-진료선택-달력-버튼">🗓 진료 선택</button>
+        </div>
+
+        <div class="stack">
+          <button class="btn outlined full" data-key="녹음-진료선택-이어하기-버튼" disabled>▶ 진료 이어하기</button>
+          <button class="btn filled full" id="newVisitBtn" data-key="녹음-진료선택-새진료시작-버튼">＋ 새 진료 시작</button>
+        </div>
+      </div>
+
+      <!-- 녹음 / 실시간 STT -->
+      <div class="card">
+        <button class="btn filled full" style="margin-bottom:12px" data-key="녹음-제어-시작-버튼">🎙 녹음 시작</button>
+        <div class="rec-head">
+          <span class="rec-title">실시간 STT</span>
+          <span style="font-size:13px;color:var(--mono-400)">00:00</span>
+        </div>
+        <div class="stt-box">녹음을 시작하면 STT 결과가 여기에 표시됩니다.</div>
+      </div>
+
+    </aside>
+
+    <!-- ================= 우측 ================= -->
+    <main class="right">
+
+      <!-- 진료 미선택 상태 -->
+      <div class="panel" id="panelEmptyWrap">
+        <div class="panel-empty">
+          <div class="glyph">🗒</div>
+          <div>새 진료 시작 버튼을 눌러서 진료를 시작해 주세요.</div>
+        </div>
+      </div>
+
+      <!-- 초진 → 문진 답안(H&P) 패널 -->
+      <div class="panel" id="panelHp" data-key="녹음-진료기록-문진답안-패널" style="display:none">
+        <div class="panel-head">
+          <div class="panel-head-left">
+            <span class="panel-title">문진 답안</span>
+            <span class="chip count" data-key="녹음-진료기록-문진카운트-칩">3/17</span>
+          </div>
+          <div class="panel-head-right">
+            <span class="chip visit" data-key="녹음-진료기록-진료유형-칩">초진</span>
+            <span class="chip disease" id="chipDiseaseHp" data-new data-key="녹음-진료기록-질환-칩">전방십자인대(ACL) 파열</span>
+            <span class="chip status-drafting" data-key="녹음-진료기록-문서상태-칩">작성중</span>
+            <span class="panel-date">2026.08.14 09:24</span>
+          </div>
+        </div>
+
+        <div class="panel-body">
+          <div class="q-card">
+            <div class="q-num">Q.1</div>
+            <div class="q-text">주 증상이 발생한 시점은 언제인가요?</div>
+            <div class="q-ans">3주 전 축구 경기 중 방향 전환하다가 무릎이 꺾임</div>
+            <span class="q-ai">AI 제안 · 92%</span>
+          </div>
+          <div class="q-card">
+            <div class="q-num">Q.2</div>
+            <div class="q-text">수상 직후 부종이 있었나요?</div>
+            <div class="q-ans">당일 저녁부터 급격한 부종</div>
+            <span class="q-ai">AI 제안 · 87%</span>
+          </div>
+          <div class="q-card">
+            <div class="q-num">Q.3</div>
+            <div class="q-text">현재 보행 시 불안정감(giving way)이 있나요?</div>
+            <div class="q-ans">계단 내려갈 때 무릎이 빠지는 느낌</div>
+            <span class="q-ai">AI 제안 · 78%</span>
+          </div>
+          <div class="q-card">
+            <div class="q-num">Q.4</div>
+            <div class="q-text">이전 무릎 수술력이 있나요?</div>
+            <div class="q-ans" style="color:var(--mono-400)">내용을 입력하세요.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 재진 → SOAP 패널 -->
+      <div class="panel" id="panelSoap" data-key="녹음-진료기록-문진답안-패널" style="display:none">
+        <div class="panel-head">
+          <div class="panel-head-left">
+            <span class="panel-title">SOAP 기록</span>
+          </div>
+          <div class="panel-head-right">
+            <span class="chip visit" data-key="녹음-진료기록-진료유형-칩">재진</span>
+            <span class="chip disease" id="chipDiseaseSoap" data-new data-key="녹음-진료기록-질환-칩">무릎 퇴행성 관절염</span>
+            <span class="chip status-drafting" data-key="녹음-진료기록-문서상태-칩">작성중</span>
+            <span class="panel-date">2026.08.14 09:24</span>
+          </div>
+        </div>
+
+        <div class="panel-body" style="gap:16px">
+          <div class="soap-section" data-key="녹음-진료기록-SOAP_S-SOAP섹션">
+            <div class="soap-head"><span class="soap-letter s">S</span><span class="soap-label">ubjective</span></div>
+            <p class="soap-text">지난 방문 이후 계단 내려갈 때 통증이 줄었다고 함. 아침 강직은 10분 내외로 지속. 야간통은 없음.</p>
+            <div class="soap-evi">“계단 내려올 때는 좀 나아졌어요” · 관련도 88%</div>
+          </div>
+
+          <div class="soap-section" data-key="녹음-진료기록-SOAP_O-SOAP섹션">
+            <div class="soap-head"><span class="soap-letter o">O</span><span class="soap-label">bjective</span></div>
+            <p class="soap-text">ROM 0–125°(이전 0–115°). 내측 관절선 압통 경도 잔존. McMurray 음성. 관절 삼출 없음.</p>
+            <div class="soap-evi">“굽히는 각도는 지난번보다 좋아졌네요” · 관련도 81%</div>
+          </div>
+
+          <div class="soap-section" data-key="녹음-진료기록-SOAP_A-SOAP섹션">
+            <div class="soap-head"><span class="soap-letter a">A</span><span class="soap-label">ssessment</span></div>
+            <p class="soap-text">무릎 퇴행성 관절염 (K-L grade 2, 내측 우세). 보존 치료에 부분 반응.</p>
+          </div>
+
+          <div class="soap-section" data-key="녹음-진료기록-SOAP_P-SOAP섹션">
+            <div class="soap-head"><span class="soap-letter p">P</span><span class="soap-label">lan</span></div>
+            <p class="soap-text">대퇴사두근 강화 운동 유지, NSAIDs 2주 연장. 6주 후 재평가. 증상 악화 시 관절강 주사 고려.</p>
+          </div>
+        </div>
+
+        <div class="soap-comment">
+          <div class="soap-comment-head">
+            <span class="soap-comment-title">통합 코멘트</span>
+            <span class="soap-comment-notice" data-key="녹음-SOAP-코멘트안내-텍스트">코멘트는 저장되지 않으며 검토 완료 시 SOAP에 반영됩니다.</span>
+          </div>
+          <textarea data-key="녹음-SOAP-코멘트-입력" placeholder="통합 코멘트 입력 — 검토 완료 시 SOAP 생성에 반영됩니다."></textarea>
+        </div>
+      </div>
+
+      <div class="cta-card" id="ctaCard" style="display:none">
+        <div class="cta-row">
+          <button class="btn filled xl" data-key="녹음-환자발송-열기-버튼" disabled>📨 진료 내용 발송</button>
+          <button class="btn outlined xl" data-key="녹음-진료기록-검토-버튼">📋 진료기록 검토</button>
+        </div>
+        <div class="cta-reason">진료기록 검토를 완료해야 발송할 수 있습니다.</div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ================= 범례 ================= -->
+  <div class="legend">
+    <h3>ACLP-4220 변경 지점</h3>
+    <table>
+      <tr>
+        <th>다이얼로그 명칭</th>
+        <td><span class="del">방문 유형 선택</span> → <b>진료 유형 선택</b> · i18n <code>recording:visit-type-dialog.title</code></td>
+      </tr>
+      <tr>
+        <th>선택 배치 순서</th>
+        <td>질환 선택 영역이 진료 유형 버튼 그룹보다 <b>위</b>에 배치. 강제 단계는 아니며 순서 무관하게 선택 가능</td>
+      </tr>
+      <tr>
+        <th>질환(신규)</th>
+        <td>무릎 11개 노드 중 <b>단일 선택 필수</b>. 초기값 없음 → 항상 사용자가 직접 선택해야 확인 활성</td>
+      </tr>
+      <tr>
+        <th>진료 유형(기존)</th>
+        <td>진료 기록 <b>0건 → 초진</b>, <b>1건 이상 → 재진</b>으로 기본 선택. 미선택 상태는 존재하지 않음</td>
+      </tr>
+      <tr>
+        <th>진료 유형 분기</th>
+        <td>질환과 무관하게 <b>초진 → 문진 답안(H&amp;P)</b>, <b>재진 → SOAP(S/O/A/P + 통합 코멘트)</b>. 다이얼로그에서 재진을 고르면 우측 패널이 SOAP로 전환됩니다</td>
+      </tr>
+      <tr>
+        <th>진료기록 헤더</th>
+        <td>진료 유형 칩 옆에 <b>질환 칩</b> 신규 추가. 기존 진료는 백필로 '전방십자인대(ACL) 파열' 표시</td>
+      </tr>
+      <tr>
+        <th>신규 키</th>
+        <td>
+          <code>녹음-진료유형선택-제목-텍스트</code>
+          <code>녹음-진료유형선택-질환-선택</code>
+          <code>녹음-진료유형선택-질환-{질환}-옵션</code>
+          <code>녹음-진료유형선택-진료유형-그룹</code>
+          <code>녹음-진료기록-질환-칩</code>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+</div>
+
+<!-- ================= 진료 유형 선택 다이얼로그 (변경 후) ================= -->
+<div class="backdrop" id="dialogAfter">
+  <div class="dialog" data-key="녹음-진료유형선택-다이얼로그">
+    <div class="dialog-title" data-new data-key="녹음-진료유형선택-제목-텍스트">진료 유형 선택</div>
+    <div class="dialog-sub">이번 진료의 질환과 진료 유형을 선택해 주세요.</div>
+
+    <div style="margin-top:20px">
+      <!-- ① 질환 (신규 · 상단 배치) -->
+      <div data-new style="padding:2px">
+        <div class="section-label">
+          <span class="order-pill">1</span> 질환 <span class="req">*</span>
+        </div>
+        <div class="select-wrap">
+          <button class="select-trigger" id="diseaseTrigger" data-key="녹음-진료유형선택-질환-선택">
+            <span id="diseaseLabel">질환을 선택하세요.</span>
+            <span class="caret">▾</span>
+          </button>
+          <div class="select-list" id="diseaseList"></div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- ② 진료 유형 (기존 · 하단 배치) -->
+      <div>
+        <div class="section-label">
+          <span class="order-pill">2</span> 진료 유형 <span class="req">*</span>
+        </div>
+        <div class="visit-type-row" data-key="녹음-진료유형선택-진료유형-그룹">
+          <button class="visit-type-btn selected" id="btnNew" data-key="녹음-진료유형선택-초진-버튼">초진</button>
+          <button class="visit-type-btn" id="btnFollowUp" data-key="녹음-진료유형선택-재진-버튼">재진</button>
+        </div>
+        <div class="default-note">진료 기록 0건 → 초진 / 1건 이상 → 재진으로 기본 선택됩니다.</div>
+      </div>
+    </div>
+
+    <div class="dialog-actions">
+      <button class="btn outlined" id="cancelBtn" data-key="녹음-진료유형선택-취소-버튼">취소</button>
+      <button class="btn filled" id="confirmBtn" data-key="녹음-진료유형선택-확인-버튼" disabled>확인</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= 방문 유형 선택 다이얼로그 (변경 전 · 비교용) ================= -->
+<div class="backdrop" id="dialogBefore">
+  <div class="dialog narrow">
+    <div class="dialog-title">방문 유형 선택</div>
+    <div class="dialog-sub">이번 진료의 방문 유형을 선택해 주세요.</div>
+    <div class="visit-type-row" style="margin-top:20px">
+      <button class="visit-type-btn selected">초진</button>
+      <button class="visit-type-btn">재진</button>
+    </div>
+    <div class="dialog-actions">
+      <button class="btn outlined" onclick="closeAll()">취소</button>
+      <button class="btn filled" onclick="closeAll()">확인</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  var DISEASES = [
+    ['반월상 수평파열',                 '녹음-진료유형선택-질환-반월상수평파열-옵션'],
+    ['내측 반월상 후방 뿌리파열(MMPR)', '녹음-진료유형선택-질환-내측반월상후방뿌리파열-옵션'],
+    ['반월상 방사형 파열',              '녹음-진료유형선택-질환-반월상방사형파열-옵션'],
+    ['외측 반월상 파열',                '녹음-진료유형선택-질환-외측반월상파열-옵션'],
+    ['원판형 연골 파열',                '녹음-진료유형선택-질환-원판형연골파열-옵션'],
+    ['반월상연골 이식술(MAT)',          '녹음-진료유형선택-질환-반월상연골이식술-옵션'],
+    ['관절연골 손상·자가관절보존술',    '녹음-진료유형선택-질환-관절연골손상-옵션'],
+    ['내반 변형 관절염·HTO',            '녹음-진료유형선택-질환-내반변형관절염-옵션'],
+    ['슬개골 탈구·불안정',              '녹음-진료유형선택-질환-슬개골탈구불안정-옵션'],
+    ['무릎 퇴행성 관절염',              '녹음-진료유형선택-질환-무릎퇴행성관절염-옵션'],
+    ['전방십자인대(ACL) 파열',          '녹음-진료유형선택-질환-전방십자인대파열-옵션']
+  ];
+
+  var diseaseSelected = null;
+  var visitTypeSelected = 'NEW'; // 진료 기록 유무에 따른 기본값 — 미선택 상태는 존재하지 않음
+
+  var $ = function (id) { return document.getElementById(id); };
+
+  // --- 질환 목록 렌더 ---
+  var listEl = $('diseaseList');
+  DISEASES.forEach(function (d) {
+    var b = document.createElement('button');
+    b.className = 'select-option';
+    b.setAttribute('data-key', d[1]);
+    b.innerHTML = '<span>' + d[0] + '</span><span class="check"></span>';
+    b.onclick = function () {
+      diseaseSelected = d[0];
+      renderDiseaseList();
+      $('diseaseLabel').textContent = d[0];
+      $('diseaseTrigger').classList.add('has-value');
+      listEl.classList.remove('open');
+      syncConfirm();
+    };
+    listEl.appendChild(b);
+  });
+
+  function renderDiseaseList() {
+    Array.prototype.forEach.call(listEl.children, function (el, i) {
+      var isSel = DISEASES[i][0] === diseaseSelected;
+      el.classList.toggle('selected', isSel);
+      el.querySelector('.check').textContent = isSel ? '✓' : '';
+    });
+  }
+
+  $('diseaseTrigger').onclick = function () { listEl.classList.toggle('open'); };
+
+  // --- 진료 유형 ---
+  function setVisitType(v) {
+    visitTypeSelected = v;
+    $('btnNew').classList.toggle('selected', v === 'NEW');
+    $('btnFollowUp').classList.toggle('selected', v === 'FOLLOW_UP');
+    syncConfirm();
+  }
+  $('btnNew').onclick = function () { setVisitType('NEW'); };
+  $('btnFollowUp').onclick = function () { setVisitType('FOLLOW_UP'); };
+
+  // --- 확인 버튼 활성 조건: 질환 + 진료 유형 모두 선택 ---
+  function syncConfirm() {
+    $('confirmBtn').disabled = !(diseaseSelected && visitTypeSelected);
+  }
+
+  // --- 다이얼로그 열고 닫기 ---
+  function closeAll() {
+    $('dialogAfter').classList.remove('open');
+    $('dialogBefore').classList.remove('open');
+    listEl.classList.remove('open');
+  }
+  $('cancelBtn').onclick = closeAll;
+
+  $('newVisitBtn').onclick = function () {
+    if ($('toggleBefore').checked) { $('dialogBefore').classList.add('open'); return; }
+    diseaseSelected = null;
+    $('diseaseLabel').textContent = '질환을 선택하세요.';
+    $('diseaseTrigger').classList.remove('has-value');
+    renderDiseaseList();
+    setVisitType('NEW'); // 진료 기록 0건 가정
+    syncConfirm();
+    $('dialogAfter').classList.add('open');
+  };
+
+  $('confirmBtn').onclick = function () {
+    var isFollowUp = visitTypeSelected === 'FOLLOW_UP';
+    // 진료 유형 분기(AC-4): 초진 → 문진 답안(H&P), 재진 → SOAP. 질환과 무관하게 형식이 갈린다.
+    $('chipDiseaseHp').textContent = diseaseSelected;
+    $('chipDiseaseSoap').textContent = diseaseSelected;
+    $('panelEmptyWrap').style.display = 'none';
+    $('panelHp').style.display = isFollowUp ? 'none' : 'flex';
+    $('panelSoap').style.display = isFollowUp ? 'flex' : 'none';
+    $('ctaCard').style.display = 'flex';
+    closeAll();
+  };
+
+  // --- 목업 토글 ---
+  $('toggleKeys').onchange = function () { document.body.classList.toggle('show-keys', this.checked); };
+  $('toggleDiff').onchange = function () { document.body.classList.toggle('show-diff', this.checked); };
+  document.body.classList.add('show-diff');
+
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest('.select-wrap')) listEl.classList.remove('open');
+  });
+</script>
+
+</body>
+</html>
