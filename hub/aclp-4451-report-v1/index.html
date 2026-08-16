@@ -102,14 +102,14 @@
   .trend-head .info { flex: 1; font-size: 15px; }
   .trend-head .info .row { display: flex; align-items: center; gap: 12px; }
   .trend-head .info .lbl { font-weight: 500; }
-  .trend-head .info .dim { color: var(--mono-400); font-size: 14px; }
+  .trend-head .info .muted { color: var(--mono-400); font-size: 14px; }
   .trend-table { border: 1px solid var(--mono-100); border-radius: 6px; overflow: hidden; }
   .trend-table .sec { background: #1e3a8a; color: var(--white); font-size: 12px; font-weight: 700; padding: 5px 8px; }
   .trend-table .r { display: flex; border-bottom: 1px solid var(--mono-100); font-size: 12px; }
   .trend-table .r > div { padding: 4px 8px; flex: 1; }
   .trend-table .r > div.h { width: 160px; flex: none; background: var(--mono-50); }
 
-  .dim { position: fixed; inset: 0; background: rgba(0,0,0,.45); display: flex; align-items: center; justify-content: center; z-index: 50; }
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.45); display: flex; align-items: center; justify-content: center; z-index: 50; }
   .confirm { width: 360px; background: var(--white); border-radius: 12px; padding: 26px 24px 20px; text-align: center; }
   .confirm h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
   .confirm p { font-size: 13px; color: var(--mono-500); line-height: 1.65; margin-bottom: 22px; }
@@ -126,7 +126,7 @@
   .hidden { display: none !important; }
 
   @media print {
-    .mock-bar, .dialog-head, .subtabs, .toolbar, .dim, .toast { display: none !important; }
+    .mock-bar, .dialog-head, .subtabs, .toolbar, .modal-overlay, .toast { display: none !important; }
     body, .pane { background: var(--white); }
     .pane-inner { padding: 0; max-width: none; }
     .report { border: 0; }
@@ -202,8 +202,8 @@
       <div class="trend-head">
         <button class="btn sq" type="button" aria-label="이전">&#8249;</button>
         <div class="info">
-          <div class="row"><span class="lbl">진단 :</span><span>ACL 파열</span><span class="dim">2025.11.02.</span></div>
-          <div class="row"><span class="lbl">진료 :</span><span>ACL 재건술</span><span class="dim">2025.11.20.</span></div>
+          <div class="row"><span class="lbl">진단 :</span><span>ACL 파열</span><span class="muted">2025.11.02.</span></div>
+          <div class="row"><span class="lbl">진료 :</span><span>ACL 재건술</span><span class="muted">2025.11.20.</span></div>
         </div>
         <button class="btn sq" type="button" aria-label="다음">&#8250;</button>
         <button class="btn" type="button"><span class="ico">&#8681;</span>PDF 내려받기</button>
@@ -226,7 +226,7 @@
 
 </div>
 
-<div class="dim hidden" id="confirm-dim">
+<div class="modal-overlay hidden" id="confirm-dim">
   <div class="confirm">
     <h3>검사 종합 리포트를 환자에게 발송할까요?</h3>
     <p>환자 휴대폰으로 검사 종합 리포트 알림톡이 발송됩니다.</p>
