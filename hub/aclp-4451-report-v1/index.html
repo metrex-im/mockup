@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ACLP-4451 리포트 확인･발송･출력 — 목업</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --mono-900: #17191c;
+    --mono-800: #2b2f36;
+    --mono-700: #454b54;
+    --mono-500: #6b7280;
+    --mono-400: #9aa1ab;
+    --mono-300: #c4c9d0;
+    --mono-200: #dfe2e7;
+    --mono-100: #eaecef;
+    --mono-50:  #f4f5f7;
+    --primary:  #2563eb;
+    --white:    #ffffff;
+  }
+  body {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+    background: var(--mono-100);
+    color: var(--mono-900);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .mock-bar {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    padding: 10px 16px; background: var(--mono-800); color: var(--white);
+    font-size: 13px;
+  }
+  .mock-bar strong { font-weight: 600; margin-right: 4px; }
+  .mock-bar span.sep { color: var(--mono-400); margin: 0 4px; }
+  .mock-bar button {
+    font: inherit; font-size: 12px; padding: 5px 12px; cursor: pointer;
+    background: transparent; color: var(--white);
+    border: 1px solid rgba(255,255,255,.35); border-radius: 6px;
+  }
+  .mock-bar button:hover { background: rgba(255,255,255,.12); }
+  .mock-bar button[aria-pressed="true"] { background: var(--white); color: var(--mono-900); border-color: var(--white); }
+
+  .dialog { background: var(--white); min-height: calc(100vh - 44px); display: flex; flex-direction: column; }
+
+  .dialog-head {
+    position: relative; display: flex; align-items: center; justify-content: center;
+    min-height: 74px; padding: 0 24px; background: var(--white);
+  }
+  .segmented { display: flex; width: 403px; border: 1px solid var(--mono-200); border-radius: 10px; overflow: hidden; }
+  .segmented > div { flex: 1; text-align: center; padding: 11px 0; font-size: 15px; color: var(--mono-500); cursor: pointer; }
+  .segmented > div.on { background: var(--mono-800); color: var(--white); font-weight: 600; border-radius: 9px; }
+  .close { position: absolute; right: 24px; top: 50%; transform: translateY(-50%); font-size: 26px; color: var(--mono-700); line-height: 1; cursor: pointer; background: none; border: 0; }
+
+  .subtabs { display: flex; justify-content: center; gap: 24px; border-bottom: 1px solid var(--mono-100); background: var(--white); }
+  .subtabs > button {
+    font: inherit; font-size: 15px; font-weight: 500; color: var(--mono-400);
+    background: none; border: 0; border-bottom: 2px solid transparent; padding: 12px 2px; cursor: pointer;
+  }
+  .subtabs > button.on { color: var(--primary); border-bottom-color: var(--primary); }
+
+  .pane { flex: 1; background: var(--mono-50); overflow-y: auto; }
+  .pane-inner { max-width: 794px; margin: 0 auto; padding: 16px 24px 32px; }
+
+  .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; flex-wrap: nowrap; }
+  .datenav { display: flex; align-items: center; gap: 8px; flex: none; }
+  .date-input {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    width: 138px; padding: 8px 11px; background: var(--white);
+    border: 1px solid var(--mono-200); border-radius: 8px; font-size: 13px;
+  }
+  .date-input .ico { color: var(--mono-500); }
+  .nav-group { display: flex; align-items: center; gap: 6px; }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 5px; position: relative;
+    font: inherit; font-size: 13px; padding: 8px 12px; cursor: pointer;
+    background: var(--white); color: var(--mono-800);
+    border: 1px solid var(--mono-200); border-radius: 8px; white-space: nowrap;
+  }
+  .btn:hover:not([disabled]) { border-color: var(--mono-300); background: var(--mono-50); }
+  .btn[disabled] { color: var(--mono-300); border-color: var(--mono-100); background: var(--white); cursor: default; }
+  .btn.sq { padding: 8px 10px; }
+  .btn .ico { font-size: 14px; line-height: 1; }
+  .actions { display: flex; align-items: center; gap: 6px; flex: none; }
+
+  .report {
+    background: var(--white); border: 1px solid var(--mono-200); border-radius: 8px; overflow: hidden;
+  }
+  .report-meta { display: flex; gap: 28px; padding: 12px 16px; border-bottom: 1px solid var(--mono-100); font-size: 13px; }
+  .report-meta .k { color: var(--mono-500); margin-right: 8px; }
+  .report-dummy {
+    height: 460px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+    background: repeating-linear-gradient(135deg, #fafbfc, #fafbfc 12px, #f1f3f5 12px, #f1f3f5 24px);
+  }
+  .report-dummy .t1 { font-size: 14px; color: var(--mono-700); font-weight: 500; }
+
+  .empty { height: 520px; display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--mono-500); }
+
+  .trend { background: var(--white); padding: 16px 24px; }
+  .trend-head { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+  .trend-head .info { flex: 1; font-size: 15px; }
+  .trend-head .info .row { display: flex; align-items: center; gap: 12px; }
+  .trend-head .info .lbl { font-weight: 500; }
+  .trend-head .info .dim { color: var(--mono-400); font-size: 14px; }
+  .trend-table { border: 1px solid var(--mono-100); border-radius: 6px; overflow: hidden; }
+  .trend-table .sec { background: #1e3a8a; color: var(--white); font-size: 12px; font-weight: 700; padding: 5px 8px; }
+  .trend-table .r { display: flex; border-bottom: 1px solid var(--mono-100); font-size: 12px; }
+  .trend-table .r > div { padding: 4px 8px; flex: 1; }
+  .trend-table .r > div.h { width: 160px; flex: none; background: var(--mono-50); }
+
+  .dim { position: fixed; inset: 0; background: rgba(0,0,0,.45); display: flex; align-items: center; justify-content: center; z-index: 50; }
+  .confirm { width: 360px; background: var(--white); border-radius: 12px; padding: 26px 24px 20px; text-align: center; }
+  .confirm h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+  .confirm p { font-size: 13px; color: var(--mono-500); line-height: 1.65; margin-bottom: 22px; }
+  .confirm .row { display: flex; gap: 8px; }
+  .confirm .row .btn { flex: 1; justify-content: center; }
+  .confirm .row .btn.primary { background: var(--mono-800); color: var(--white); border-color: var(--mono-800); }
+
+  .toast {
+    position: fixed; left: 50%; bottom: 40px; transform: translateX(-50%);
+    background: var(--mono-800); color: var(--white); font-size: 14px;
+    padding: 12px 20px; border-radius: 8px; z-index: 60;
+  }
+
+  .hidden { display: none !important; }
+
+  @media print {
+    .mock-bar, .dialog-head, .subtabs, .toolbar, .dim, .toast { display: none !important; }
+    body, .pane { background: var(--white); }
+    .pane-inner { padding: 0; max-width: none; }
+    .report { border: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="mock-bar">
+  <strong>ACLP-4451 목업</strong>
+  <span class="sep">|</span>
+  검사 종합
+  <button type="button" data-state="has" aria-pressed="true">있음</button>
+  <button type="button" data-state="none" aria-pressed="false">없음</button>
+  <span class="sep">|</span>
+  <button type="button" id="btn-send-demo">발송 확인 팝업</button>
+  <button type="button" id="btn-print-demo">출력(인쇄창)</button>
+  <span class="sep">|</span>
+  <span style="color:#9aa1ab">이 검은 바는 목업 조작용이며 실제 화면에는 없습니다</span>
+</div>
+
+<div class="dialog">
+
+  <div class="dialog-head">
+    <div class="segmented">
+      <div class="on">리포트</div>
+      <div>센터 검사 파일</div>
+    </div>
+    <button class="close" type="button" aria-label="닫기">&times;</button>
+  </div>
+
+  <div class="subtabs">
+    <button type="button" class="on" data-tab="summary">검사 종합</button>
+    <button type="button" data-tab="trend">검사 경과</button>
+  </div>
+
+  <div class="pane" id="pane-summary">
+    <div class="pane-inner">
+      <div class="toolbar">
+        <div class="datenav">
+          <div class="date-input"><span>2026.07.24.</span><span class="ico">&#128197;</span></div>
+          <div class="nav-group">
+            <button class="btn sq" type="button" aria-label="이전 날짜">&#8249;</button>
+            <button class="btn" type="button">오늘</button>
+            <button class="btn sq" type="button" aria-label="다음 날짜">&#8250;</button>
+          </div>
+        </div>
+        <div class="actions" id="actions">
+          <button class="btn" type="button" data-act="pdf"><span class="ico">&#8681;</span>PDF 내려받기</button>
+          <button class="btn" type="button" data-act="img"><span class="ico">&#8681;</span>이미지 내려받기</button>
+          <button class="btn" type="button" data-act="print"><span class="ico">&#128424;</span>출력</button>
+          <button class="btn" type="button" data-act="send">환자 발송</button>
+        </div>
+      </div>
+
+      <div id="summary-has" class="report">
+        <div class="report-meta">
+          <div><span class="k">성명</span>홍길동</div>
+          <div><span class="k">생년월일</span>1985.03.12</div>
+          <div><span class="k">검사일</span>2026.07.24.</div>
+        </div>
+        <div class="report-dummy">
+          <div class="t1">검사 종합 리포트 영역</div>
+        </div>
+      </div>
+
+      <div id="summary-none" class="empty hidden">해당 날짜의 검사 종합이 없습니다</div>
+    </div>
+  </div>
+
+  <div class="pane hidden" id="pane-trend">
+    <div class="trend">
+      <div class="trend-head">
+        <button class="btn sq" type="button" aria-label="이전">&#8249;</button>
+        <div class="info">
+          <div class="row"><span class="lbl">진단 :</span><span>ACL 파열</span><span class="dim">2025.11.02.</span></div>
+          <div class="row"><span class="lbl">진료 :</span><span>ACL 재건술</span><span class="dim">2025.11.20.</span></div>
+        </div>
+        <button class="btn sq" type="button" aria-label="다음">&#8250;</button>
+        <button class="btn" type="button"><span class="ico">&#8681;</span>PDF 내려받기</button>
+        <button class="btn" type="button"><span class="ico">&#8681;</span>이미지 내려받기</button>
+      </div>
+      <div class="trend-table">
+        <div class="sec">환자 정보</div>
+        <div class="r"><div class="h">성명</div><div>홍길동</div></div>
+        <div class="r"><div class="h">일자</div><div>2026.07.24.</div></div>
+        <div class="sec">환자 설문조사 결과</div>
+        <div class="r"><div class="h">&nbsp;</div><div>Pre</div><div>3M</div><div>6M</div><div>9M</div><div>12M</div><div>24M</div></div>
+        <div class="r"><div class="h">IKDC</div><div>42.00</div><div>61.00</div><div>74.00</div><div>-</div><div>-</div><div>-</div></div>
+        <div class="r"><div class="h">Lysholm</div><div>38.00</div><div>66.00</div><div>81.00</div><div>-</div><div>-</div><div>-</div></div>
+      </div>
+      <p style="margin-top:14px;font-size:13px;color:var(--mono-500)">
+        검사 경과는 기존 화면 그대로 유지합니다. 환자 발송 버튼은 삭제되고, 출력 버튼은 추가하지 않습니다.
+      </p>
+    </div>
+  </div>
+
+</div>
+
+<div class="dim hidden" id="confirm-dim">
+  <div class="confirm">
+    <h3>검사 종합 리포트를 환자에게 발송할까요?</h3>
+    <p>환자 휴대폰으로 검사 종합 리포트 알림톡이 발송됩니다.</p>
+    <div class="row">
+      <button class="btn" type="button" data-confirm="cancel">취소</button>
+      <button class="btn primary" type="button" data-confirm="ok">발송</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast hidden" id="toast">검사 종합 리포트를 발송했습니다.</div>
+
+<script>
+  function setState(next) {
+    document.querySelectorAll('.mock-bar button[data-state]').forEach(function (b) {
+      b.setAttribute('aria-pressed', String(b.dataset.state === next));
+    });
+    document.getElementById('summary-has').classList.toggle('hidden', next !== 'has');
+    document.getElementById('summary-none').classList.toggle('hidden', next === 'has');
+    document.querySelectorAll('#actions .btn').forEach(function (b) { b.disabled = next !== 'has'; });
+  }
+
+  document.querySelectorAll('.mock-bar button[data-state]').forEach(function (b) {
+    b.addEventListener('click', function () { setState(b.dataset.state); });
+  });
+
+  document.querySelectorAll('.subtabs button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('.subtabs button').forEach(function (x) { x.classList.remove('on'); });
+      b.classList.add('on');
+      var isSummary = b.dataset.tab === 'summary';
+      document.getElementById('pane-summary').classList.toggle('hidden', !isSummary);
+      document.getElementById('pane-trend').classList.toggle('hidden', isSummary);
+    });
+  });
+
+  function openConfirm() { document.getElementById('confirm-dim').classList.remove('hidden'); }
+  function closeConfirm() { document.getElementById('confirm-dim').classList.add('hidden'); }
+  function showToast() {
+    var t = document.getElementById('toast');
+    t.classList.remove('hidden');
+    setTimeout(function () { t.classList.add('hidden'); }, 2200);
+  }
+
+  document.getElementById('actions').addEventListener('click', function (e) {
+    var b = e.target.closest('.btn');
+    if (!b || b.disabled) return;
+    if (b.dataset.act === 'send') openConfirm();
+    if (b.dataset.act === 'print') window.print();
+  });
+
+  document.getElementById('confirm-dim').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-confirm]');
+    if (!b) return;
+    closeConfirm();
+    if (b.dataset.confirm === 'ok') showToast();
+  });
+
+  document.getElementById('btn-send-demo').addEventListener('click', openConfirm);
+  document.getElementById('btn-print-demo').addEventListener('click', function () { window.print(); });
+
+  setState('has');
+</script>
+</body>
+</html>
