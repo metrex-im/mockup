@@ -214,6 +214,30 @@
   .v-imgnote{
     font-size:11px;color:#a7aeb6;text-align:center;margin-bottom:10px;letter-spacing:-.2px
   }
+  /* --- AC-19 이미지 가독성: 확대/축소 --- */
+  .v-zoombar{
+    display:flex;align-items:center;gap:7px;margin-bottom:10px;
+    background:#f5f7f9;border:1px solid #e6e9ec;border-radius:10px;padding:6px 9px
+  }
+  .v-zoombar .zl{font-size:11px;color:#7e8894;font-weight:600}
+  .v-zoombar .zb{
+    border:1px solid #dfe3e7;background:#fff;border-radius:7px;min-width:28px;height:26px;
+    font-size:14px;line-height:1;color:#3a4149;cursor:pointer;font-family:inherit;padding:0 7px
+  }
+  .v-zoombar .zb:active{background:#eef1f4}
+  .v-zoombar .zb.wide{font-size:11.5px;font-weight:600}
+  .v-zoombar .zval{font-size:11.5px;font-weight:700;color:#16181b;min-width:38px;text-align:center}
+  .v-zoombar .zhint{margin-left:auto;font-size:10px;color:#a7aeb6;white-space:nowrap}
+  .v-stage{
+    overflow:hidden;position:relative;touch-action:none;cursor:grab;
+    transition:height .12s ease-out
+  }
+  .v-stage.zoomed{cursor:grab}
+  .v-stage.grabbing{cursor:grabbing}
+  .v-zoombox{
+    transform-origin:0 0;transition:transform .12s ease-out;will-change:transform
+  }
+  .v-zoombox.nofx{transition:none}
   /* mock report image */
   .rep{
     border:1px solid #e6e9ec;border-radius:10px;overflow:hidden;background:#fff;
@@ -453,9 +477,19 @@
               </div>
               <button class="v-close" data-testid="리포트-뷰어-닫기-버튼" onclick="closeViewer()">✕</button>
             </div>
-            <div class="v-scroll" data-testid="리포트-뷰어-이미지-팝업">
+            <div class="v-scroll" id="vScroll" data-testid="리포트-뷰어-이미지-팝업">
               <div class="v-imgnote">— 아래는 S3에 저장된 리포트 이미지 (목업 렌더링) —</div>
-              <div class="rep">
+              <div class="v-zoombar">
+                <span class="zl">확대</span>
+                <button class="zb" onclick="zStep(-1)">−</button>
+                <span class="zval" id="zLabel">100%</span>
+                <button class="zb" onclick="zStep(1)">＋</button>
+                <button class="zb wide" onclick="zReset()">맞춤</button>
+                <span class="zhint">핀치 · 끌기 · 더블탭</span>
+              </div>
+              <div class="v-stage" id="vStage">
+              <div class="v-zoombox" id="vZoomBox">
+              <div class="rep" id="vRep">
                 <div class="rep-h">
                   <div class="t1">무릎 건강 종합 리포트</div>
                   <div class="t2">ACTIMEDI · 스포츠의학센터</div>
@@ -488,6 +522,8 @@
                 </div>
                 <div class="rep-foot">본 리포트는 당일 센터에서 진행된 검사 결과를 종합한 자료이며, 의료 진단·치료·처방이 아닙니다. (목업 · 더미 데이터)</div>
               </div>
+              </div>
+              </div>
             </div>
           </div>
         </div>
@@ -504,13 +540,15 @@
           <li class="on" data-s="0" onclick="jump(0)"><span class="n">1</span><span><b>알림톡 도착</b>카톡 채널에 리포트 안내가 도착한다 — 리포트 진입은 앱 안에만 있다(AC-7)</span></li>
           <li data-s="1" onclick="jump(1)"><span class="n">2</span><span><b>앱 챗봇 진입</b>리포트가 있으므로 우측 하단에 진입이 노출된다(AC-1·AC-11)</span></li>
           <li data-s="2" onclick="jump(2)"><span class="n">3</span><span><b>리포트 열람</b>진입을 누르면 이미지 뷰어가 열리고 검사일이 표시된다(AC-1·AC-12)</span></li>
-          <li data-s="3" onclick="jump(3)"><span class="n">4</span><span><b>닫고 질의</b>대화가 유지된 채 질문·답변이 이어진다(AC-10·AC-5·AC-9)</span></li>
+          <li data-s="3" onclick="jump(3)"><span class="n">4</span><span><b>확대해서 읽기</b>핀치·끌기로 수치를 읽고 기본 배율로 돌아온다(AC-19)</span></li>
+          <li data-s="4" onclick="jump(4)"><span class="n">5</span><span><b>닫고 질의</b>대화가 유지된 채 질문·답변이 이어진다(AC-10·AC-5·AC-9)</span></li>
         </ul>
         <div class="ctrls">
           <button class="ctrl" onclick="reset()">처음부터</button>
           <button class="ctrl" onclick="simEmpty()">리포트 없는 환자 (AC-11)</button>
           <button class="ctrl" onclick="simFail()">불러오기 실패 (AC-4)</button>
           <button class="ctrl" onclick="simExpire()">세션 만료 (AC-6)</button>
+          <button class="ctrl" onclick="simZoom()">확대해서 읽기 (AC-19)</button>
         </div>
       </div>
 
@@ -529,6 +567,7 @@
             <tr><td>뷰어 닫기</td><td><code>리포트-뷰어-닫기-버튼</code></td><td><span class="st new">신규</span></td></tr>
             <tr><td>검사일 표시</td><td><code>리포트-뷰어-검사일-텍스트</code></td><td><span class="st new">신규</span></td></tr>
             <tr><td>불러오기 실패</td><td><code>리포트-뷰어-불러오기실패-팝업</code></td><td><span class="st new">신규</span></td></tr>
+            <tr><td>이미지 확대 (AC-19)</td><td><code>—</code> 제스처</td><td><span class="st chk">키 없음</span></td></tr>
             <tr><td>질문 입력창</td><td><code>상담-질문-입력</code></td><td><span class="st chk">확인필요</span></td></tr>
             <tr><td>전송 버튼</td><td><code>상담-질문-전송-버튼</code></td><td><span class="st chk">확인필요</span></td></tr>
             <tr><td>면책 고지</td><td><code>상담-답변-면책고지-텍스트</code></td><td><span class="st chk">확인필요</span></td></tr>
@@ -545,7 +584,11 @@
           아래 질의응답의 답변은 리포트 수치를 인용하지 않는 형태입니다.<br><br>
           <b>카톡 '리포트 확인하기' 버튼</b> — AC에 정의되지 않은 동작입니다.
           여기서는 앱 진입 후 뷰어가 자동으로 열리게 두었으나, 확정 사항이 아닙니다.<br><br>
-          <b>회색 처리한 키 4개</b> — 톡톡 <code>test-ids.json</code>을 대조하지 못해 기존 키 존재 여부가 미확인입니다.
+          <b>회색 처리한 키 4개</b> — 톡톡 <code>test-ids.json</code>을 대조하지 못해 기존 키 존재 여부가 미확인입니다.<br><br>
+          <b>AC-19 배율 컨트롤(− ＋ 맞춤)</b> — 실제 수단은 핀치·끌기·더블탭 제스처이고 신규 test-id를 두지 않았습니다.
+          바의 버튼은 제스처를 쓸 수 없는 데스크톱에서 확인하기 위한 <b>목업 시연용</b>이며 AC 요소가 아닙니다.<br><br>
+          <b>기본 배율의 정의</b> — 이 목업의 기본 배율은 <b>화면 폭 맞춤 + 세로 스크롤</b>입니다.
+          시나리오 19-3의 「리포트 전체가 한 화면에 표시된다」는 리포트가 세로로 길 때 성립하지 않으므로, 실제 리포트 이미지 비율이 확정되면 문구를 맞춰야 합니다.
         </div>
       </div>
     </div>
@@ -574,6 +617,12 @@ var AC_MAP = {
     ['개방','AC-2','이미지가 답변 근거로 쓰이는지는 미확정 — 시나리오 없음']
   ],
   3: [
+    ['AC-19','이미지 가독성','핀치로 확대하면 항목명과 수치를 읽을 수 있다 — 19-1'],
+    ['AC-19','영역 이동','확대한 채 끌면 리포트의 모든 영역에 도달한다 — 19-2'],
+    ['AC-19','기본 배율','축소·더블탭하면 화면 폭 기본 배율로 돌아온다 — 19-3'],
+    ['AC-19','재진입 초기화','확대한 채 닫았다 다시 열면 기본 배율이다 — 19-4']
+  ],
+  4: [
     ['AC-10','회귀','뷰어를 닫아도 이전 대화가 유지된다 — 10-1'],
     ['AC-5','회귀','수치 해석을 물어도 상태를 판정하지 않고 고지가 유지된다 — 5-1'],
     ['AC-9','회귀','참고문헌·피드백 수단이 기존과 동일하게 제공된다 — 9-1']
@@ -606,12 +655,13 @@ function goApp(openReport){
 
 function openViewer(){
   document.getElementById('viewer').classList.add('on');
+  zReset(true);              // AC-19 시나리오 19-4 · 열 때마다 기본 배율
   step = 2; renderMap();
 }
 
 function closeViewer(){
   document.getElementById('viewer').classList.remove('on');
-  step = 3;
+  step = 4;
   renderMap();
 }
 
@@ -655,7 +705,7 @@ function send(){
     fb.innerHTML = '<span>이 답변이 도움이 되셨나요?</span><span class="icons">👍 👎 ⧉ 🔊</span><span class="t">오후 4:44</span>';
     convo.appendChild(fb);
     asked = true;
-    step = 3; renderMap();
+    step = 4; renderMap();
     scroll();
   }, 1100);
 }
@@ -703,7 +753,7 @@ function reset(){
   document.getElementById('floatBtn').style.display = '';
   document.getElementById('convo').innerHTML = '';
   document.getElementById('qInput').value = ''; hot();
-  asked = false; step = 0; renderMap();
+  asked = false; step = 0; zReset(true); renderMap();
 }
 
 function jump(s){
@@ -711,10 +761,142 @@ function jump(s){
   if (s===1) { show('a'); document.getElementById('viewer').classList.remove('on');
                document.getElementById('floatBtn').style.display=''; step=1; renderMap(); return; }
   if (s===2) { show('a'); document.getElementById('floatBtn').style.display=''; openViewer(); return; }
-  if (s===3) { show('a'); document.getElementById('viewer').classList.remove('on');
-               if(!asked){ send(); } else { step=3; renderMap(); } return; }
+  if (s===3) { simZoom(); return; }
+  if (s===4) { show('a'); document.getElementById('viewer').classList.remove('on');
+               if(!asked){ send(); } else { step=4; renderMap(); } return; }
 }
 
+/* ============ AC-19 이미지 가독성 ============ */
+var Z_MIN = 1, Z_MAX = 4;
+var zScale = 1, zTx = 0;
+var zDrag = null, zPinch = null, zLastTap = 0;
+
+function zEl(id){ return document.getElementById(id); }
+
+function zApply(instant){
+  var box = zEl('vZoomBox'), stage = zEl('vStage'), rep = zEl('vRep');
+  if (!box || !stage || !rep) return;
+  box.classList.toggle('nofx', !!instant);
+  box.style.transform = 'translateX(' + zTx + 'px) scale(' + zScale + ')';
+  stage.style.height = (rep.offsetHeight * zScale) + 'px';
+  stage.classList.toggle('zoomed', zScale > 1.001);
+  zEl('zLabel').textContent = Math.round(zScale * 100) + '%';
+}
+
+function zClamp(){
+  var stage = zEl('vStage');
+  if (!stage) return;
+  var over = stage.clientWidth * (zScale - 1);
+  if (over <= 0) { zTx = 0; return; }
+  if (zTx > 0) zTx = 0;
+  if (zTx < -over) zTx = -over;
+}
+
+function zSet(next, instant){
+  var stage = zEl('vStage'), scroll = zEl('vScroll');
+  if (!stage) return;
+  var prev = zScale;
+  zScale = Math.min(Z_MAX, Math.max(Z_MIN, next));
+  if (Math.abs(zScale - prev) < 0.0005) return;
+  var ratio = zScale / prev;
+  var cx = stage.clientWidth / 2;
+  zTx = cx - (cx - zTx) * ratio;                     // 화면 중앙을 기준으로 확대
+  zClamp(); zApply(instant);
+  if (scroll) {                                      // 세로도 보던 지점을 유지
+    var mid = scroll.scrollTop + scroll.clientHeight / 2;
+    scroll.scrollTop = mid * ratio - scroll.clientHeight / 2;
+  }
+}
+
+function zStep(dir){ zSet(zScale * (dir > 0 ? 1.4 : 1 / 1.4)); }
+
+function zReset(silent){
+  zScale = 1; zTx = 0; zApply(true);
+  var scroll = zEl('vScroll');
+  if (scroll) scroll.scrollTop = 0;
+  if (!silent) { step = 3; renderMap(); }
+}
+
+function zDist(t){
+  var dx = t[0].clientX - t[1].clientX, dy = t[0].clientY - t[1].clientY;
+  return Math.sqrt(dx * dx + dy * dy);
+}
+
+function zBind(){
+  var stage = zEl('vStage'), scroll = zEl('vScroll');
+  if (!stage || !scroll) return;
+
+  // 트랙패드 핀치 = ctrl + wheel
+  stage.addEventListener('wheel', function(e){
+    if (!e.ctrlKey) return;
+    e.preventDefault();
+    zSet(zScale * (1 - e.deltaY * 0.012), true);
+  }, { passive: false });
+
+  // 터치 핀치 / 끌기 / 더블탭
+  stage.addEventListener('touchstart', function(e){
+    if (e.touches.length === 2) {
+      zPinch = { d: zDist(e.touches), s: zScale };
+      zDrag = null;
+    } else if (e.touches.length === 1) {
+      zDrag = { x: e.touches[0].clientX, y: e.touches[0].clientY, tx: zTx, top: scroll.scrollTop };
+    }
+  }, { passive: true });
+
+  stage.addEventListener('touchmove', function(e){
+    if (zPinch && e.touches.length === 2) {
+      e.preventDefault();
+      zSet(zPinch.s * (zDist(e.touches) / zPinch.d), true);
+    } else if (zDrag && e.touches.length === 1 && zScale > 1.001) {
+      e.preventDefault();
+      zTx = zDrag.tx + (e.touches[0].clientX - zDrag.x);
+      zClamp(); zApply(true);
+      scroll.scrollTop = zDrag.top - (e.touches[0].clientY - zDrag.y);
+    }
+  }, { passive: false });
+
+  stage.addEventListener('touchend', function(e){
+    zPinch = null; zDrag = null;
+    if (e.touches.length === 0 && e.changedTouches.length === 1) {
+      var now = Date.now();
+      if (now - zLastTap < 320 && zScale > 1.001) { zReset(); }   // 더블탭 = 기본 배율
+      zLastTap = now;
+    }
+  }, { passive: true });
+
+  // 마우스 끌기 (데스크톱 확인용)
+  stage.addEventListener('mousedown', function(e){
+    if (zScale <= 1.001) return;
+    e.preventDefault();
+    zDrag = { x: e.clientX, y: e.clientY, tx: zTx, top: scroll.scrollTop };
+    stage.classList.add('grabbing');
+  });
+  window.addEventListener('mousemove', function(e){
+    if (!zDrag) return;
+    zTx = zDrag.tx + (e.clientX - zDrag.x);
+    zClamp(); zApply(true);
+    scroll.scrollTop = zDrag.top - (e.clientY - zDrag.y);
+  });
+  window.addEventListener('mouseup', function(){
+    zDrag = null; stage.classList.remove('grabbing');
+  });
+
+  stage.addEventListener('dblclick', function(){ if (zScale > 1.001) zReset(); });
+}
+
+function simZoom(){
+  show('a');
+  zEl('floatBtn').style.display = '';
+  if (!zEl('viewer').classList.contains('on')) { openViewer(); }
+  setTimeout(function(){
+    zSet(2.2);
+    toast('AC-19 · 핀치로 확대해 수치를 읽습니다. 끌어서 영역을 옮기고, 더블탭·「맞춤」으로 기본 배율로 돌아옵니다. (19-1·19-2·19-3)');
+    step = 3; renderMap();
+  }, 260);
+}
+
+zBind();
+zApply(true);
 renderMap();
 </script>
 </body>
