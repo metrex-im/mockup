@@ -25,7 +25,6 @@
     font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Malgun Gothic",sans-serif;
     background:#fff;color:var(--ink);font-size:14px;-webkit-font-smoothing:antialiased;
   }
-  /* ---------- 리뷰 도구 ---------- */
   .review-bar{
     position:fixed;bottom:20px;right:20px;z-index:100;display:flex;gap:8px;align-items:center;
     background:rgba(17,24,39,.92);color:#fff;padding:10px 14px;border-radius:10px;
@@ -43,14 +42,12 @@
   }
   .is-new{position:relative;}
 
-  /* ---------- 레이아웃 ---------- */
   .staging{
     position:absolute;top:6px;left:14px;font-family:ui-monospace,Menlo,monospace;
     font-size:13px;color:#F08C8C;letter-spacing:.04em;z-index:5;
   }
   .app{display:flex;min-height:100vh;}
 
-  /* 사이드바 */
   .sidebar{
     width:72px;flex:0 0 72px;border-right:1px solid var(--gray-200);
     display:flex;flex-direction:column;align-items:center;padding:14px 0 18px;background:#fff;
@@ -65,7 +62,6 @@
   .sb-item.active{background:var(--sky);color:var(--blue);}
   .sb-bottom{display:flex;flex-direction:column;gap:6px;}
 
-  /* 본문 */
   .main{flex:1;min-width:0;background:#fff;display:flex;flex-direction:column;}
   .topbar{
     display:flex;align-items:center;justify-content:space-between;
@@ -82,7 +78,6 @@
 
   .content{padding:0 32px 40px;}
 
-  /* 필터 */
   .filter-card{
     background:var(--gray-50);border:1px solid var(--gray-200);border-radius:12px;
     padding:20px 22px;display:flex;gap:18px;align-items:flex-end;flex-wrap:wrap;
@@ -104,7 +99,6 @@
     display:flex;align-items:center;gap:6px;font-family:inherit;
   }
 
-  /* 결과 */
   .result-count{margin:26px 0 12px;font-size:14px;color:var(--gray-700);}
   .result-count b{color:var(--ink);font-weight:700;margin-left:6px;}
 
@@ -125,9 +119,8 @@
     display:inline-block;background:var(--gray-100);color:var(--gray-500);
     font-size:12px;padding:4px 10px;border-radius:6px;
   }
-  .col-report{width:120px;}
+  .col-report{width:150px;}
 
-  /* 리포트 조회 버튼 (신규) */
   .btn-report{
     display:inline-flex;align-items:center;gap:5px;height:32px;padding:0 12px;
     border:1px solid var(--blue);background:#fff;color:var(--blue);border-radius:8px;
@@ -138,7 +131,6 @@
     border-color:var(--gray-200);background:var(--gray-50);color:var(--gray-400);cursor:not-allowed;
   }
 
-  /* 페이지네이션 */
   .pagination{display:flex;justify-content:center;align-items:center;gap:4px;margin-top:28px;}
   .pg{
     min-width:32px;height:32px;border-radius:8px;border:0;background:none;color:var(--gray-500);
@@ -147,7 +139,6 @@
   .pg:hover{background:var(--gray-100);}
   .pg.active{background:var(--ink);color:#fff;font-weight:600;}
 
-  /* 툴팁 */
   .tip{position:relative;display:inline-block;}
   .tip .tip-body{
     visibility:hidden;opacity:0;transition:.12s;position:absolute;bottom:calc(100% + 8px);right:0;
@@ -171,7 +162,6 @@
 <div class="staging">STAGING v1.0.1-1</div>
 
 <div class="app">
-  <!-- 사이드바 -->
   <aside class="sidebar">
     <div class="sb-toggle">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
@@ -190,7 +180,6 @@
     </div>
   </aside>
 
-  <!-- 본문 -->
   <main class="main">
     <div class="topbar">
       <div class="crumb">명지병원 &nbsp;|&nbsp; <b>환자 관리</b></div>
@@ -201,7 +190,6 @@
     </div>
 
     <div class="content">
-      <!-- 검색 필터 -->
       <div class="filter-card">
         <div class="field">
           <label>이름</label>
@@ -235,7 +223,6 @@
 
       <div class="result-count">검색 결과 <b>330건</b></div>
 
-      <!-- 테이블 -->
       <table>
         <thead>
           <tr>
@@ -247,7 +234,7 @@
             <th style="width:110px;">분류</th>
             <th style="width:130px;">담당 의사</th>
             <th style="width:110px;">가입 상태</th>
-            <th class="col-report is-new">리포트</th>
+            <th class="col-report is-new">운동 통합 리포트</th>
           </tr>
         </thead>
         <tbody id="tbody"></tbody>
@@ -266,9 +253,8 @@
       </div>
 
       <div class="footnote">
-        ACLP-4480 목업 ① 환자 관리 페이지 · 신규 요소는 <b>리포트</b> 컬럼 1개<br>
-        AC-1 진입 경로 / AC-3 활성 프로그램이 없는 환자는 조회 불가 · 키 <code>환자-목록-리포트조회-버튼</code><br>
-        회귀 확인(AC-19): 컬럼 추가 후에도 검색·페이지네이션 동작 유지
+        ACLP-4480 목업 ① 환자 관리 페이지 · 신규 요소는 <b>운동 통합 리포트</b> 컬럼 1개<br>
+        AC-1 진입 경로 / AC-3 활성 프로그램 없음 · AC-23 프로그램 종료 시 조회 불가 · 키 <code>환자-목록-리포트조회-버튼</code>
       </div>
     </div>
   </main>
@@ -280,7 +266,6 @@
 </div>
 
 <script>
-  // 스크린샷 기준 환자 데이터. program 이 null 이면 활성 프로그램 없음 → 리포트 조회 불가
   var rows = [
     {name:"test2",   no:"123456",   program:"무릎 기능 관리 프로그램 | 골관절염 4기 운동 플랜",     side:"왼쪽",  doctor:"김진구"},
     {name:"test1",   no:"12345",    program:null,                                                side:null,   doctor:"김진구"},
