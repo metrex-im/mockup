@@ -63,12 +63,13 @@
   .pane-inner { max-width: 794px; margin: 0 auto; padding: 16px 24px 32px; }
 
   .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; flex-wrap: nowrap; }
-  .datenav { display: flex; align-items: center; gap: 8px; flex: none; }
+  .datenav { display: flex; align-items: center; gap: 8px; flex: none; position: relative; }
   .date-input {
     display: flex; align-items: center; justify-content: space-between; gap: 10px;
-    width: 138px; padding: 8px 11px; background: var(--white);
-    border: 1px solid var(--mono-200); border-radius: 8px; font-size: 13px;
+    width: 138px; padding: 8px 11px; background: var(--white); cursor: pointer;
+    border: 1px solid var(--mono-200); border-radius: 8px; font-size: 13px; font-family: inherit; color: inherit;
   }
+  .date-input:hover { border-color: var(--mono-300); }
   .date-input .ico { color: var(--mono-500); }
   .nav-group { display: flex; align-items: center; gap: 6px; }
 
@@ -84,9 +85,28 @@
   .btn .ico { font-size: 14px; line-height: 1; }
   .actions { display: flex; align-items: center; gap: 6px; flex: none; }
 
-  .report {
-    background: var(--white); border: 1px solid var(--mono-200); border-radius: 8px; overflow: hidden;
+  .cal {
+    position: absolute; top: 42px; left: 0; z-index: 30; width: 268px;
+    background: var(--white); border: 1px solid var(--mono-200); border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(16,24,40,.12); padding: 12px;
   }
+  .cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .cal-head .m { font-size: 13px; font-weight: 600; }
+  .cal-head button { font: inherit; font-size: 13px; background: none; border: 0; cursor: pointer; color: var(--mono-700); padding: 2px 8px; border-radius: 6px; }
+  .cal-head button:hover { background: var(--mono-50); }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+  .cal-grid .dow { text-align: center; font-size: 11px; color: var(--mono-400); padding: 4px 0; }
+  .cal-grid button {
+    font: inherit; font-size: 12px; height: 30px; border: 0; border-radius: 6px;
+    background: none; color: var(--mono-300); cursor: default;
+  }
+  .cal-grid button.has { color: var(--mono-900); font-weight: 600; background: #eef4ff; cursor: pointer; }
+  .cal-grid button.has:hover { background: #dbe7ff; }
+  .cal-grid button.sel { background: var(--primary); color: var(--white); }
+  .cal-grid button.today { outline: 1px solid var(--mono-300); }
+  .cal-note { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--mono-100); font-size: 11px; color: var(--mono-500); }
+
+  .report { background: var(--white); border: 1px solid var(--mono-200); border-radius: 8px; overflow: hidden; }
   .report-meta { display: flex; gap: 28px; padding: 12px 16px; border-bottom: 1px solid var(--mono-100); font-size: 13px; }
   .report-meta .k { color: var(--mono-500); margin-right: 8px; }
   .report-dummy {
@@ -111,8 +131,12 @@
 
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.45); display: flex; align-items: center; justify-content: center; z-index: 50; }
   .confirm { width: 360px; background: var(--white); border-radius: 12px; padding: 26px 24px 20px; text-align: center; }
-  .confirm h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
-  .confirm p { font-size: 13px; color: var(--mono-500); line-height: 1.65; margin-bottom: 22px; }
+  .confirm h3 { font-size: 16px; font-weight: 600; margin-bottom: 10px; }
+  .confirm .target {
+    display: block; font-size: 15px; font-weight: 600; color: var(--mono-900);
+    background: var(--mono-50); border-radius: 8px; padding: 10px 0; margin-bottom: 12px;
+  }
+  .confirm p { font-size: 13px; color: var(--mono-500); line-height: 1.65; margin-bottom: 20px; }
   .confirm .row { display: flex; gap: 8px; }
   .confirm .row .btn { flex: 1; justify-content: center; }
   .confirm .row .btn.primary { background: var(--mono-800); color: var(--white); border-color: var(--mono-800); }
@@ -126,7 +150,7 @@
   .hidden { display: none !important; }
 
   @media print {
-    .mock-bar, .dialog-head, .subtabs, .toolbar, .modal-overlay, .toast { display: none !important; }
+    .mock-bar, .dialog-head, .subtabs, .toolbar, .modal-overlay, .toast, .cal { display: none !important; }
     body, .pane { background: var(--white); }
     .pane-inner { padding: 0; max-width: none; }
     .report { border: 0; }
@@ -138,9 +162,10 @@
 <div class="mock-bar">
   <strong>ACLP-4451 목업</strong>
   <span class="sep">|</span>
-  검사 종합
-  <button type="button" data-state="has" aria-pressed="true">있음</button>
-  <button type="button" data-state="none" aria-pressed="false">없음</button>
+  환자
+  <button type="button" data-case="today" aria-pressed="true">오늘 검사 있음</button>
+  <button type="button" data-case="past" aria-pressed="false">오늘만 없음(과거 있음)</button>
+  <button type="button" data-case="none" aria-pressed="false">검사 이력 없음</button>
   <span class="sep">|</span>
   <button type="button" id="btn-send-demo">발송 확인 팝업</button>
   <button type="button" id="btn-print-demo">출력(인쇄창)</button>
@@ -167,12 +192,13 @@
     <div class="pane-inner">
       <div class="toolbar">
         <div class="datenav">
-          <div class="date-input"><span>2026.07.24.</span><span class="ico">&#128197;</span></div>
+          <button class="date-input" type="button" id="date-btn"><span id="date-label">2026.08.19.</span><span class="ico">&#128197;</span></button>
           <div class="nav-group">
-            <button class="btn sq" type="button" aria-label="이전 날짜">&#8249;</button>
-            <button class="btn" type="button">오늘</button>
-            <button class="btn sq" type="button" aria-label="다음 날짜">&#8250;</button>
+            <button class="btn sq" type="button" id="prev-btn" aria-label="이전 검사일">&#8249;</button>
+            <button class="btn" type="button" id="today-btn">오늘</button>
+            <button class="btn sq" type="button" id="next-btn" aria-label="다음 검사일">&#8250;</button>
           </div>
+          <div class="cal hidden" id="cal"></div>
         </div>
         <div class="actions" id="actions">
           <button class="btn" type="button" data-act="pdf"><span class="ico">&#8681;</span>PDF 내려받기</button>
@@ -181,19 +207,7 @@
           <button class="btn" type="button" data-act="send">환자 발송</button>
         </div>
       </div>
-
-      <div id="summary-has" class="report">
-        <div class="report-meta">
-          <div><span class="k">성명</span>홍길동</div>
-          <div><span class="k">생년월일</span>1985.03.12</div>
-          <div><span class="k">검사일</span>2026.07.24.</div>
-        </div>
-        <div class="report-dummy">
-          <div class="t1">검사 종합 리포트 영역</div>
-        </div>
-      </div>
-
-      <div id="summary-none" class="empty hidden">해당 날짜의 검사 종합이 없습니다</div>
+      <div id="summary-body"></div>
     </div>
   </div>
 
@@ -229,7 +243,8 @@
 <div class="modal-overlay hidden" id="confirm-dim">
   <div class="confirm">
     <h3>검사 종합 리포트를 환자에게 발송할까요?</h3>
-    <p>환자 휴대폰으로 검사 종합 리포트 알림톡이 발송됩니다.</p>
+    <span class="target" id="send-target">010-1234-5678</span>
+    <p>위 번호로 검사 종합 리포트 알림톡이 발송됩니다.</p>
     <div class="row">
       <button class="btn" type="button" data-confirm="cancel">취소</button>
       <button class="btn primary" type="button" data-confirm="ok">발송</button>
@@ -240,17 +255,133 @@
 <div class="toast hidden" id="toast">검사 종합 리포트를 발송했습니다.</div>
 
 <script>
-  function setState(next) {
-    document.querySelectorAll('.mock-bar button[data-state]').forEach(function (b) {
-      b.setAttribute('aria-pressed', String(b.dataset.state === next));
-    });
-    document.getElementById('summary-has').classList.toggle('hidden', next !== 'has');
-    document.getElementById('summary-none').classList.toggle('hidden', next === 'has');
-    document.querySelectorAll('#actions .btn').forEach(function (b) { b.disabled = next !== 'has'; });
+  var TODAY = '2026-08-19';
+  var EXAM_DATES_PAST = ['2026-08-11', '2026-07-24', '2026-05-30'];
+  var EXAM_DATES_BY_CASE = {
+    today: [TODAY].concat(EXAM_DATES_PAST),
+    past: EXAM_DATES_PAST,
+    none: []
+  };
+  var examDates = EXAM_DATES_BY_CASE.today.slice();
+  var selected = TODAY;
+  var calYear = 2026, calMonth = 7;
+
+  function fmt(iso) {
+    var p = iso.split('-');
+    return p[0] + '.' + p[1] + '.' + p[2] + '.';
+  }
+  function hasExam(iso) { return examDates.indexOf(iso) !== -1; }
+  function prevExam(iso) {
+    var c = examDates.filter(function (d) { return d < iso; }).sort();
+    return c.length ? c[c.length - 1] : null;
+  }
+  function nextExam(iso) {
+    var c = examDates.filter(function (d) { return d > iso; }).sort();
+    return c.length ? c[0] : null;
+  }
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+
+  function renderBody() {
+    var el = document.getElementById('summary-body');
+    if (hasExam(selected)) {
+      el.innerHTML = '<div class="report">'
+        + '<div class="report-meta">'
+        + '<div><span class="k">성명</span>홍길동</div>'
+        + '<div><span class="k">생년월일</span>1985.03.12</div>'
+        + '<div><span class="k">검사일</span>' + fmt(selected) + '</div>'
+        + '</div>'
+        + '<div class="report-dummy"><div class="t1">검사 종합 리포트 영역</div></div>'
+        + '</div>';
+    } else {
+      el.innerHTML = '<div class="empty">해당 날짜의 검사 종합이 없습니다</div>';
+    }
   }
 
-  document.querySelectorAll('.mock-bar button[data-state]').forEach(function (b) {
-    b.addEventListener('click', function () { setState(b.dataset.state); });
+  function renderCal() {
+    var cal = document.getElementById('cal');
+    var first = new Date(calYear, calMonth, 1);
+    var startDow = first.getDay();
+    var days = new Date(calYear, calMonth + 1, 0).getDate();
+    var h = '<div class="cal-head">'
+      + '<button type="button" id="cal-prev">&#8249;</button>'
+      + '<span class="m">' + calYear + '년 ' + (calMonth + 1) + '월</span>'
+      + '<button type="button" id="cal-next">&#8250;</button>'
+      + '</div><div class="cal-grid">';
+    ['일','월','화','수','목','금','토'].forEach(function (d) { h += '<div class="dow">' + d + '</div>'; });
+    for (var i = 0; i < startDow; i++) { h += '<div></div>'; }
+    for (var d = 1; d <= days; d++) {
+      var iso = calYear + '-' + pad(calMonth + 1) + '-' + pad(d);
+      var cls = [];
+      if (hasExam(iso)) cls.push('has');
+      if (iso === selected) cls.push('sel');
+      if (iso === TODAY) cls.push('today');
+      h += '<button type="button" class="' + cls.join(' ') + '" data-iso="' + iso + '"'
+        + (hasExam(iso) ? '' : ' disabled') + '>' + d + '</button>';
+    }
+    h += '</div><div class="cal-note">검사 종합이 있는 날짜만 선택할 수 있습니다</div>';
+    cal.innerHTML = h;
+
+    document.getElementById('cal-prev').onclick = function () {
+      calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; } renderCal();
+    };
+    document.getElementById('cal-next').onclick = function () {
+      calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; } renderCal();
+    };
+    cal.querySelectorAll('.cal-grid button[data-iso]').forEach(function (b) {
+      b.onclick = function () {
+        if (b.disabled) return;
+        selected = b.dataset.iso;
+        cal.classList.add('hidden');
+        render();
+      };
+    });
+  }
+
+  function render() {
+    document.getElementById('date-label').textContent = fmt(selected);
+    document.getElementById('prev-btn').disabled = !prevExam(selected);
+    document.getElementById('next-btn').disabled = !nextExam(selected);
+    var on = hasExam(selected);
+    document.querySelectorAll('#actions .btn').forEach(function (b) { b.disabled = !on; });
+    renderBody();
+    if (!document.getElementById('cal').classList.contains('hidden')) renderCal();
+  }
+
+  document.querySelectorAll('.mock-bar button[data-case]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('.mock-bar button[data-case]').forEach(function (x) {
+        x.setAttribute('aria-pressed', String(x === b));
+      });
+      examDates = EXAM_DATES_BY_CASE[b.dataset.case].slice();
+      selected = TODAY;
+      calYear = 2026; calMonth = 7;
+      document.getElementById('cal').classList.add('hidden');
+      render();
+    });
+  });
+
+  document.getElementById('date-btn').addEventListener('click', function () {
+    var cal = document.getElementById('cal');
+    if (cal.classList.contains('hidden')) {
+      var p = selected.split('-');
+      calYear = +p[0]; calMonth = +p[1] - 1;
+      renderCal();
+      cal.classList.remove('hidden');
+    } else {
+      cal.classList.add('hidden');
+    }
+  });
+
+  document.getElementById('prev-btn').addEventListener('click', function () {
+    var d = prevExam(selected);
+    if (d) { selected = d; render(); }
+  });
+  document.getElementById('next-btn').addEventListener('click', function () {
+    var d = nextExam(selected);
+    if (d) { selected = d; render(); }
+  });
+  document.getElementById('today-btn').addEventListener('click', function () {
+    selected = TODAY; render();
   });
 
   document.querySelectorAll('.subtabs button').forEach(function (b) {
@@ -260,6 +391,7 @@
       var isSummary = b.dataset.tab === 'summary';
       document.getElementById('pane-summary').classList.toggle('hidden', !isSummary);
       document.getElementById('pane-trend').classList.toggle('hidden', isSummary);
+      document.getElementById('cal').classList.add('hidden');
     });
   });
 
@@ -288,7 +420,7 @@
   document.getElementById('btn-send-demo').addEventListener('click', openConfirm);
   document.getElementById('btn-print-demo').addEventListener('click', function () { window.print(); });
 
-  setState('has');
+  render();
 </script>
 </body>
 </html>
