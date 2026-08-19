@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ACLP-4616 · QR 촬영 후 바로시작 모드 — 시퀀스 목업</title>
+<style>
+@import url("https://fastly.jsdelivr.net/gh/sunn-us/SUITE/fonts/variable/woff2/SUITE-Variable.css");
+@import url("https://fastly.jsdelivr.net/gh/sunn-us/SUIT/fonts/variable/woff2/SUIT-Variable.css");
+
+:root{
+  --am-blue:#1E5AF0; --am-navy:#0C1E6B; --am-sky:#38D2FF; --am-yellow:#FFCF2C;
+  --am-blue-100:#E3EBFF; --am-blue-50:#F3F6FF; --am-blue-200:#C5D5FF; --am-blue-700:#1342CC;
+  --am-ink-900:#101010; --am-ink-700:#262A33; --am-ink-500:#555B68; --am-ink-400:#7C8290;
+  --am-ink-300:#A8ADBA; --am-ink-200:#C9CDD6; --am-ink-100:#E5E7EC; --am-ink-50:#F3F4F7;
+  --am-ink-30:#F8F9FB; --am-white:#fff;
+  --am-danger:#E5484D; --am-warn:#F2A02D;
+  --sh:0 4px 16px rgba(30,90,240,.08); --sh-lg:0 12px 40px rgba(12,30,107,.14);
+  --r:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"SUIT Variable","SUIT",-apple-system,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+  background:var(--am-ink-30);color:var(--am-ink-900);-webkit-font-smoothing:antialiased;line-height:1.5}
+h1,h2,h3,h4,.suite{font-family:"SUITE Variable","SUITE","SUIT Variable",sans-serif;font-weight:800;letter-spacing:-.02em}
+.wrap{max-width:1560px;margin:0 auto;padding:0 32px 96px}
+
+/* ---------- header ---------- */
+header{background:var(--am-white);border-bottom:1px solid var(--am-ink-100);padding:28px 0 24px;margin-bottom:40px}
+header .wrap{padding-bottom:0}
+.brandrow{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.brandrow svg{height:34px;width:auto;display:block}
+.divider{width:1px;height:28px;background:var(--am-ink-100)}
+.tkt{font-size:12px;font-weight:700;color:var(--am-blue);background:var(--am-blue-50);
+  border:1px solid var(--am-blue-100);padding:5px 10px;border-radius:8px;letter-spacing:.02em}
+header h1{font-size:26px;margin-top:16px;color:var(--am-navy)}
+header p.sub{color:var(--am-ink-500);font-size:15px;margin-top:8px;max-width:840px}
+.meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.meta span{font-size:12px;color:var(--am-ink-500);background:var(--am-ink-50);
+  border:1px solid var(--am-ink-100);padding:5px 10px;border-radius:999px}
+
+/* ---------- section ---------- */
+section{margin-bottom:56px}
+.sechead{display:flex;align-items:baseline;gap:14px;margin-bottom:6px;flex-wrap:wrap}
+.sechead h2{font-size:20px;color:var(--am-navy)}
+.sechead .tag{font-size:11px;font-weight:700;padding:4px 9px;border-radius:6px}
+.tag.norm{background:var(--am-blue);color:#fff}
+.tag.exc{background:#FEF0F0;color:var(--am-danger);border:1px solid #F8D3D4}
+.tag.rule{background:var(--am-ink-100);color:var(--am-ink-700)}
+.secdesc{color:var(--am-ink-500);font-size:14px;margin-bottom:22px}
+
+/* ---------- flow rail ---------- */
+.rail{display:flex;gap:0;overflow-x:auto;padding:8px 4px 22px;align-items:flex-start}
+.rail::-webkit-scrollbar{height:8px}
+.rail::-webkit-scrollbar-thumb{background:var(--am-ink-200);border-radius:99px}
+.step{flex:0 0 auto;display:flex;align-items:center}
+.arrow{flex:0 0 auto;width:40px;display:flex;align-items:center;justify-content:center;
+  color:var(--am-blue-200);font-size:22px;padding-top:180px}
+
+.card{width:272px}
+.caphead{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.num{width:22px;height:22px;border-radius:7px;background:var(--am-navy);color:#fff;
+  font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.capname{font-size:13px;font-weight:700;color:var(--am-ink-900)}
+.acs{display:flex;gap:4px;flex-wrap:wrap;margin-top:10px}
+.ac{font-size:10px;font-weight:700;color:var(--am-blue-700);background:var(--am-blue-50);
+  border:1px solid var(--am-blue-100);padding:3px 7px;border-radius:5px;letter-spacing:.01em}
+.note{font-size:11.5px;color:var(--am-ink-400);margin-top:8px;line-height:1.45}
+
+/* ---------- phone ---------- */
+.phone{width:272px;height:560px;background:#fff;border:1px solid var(--am-ink-100);
+  border-radius:26px;box-shadow:var(--sh);overflow:hidden;position:relative;display:flex;flex-direction:column}
+.status{height:26px;display:flex;align-items:center;justify-content:space-between;
+  padding:0 16px;font-size:9.5px;color:var(--am-ink-500);font-weight:600;flex:0 0 auto}
+.scr{flex:1;padding:14px 18px 16px;display:flex;flex-direction:column;overflow:hidden;position:relative}
+.scr.dark{background:linear-gradient(170deg,#F3F6FF 0%,#FFFFFF 60%)}
+.back{font-size:14px;color:var(--am-ink-400);margin-bottom:8px}
+.prog{height:3px;background:var(--am-ink-100);border-radius:99px;margin-bottom:18px;overflow:hidden}
+.prog i{display:block;height:100%;background:var(--am-blue);border-radius:99px}
+.t1{font-size:18px;font-weight:800;font-family:"SUITE Variable","SUITE",sans-serif;line-height:1.34;color:var(--am-ink-900)}
+.t1 .bl{color:var(--am-blue)}
+.t2{font-size:11.5px;color:var(--am-ink-500);margin-top:8px;line-height:1.55}
+.fld{background:var(--am-ink-50);border-radius:12px;padding:11px 13px;font-size:12px;
+  color:var(--am-ink-300);margin-top:10px;display:flex;align-items:center;justify-content:space-between}
+.fld.filled{color:var(--am-ink-900);font-weight:600}
+.fld.focus{background:#fff;border:1.5px solid var(--am-blue)}
+.fld .mini{font-size:10.5px;font-weight:700;background:var(--am-blue);color:#fff;padding:4px 9px;border-radius:99px}
+.hint{font-size:10px;color:var(--am-ink-300);margin-top:6px}
+.timer{color:var(--am-danger);font-size:11px;font-weight:700}
+.btn{background:var(--am-blue);color:#fff;text-align:center;padding:13px;border-radius:99px;
+  font-size:13px;font-weight:800;margin-top:auto}
+.btn.ghost{background:var(--am-ink-100);color:var(--am-ink-300)}
+.btn.navy{background:var(--am-navy)}
+.btn.sm{padding:11px;font-size:12px}
+.sublink{text-align:center;font-size:11px;color:var(--am-ink-400);margin-top:10px}
+.pill{display:inline-block;background:var(--am-navy);color:#fff;font-size:11.5px;font-weight:800;
+  padding:9px 18px;border-radius:99px}
+.infocard{border:1px solid var(--am-ink-100);border-radius:14px;padding:13px;margin-top:12px}
+.infocard .lbl{font-size:10px;color:var(--am-blue);font-weight:700;border:1px solid var(--am-blue-100);
+  background:var(--am-blue-50);display:inline-block;padding:3px 8px;border-radius:6px}
+.infocard .pname{font-size:13px;font-weight:800;margin-top:9px}
+.infocard .pdesc{font-size:10.5px;color:var(--am-ink-500);margin-top:7px;line-height:1.5;
+  padding-top:8px;border-top:1px solid var(--am-ink-100)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:10px}
+.grid2 .k{font-size:9.5px;color:var(--am-ink-400)}
+.grid2 .v{font-size:11.5px;font-weight:700;margin-top:2px}
+.chip{background:var(--am-ink-50);border-radius:99px;padding:10px 14px;font-size:11px;
+  color:var(--am-ink-700);margin-top:9px;font-weight:600}
+.chip.r{margin-left:26px}
+.row{display:flex;gap:10px;align-items:flex-start;background:var(--am-ink-50);
+  border-radius:12px;padding:11px;margin-top:8px}
+.row .ic{width:30px;height:30px;border-radius:9px;background:#fff;flex:0 0 auto;
+  display:flex;align-items:center;justify-content:center;font-size:14px}
+.row .rt{font-size:11.5px;font-weight:800}
+.row .rd{font-size:10px;color:var(--am-ink-500);margin-top:3px;line-height:1.45}
+.pushcard{background:var(--am-ink-50);border-radius:14px;padding:14px;margin-top:14px}
+.push{background:#fff;border-radius:11px;padding:10px;box-shadow:0 2px 8px rgba(0,0,0,.06);
+  display:flex;gap:8px;align-items:flex-start}
+.push .pi{width:22px;height:22px;border-radius:6px;background:var(--am-blue);flex:0 0 auto}
+.push .pt{font-size:9.5px;font-weight:800}
+.push .pb{font-size:9.5px;color:var(--am-ink-500);margin-top:2px}
+.skel{height:34px;background:#fff;border-radius:9px;margin-top:7px;opacity:.75}
+
+/* home */
+.hometop{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.hometop .h{font-size:19px;font-weight:800;font-family:"SUITE Variable","SUITE",sans-serif}
+.hometop .r{font-size:10px;background:var(--am-ink-50);padding:6px 11px;border-radius:99px;color:var(--am-ink-700);font-weight:700}
+.herocard{background:var(--am-blue);border-radius:16px;padding:15px;color:#fff}
+.herocard .day{font-size:9.5px;background:rgba(255,255,255,.2);padding:3px 8px;border-radius:6px;font-weight:700;display:inline-block}
+.herocard .tags{font-size:13.5px;font-weight:800;margin-top:9px;line-height:1.4;font-family:"SUITE Variable","SUITE",sans-serif}
+.herocard .prep{font-size:10px;opacity:.85;margin-top:7px}
+.herocard .bot{display:flex;align-items:center;justify-content:space-between;margin-top:16px;font-size:10.5px;font-weight:700}
+.herocard .circ{width:30px;height:30px;border-radius:99px;background:#fff;color:var(--am-blue);
+  display:flex;align-items:center;justify-content:center;font-size:13px}
+.listhead{font-size:12.5px;font-weight:800;margin:14px 0 8px}
+.li{display:flex;align-items:center;justify-content:space-between;background:var(--am-ink-50);
+  border-radius:11px;padding:10px 12px;margin-bottom:6px;font-size:11px;font-weight:600}
+.li .cnt{font-size:10px;color:var(--am-blue);font-weight:800}
+.tabbar{display:flex;justify-content:space-around;border-top:1px solid var(--am-ink-100);
+  padding-top:9px;margin-top:auto;font-size:9px;color:var(--am-ink-300);font-weight:700}
+.tabbar .on{color:var(--am-blue)}
+
+/* dialog overlay */
+.ov{position:absolute;inset:0;background:rgba(16,16,16,.45);display:flex;align-items:center;
+  justify-content:center;padding:20px;backdrop-filter:blur(1px)}
+.dlg{background:#fff;border-radius:18px;padding:20px 18px;width:100%;box-shadow:var(--sh-lg)}
+.dlg .dt{font-size:14px;font-weight:800;font-family:"SUITE Variable","SUITE",sans-serif;text-align:center;line-height:1.4}
+.dlg .db{font-size:11.5px;color:var(--am-ink-500);text-align:center;margin-top:9px;line-height:1.6}
+.dlg .tel{display:block;font-size:15px;font-weight:800;color:var(--am-blue);margin-top:12px;text-align:center;
+  font-family:"SUITE Variable","SUITE",sans-serif;letter-spacing:.01em}
+.dlg .btns{display:flex;gap:8px;margin-top:16px}
+.dlg .btns > div{flex:1;text-align:center;padding:11px;border-radius:99px;font-size:12px;font-weight:800}
+.dlg .b1{background:var(--am-ink-50);color:var(--am-ink-500)}
+.dlg .b2{background:var(--am-blue);color:#fff}
+
+/* ---------- rules table ---------- */
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:var(--r);overflow:hidden;box-shadow:var(--sh)}
+th,td{text-align:left;padding:13px 16px;font-size:13px;border-bottom:1px solid var(--am-ink-100);vertical-align:top}
+th{background:var(--am-blue-50);color:var(--am-navy);font-weight:800;font-size:12px;letter-spacing:.01em}
+tr:last-child td{border-bottom:none}
+td code{background:var(--am-ink-50);border-radius:5px;padding:2px 6px;font-size:11.5px;
+  color:var(--am-ink-700);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+td .acmini{font-size:10.5px;font-weight:700;color:var(--am-blue-700);background:var(--am-blue-50);
+  border:1px solid var(--am-blue-100);padding:2px 6px;border-radius:5px;white-space:nowrap}
+
+/* keys */
+.keys{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
+.keycard{background:#fff;border:1px solid var(--am-ink-100);border-radius:12px;padding:12px 14px}
+.keycard .kn{font-size:12px;font-weight:800;color:var(--am-navy)}
+.keycard .kd{font-size:11px;color:var(--am-ink-400);margin-top:4px}
+
+footer{color:var(--am-ink-400);font-size:12px;border-top:1px solid var(--am-ink-100);padding-top:20px}
+</style>
+</head>
+<body>
+
+<header>
+<div class="wrap">
+  <div class="brandrow">
+    <div style="display:flex;align-items:center;gap:9px"><span style="width:9px;height:26px;border-radius:3px;background:var(--am-blue);display:block"></span><span style="font-family:'SUITE Variable',sans-serif;font-weight:800;font-size:21px;color:var(--am-navy);letter-spacing:-.03em">ActiMedi <span style="color:var(--am-blue)">앳홈</span></span></div>
+    <div class="divider"></div>
+    <span class="tkt">ACLP-4616</span>
+    <span class="tkt" style="color:var(--am-ink-500);background:var(--am-ink-50);border-color:var(--am-ink-100)">Epic ACLP-4338</span>
+  </div>
+  <h1>QR 촬영 후 바로시작 모드 — 진입 시퀀스</h1>
+  <p class="sub">100일 패키지 사용자가 QR 촬영 한 번으로 앱을 설치하고, 본인 확인과 비밀번호 설정을 거쳐 온보딩까지 끊김 없이 도달하는 흐름입니다. 각 화면의 기능은 기존과 동일하며, 이번 작업은 화면 사이의 순서를 연결하는 것입니다.</p>
+  <div class="meta">
+    <span>기준 문서 · Confluence ACLP-4616</span>
+    <span>AC 13개 · GWT 시나리오 30개</span>
+    <span>화면 자체 기능 변경 없음</span>
+  </div>
+</div>
+</header>
+
+<div class="wrap">
+
+<!-- ===== 정상 시퀀스 ===== -->
+<section>
+  <div class="sechead"><h2>정상 진입 시퀀스</h2><span class="tag norm">AC-1 ~ AC-8</span></div>
+  <p class="secdesc">QR 촬영 → 앱 설치 → 패키지 모드 첫 실행부터 홈 도착까지. 가로로 스크롤하여 전체 흐름을 확인하세요.</p>
+  <div class="rail">
+
+    <!-- 1 웰컴 -->
+    <div class="step"><div class="card">
+      <div class="caphead"><div class="num">1</div><div class="capname">패키지 환영</div></div>
+      <div class="phone">
+        <div class="status"><span>09:41</span><span>▮▮▮</span></div>
+        <div class="scr dark" style="align-items:center;text-align:center;justify-content:center">
+          <div style="font-family:'SUITE Variable',sans-serif;font-size:26px;font-weight:800;color:var(--am-navy);letter-spacing:-.03em">ActiMedi</div>
+          <div class="t1" style="margin-top:20px">회복의 여정에<br><span class="bl">오신 것을 환영합니다</span></div>
+          <div class="t2">이제 앳홈과 함께 100일의 회복을 시작해요.<br>매일의 작은 노력이 당신의 일상을 되돌립니다.</div>
+          <div class="pill" style="margin-top:20px">회복을 넘어, 일상으로</div>
+          <div class="btn" style="width:100%">100일 회복 여정 시작하기</div>
+        </div>
+      </div>
+      <div class="acs"><span class="ac">AC-1</span><span class="ac">AC-2</span></div>
+      <p class="note">최초 1회만 노출. 재실행 시 이 화면을 건너뜁니다.</p>
+    </div></div>
+    <div class="arrow">›</div>
+
+    <!-- 2 번호입력 -->
+    <div class="step"><div class="card">
+      <div class="caphead"><div class="num">2</div><div class="capname">본인 확인 · 번호 입력</div></div>
+      <div class="phone">
+        <div class="status"><span>09:41</span><span>▮▮▮</span></div>
+        <div class="scr">
+          <div class="back">‹</div>
+          <div class="prog"><i style="width:33%"></i></div>
+          <div class="t1">반가워요!<br>본인확인을 해주세요</div>
+          <div class="fld" style="margin-top:22px"><span>🇰🇷 &nbsp;+82</span><span>⌄</span></div>
+          <div class="fld focus" style="color:var(--am-ink-300)">휴대폰 번호</div>
+          <div class="hint">010-1234-5678 형식으로 입력해주세요.</div>
+          <div class="btn ghost">다음</div>
+        </div>
+      </div>
+      <div class="acs"><span class="ac">AC-3</span></div>
+      <p class="note">번호 입력 전까지 '다음'은 비활성입니다.</p>
+    </div></div>
+    <div class="arrow">›</div>
+
+    <!-- 3 인증번호 -->
+    <div class="step"><div class="card">
+      <div class="caphead"><div class="num">3</div><div class="capname">본인 확인 · 인증번호</div></div>
+      <div class="phone">
+        <div class="status"><span>09:41</span><span>▮▮▮</span></div>
+        <div class="scr">
+          <div class="back">‹</div>
+          <div class="prog"><i style="width:33%"></i></div>
+          <div class="t1">반가워요!<br>본인확인을 해주세요</div>
+          <div class="fld" style="margin-top:22px"><span>🇰🇷 &nbsp;+82</span><span>⌄</span></div>
+          <div class="fld filled"><span>010-1234-5678</span><span class="mini">재전송</span></div>
+          <div class="fld filled"><span>125689</span><span class="timer">03:00</span></div>
+          <div class="btn">다음</div>
+        </div>
+      </div>
+      <div class="acs"><span class="ac">AC-3</span><span class="ac">AC-4</span></div>
+      <p class="note">유효시간 안에 정확히 입력해야 계정이 특정됩니다. 만료 시 재전송으로 새 인증번호를 받습니다.</p>
+    </div></div>
+    <div class="arrow">›</div>
+
+    <!-- 4 비밀번호 -->
+    <div class="step"><div class="card">
+      <div class="caphead"><div class="num">4</div><div class="capname">비밀번호 설정</div></div>
+      <div class="phone">
+        <div class="status"><span>09:41</span><span>▮▮▮</span></div>
+        <div class="scr">
+          <div class="back">‹</div>
+          <div class="prog"><i style="width:66%"></i></div>
+          <div class="t1">로그인에 사용할<br>비밀번호를 설정해주세요</div>
+          <div class="fld focus" style="margin-top:22px;color:var(--am-ink-300)"><span>비밀번호</span><span>👁</span></div>
+          <div class="fld"><span>비밀번호 확인</span><span>👁</span></div>
+          <div class="btn ghost">다음</div>
+        </div>
+      </div>
+      <div class="acs"><span class="ac">AC-4</span><span class="ac">AC-7</span></div>
+      <p class="note">완료 즉시 자동 로그인됩니다. 로그인 화면을 거치지 않습니다.</p>
+    </div></div>
+    <div class="arrow">›</div>
+
+    <!-- 5 배정정보 -->
+    <div class="step"><div class="card">
+      <div class="caphead"><div class="num">5</div><div class="capname">배정 정보 확인</div></div>
+      <div class="phone">
+        <div class="status"><span>09:41</span><span>▮▮▮</span></div>
+        <div class="scr">
+          <div class="t1" style="margin-top:8px">○○○님, 환영해요<br>정보를 확인해주세요</div>
+          <div class="t2">○○병원에서 보내준 정보예요</div>
+          <div style="font-size:9.5px;color:var(--am-ink-400);margin-top:16px">휴대폰 번호</div>
+          <div style="font-size:14px;font-weight:800;margin-top:3px">010-1234-5678</div>
+          <div class="infocard">
+            <span class="lbl">● 진행할 프로그램</span>
+            <div class="pname">무릎 기능 회복 프로그램</div>
+            <div class="pdesc">반월상연골 봉합술 + 경골대퇴관절 연골 수복술 운동 복합 플랜</div>
+            <div class="grid2">
+              <div><div class="k">시작일</div><div class="v">2026.05.10</div></div>
+              <div><div class="k">종료 예정일</div><div class="v">2026.09.10</div></div>
+              <div><div class="k">경과일</div><div class="v">0일차 (D-day)</div></div>
+              <div><div class="k">환측</div><div class="v">오른쪽</div></div>
+            </div>
+          </div>
+          <div class="btn">확인</div>
+        </div>
+      </div>
+      <div class="acs"><span class="ac">AC-7</span><span class="ac">AC-8</span></div>
+      <p class="note">확인만 가능하며 값을 수정할 수 없습니다.</p>
+    </div></div>
+    <div class="arrow">›</div>
+
+    <!-- 6 운동 필요성 -->
+    <div class="step"><div class="card">
+      <div class="caphead"><div class="num">6</div><div class="capname">운동 필요성 안내</div></div>
+      <div class="phone">
+        <div class="status"><span>09:41</span><span>▮▮▮</span></div>
+        <div class="scr">
+          <div class="t1" style="margin-top:8px">○○○님,<br>왜 운동이 필요할까요?</div>
+          <div class="t2">약한 쪽을 채우고 균형을 맞추기 위해서예요.<br>그래야 일상으로 빨리 돌아갈 수 있어요.</div>
+          <div class="chip">“약해진 근육을 다시 채워봐요”</div>
+          <div class="chip r">“무너진 좌우 균형을 맞춰봐요”</div>
+          <div class="chip">“굳어진 관절을 부드럽게 풀어봐요”</div>
+          <div class="chip r">“둔해진 감각을 다시 살려봐요”</div>
+          <div class="btn">맞춤 프로그램 보기</div>
+        </div>
+      </div>
+      <div class="acs"><span class="ac">AC-8</span></div>
+      <p class="note">기존 온보딩 화면 · 기능 변경 없음</p>
+    </div></div>
+    <div class="arrow">›</div>
+
+    <!-- 7 맞춤 프로그램 -->
+    <div class="step"><div class="card">
+      <div class="caphead"><div class="num">7</div><div class="capname">맞춤 프로그램 안내</div></div>
+      <div class="phone">
+        <div class="status"><span>09:41</span><span>▮▮▮</span></div>
+        <div class="scr">
+          <div class="t1" style="margin-top:8px">○○○님을 위한<br>맞춤형 프로그램이에요</div>
+          <div class="t2">컨디션에 맞춰 단계별로 함께 나아가요.</div>
+          <div class="row"><div class="ic">🌱</div><div><div class="rt">1. 가볍게 움직이기</div><div class="rd">무릎에 부담 없이 가볍게 움직여요</div></div></div>
+          <div class="row"><div class="ic">🤸</div><div><div class="rt">2. 움직임 넓히기</div><div class="rd">움직이는 범위를 넓히고 허벅지 힘을 길러요</div></div></div>
+          <div class="row"><div class="ic">💪</div><div><div class="rt">3. 힘과 균형 키우기</div><div class="rd">다리 힘을 키우고 한 발로 균형을 잡아요</div></div></div>
+          <div class="row"><div class="ic">🏃</div><div><div class="rt">4. 일상 동작 익히기</div><div class="rd">일상에서 자주 하는 동작을 연습해요</div></div></div>
+          <div class="btn">함께 시작하기</div>
+        </div>
+      </div>
+      <div class="acs"><span class="ac">AC-8</span></div>
+      <p class="note">기존 온보딩 화면 · 기능 변경 없음</p>
+    </div></div>
+    <div class="arrow">›</div>
+
+    <!-- 8 알림 설정 -->
+    <div class="step"><div class="card">
+      <div class="caphead"><div class="num">8</div><div class="capname">알림 설정</div></div>
+      <div class="phone">
+        <div class="status"><span>09:41</span><span>▮▮▮</span></div>
+        <div class="scr">
+          <div class="t1" style="margin-top:8px">회복의 비결은,<br>매일 빠짐없는 꾸준함이에요</div>
+          <div class="t2">매일 잊지 않고 운동한 분들이 더 빠르게 일상으로 돌아갔어요. 알림으로 잊지 않게 도와드릴게요.</div>
+          <div class="pushcard">
+            <div class="push">
+              <div class="pi"></div>
+              <div><div class="pt">액티메디 앳홈</div><div class="pb">회복 1일차, 체크리스트를 살펴볼까요?</div></div>
+            </div>
+            <div class="skel"></div><div class="skel"></div>
+          </div>
+          <div class="btn">알림받고 시작하기</div>
+          <div class="sublink">나중에 설정할게요</div>
+        </div>
+      </div>
+      <div class="acs"><span class="ac">AC-8</span></div>
+      <p class="note">온보딩 시퀀스의 마지막 단계. 알림을 미뤄도 홈에 도착합니다.</p>
+    </div></div>
+    <div class="arrow">›</div>
+
+    <!-- 9 홈 -->
+    <div class="step"><div class="card">
+      <div class="caphead"><div class="num">9</div><div class="capname">홈 도착</div></div>
+      <div class="phone">
+        <div class="status"><span>09:41</span><span>▮▮▮</span></div>
+        <div class="scr">
+          <div class="hometop"><div class="h">오늘</div><div class="r">나의 회복 로드맵 ›</div></div>
+          <div class="herocard">
+            <span class="day">3일차 프로그램</span>
+            <div class="tags">#부기 감소 #혈액 순환 촉진<br>#압통 최소화</div>
+            <div class="prep">준비물 : 긴 막대기, 수건</div>
+            <div class="bot"><span>🕐 약 32분</span><span>0/7 완료</span><span class="circ">→</span></div>
+          </div>
+          <div class="listhead">함께 챙겨보기</div>
+          <div class="li"><span>상처 소독하기</span><span class="cnt">1/12 일 완료</span></div>
+          <div class="li"><span>보행 시 보조기 0° 고정하기</span><span class="cnt">21일 남음</span></div>
+          <div class="li"><span>오늘의 프로그램 운동하기</span><span class="cnt">1/7 개</span></div>
+          <div class="li"><span>식단 관리하기</span><span class="cnt">100/1600</span></div>
+          <div class="tabbar"><span class="on">홈</span><span>운동</span><span>기록</span><span>프로필</span></div>
+        </div>
+      </div>
+      <div class="acs"><span class="ac">AC-8</span><span class="ac">AC-11</span></div>
+      <p class="note">홈 도착 시점에 패키지 모드가 종료됩니다.</p>
+    </div></div>
+
+  </div>
+</section>
+
+<!-- ===== 예외 ===== -->
+<section>
+  <div class="sechead"><h2>본인 확인 예외 분기</h2><span class="tag exc">AC-5 · AC-6</span></div>
+  <p class="secdesc">인증번호 검증을 통과한 뒤 계정 상태에 따라 갈라집니다. 두 경우 모두 비밀번호 설정으로 진입하지 않습니다.</p>
+  <div class="rail">
+
+    <!-- E1 -->
+    <div class="step"><div class="card">
+      <div class="caphead"><div class="num" style="background:var(--am-danger)">E1</div><div class="capname">이미 가입된 사용자</div></div>
+      <div class="phone">
+        <div class="status"><span>09:41</span><span>▮▮▮</span></div>
+        <div class="scr">
+          <div class="back">‹</div>
+          <div class="prog"><i style="width:33%"></i></div>
+          <div class="t1">반가워요!<br>본인확인을 해주세요</div>
+          <div class="fld" style="margin-top:22px"><span>🇰🇷 &nbsp;+82</span><span>⌄</span></div>
+          <div class="fld filled"><span>010-1234-5678</span><span class="mini">재전송</span></div>
+          <div class="fld filled"><span>125689</span><span class="timer">02:41</span></div>
+          <div class="btn">다음</div>
+          <div class="ov">
+            <div class="dlg">
+              <div class="dt">이미 가입된 계정이에요</div>
+              <div class="db">해당 번호는 이미 사용 중입니다.<br>로그인 화면에서 비밀번호로 로그인해 주세요.</div>
+              <div class="btns"><div class="b1">닫기</div><div class="b2">로그인하기</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="acs"><span class="ac">AC-5</span></div>
+      <p class="note">비밀번호가 이미 설정된 계정. 로그인 화면으로 유도합니다.</p>
+    </div></div>
+    <div class="arrow">›</div>
+
+    <!-- E2 -->
+    <div class="step"><div class="card">
+      <div class="caphead"><div class="num" style="background:var(--am-danger)">E2</div><div class="capname">미가입 사용자 · 로그인 화면 이동 후 안내</div></div>
+      <div class="phone">
+        <div class="status"><span>09:41</span><span>▮▮▮</span></div>
+        <div class="scr">
+          <div class="t1" style="margin-top:6px">내 몸에 맞는 운동 처방을<br>받아보세요!</div>
+          <div class="fld" style="margin-top:18px"><span>🇰🇷 &nbsp;+82</span><span>⌄</span></div>
+          <div class="fld">휴대폰 번호</div>
+          <div class="fld"><span>비밀번호</span><span>👁</span></div>
+          <div style="text-align:right;font-size:10px;color:var(--am-ink-400);margin-top:7px">비밀번호 재설정</div>
+          <div class="btn">로그인</div>
+          <div class="sublink">아직 회원이 아니신가요? <b>회원가입</b></div>
+          <div class="ov">
+            <div class="dlg">
+              <div class="dt">등록된 정보를 찾을 수 없어요</div>
+              <div class="db">배정된 프로그램이 확인되지 않습니다.<br>고객센터로 문의해 주세요.</div>
+              <span class="tel">010-3553-8916</span>
+              <div class="btns"><div class="b2" style="flex:1">확인</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="acs"><span class="ac">AC-6</span></div>
+      <p class="note">로그인 화면으로 먼저 이동한 뒤 안내가 노출됩니다. 닫으면 로그인 화면에 머무릅니다.</p>
+    </div></div>
+    <div class="arrow">›</div>
+
+    <!-- E3 폴백 -->
+    <div class="step"><div class="card">
+      <div class="caphead"><div class="num" style="background:var(--am-warn)">E3</div><div class="capname">패키지 모드 미적용 (폴백)</div></div>
+      <div class="phone">
+        <div class="status"><span>09:41</span><span>▮▮▮</span></div>
+        <div class="scr">
+          <div class="t1" style="margin-top:6px">내 몸에 맞는 운동 처방을<br>받아보세요!</div>
+          <div class="fld" style="margin-top:18px"><span>🇰🇷 &nbsp;+82</span><span>⌄</span></div>
+          <div class="fld">휴대폰 번호</div>
+          <div class="hint">010-1234-5678 형식으로 입력해주세요.</div>
+          <div class="fld"><span>비밀번호</span><span>👁</span></div>
+          <div style="text-align:right;font-size:10px;color:var(--am-ink-400);margin-top:7px">비밀번호 재설정</div>
+          <div class="btn">로그인</div>
+          <div class="sublink">아직 회원이 아니신가요? <b>회원가입</b></div>
+        </div>
+      </div>
+      <div class="acs"><span class="ac">AC-12</span><span class="ac">AC-13</span></div>
+      <p class="note">QR을 거치지 않았거나 딥링크가 유실된 경우. 환영 화면 없이 일반 로그인 경로로 동작합니다.</p>
+    </div></div>
+
+  </div>
+</section>
+
+<!-- ===== 규칙 ===== -->
+<section>
+  <div class="sechead"><h2>모드 유지 · 재진입 규칙</h2><span class="tag rule">AC-9 ~ AC-13</span></div>
+  <p class="secdesc">앱을 중간에 종료했다가 다시 실행하는 경우의 도착 지점입니다.</p>
+  <table>
+    <thead><tr><th style="width:30%">이탈 시점</th><th style="width:34%">재실행 시 도착 화면</th><th style="width:24%">이유</th><th style="width:12%">AC</th></tr></thead>
+    <tbody>
+      <tr><td>패키지 환영 화면</td><td>본인 확인 (환영 화면은 건너뜀)</td><td>환영은 최초 1회만 노출</td><td><span class="acmini">AC-2</span></td></tr>
+      <tr><td>본인 확인 진행 중</td><td>본인 확인 (번호 입력부터 다시)</td><td>아직 로그인 상태가 아님</td><td><span class="acmini">AC-9</span></td></tr>
+      <tr><td>비밀번호 설정 화면</td><td>본인 확인 (번호 입력부터 다시)</td><td>아직 로그인 상태가 아님</td><td><span class="acmini">AC-9</span></td></tr>
+      <tr><td>배정 정보 확인 ~ 알림 설정</td><td>중단된 온보딩 화면 (본인 확인 없음)</td><td>비밀번호 설정 시점에 자동 로그인 완료</td><td><span class="acmini">AC-10</span></td></tr>
+      <tr><td>홈 도착 이후</td><td>홈</td><td>패키지 모드 종료</td><td><span class="acmini">AC-11</span></td></tr>
+      <tr><td>홈 도착 후 로그아웃</td><td>일반 로그인 화면</td><td>패키지 모드가 이미 종료됨</td><td><span class="acmini">AC-11</span></td></tr>
+      <tr><td>앱 설치됨 · 미로그인 상태에서 QR 스캔</td><td>패키지 환영 화면</td><td>패키지 모드로 새로 진입</td><td><span class="acmini">AC-13</span></td></tr>
+      <tr><td>앱 설치됨 · 로그인 상태에서 QR 스캔</td><td>홈 (변화 없음)</td><td>기존 세션을 끊지 않음</td><td><span class="acmini">AC-13</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ===== 신규 요소 ===== -->
+<section>
+  <div class="sechead"><h2>이번 작업에서 새로 만드는 화면 요소</h2><span class="tag rule">논리 ID</span></div>
+  <p class="secdesc">나머지 화면과 요소는 기존 구현을 그대로 사용하며, 순서만 연결합니다.</p>
+  <div class="keys">
+    <div class="keycard"><div class="kn">패키지-웰컴-루트-영역</div><div class="kd">패키지 환영 화면 전체 영역</div></div>
+    <div class="keycard"><div class="kn">패키지-웰컴-시작-버튼</div><div class="kd">100일 회복 여정 시작하기</div></div>
+    <div class="keycard"><div class="kn">인증-기가입-안내-팝업</div><div class="kd">이미 가입된 계정 안내</div></div>
+    <div class="keycard"><div class="kn">인증-기가입-로그인이동-버튼</div><div class="kd">로그인하기</div></div>
+    <div class="keycard"><div class="kn">인증-미가입-CS안내-팝업</div><div class="kd">등록 정보 없음 안내</div></div>
+    <div class="keycard"><div class="kn">인증-미가입-CS연락처-텍스트</div><div class="kd">010-3553-8916</div></div>
+    <div class="keycard"><div class="kn">인증-미가입-확인-버튼</div><div class="kd">CS 안내 팝업 확인</div></div>
+  </div>
+</section>
+
+<footer>
+  ActiMedi · 앳홈 100일 패키지 — ACLP-4616 시퀀스 목업. 화면은 확정 AC 기준으로 재구성한 것이며 최종 디자인이 아닙니다. 표시된 이름·번호·병원명은 모두 예시 값입니다.
+</footer>
+
+</div>
+</body>
+</html>
