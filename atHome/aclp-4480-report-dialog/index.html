@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ACLP-4480 목업 ③ 운동 종합 리포트 다이얼로그</title>
+<title>ACLP-4480 목업 ③ 운동 통합 리포트 다이얼로그</title>
 <style>
   :root{
-    --blue:#1E5AF0;--blue-hover:#1749c9;--blue-light:#6C9BFF;--navy:#0B1F45;
+    --blue:#1E5AF0;--blue-hover:#1749c9;--navy:#0B1F45;
     --ink:#111827;--gray-700:#374151;--gray-500:#6B7280;--gray-400:#9CA3AF;
     --gray-300:#D1D5DB;--gray-200:#E5E7EB;--gray-100:#F3F4F6;--gray-50:#F9FAFB;
     --sky:#EEF4FF;--red:#E03131;
@@ -17,59 +17,60 @@
     background:#fff;color:var(--ink);font-size:14px;-webkit-font-smoothing:antialiased;overflow:hidden;
   }
 
-  /* ---------- 배경(트렌드 탭 축약) ---------- */
   .bg{display:flex;height:100vh;filter:saturate(.6);}
   .bg-side{width:72px;flex:0 0 72px;border-right:1px solid var(--gray-200);padding:16px 0;display:flex;flex-direction:column;align-items:center;gap:8px;}
   .bg-ic{width:44px;height:44px;border-radius:12px;background:var(--gray-100);}
   .bg-ic.on{background:var(--sky);}
   .bg-main{flex:1;padding:24px 32px;}
   .bg-crumb{color:var(--gray-400);font-size:14px;margin-bottom:20px;}
-  .bg-patient{background:var(--sky);border:1px solid #DCE7FF;border-radius:12px;height:66px;display:flex;align-items:center;padding:0 24px;font-weight:700;font-size:18px;}
+  .bg-patient{background:var(--sky);border:1px solid #DCE7FF;border-radius:12px;height:70px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;font-weight:800;font-size:19px;}
   .bg-patient span{color:var(--gray-500);font-weight:500;font-size:15px;margin-left:10px;}
+  .bg-btn{height:40px;padding:0 16px;background:var(--blue);color:#fff;border-radius:10px;display:flex;align-items:center;font-size:14px;font-weight:600;}
   .bg-tabs{display:flex;gap:28px;border-bottom:1px solid var(--gray-200);margin-top:24px;}
   .bg-tab{padding:12px 4px 14px;color:var(--gray-400);font-size:15px;}
   .bg-tab.on{color:var(--blue);border-bottom:2px solid var(--blue);margin-bottom:-1px;font-weight:700;}
-  .bg-chart{margin-top:36px;height:220px;border-radius:12px;background:linear-gradient(180deg,var(--gray-50),#fff);border:1px solid var(--gray-100);}
+  .bg-body{margin-top:36px;height:200px;border-radius:12px;background:linear-gradient(180deg,var(--gray-50),#fff);border:1px solid var(--gray-100);}
 
-  /* ---------- 다이얼로그 ---------- */
-  .overlay{
-    position:fixed;inset:0;background:rgba(11,31,69,.55);z-index:50;
-    display:flex;align-items:center;justify-content:center;padding:32px 20px;
-  }
-  .dialog{
-    width:100%;max-width:880px;max-height:100%;background:#fff;border-radius:16px;
-    box-shadow:0 24px 64px rgba(0,0,0,.28);display:flex;flex-direction:column;overflow:hidden;
-  }
-  .dlg-head{
-    display:flex;align-items:center;justify-content:space-between;
-    padding:18px 24px;border-bottom:1px solid var(--gray-200);flex:0 0 auto;
-  }
+  .overlay{position:fixed;inset:0;background:rgba(11,31,69,.55);z-index:50;display:flex;align-items:center;justify-content:center;padding:28px 20px;}
+  .dialog{width:100%;max-width:900px;max-height:100%;background:#fff;border-radius:16px;box-shadow:0 24px 64px rgba(0,0,0,.28);display:flex;flex-direction:column;overflow:hidden;}
+  .dlg-head{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--gray-200);flex:0 0 auto;}
   .dlg-title{font-size:16px;font-weight:700;}
-  .dlg-close{
-    width:34px;height:34px;border-radius:8px;border:0;background:none;color:var(--gray-500);
-    cursor:pointer;display:flex;align-items:center;justify-content:center;
-  }
+  .dlg-close{width:34px;height:34px;border-radius:8px;border:0;background:none;color:var(--gray-500);cursor:pointer;display:flex;align-items:center;justify-content:center;}
   .dlg-close:hover{background:var(--gray-100);}
-  .dlg-body{overflow-y:auto;padding:34px 44px 40px;}
+  .dlg-body{overflow-y:auto;padding:30px 44px 40px;}
 
-  /* ---------- 리포트 문서 ---------- */
-  .rpt-head{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;}
-  .rpt-title{font-size:27px;font-weight:800;letter-spacing:-.02em;}
-  .rpt-sub{margin-top:9px;font-size:13px;color:var(--gray-500);}
-  .rpt-id{display:flex;align-items:center;gap:10px;justify-content:flex-end;}
+  .rpt-top{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;padding-bottom:18px;border-bottom:2px solid var(--ink);}
+  .brand{display:flex;align-items:center;gap:12px;}
+  .logo-box{width:46px;height:46px;border-radius:10px;background:var(--sky);display:flex;align-items:center;justify-content:center;flex:0 0 auto;overflow:hidden;}
+  .logo-box.fallback{background:var(--blue);}
+  .hosp-name{font-size:17px;font-weight:800;letter-spacing:-.01em;}
+  .hosp-sub{margin-top:4px;font-size:12.5px;color:var(--gray-500);}
+  .rpt-title-box{text-align:right;}
+  .rpt-title{font-size:22px;font-weight:800;letter-spacing:-.02em;}
+  .rpt-gen{margin-top:6px;font-size:12.5px;color:var(--gray-500);}
+
+  .rpt-meta{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;margin-top:18px;}
+  .period{font-size:13px;color:var(--gray-500);}
+  .period b{color:var(--ink);font-weight:600;}
+  .pat-id{display:flex;align-items:center;gap:10px;justify-content:flex-end;}
   .chip-no{background:var(--gray-100);color:var(--gray-700);font-size:12px;padding:5px 10px;border-radius:6px;font-weight:500;}
-  .pname{font-size:20px;font-weight:800;color:var(--blue);}
-  .pmeta{margin-top:9px;font-size:13px;color:var(--gray-500);text-align:right;}
+  .pname{font-size:19px;font-weight:800;color:var(--blue);}
+  .pmeta{margin-top:7px;font-size:12.5px;color:var(--gray-500);text-align:right;}
 
-  .kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:26px;}
-  .kpi{background:var(--sky);border-radius:12px;padding:18px 20px;text-align:center;}
+  .summary{margin-top:20px;background:var(--sky);border-radius:12px;padding:18px 20px;font-size:14px;line-height:1.75;color:var(--gray-700);}
+  .summary b{color:var(--ink);font-weight:700;}
+
+  .kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;margin-top:20px;}
+  .kpi{border:1px solid var(--gray-200);border-radius:12px;padding:16px 18px;text-align:center;}
   .kpi .k-label{font-size:12.5px;color:var(--gray-500);}
-  .kpi .k-value{margin-top:8px;font-size:30px;font-weight:800;letter-spacing:-.02em;}
-  .kpi .k-value small{font-size:15px;font-weight:700;margin-left:2px;}
-  .derived{margin-top:14px;font-size:12.5px;color:var(--gray-500);}
+  .kpi .k-value{margin-top:7px;font-size:28px;font-weight:800;letter-spacing:-.02em;}
+  .kpi .k-value small{font-size:14px;font-weight:700;margin-left:2px;}
+  .derived{margin-top:12px;font-size:13px;color:var(--gray-700);}
+  .derived b{font-weight:700;}
+  .legend{margin-top:10px;font-size:11.5px;color:var(--gray-400);}
 
   .card{border:1px solid var(--gray-200);border-radius:14px;margin-top:20px;overflow:hidden;}
-  .card-title{font-size:15px;font-weight:700;padding:16px 20px;background:var(--gray-50);border-bottom:1px solid var(--gray-100);}
+  .card-title{font-size:15px;font-weight:700;padding:15px 20px;background:var(--gray-50);border-bottom:1px solid var(--gray-100);}
   .card-body{padding:20px;}
 
   svg.trend{width:100%;height:210px;display:block;}
@@ -85,83 +86,53 @@
   .bar-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,#9FC0FF,var(--blue));}
   .bar-val{width:42px;flex:0 0 42px;text-align:right;font-size:12.5px;color:var(--gray-700);font-variant-numeric:tabular-nums;}
 
-  .rs-head{
-    margin-top:22px;padding-top:18px;border-top:1px solid var(--gray-100);
-    font-size:13.5px;font-weight:700;color:var(--red);
-  }
+  .rs-head{margin-top:22px;padding-top:18px;border-top:1px solid var(--gray-100);font-size:13.5px;font-weight:700;color:var(--red);}
   table.rs{width:100%;border-collapse:collapse;margin-top:10px;}
-  table.rs th{
-    font-size:11.5px;color:var(--gray-400);font-weight:500;text-align:left;
-    padding:7px 8px;border-bottom:1px solid var(--gray-100);
-  }
+  table.rs th{font-size:11.5px;color:var(--gray-400);font-weight:500;text-align:left;padding:7px 8px;border-bottom:1px solid var(--gray-100);}
   table.rs td{padding:9px 8px;font-size:12.5px;border-bottom:1px solid var(--gray-100);color:var(--gray-700);}
   table.rs td.name{color:var(--ink);}
   table.rs td.vas{color:var(--red);font-weight:700;text-align:right;}
   table.rs td.num{font-variant-numeric:tabular-nums;}
   table.rs th.r,table.rs td.r{text-align:right;}
-  .rs-note{margin-top:12px;font-size:11.5px;color:var(--gray-400);}
 
-  .def-box{
-    margin-top:22px;padding:14px 16px;border:1px dashed var(--gray-300);border-radius:10px;
-    font-size:11.5px;color:var(--gray-400);line-height:1.7;
-  }
-  .rpt-foot{
-    margin-top:26px;padding-top:16px;border-top:1px solid var(--gray-200);
-    font-size:11.5px;color:var(--gray-400);
-  }
+  .review-bar{position:fixed;bottom:20px;right:20px;z-index:200;display:flex;gap:7px;align-items:center;background:rgba(17,24,39,.92);color:#fff;padding:10px 14px;border-radius:10px;font-size:12px;box-shadow:0 6px 24px rgba(0,0,0,.24);}
+  .review-bar button{background:rgba(255,255,255,.16);color:#fff;border:0;border-radius:6px;padding:6px 11px;font-size:12px;cursor:pointer;font-family:inherit;}
+  .review-bar button.on{background:var(--blue);}
+  .review-bar button:hover{filter:brightness(1.2);}
 
-  /* ---------- 리뷰 도구 ---------- */
-  .review-bar{
-    position:fixed;bottom:20px;right:20px;z-index:200;display:flex;gap:8px;align-items:center;
-    background:rgba(17,24,39,.92);color:#fff;padding:10px 14px;border-radius:10px;font-size:12px;
-    box-shadow:0 6px 24px rgba(0,0,0,.24);
-  }
-  .review-bar button{background:var(--blue);color:#fff;border:0;border-radius:6px;padding:6px 11px;font-size:12px;cursor:pointer;font-family:inherit;}
-  .review-bar button.ghost{background:rgba(255,255,255,.16);}
-  .review-bar button:hover{filter:brightness(1.12);}
-  body.show-diff .diff{outline:2px dashed var(--red);outline-offset:4px;border-radius:8px;}
-  body.show-diff .diff::after{
-    content:attr(data-diff);position:absolute;top:-10px;left:0;background:var(--red);color:#fff;
-    font-size:9px;line-height:1;padding:3px 6px;border-radius:4px;white-space:nowrap;
-  }
-  .diff{position:relative;}
-
-  /* 상태별 표시 */
   .state-empty,.state-error{display:none;}
-  body[data-state="empty"] .state-normal{display:none;}
+  body[data-state="empty"] .state-main{display:none;}
   body[data-state="empty"] .state-empty{display:block;}
-  body[data-state="error"] .state-normal{display:none;}
+  body[data-state="error"] .state-main{display:none;}
   body[data-state="error"] .state-error{display:block;}
-  .placeholder{
-    padding:56px 20px;text-align:center;color:var(--gray-400);font-size:13px;
-    border:1px dashed var(--gray-300);border-radius:12px;
-  }
+  .placeholder{padding:52px 20px;text-align:center;color:var(--gray-400);font-size:13px;border:1px dashed var(--gray-300);border-radius:12px;}
 </style>
 </head>
 <body data-state="normal">
 
-<!-- 배경: 트렌드 탭 -->
 <div class="bg">
   <div class="bg-side">
     <div class="bg-ic"></div><div class="bg-ic on"></div><div class="bg-ic"></div>
     <div class="bg-ic"></div><div class="bg-ic"></div><div class="bg-ic"></div>
   </div>
   <div class="bg-main">
-    <div class="bg-crumb">명지병원 &nbsp;|&nbsp; 환자 관리 상세</div>
-    <div class="bg-patient">여미미 <span>MG12345678 &nbsp;|&nbsp; 무릎 기능 관리 프로그램</span></div>
-    <div class="bg-tabs">
-      <div class="bg-tab">레드사인</div><div class="bg-tab">운동 미수행</div>
-      <div class="bg-tab">프로그램</div><div class="bg-tab on">트렌드</div>
+    <div class="bg-crumb">시연용병원 &nbsp;|&nbsp; 환자 관리 상세</div>
+    <div class="bg-patient">
+      <div>시연영우 <span>SY8221</span></div>
+      <div class="bg-btn">운동 통합 리포트 조회</div>
     </div>
-    <div class="bg-chart"></div>
+    <div class="bg-tabs">
+      <div class="bg-tab on">레드사인</div><div class="bg-tab">운동 미수행</div>
+      <div class="bg-tab">프로그램</div><div class="bg-tab">트렌드</div>
+    </div>
+    <div class="bg-body"></div>
   </div>
 </div>
 
-<!-- 다이얼로그 -->
 <div class="overlay">
   <div class="dialog" role="dialog" aria-modal="true" data-testid="리포트-뷰어-영역">
     <div class="dlg-head">
-      <div class="dlg-title">운동 종합 리포트</div>
+      <div class="dlg-title">운동 통합 리포트</div>
       <button class="dlg-close" data-testid="리포트-뷰어-닫기-버튼">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg>
       </button>
@@ -169,23 +140,40 @@
 
     <div class="dlg-body">
 
-      <!-- ========== 정상 ========== -->
-      <div class="state-normal">
-        <div class="rpt-head">
+      <div class="rpt-top">
+        <div class="brand">
+          <div class="logo-box" id="logoBox" data-testid="리포트-헤더-병원로고-이미지"></div>
           <div>
-            <div class="rpt-title">앱홈 운동 통합리포트</div>
-            <div class="rpt-sub diff" data-diff="단계 표기 삭제" data-testid="리포트-헤더-기간-텍스트">
-              리포트 기간 2026.05.23 ~ 08.20 ·
-              <span data-testid="리포트-헤더-주차-텍스트">현재 12주차</span>
-            </div>
+            <div class="hosp-name" id="hospName" data-testid="리포트-헤더-병원명-텍스트">시연용병원</div>
+            <div class="hosp-sub" data-testid="리포트-헤더-프로그램명-텍스트">무릎 기능 관리 프로그램 · 골관절염 2기 운동 플랜</div>
           </div>
-          <div>
-            <div class="rpt-id">
-              <span class="chip-no" data-testid="리포트-헤더-등록번호-텍스트">MG12345678</span>
-              <span class="pname">여미미</span>
-            </div>
-            <div class="pmeta" data-testid="리포트-헤더-환자정보-영역">여 / 168cm · 50kg / 1959.12.30 (만 66세)</div>
+        </div>
+        <div class="rpt-title-box">
+          <div class="rpt-title">운동 통합 리포트</div>
+          <div class="rpt-gen" data-testid="리포트-헤더-생성일-텍스트">생성일 2026.08.19</div>
+        </div>
+      </div>
+
+      <div class="rpt-meta">
+        <div class="period" data-testid="리포트-헤더-기간-텍스트">
+          리포트 기간 <b>2026.05.28 ~ 2026.08.19</b> ·
+          <span data-testid="리포트-헤더-주차-텍스트">현재 12주차</span>
+        </div>
+        <div>
+          <div class="pat-id">
+            <span class="chip-no" data-testid="리포트-헤더-등록번호-텍스트">SY8221</span>
+            <span class="pname">시연영우</span>
           </div>
+          <div class="pmeta" data-testid="리포트-헤더-환자정보-영역">여 / 168cm · 50kg / 1959.12.30 (만 66세)</div>
+        </div>
+      </div>
+
+      <div class="state-main">
+
+        <div class="summary" data-testid="리포트-요약문-영역">
+          프로그램 기준일부터 오늘까지 <b>84일(12주차)</b> 동안 진행률은 <b>82%</b>,
+          통증점수는 최근 4주 평균 <b>VAS 2.1</b>, 일별 평균 운동시간은 <b>32분</b>입니다.<br>
+          최근 4주간 VAS 5 이상 레드사인은 <b>10건</b> 발생했습니다.
         </div>
 
         <div class="kpi-row">
@@ -198,76 +186,70 @@
             <div class="k-value" data-testid="리포트-요약-통증점수-텍스트">2.1</div>
           </div>
           <div class="kpi">
-            <div class="k-label">운동시간 (1회 수행 평균)</div>
+            <div class="k-label">운동시간 (일별 평균)</div>
             <div class="k-value" data-testid="리포트-요약-운동시간-텍스트">32<small>분</small></div>
           </div>
         </div>
 
-        <div class="derived diff" data-diff="분모 = 경과 84일">
+        <div class="derived">
           운동빈도 <b data-testid="리포트-요약-운동빈도-텍스트">4.2회/주</b> ·
-          미수행 <b data-testid="리포트-요약-미수행-텍스트">12일/84일</b> (파생지표)
+          미수행 <b data-testid="리포트-요약-미수행-텍스트">12일/84일</b>
+        </div>
+        <div class="legend" data-testid="리포트-지표-범례-캐프션">
+          집계 기준: 프로그램 기준일 2026.05.28부터 오늘까지 84일 · 진행률은 일별 진행률의 평균 · 운동시간은 운동한 날의 수행 시간 평균
         </div>
 
-        <!-- 추세 -->
-        <div class="card diff" data-diff="4개 → 12개 주차 전체">
+        <div class="card">
           <div class="card-title">주차별 진행률 추세</div>
           <div class="card-body">
             <svg class="trend" id="trend" viewBox="0 0 900 210" preserveAspectRatio="none"
                  data-testid="리포트-추세-주차별진행률-차트"></svg>
+            <div class="legend" data-testid="리포트-추세-범례-캐프션">
+              세로축 진행률 0~100% · 가로축 주차 · 주차별 진행률 = 해당 주차 일별 진행률의 합 ÷ 그 주차에 수행해야 했던 운동 일수
+            </div>
           </div>
         </div>
 
-        <!-- 비중 + 레드사인 -->
         <div class="card">
           <div class="card-title">운동 종류별 비중</div>
           <div class="card-body">
             <div id="bars" data-testid="리포트-비중-운동종류-목록"></div>
+            <div class="legend" data-testid="리포트-비중-범례-캐프션">
+              집계 기준: 프로그램 기준일부터 오늘까지 수행한 운동 전체를 8개 분류로 나눈 비율
+            </div>
 
-            <div class="rs-head diff" data-diff="VAS≥4 → ≥5 · 최근 4주 · 최대 10건">
-              최근 4주간 레드사인 · VAS ≥ 5 발현 운동 <span id="rsCount">10</span>건
+            <div class="rs-head">
+              최근 4주간 레드사인 · VAS 5 이상 발현 운동 <span id="rsCount">10</span>건
             </div>
             <table class="rs" data-testid="리포트-레드사인-목록">
               <thead>
                 <tr>
                   <th style="width:38%;">운동</th>
-                  <th class="diff" data-diff="날짜 신규" style="width:22%;">수행 날짜</th>
+                  <th style="width:22%;">수행 날짜</th>
                   <th class="r" style="width:20%;">진행률</th>
                   <th class="r" style="width:20%;">VAS</th>
                 </tr>
               </thead>
               <tbody id="rsBody"></tbody>
             </table>
-            <div class="rs-note">위 운동은 앱홈에서 강도 하향 · 대체 동작으로 자동 조정 완료 <b>(유지 여부 확인 필요)</b></div>
+            <div class="legend" data-testid="리포트-레드사인-범례-캐프션">
+              기준: 최근 4주 · VAS 5 이상 발현 · 최근 발생 순 최대 10건 · 해당 운동은 앱홈에서 강도 하향 또는 대체 동작으로 자동 조정됩니다
+            </div>
           </div>
-        </div>
-
-        <div class="def-box diff" data-diff="문구 추후 확정">
-          지표 정의: (확정 문구 삽입 예정)
-        </div>
-
-        <div class="rpt-foot diff" data-diff="페이지 번호 삭제">
-          ActiMedi · 앱홈 운동 통합리포트 · 명지병원 무릎기능관리프로그램 · 생성일 2026.08.14
         </div>
       </div>
 
-      <!-- ========== 데이터 없음 (GWT 18-1 · 18-2) ========== -->
       <div class="state-empty">
-        <div class="rpt-head">
-          <div>
-            <div class="rpt-title">앱홈 운동 통합리포트</div>
-            <div class="rpt-sub">리포트 기간 2026.08.13 ~ 11.10 · 현재 1주차</div>
-          </div>
-          <div>
-            <div class="rpt-id"><span class="chip-no">MG99887766</span><span class="pname">김하늘</span></div>
-            <div class="pmeta">여 / 162cm · 58kg / 1971.03.11 (만 55세)</div>
-          </div>
+        <div class="summary">
+          프로그램 기준일부터 오늘까지 <b>2일(1주차)</b> 동안 아직 운동 기록이 없습니다.
         </div>
         <div class="kpi-row">
           <div class="kpi"><div class="k-label">진행률</div><div class="k-value" style="color:var(--gray-300);">–</div></div>
           <div class="kpi"><div class="k-label">통증점수 (VAS, 최근 4주 평균)</div><div class="k-value" style="color:var(--gray-300);">–</div></div>
-          <div class="kpi"><div class="k-label">운동시간 (1회 수행 평균)</div><div class="k-value" style="color:var(--gray-300);">–</div></div>
+          <div class="kpi"><div class="k-label">운동시간 (일별 평균)</div><div class="k-value" style="color:var(--gray-300);">–</div></div>
         </div>
-        <div class="derived">운동빈도 <b>–</b> · 미수행 <b>2일/2일</b> (파생지표)</div>
+        <div class="derived">운동빈도 <b>–</b> · 미수행 <b>2일/2일</b></div>
+        <div class="legend">집계 기준: 프로그램 기준일부터 오늘까지 2일</div>
         <div class="card">
           <div class="card-title">주차별 진행률 추세</div>
           <div class="card-body"><div class="placeholder" data-testid="리포트-뷰어-데이터없음-안내">아직 운동 기록이 없습니다</div></div>
@@ -276,12 +258,10 @@
           <div class="card-title">운동 종류별 비중</div>
           <div class="card-body"><div class="placeholder">아직 운동 기록이 없습니다</div></div>
         </div>
-        <div class="rpt-foot">ActiMedi · 앱홈 운동 통합리포트 · 명지병원 무릎기능관리프로그램 · 생성일 2026.08.14</div>
       </div>
 
-      <!-- ========== 조회 실패 (GWT 17-1 ~ 17-3) ========== -->
       <div class="state-error">
-        <div style="padding:80px 20px;text-align:center;" data-testid="리포트-뷰어-오류-안내">
+        <div style="padding:70px 20px;text-align:center;" data-testid="리포트-뷰어-오류-안내">
           <div style="width:56px;height:56px;border-radius:50%;background:#FDECEC;color:var(--red);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;">
             <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v5M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg>
           </div>
@@ -298,17 +278,34 @@
 
 <div class="review-bar">
   <span>상태</span>
-  <button class="ghost" data-s="normal">정상</button>
-  <button class="ghost" data-s="empty">기록 없음</button>
-  <button class="ghost" data-s="error">조회 실패</button>
-  <span style="margin-left:10px;">이미지 대비 변경</span>
-  <button id="toggleDiff">켜기</button>
+  <button class="on" data-s="normal">정상</button>
+  <button data-s="empty">기록 없음</button>
+  <button data-s="error">조회 실패</button>
+  <span style="margin-left:8px;">로고</span>
+  <button id="logoBtn">미등록으로 전환</button>
 </div>
 
 <script>
-  /* 주차별 진행률 — 12주 전체 */
-  var WEEKLY = [74,76,78,79,81,82,83,85,86,84,87,89];
+  var HOSP_LOGO = '<svg width="30" height="30" viewBox="0 0 40 40" fill="none">'
+    + '<rect width="40" height="40" rx="8" fill="#1E5AF0"/>'
+    + '<path d="M20 10v20M10 20h20" stroke="#fff" stroke-width="4.5" stroke-linecap="round"/></svg>';
+  var ACTIMEDI_LOGO = '<span style="color:#fff;font-size:11px;font-weight:800;letter-spacing:-.02em;">AM</span>';
 
+  var logoRegistered = true;
+  function renderLogo() {
+    var box = document.getElementById("logoBox");
+    if (logoRegistered) {
+      box.classList.remove("fallback");
+      box.innerHTML = HOSP_LOGO;
+      document.getElementById("hospName").textContent = "시연용병원";
+    } else {
+      box.classList.add("fallback");
+      box.innerHTML = ACTIMEDI_LOGO;
+      document.getElementById("hospName").textContent = "로고미등록병원";
+    }
+  }
+
+  var WEEKLY = [74,76,78,79,81,82,83,85,86,84,87,89];
   (function drawTrend(){
     var W=900,H=210,padL=34,padR=14,padT=16,padB=26;
     var iw=W-padL-padR, ih=H-padT-padB, s="";
@@ -322,68 +319,63 @@
       var x=padL+i/(WEEKLY.length-1)*iw;
       var y2=padT+ih-(WEEKLY[i]/100)*ih;
       pts.push(x+","+y2);
-      s+='<text class="t-x" x="'+x+'" y="'+(H-8)+'">'+(i+1)+'주</text>';
+      s+='<text class="t-x" x="'+x+'" y="'+(H-8)+'">'+(i+1)+'주차</text>';
     }
     s+='<polyline class="t-series" points="'+pts.join(" ")+'"/>';
-    for(var j=0;j<pts.length;j++){
-      var p=pts[j].split(",");
-      s+='<circle class="t-dot" cx="'+p[0]+'" cy="'+p[1]+'" r="3.4"/>';
-    }
+    for(var j=0;j<pts.length;j++){ var p=pts[j].split(","); s+='<circle class="t-dot" cx="'+p[0]+'" cy="'+p[1]+'" r="3.4"/>'; }
     document.getElementById("trend").innerHTML=s;
   })();
 
-  /* 운동 종류별 비중 — 8개 분류 */
   var TYPES=[["마사지",8],["스트레칭",10],["관절가동범위",16],["근력(OKC)",16],
              ["근력(CKC)",14],["체중지지",10],["고유수용성",12],["코어",14]];
   var bh="";
   for(var t=0;t<TYPES.length;t++){
-    bh+='<div class="bar-row" data-testid="리포트-비중-운동종류-행">'+
-          '<div class="bar-label">'+TYPES[t][0]+'</div>'+
-          '<div class="bar-track"><div class="bar-fill" style="width:'+(TYPES[t][1]/16*100)+'%"></div></div>'+
-          '<div class="bar-val">'+TYPES[t][1]+'%</div>'+
-        '</div>';
+    bh+='<div class="bar-row" data-testid="리포트-비중-운동종류-행">'
+      + '<div class="bar-label">'+TYPES[t][0]+'</div>'
+      + '<div class="bar-track"><div class="bar-fill" style="width:'+(TYPES[t][1]/16*100)+'%"></div></div>'
+      + '<div class="bar-val">'+TYPES[t][1]+'%</div></div>';
   }
   document.getElementById("bars").innerHTML=bh;
 
-  /* 레드사인 — 최근 발생순 최대 10건 */
   var RS=[
-    ["앞 런지 60º","2026.08.12","57%",6],
-    ["한 발 스쿼트 45º","2026.08.11","69%",7],
-    ["한 발 브릿지","2026.08.09","13%",6],
-    ["벽 스쿼트 60º","2026.08.07","45%",5],
-    ["사이드 런지","2026.08.05","62%",6],
-    ["스텝업 20cm","2026.08.02","71%",5],
-    ["한 발 서기 30초","2026.07.30","38%",6],
-    ["레그 익스텐션","2026.07.27","80%",5],
-    ["뒤 런지 60º","2026.07.24","55%",7],
-    ["카프 레이즈","2026.07.21","66%",5]
+    ["앞 런지 60º","2026.08.17","57%",6],
+    ["한 발 스쿼트 45º","2026.08.16","69%",7],
+    ["한 발 브릿지","2026.08.14","13%",6],
+    ["벽 스쿼트 60º","2026.08.12","45%",5],
+    ["사이드 런지","2026.08.10","62%",6],
+    ["스텝업 20cm","2026.08.07","71%",5],
+    ["한 발 서기 30초","2026.08.04","38%",6],
+    ["레그 익스텐션","2026.08.01","80%",5],
+    ["뒤 런지 60º","2026.07.29","55%",7],
+    ["카프 레이즈","2026.07.26","66%",5]
   ];
   var rh="";
   for(var r=0;r<RS.length;r++){
-    rh+='<tr data-testid="리포트-레드사인-행">'+
-          '<td class="name">'+RS[r][0]+'</td>'+
-          '<td class="num">'+RS[r][1]+'</td>'+
-          '<td class="num r">'+RS[r][2]+'</td>'+
-          '<td class="vas">VAS '+RS[r][3]+'</td>'+
-        '</tr>';
+    rh+='<tr data-testid="리포트-레드사인-행">'
+      + '<td class="name">'+RS[r][0]+'</td>'
+      + '<td class="num">'+RS[r][1]+'</td>'
+      + '<td class="num r">'+RS[r][2]+'</td>'
+      + '<td class="vas">VAS '+RS[r][3]+'</td></tr>';
   }
   document.getElementById("rsBody").innerHTML=rh;
   document.getElementById("rsCount").textContent=RS.length;
 
-  /* 리뷰 컨트롤 */
   var btns=document.querySelectorAll(".review-bar button[data-s]");
   for(var b=0;b<btns.length;b++){
     btns[b].addEventListener("click",function(){
+      for(var n=0;n<btns.length;n++) btns[n].classList.remove("on");
+      this.classList.add("on");
       document.body.setAttribute("data-state",this.getAttribute("data-s"));
       document.querySelector(".dlg-body").scrollTop=0;
     });
   }
-  var on=false;
-  document.getElementById("toggleDiff").addEventListener("click",function(){
-    on=!on;
-    document.body.classList.toggle("show-diff",on);
-    this.textContent=on?"끄기":"켜기";
+  document.getElementById("logoBtn").addEventListener("click",function(){
+    logoRegistered=!logoRegistered;
+    this.textContent=logoRegistered?"미등록으로 전환":"등록으로 전환";
+    renderLogo();
   });
+
+  renderLogo();
 </script>
 
 </body>
