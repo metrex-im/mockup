@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ACLP-4471 · 리포트 내용 챗봇 질의 — 목업 (plan B)</title>
+<style>
+  :root{
+    --kakao-bg:#b2c7da; --kakao-yellow:#fae100; --talk-blue:#1f5fe0;
+    --panel-card:#171c22; --panel-line:#252c34; --panel-ink:#dfe4ea;
+    --panel-muted:#7b858f; --accent:#4c8dff;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{font-family:'Apple SD Gothic Neo','Pretendard','Noto Sans KR','Malgun Gothic',sans-serif;
+       background:#0b0e12;color:var(--panel-ink);min-height:100vh;padding:28px 20px 48px}
+  .wrap{max-width:520px;margin:0 auto}
+  header.top{margin-bottom:18px;text-align:center}
+  header.top h1{font-size:17px;margin:0 0 6px;font-weight:700;letter-spacing:-.2px}
+  header.top h1 .tag{background:#1d3320;color:#67d39a;font-size:11px;border-radius:5px;padding:2px 8px;margin-left:8px;vertical-align:middle;font-weight:700}
+  header.top p{margin:0;font-size:12.5px;color:var(--panel-muted);line-height:1.65}
+  header.top a{color:var(--accent);text-decoration:none}
+  .stage{display:flex;justify-content:center}
+
+  .phone{width:378px;height:812px;flex:0 0 378px;background:#fff;border-radius:38px;
+         overflow:hidden;position:relative;
+         box-shadow:0 0 0 9px #23272d,0 0 0 10px #353b42,0 26px 60px rgba(0,0,0,.6)}
+    /* ===== 온보딩 (AC-2·11·13·14) ===== */
+  .ob-screen{background:#fff}
+  .ob-top{
+    flex:0 0 auto;padding:2px 18px 10px;display:flex;align-items:center;gap:10px
+  }
+  .ob-top .nm{font-size:14px;font-weight:700;color:#16181b}
+  .ob-top .sub{font-size:11px;color:#9aa1a9}
+  .ob-prog{flex:1;height:4px;border-radius:3px;background:#eef1f4;overflow:hidden}
+  .ob-prog i{display:block;height:100%;background:#1f5fe0;border-radius:3px;transition:width .28s}
+  .ob-body{flex:1;overflow-y:auto;padding:4px 18px 8px}
+  .ob-bot{font-size:14.5px;line-height:1.65;color:#16181b;margin:14px 0 0}
+  .ob-ans{
+    display:inline-block;margin:9px 0 0;background:#1f5fe0;color:#fff;border-radius:16px;
+    padding:9px 14px;font-size:13.5px;font-weight:600;max-width:78%
+  }
+  .ob-ansrow{display:flex;justify-content:flex-end}
+  .ob-input{flex:0 0 auto;padding:8px 16px 4px;border-top:1px solid #f0f1f3}
+  .ob-chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:9px}
+  .ob-chip{
+    border:1.5px solid #e2e6ea;background:#fff;border-radius:16px;padding:7px 12px;
+    font-size:12px;color:#4d555d;cursor:pointer;font-family:inherit
+  }
+  .ob-chip.on{border-color:#1f5fe0;background:#eef4ff;color:#1f5fe0;font-weight:700}
+  .ob-field{
+    width:100%;border:1px solid #e2e6ea;border-radius:11px;padding:11px 13px;
+    font-size:13.5px;font-family:inherit;color:#16181b;margin-bottom:9px;background:#fff
+  }
+  .ob-btns{display:flex;gap:8px}
+  .ob-btn{
+    flex:1;border:0;border-radius:12px;padding:12px;font-size:13.5px;font-weight:700;
+    cursor:pointer;font-family:inherit;background:#1f5fe0;color:#fff
+  }
+  .ob-btn:disabled{opacity:.4;cursor:default}
+  .ob-btn.ghost{background:#f1f3f5;color:#5c646d;font-weight:600;flex:0 0 92px}
+  .ob-btn.start{background:#ffdb3a;color:#16181b}
+  /* 약관 동의 카드 */
+  .ob-terms{border:1px solid #e7ebf0;border-radius:13px;padding:11px 12px;margin-bottom:9px;background:#fff}
+  .ob-term{display:flex;gap:9px;align-items:flex-start;padding:7px 0}
+  .ob-term + .ob-term{border-top:1px solid #f2f4f6}
+  .ob-cb{
+    width:19px;height:19px;flex:0 0 19px;border-radius:6px;border:1.5px solid #d4dae0;background:#fff;
+    display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;cursor:pointer
+  }
+  .ob-cb.on{background:#1f5fe0;border-color:#1f5fe0}
+  .ob-term .tx{flex:1;min-width:0;font-size:12px;color:#4d555d;line-height:1.5}
+  .ob-term .tx b{color:#16181b;font-size:12.5px}
+  .ob-term .scope{display:block;margin-top:3px;font-size:10.5px;color:#8b9199}
+  .ob-gap{
+    margin-top:6px;background:#fff6e8;border:1px solid #f0d7ac;border-radius:9px;
+    padding:8px 10px;font-size:10.5px;color:#7a5b1d;line-height:1.5
+  }
+  .ob-gap b{color:#5f4514}
+  /* 온보딩 하단 고지 (AC-14) */
+  .ob-disc{
+    flex:0 0 auto;display:flex;gap:7px;align-items:flex-start;
+    padding:9px 16px 14px;font-size:10.5px;color:#9aa1a9;line-height:1.5
+  }
+  .ob-disc .bd{
+    flex:0 0 auto;background:#eef4ff;color:#2f62c9;border-radius:5px;padding:1px 5px;
+    font-size:9.5px;font-weight:700
+  }
+  .screen{position:absolute;inset:0;display:none;flex-direction:column}
+  .screen.on{display:flex}
+  .statusbar{height:34px;flex:0 0 34px;display:flex;align-items:center;justify-content:space-between;
+             padding:0 18px;font-size:12.5px;font-weight:600;color:#111}
+  .statusbar .r{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:600}
+  .pillbat{background:#111;color:#fff;border-radius:9px;padding:1px 6px;font-size:10.5px}
+  .homebar{width:130px;height:5px;border-radius:3px;background:#111;margin:0 auto 8px;opacity:.85}
+
+  /* ===== 화면 전환 애니메이션 ===== */
+  .screen.on{animation:scrIn .34s cubic-bezier(.2,.9,.3,1) both}
+  @keyframes scrIn{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:none}}
+
+  /* ===== 케이스 선택 팝업 ===== */
+  .pick{
+    position:absolute;inset:0;z-index:70;display:none;
+    align-items:center;justify-content:center;padding:20px;
+    background:rgba(9,12,17,.6);backdrop-filter:blur(4px)
+  }
+  .pick.on{display:flex;animation:pkBg .24s both}
+  .pick.closing{animation:pkBgOut .19s both}
+  .pick-card{
+    background:#fff;border-radius:24px;padding:22px 18px 16px;width:100%;
+    box-shadow:0 24px 60px rgba(0,0,0,.4);
+    animation:pkUp .42s cubic-bezier(.2,.95,.3,1) both
+  }
+  .pick.closing .pick-card{animation:pkDown .19s ease-in both}
+  .pick-h{font-size:17px;font-weight:800;color:#16181b;letter-spacing:-.4px}
+  .pick-s{font-size:12px;color:#8b9199;margin:7px 0 16px;line-height:1.55}
+  .pick-b{
+    display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;
+    border:1px solid #e7ebf0;background:#fff;border-radius:15px;padding:14px 13px;
+    margin-bottom:9px;cursor:pointer;font-family:inherit;
+    transition:border-color .14s, background .14s, transform .14s;
+    opacity:0;animation:pkItem .42s cubic-bezier(.2,.95,.3,1) forwards
+  }
+  .pick-b:hover{border-color:#bcd2f7;background:#f7faff}
+  .pick-b:active{transform:scale(.985)}
+  .pick-b .no{
+    flex:0 0 26px;height:26px;border-radius:9px;background:#eef4ff;color:#2f62c9;
+    font-size:12.5px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:1px
+  }
+  .pick-b .tx{flex:1;min-width:0}
+  .pick-b .tx b{display:block;font-size:14px;color:#16181b;font-weight:700;letter-spacing:-.2px}
+  .pick-b .tx span{display:block;font-size:11.5px;color:#8b9199;margin-top:4px;line-height:1.5}
+  .pick-f{font-size:10.5px;color:#a7aeb6;text-align:center;margin-top:6px;line-height:1.5}
+  @keyframes pkBg{from{opacity:0}to{opacity:1}}
+  @keyframes pkBgOut{from{opacity:1}to{opacity:0}}
+  @keyframes pkUp{from{opacity:0;transform:translateY(26px) scale(.96)}to{opacity:1;transform:none}}
+  @keyframes pkDown{from{opacity:1;transform:none}to{opacity:0;transform:translateY(12px) scale(.98)}}
+  @keyframes pkItem{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+  /* ===== 회원가입 ===== */
+  .su-screen{background:#fff}
+  .su-top{flex:0 0 auto;padding:4px 20px 14px;display:flex;align-items:center;gap:12px}
+  .su-back{font-size:19px;color:#8b9199;cursor:pointer;line-height:1;user-select:none}
+  .su-bar{flex:1;height:4px;border-radius:3px;background:#eef1f4;overflow:hidden}
+  .su-bar i{display:block;height:100%;background:#1f5fe0;border-radius:3px;transition:width .4s cubic-bezier(.2,.9,.3,1)}
+  .su-body{flex:1;overflow-y:auto;padding:8px 20px 8px;display:flex;flex-direction:column}
+  .su-in-anim{animation:suIn .34s cubic-bezier(.2,.9,.3,1) both}
+  @keyframes suIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .su-t{font-size:21px;font-weight:800;color:#16181b;letter-spacing:-.5px;line-height:1.35}
+  .su-s{font-size:12.5px;color:#8b9199;margin-top:8px;line-height:1.55}
+  .su-f{margin-top:24px}
+  .su-lb{display:block;font-size:12px;font-weight:700;color:#4d555d;margin-bottom:7px}
+  .su-in{
+    width:100%;border:1px solid #e2e6ea;border-radius:12px;padding:13px 14px;
+    font-size:14.5px;font-family:inherit;color:#16181b;background:#fff;outline:none;
+    transition:border-color .14s
+  }
+  .su-in:focus{border-color:#1f5fe0}
+  .su-gap{margin-top:14px}
+  .su-row{display:flex;gap:8px}
+  .su-seg{display:flex;gap:8px}
+  .su-sg{
+    flex:1;border:1.5px solid #e2e6ea;background:#fff;border-radius:12px;padding:12px;
+    font-size:13.5px;color:#4d555d;cursor:pointer;font-family:inherit;transition:.14s
+  }
+  .su-sg.on{border-color:#1f5fe0;background:#eef4ff;color:#1f5fe0;font-weight:700}
+  .su-opt{display:flex;flex-direction:column;gap:8px}
+  .su-sent{
+    margin-top:10px;font-size:11.5px;color:#2f62c9;background:#eef4ff;
+    border-radius:10px;padding:9px 12px;line-height:1.5;
+    animation:suIn .3s cubic-bezier(.2,.9,.3,1) both
+  }
+  .su-cta{flex:0 0 auto;padding:10px 20px 20px}
+  .su-btn{
+    width:100%;border:0;border-radius:14px;padding:15px;font-size:15px;font-weight:700;
+    background:#1f5fe0;color:#fff;cursor:pointer;font-family:inherit;transition:.14s
+  }
+  .su-btn:active{transform:scale(.99)}
+  .su-btn:disabled{opacity:.32;cursor:default;transform:none}
+  .su-done{
+    flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:0 24px
+  }
+  .su-done .ic{
+    width:64px;height:64px;border-radius:50%;background:#eef4ff;color:#1f5fe0;font-size:30px;
+    display:flex;align-items:center;justify-content:center;margin-bottom:8px;
+    animation:suPop .5s cubic-bezier(.2,.9,.3,1.3) both
+  }
+  .su-done .t{font-size:19px;font-weight:800;color:#16181b;letter-spacing:-.3px}
+  .su-done .s{font-size:12.5px;color:#8b9199;text-align:center;line-height:1.6}
+  @keyframes suPop{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:none}}
+
+  /* ===== KAKAO ===== */
+  .k-screen{background:var(--kakao-bg)}
+  .k-header{flex:0 0 auto;display:flex;align-items:center;gap:12px;padding:6px 14px 12px}
+  .k-header .back{font-size:22px;color:#111;line-height:1}
+  .k-title{flex:1;min-width:0}
+  .k-title .nm{display:flex;align-items:center;gap:5px;font-size:16.5px;font-weight:700;color:#111}
+  .k-title .badge{width:16px;height:16px;border-radius:50%;background:#1b8cff;color:#fff;font-size:10px;display:flex;align-items:center;justify-content:center;font-weight:700}
+  .k-title .sub{font-size:13px;color:#31353a;margin-top:1px}
+  .k-icons{display:flex;gap:14px;font-size:17px;color:#111}
+  .k-body{flex:1;overflow-y:auto;padding:4px 14px 12px;position:relative}
+  .k-home{position:absolute;top:6px;right:14px;width:46px;height:46px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.14);font-size:19px}
+  .k-msg{display:flex;gap:9px;margin-top:14px;align-items:flex-start}
+  .k-avatar{width:40px;height:40px;border-radius:14px;flex:0 0 40px;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden}
+  .k-avatar svg{width:26px;height:26px}
+  .k-msgcol{min-width:0;flex:1}
+  .k-sender{font-size:12.5px;color:#2b2f34;margin-bottom:5px}
+  .k-bubblerow{display:flex;align-items:flex-end;gap:6px}
+  .k-card{background:#fff;border-radius:6px;overflow:hidden;max-width:270px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+  .k-cardhead{background:var(--kakao-yellow);padding:9px 14px;font-size:14px;font-weight:800;color:#191600}
+  .k-cardbody{padding:15px 14px 13px;font-size:13.2px;line-height:1.62;color:#111}
+  .k-cardbody .ttl{font-weight:700;margin-bottom:11px}
+  .k-cardbody .sum{margin-top:12px;font-weight:700}
+  .k-cardbody ul{margin:5px 0 0;padding:0;list-style:none}
+  .k-cardbody li{position:relative;padding-left:10px;margin-bottom:2px}
+  .k-cardbody li:before{content:'·';position:absolute;left:1px}
+  .k-btns{padding:0 12px 12px;display:flex;flex-direction:column;gap:8px}
+  .k-btn{background:#f1f2f3;border:0;border-radius:5px;padding:13px 10px;font-size:13.5px;color:#111;cursor:pointer;font-family:inherit}
+  .k-btn:active{background:#e2e4e6}
+  .k-btn.primaryish{font-weight:600}
+  .k-time{font-size:11px;color:#4a5058;padding-bottom:2px;white-space:nowrap}
+  .k-foot{flex:0 0 auto;padding:8px 12px 16px}
+  .k-footbtn{background:#fff;border-radius:26px;height:50px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:15px;font-weight:600;color:#111;box-shadow:0 1px 4px rgba(0,0,0,.1)}
+
+  /* ===== STATIC IMAGE PAGE (외부 웹 · 4453 범위) ===== */
+  .w-screen{background:#eceff2}
+  .w-chrome{flex:0 0 auto;background:#f6f7f9;border-bottom:1px solid #dfe3e7;padding:6px 12px 10px}
+  .w-url{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #e2e6ea;border-radius:20px;padding:8px 14px;font-size:12px;color:#5c646d}
+  .w-url .lock{font-size:11px}
+  .w-url .u{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .w-scope{
+    margin:10px 12px 0;background:#fff6e8;border:1px solid #f0d7ac;border-radius:9px;
+    padding:9px 12px;font-size:11.5px;color:#7a5b1d;line-height:1.5
+  }
+  .w-body{flex:1;overflow-y:auto;padding:12px}
+  .w-back{flex:0 0 auto;padding:10px 12px 6px}
+  .w-backbtn{width:100%;background:#fff;border:1px solid #dfe3e7;border-radius:12px;padding:13px;
+             font-size:13.5px;color:#333;cursor:pointer;font-family:inherit}
+  .rep{border:1px solid #dfe3e7;border-radius:10px;overflow:hidden;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.05)}
+  .rep-h{background:#1f3b6e;color:#fff;padding:14px 16px}
+  .rep-h .t1{font-size:14px;font-weight:700}
+  .rep-h .t2{font-size:11px;opacity:.8;margin-top:3px}
+  .rep-meta{display:flex;gap:14px;padding:11px 16px;border-bottom:1px solid #eef0f2;font-size:11.5px;color:#4d555d}
+  .rep-meta b{color:#16181b}
+  .rep-sec{padding:14px 16px;border-bottom:1px solid #f2f4f6}
+  .rep-sec h4{margin:0 0 10px;font-size:12px;color:#1f3b6e;font-weight:700}
+  .rep-row{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+  .rep-row .lab{font-size:11.5px;color:#4d555d;width:92px;flex:0 0 92px}
+  .rep-bar{flex:1;height:8px;background:#eef1f4;border-radius:5px;overflow:hidden}
+  .rep-bar i{display:block;height:100%;border-radius:5px;background:#3f7ad1}
+  .rep-bar i.warn{background:#e8a33d}
+  .rep-row .val{font-size:11.5px;font-weight:700;color:#16181b;width:52px;text-align:right;flex:0 0 52px}
+  .rep-kv{display:flex;flex-wrap:wrap;gap:8px}
+  .rep-kv div{flex:1 1 44%;background:#f7f9fb;border-radius:8px;padding:9px 11px}
+  .rep-kv span{display:block;font-size:10.5px;color:#7e8894}
+  .rep-kv b{font-size:14px;color:#16181b}
+  .rep-foot{padding:11px 16px;background:#f7f9fb;font-size:10px;color:#8b9199;line-height:1.5}
+
+  /* ===== TOKTOK ===== */
+  .t-screen{background:#fff}
+  .t-top{flex:0 0 auto;display:flex;align-items:center;padding:2px 18px 10px}
+  .t-status{display:flex;align-items:center;gap:8px;font-size:13.5px;color:#9aa1a9}
+  .t-status .dot{width:8px;height:8px;border-radius:50%;background:#9db3d8}
+  .t-body{flex:1;overflow-y:auto;padding:0 18px 6px}
+  .t-daydiv{display:flex;align-items:center;gap:12px;margin:14px 0 22px}
+  .t-daydiv:before,.t-daydiv:after{content:'';flex:1;height:1px;background:#eceef0}
+  .t-daydiv span{font-size:13px;color:#8b9199}
+  .t-bot{font-size:15.2px;line-height:1.72;color:#16181b;white-space:pre-line}
+  .t-bot .h{font-weight:600}
+  .t-bot .date{color:#5c8ae0;font-weight:600}
+  .t-newbadge{display:inline-block;background:#eaf1ff;color:#2f62c9;font-size:10.5px;font-weight:700;
+              border-radius:4px;padding:1px 6px;margin-left:6px;vertical-align:2px}
+  .t-ground{display:inline-flex;align-items:center;gap:6px;margin-top:10px;border:1px dashed #c3d4f5;
+            background:#f5f8ff;border-radius:8px;padding:7px 11px;font-size:11.5px;color:#3f6fd0;line-height:1.4}
+  .t-warnbox{margin-top:10px;background:#fff8ec;border:1px solid #f2ddb8;border-radius:10px;
+             padding:11px 13px;font-size:12.5px;color:#7a5b1d;line-height:1.55}
+  .t-feedback{display:flex;align-items:center;gap:12px;margin:16px 0 24px;color:#9aa1a9;font-size:13px}
+  .t-feedback .icons{display:flex;gap:14px;font-size:15px}
+  .t-feedback .t{margin-left:auto;font-size:12.5px}
+  .t-user{display:flex;justify-content:flex-end;margin:20px 0}
+  .t-user span{background:var(--talk-blue);color:#fff;font-size:15.5px;font-weight:600;padding:14px 22px;border-radius:26px;max-width:76%;line-height:1.5}
+  .t-typing{display:flex;gap:5px;padding:6px 0 18px}
+  .t-typing i{width:7px;height:7px;border-radius:50%;background:#c8cdd3;animation:bl 1s infinite}
+  .t-typing i:nth-child(2){animation-delay:.15s}
+  .t-typing i:nth-child(3){animation-delay:.3s}
+  @keyframes bl{0%,60%,100%{opacity:.3}30%{opacity:1}}
+  .t-chips{flex:0 0 auto;display:flex;gap:7px;overflow-x:auto;padding:6px 16px 2px;scrollbar-width:none}
+  .t-chips::-webkit-scrollbar{display:none}
+  .t-chip{flex:0 0 auto;background:#f4f6f8;border:1px solid #e6e9ec;border-radius:18px;padding:8px 13px;font-size:12.5px;color:#48505a;cursor:pointer;font-family:inherit;white-space:nowrap}
+  .t-chip:hover{background:#eaeef3}
+  .t-inputwrap{flex:0 0 auto;padding:8px 16px 0}
+  .t-input{display:flex;align-items:center;gap:10px;background:#fff;border:1.5px solid #eceef0;border-radius:32px;padding:6px 6px 6px 20px;box-shadow:0 2px 10px rgba(0,0,0,.04)}
+  .t-input input{flex:1;border:0;outline:0;font-size:14.5px;font-family:inherit;color:#16181b;padding:14px 0}
+  .t-input input::placeholder{color:#adb4bc}
+  .t-send{width:46px;height:46px;border-radius:50%;border:0;background:#eef0f2;color:#5c646d;font-size:19px;cursor:pointer;flex:0 0 46px;transition:.15s}
+  .t-send.hot{background:var(--talk-blue);color:#fff}
+  .t-notice{flex:0 0 auto;text-align:center;padding:11px 16px 6px}
+  .t-notice .anon{font-size:12.5px;color:#8b9199}
+  .t-notice .disc{font-size:11.5px;color:#9aa1a9;margin-top:5px;line-height:1.5}
+  .t-notice .disc a{color:#7b848d;text-decoration:none;border-bottom:1px solid #d8dcdf}
+  .t-tabs{flex:0 0 auto;display:flex;border-top:1px solid #f0f1f3;padding:7px 0 12px}
+  .t-tab{flex:1;text-align:center;font-size:11.5px;color:#9aa1a9}
+  .t-tab .i{font-size:20px;display:block;margin-bottom:3px}
+  .t-tab.on{color:var(--talk-blue);font-weight:600}
+  .toast{position:absolute;left:16px;right:16px;bottom:100px;z-index:30;background:#22262c;color:#fff;
+         border-radius:12px;padding:13px 16px;font-size:13px;display:none;line-height:1.5;box-shadow:0 8px 24px rgba(0,0,0,.3)}
+  .toast.on{display:block;animation:pop .3s both}
+  @keyframes pop{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+  @media (max-width:560px){ .phone{transform:scale(.86);transform-origin:top center} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>ACLP-4471 · 리포트 내용 챗봇 질의 <span class="tag">인터랙션 목업</span></h1>
+    <p>
+      <a href="https://metrex.atlassian.net/wiki/spaces/Product/pages/426803229">AC + GWT</a>
+      · <a href="https://metrex.atlassian.net/browse/ACLP-4471">ACLP-4471</a>
+      · 모든 데이터는 더미입니다 · <a href="#" onclick="restart();return false">처음부터</a>
+    </p>
+  </header>
+
+  <div class="stage">
+    <div class="phone">
+
+      <!-- ===== KAKAO ===== -->
+      <div class="screen k-screen on" id="scrKakao">
+        <div class="statusbar">
+          <div>U<sup>+</sup> 5:50 <span style="color:#f5c400">💬</span></div>
+          <div class="r"><span>5G</span><span class="pillbat">◗ 100</span></div>
+        </div>
+        <div class="k-header">
+          <div class="back">‹</div>
+          <div class="k-title">
+            <div class="nm">액티메디 <span class="badge">✓</span></div>
+            <div class="sub">07041325529 ⌄</div>
+          </div>
+          <div class="k-icons"><span>⌕</span><span>☰</span></div>
+        </div>
+        <div class="k-body">
+          <div class="k-home">⌂</div>
+          <div class="k-msg">
+            <div class="k-avatar">
+              <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#1f5fe0"/><path d="M9 20c3-9 11-11 14-8-3 1-5 3-6 6-1 3-4 4-8 2z" fill="#fff"/><circle cx="21" cy="10" r="2.4" fill="#ffd83d"/></svg>
+            </div>
+            <div class="k-msgcol">
+              <div class="k-sender">액티메디</div>
+              <div class="k-bubblerow">
+                <div class="k-card">
+                  <div class="k-cardhead">알림톡 도착</div>
+                  <div class="k-cardbody">
+                    <div class="ttl">[액티메디 병원] 오늘 검사 리포트 안내</div>
+                    이영구님, 안녕하세요.<br>
+                    오늘 스포츠의학센터에서 진행한 검사 결과를 정리해 보내드려요.
+                    <div class="sum">■ 오늘 검사 요약 — 8/14(금)</div>
+                    <ul>
+                      <li>무릎 기능 검사 완료</li>
+                      <li>근력·균형 측정 완료</li>
+                      <li>주관적 평가 설문 완료</li>
+                    </ul>
+                  </div>
+                  <div class="k-btns">
+                    <button class="k-btn primaryish" onclick="goWeb()">리포트 확인하기</button>
+                    <button class="k-btn" onclick="goApp()">AI 채팅 상담하기</button>
+                  </div>
+                </div>
+                <div class="k-time">오후 4:41</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="k-foot">
+          <div class="k-footbtn">⌂ 채널 홈 바로가기</div>
+          <div class="homebar" style="margin-top:12px"></div>
+        </div>
+      </div>
+
+      <!-- ===== STATIC IMAGE PAGE ===== -->
+      <div class="screen w-screen" id="scrWeb">
+        <div class="statusbar"><div></div><div class="r"><span class="pillbat">◗ 100</span></div></div>
+        <div class="w-chrome">
+          <div class="w-url"><span class="lock">🔒</span><span class="u">report.actimedi.com/r/8f2a…</span><span>⋮</span></div>
+        </div>
+        <div class="w-scope">
+          이 페이지는 <b>ACLP-4453(리포트 수신·열람) 범위</b>입니다. 접근 제어·링크 만료·로드 실패 처리는 이 티켓 AC에 포함하지 않았습니다.
+        </div>
+        <div class="w-body">
+          <div class="rep">
+            <div class="rep-h">
+              <div class="t1">무릎 건강 종합 리포트</div>
+              <div class="t2">ACTIMEDI · 스포츠의학센터</div>
+            </div>
+            <div class="rep-meta">
+              <div>이름 <b>이영구</b></div><div>검사일 <b>2026-08-14</b></div><div>대상 <b>좌측 무릎</b></div>
+            </div>
+            <div class="rep-sec">
+              <h4>기능 검사</h4>
+              <div class="rep-row"><span class="lab">굴곡 가동범위</span><span class="rep-bar"><i style="width:82%"></i></span><span class="val">124°</span></div>
+              <div class="rep-row"><span class="lab">신전 가동범위</span><span class="rep-bar"><i style="width:91%"></i></span><span class="val">-2°</span></div>
+              <div class="rep-row"><span class="lab">단일 점프</span><span class="rep-bar"><i class="warn" style="width:58%"></i></span><span class="val">58%</span></div>
+            </div>
+            <div class="rep-sec">
+              <h4>근력 · 균형</h4>
+              <div class="rep-row"><span class="lab">신근력(좌/우)</span><span class="rep-bar"><i class="warn" style="width:64%"></i></span><span class="val" id="webVal">64%</span></div>
+              <div class="rep-row"><span class="lab">굴근력(좌/우)</span><span class="rep-bar"><i style="width:88%"></i></span><span class="val">88%</span></div>
+              <div class="rep-row"><span class="lab">정적 균형</span><span class="rep-bar"><i style="width:76%"></i></span><span class="val">76점</span></div>
+            </div>
+            <div class="rep-sec">
+              <h4>주관적 평가 · 무릎나이</h4>
+              <div class="rep-kv">
+                <div><span>IKDC</span><b>68.9점</b></div>
+                <div><span>통증(NRS)</span><b>3 / 10</b></div>
+                <div><span>Lysholm</span><b>74점</b></div>
+                <div><span>무릎나이</span><b>41세</b></div>
+              </div>
+            </div>
+            <div class="rep-foot">본 리포트는 당일 센터에서 진행된 검사 결과를 종합한 자료이며, 의료 진단·치료·처방이 아닙니다. (목업 · 더미 데이터)</div>
+          </div>
+        </div>
+        <div class="w-back">
+          <button class="w-backbtn" onclick="reset()">‹ 카톡으로 돌아가기</button>
+        </div>
+        <div class="homebar"></div>
+      </div>
+
+      <!-- ===== TOKTOK APP ===== -->
+      <!-- ===== 회원가입 ===== -->
+      <div class="screen su-screen" id="scrSignup">
+        <div class="statusbar"><div></div><div class="r"><span class="pillbat">◗ 100</span></div></div>
+        <div class="su-top">
+          <span class="su-back" onclick="suBack()">‹</span>
+          <span class="su-bar"><i id="suBar" style="width:0%"></i></span>
+        </div>
+        <div class="su-body" id="suBody"></div>
+        <div class="su-cta" id="suCta"></div>
+      </div>
+
+      <!-- ===== 온보딩 (AC-2·11·13·14) ===== -->
+      <div class="screen ob-screen" id="scrOnboard">
+        <div class="statusbar"><div></div><div class="r"><span class="pillbat">◗ 100</span></div></div>
+        <div class="ob-top">
+          <div>
+            <div class="nm">톡톡</div>
+            <div class="sub">첫 상담 준비</div>
+          </div>
+          <div class="ob-prog"><i id="obProg" style="width:0%"></i></div>
+        </div>
+        <div class="ob-body" id="obBody"></div>
+        <div class="ob-input" id="obInput"></div>
+        <div class="ob-disc">
+          <span class="bd">AC-14</span>
+          <span>톡톡의 답변은 의료 진단·치료·처방이 아닙니다. 증상이 지속되면 의료기관을 방문하세요.<br>
+          <span style="color:#c2864a">현행 앱은 이 고지가 질문 입력창에 붙어 있어 온보딩 중에는 보이지 않는다.</span></span>
+        </div>
+      </div>
+
+      <div class="screen t-screen" id="scrApp">
+        <div class="statusbar"><div></div><div class="r"><span class="pillbat">◗ 100</span></div></div>
+        <div class="t-top"><div class="t-status"><span class="dot"></span> 상담 준비 완료</div></div>
+
+        <div class="t-body" id="tBody">
+          <div class="t-daydiv"><span>오늘</span></div>
+
+          <div class="t-bot" id="legacyMsg"><span class="h">[액티메디 병원] 오늘 진료 내용 안내</span>
+이영구님, 안녕하세요.
+오늘 액티2 원장님과 진행한 진료 내용을 정리해 보내드려요.</div>
+          <div class="t-feedback">
+            <span>이 답변이 도움이 되셨나요?</span>
+            <span class="icons">👍 👎 ⧉ 🔊</span><span class="t">오후 3:42</span>
+          </div>
+
+          <div id="reportSlot"></div>
+          <div id="convo"></div>
+        </div>
+
+        <div class="t-chips" id="chips"></div>
+
+        <div class="t-inputwrap">
+          <div class="t-input">
+            <input id="qInput" data-testid="상담-질문-입력"
+                   placeholder="무릎 건강에 대해 궁금한 점을 물어보세요…"
+                   oninput="hot()" onkeydown="if(event.key==='Enter')send()">
+            <button class="t-send" id="sendBtn" data-testid="상담-질문-전송-버튼" onclick="send()">↑</button>
+          </div>
+        </div>
+
+        <div class="t-notice">
+          <div class="anon">🛡 익명 처리 ·</div>
+          <div class="disc" data-testid="상담-답변-면책고지-텍스트">
+            톡톡의 답변은 의료 진단·치료·처방이 아닙니다. 증상이 지속되면 의료기관을 방문하세요. · <a href="#">참고문헌</a>
+          </div>
+        </div>
+
+        <div class="t-tabs">
+          <div class="t-tab on" data-testid="상담-화면-이동-탭"><span class="i">💬</span>상담</div>
+          <div class="t-tab"><span class="i">⚙</span>설정</div>
+          <div class="t-tab"><span class="i">👥</span>프로필</div>
+        </div>
+        <div class="homebar"></div>
+  
+      </div>
+
+      <!-- ===== 케이스 선택 팝업 ===== -->
+      <div class="pick" id="pick">
+        <div class="pick-card">
+          <div class="pick-h">어느 상태에서 볼까요?</div>
+          <div class="pick-s">톡톡 앱을 여는 시점의 환자 상태를 고르면 그 지점부터 시작합니다.</div>
+
+          <button class="pick-b" style="animation-delay:.10s" onclick="pickCase(0)">
+            <span class="no">1</span>
+            <span class="tx"><b>회원가입부터</b>
+              <span>톡톡이 처음인 환자 · 가입 → 약관 동의 → 문진 → 검사 결과</span></span>
+          </button>
+
+          <button class="pick-b" style="animation-delay:.17s" onclick="pickCase(1)">
+            <span class="no">2</span>
+            <span class="tx"><b>로그인되어 있지만 약관 미동의</b>
+              <span>계정은 있고 문진 전 · 약관 동의 → 문진 → 검사 결과</span></span>
+          </button>
+
+          <button class="pick-b" style="animation-delay:.24s" onclick="pickCase(2)">
+            <span class="no">3</span>
+            <span class="tx"><b>바로 검사 결과 확인</b>
+              <span>가입·문진을 마친 환자 · 대화에 결과가 이미 적혀 있다</span></span>
+          </button>
+
+          <div class="pick-f">목업 진행용 선택지입니다 · 실제 앱에는 없는 화면</div>
+        </div>
+      </div>
+
+      <div class="toast" id="toast"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+var failMode=false, updated=false, hasReport=true, expired=false;
+
+var QA = [
+  { chip:'근력 수치가 어떻게 나왔나요', q:'근력 수치가 어떻게 나왔나요',
+    a:function(){
+      var v = updated ? '71%' : '64%';
+      return '이번 검사에서 무릎을 펴는 힘(신근력)의 좌우 비교는 '+v+'로 기록되어 있어요. '+
+             '굽히는 힘(굴근력)은 88%였습니다.\n\n'+
+             '두 값 모두 양쪽 다리를 비교한 비율이며, 재활 과정에서 균형을 확인할 때 자주 쓰는 지표예요.';
+    },
+    note:function(){ return '8월 14일 검사 결과 · 신근력(좌/우) ' + (updated?'71%':'64%'); },
+    needReport:true },
+  { chip:'이 수치 정상인가요', q:'제 근력 64%는 정상인가요',
+    a:function(){
+      return '이 수치가 정상인지 아닌지는 톡톡이 판단해 드릴 수 없어요.\n\n'+
+             '좌우 비교값은 회복 시기, 수술 여부, 원래의 좌우 차이에 따라 읽는 기준이 달라집니다. '+
+             '지금 상태가 어떤 단계인지는 검사를 진행한 센터 선생님이나 담당 의료진과 함께 확인해 주세요.';
+    },
+    note:function(){ return '8월 14일 검사 결과 · 값 확인용, 판정 없음'; },
+    needReport:true },
+  { chip:'수술해야 하나요', q:'이 수치면 수술해야 하나요',
+    a:function(){
+      return '치료 방향은 톡톡이 안내해 드릴 수 있는 범위를 벗어나요.\n\n'+
+             '검사 결과를 바탕으로 어떤 치료가 필요한지는 담당 의료진의 진료를 통해 결정됩니다. '+
+             '다음 진료 때 이 결과를 함께 보시면서 물어보시는 것을 권해요.';
+    },
+    note:null, needReport:true },
+  { chip:'제 MRI 결과는요', q:'제 MRI 결과는 어떤가요',
+    warn:'이번 검사 결과에는 MRI가 담겨 있지 않아요.',
+    a:function(){
+      return '이번 검사 결과에 담긴 항목은 기능 검사, 근력·균형, 주관적 평가와 무릎나이예요.\n\n'+
+             'MRI 결과는 여기에 포함되어 있지 않아 확인해 드릴 수 없습니다. '+
+             '영상 검사 결과는 진료 때 담당 선생님께 문의해 주세요.';
+    },
+    note:null, needReport:true },
+  { chip:'운동 수행률은요', q:'제 앱 운동 수행률은 어떻게 되나요',
+    warn:'이 결과는 센터 검사만 담고 있어요.',
+    a:function(){
+      return '이번 결과는 오늘 센터에서 진행한 검사만 담고 있어서, 앱에서 하신 운동 기록은 근거로 확인해 드리지 못해요.\n\n'+
+             '운동 수행 기록은 앱의 운동 화면에서 직접 확인하실 수 있습니다.';
+    },
+    note:null, needReport:true },
+  { chip:'무릎 스트레칭 알려주세요', q:'무릎에 좋은 스트레칭을 알려주세요',
+    a:function(){
+      return '무릎 주변 근육을 부드럽게 유지하는 데 흔히 권장되는 동작으로는 허벅지 앞쪽(대퇴사두근) 스트레칭, '+
+             '햄스트링 스트레칭, 종아리 스트레칭이 있어요.\n\n'+
+             '통증이 있는 상태에서는 무리하지 마시고, 재활 중이시라면 담당 선생님이 정해준 범위 안에서 진행해 주세요.';
+    },
+    note:null, needReport:false }
+];
+
+
+
+function reportHTML(isUpdate){
+  var v = isUpdate ? '71%' : '64%';
+  var badge = isUpdate ? '<span class="t-newbadge">갱신</span>' : '';
+  var time = isUpdate ? '오후 5:12' : '오후 4:41';
+  return ''+
+  '<div class="t-bot" data-testid="상담-리포트-결과-메시지"><span class="h">[액티메디 병원] 오늘 검사 결과 안내</span>'+badge+'\n'+
+  '이영구님, <span class="date" data-testid="상담-리포트-검사일-텍스트">8월 14일(금)</span> 스포츠의학센터에서 진행한 검사 결과예요.\n\n'+
+  '<span class="h">■ 기능 검사</span>\n'+
+  '· 굴곡 가동범위 124°\n'+
+  '· 신전 가동범위 -2°\n'+
+  '· 단일 점프 58%\n\n'+
+  '<span class="h">■ 근력 · 균형</span>\n'+
+  '· 신근력(좌/우) '+v+'\n'+
+  '· 굴근력(좌/우) 88%\n'+
+  '· 정적 균형 76점\n\n'+
+  '<span class="h">■ 주관적 평가 · 무릎나이</span>\n'+
+  '· IKDC 68.9점\n'+
+  '· 통증(NRS) 3 / 10\n'+
+  '· 무릎나이 41세\n\n'+
+  '궁금한 점이 있으면 아래에 편하게 물어보세요.</div>'+
+  '<div class="t-feedback"><span>이 답변이 도움이 되셨나요?</span>'+
+  '<span class="icons">👍 👎 ⧉ 🔊</span><span class="t">'+time+'</span></div>';
+}
+
+function failHTML(){
+  return '<div class="t-bot" data-testid="상담-리포트-불러오기실패-텍스트">'+
+    '검사 결과를 불러오지 못했어요. 잠시 후 다시 확인해 주세요.\n\n'+
+    '결과를 불러온 뒤에 내용을 근거로 안내해 드릴 수 있습니다.</div>'+
+    '<div class="t-feedback"><span>이 답변이 도움이 되셨나요?</span>'+
+    '<span class="icons">👍 👎 ⧉ 🔊</span><span class="t">오후 4:41</span></div>';
+}
+
+function paintReport(){
+  var slot=document.getElementById('reportSlot');
+  if(expired){ slot.innerHTML=''; return; }
+  if(!hasReport){ slot.innerHTML=''; return; }
+  if(failMode){ slot.innerHTML=failHTML(); return; }
+  slot.innerHTML = reportHTML(false) + (updated ? reportHTML(true) : '');
+}
+
+
+function renderChips(){
+  document.getElementById('chips').innerHTML = QA.map(function(x,i){
+    return '<button class="t-chip" onclick="ask('+i+')">'+x.chip+'</button>';
+  }).join('');
+}
+
+var SCR = { k:'scrKakao', w:'scrWeb', u:'scrSignup', o:'scrOnboard', a:'scrApp' };
+
+function show(id){
+  Object.keys(SCR).forEach(function(x){
+    var el = document.getElementById(SCR[x]);
+    if (el) el.classList.toggle('on', x===id);
+  });
+}
+
+function goWeb(){  show('w'); }
+
+function goApp(){
+  // 카톡 'AI 채팅 상담하기' → 어느 상태의 환자로 볼지 먼저 고른다.
+  openPick();
+}
+
+/* ============ 케이스 선택 팝업 ============ */
+function openPick(){
+  var el = document.getElementById('pick');
+  el.classList.remove('closing');
+  el.classList.add('on');
+}
+
+function closePick(cb){
+  var el = document.getElementById('pick');
+  el.classList.add('closing');
+  setTimeout(function(){ el.classList.remove('on'); el.classList.remove('closing'); if(cb) cb(); }, 190);
+}
+
+function pickCase(i){
+  closePick(function(){
+    if (i===0) suStart();        // 회원가입부터
+    else if (i===1) goOnboard(); // 로그인됨 · 약관 미동의
+    else enterApp();             // 바로 검사 결과 확인
+  });
+}
+
+function enterApp(){
+    show('a'); paintReport(); scroll();
+  if(expired){ toast('AC-10 · 로그인이 만료되어 검사 결과가 표시되지 않습니다. (시나리오 10-1)'); }
+  else if(failMode){ toast('AC-3 · 결과를 불러오지 못했습니다. 빈 결과 메시지는 표시되지 않습니다. (3-1)'); }
+  else if(!hasReport){ toast('AC-2 · AC-15 · 발송된 리포트가 없어 결과 메시지가 없고, 기존 챗봇 대화는 그대로 동작합니다. (2-1 · 15-1)'); }
+}
+
+
+
+/* ============ 회원가입 (AC-1 진입 준비) ============
+   현행 톡톡 앱의 가입 단계를 그대로 옮겼다.
+   휴대폰 인증 → 이름 → 비밀번호 → 신체정보 → 완료. */
+var SU_STEPS = ['phone','name','pw','info','done'];
+var suIdx = 0, suSent = false, suName = '', suSex = '', suAct = '';
+
+function suStart(){
+  suIdx = 0; suSent = false; suName = ''; suSex = ''; suAct = '';
+  show('u');
+  suRender();
+}
+
+function suBack(){
+  if (suIdx === 0) { reset(); return; }
+  suIdx--; suRender();
+}
+
+function suRender(){
+  var k = SU_STEPS[suIdx];
+  var body = document.getElementById('suBody');
+  var cta  = document.getElementById('suCta');
+  document.getElementById('suBar').style.width = Math.round(((suIdx + 1) / SU_STEPS.length) * 100) + '%';
+
+  if (k === 'done'){
+    body.innerHTML =
+      '<div class="su-done">' +
+        '<div class="ic">✓</div>' +
+        '<div class="t">가입이 완료되었어요</div>' +
+        '<div class="s">이제 상담을 위해 몇 가지만 더 여쭤볼게요.</div>' +
+      '</div>';
+    cta.innerHTML = '<button class="su-btn" onclick="suFinish()">문진 시작하기</button>';
+    return;
+  }
+
+  var head = {
+    phone: ['휴대폰 번호를 알려주세요', '본인 확인을 위해 인증번호를 보내드려요'],
+    name:  ['이름을 알려주세요', '검사 결과를 안내할 때 사용합니다'],
+    pw:    ['비밀번호를 설정해주세요', '영문·숫자를 포함해 8자 이상'],
+    info:  [(suName ? suName + '님, 거의 다 왔어요' : '거의 다 왔어요'), '맞춤 안내를 위해 기본 정보가 필요해요']
+  }[k];
+
+  var f = '';
+  if (k === 'phone'){
+    f = '<label class="su-lb">휴대폰 번호</label>' +
+        '<input class="su-in" type="tel" id="suPhone" value="010-4132-5529" inputmode="numeric">' +
+        (suSent
+          ? '<div class="su-gap"><label class="su-lb">인증번호</label>' +
+            '<input class="su-in" type="tel" id="suCode" value="418203" inputmode="numeric"></div>' +
+            '<div class="su-sent">인증번호를 보냈어요 · 남은 시간 2:59</div>'
+          : '');
+  } else if (k === 'name'){
+    f = '<label class="su-lb">이름</label>' +
+        '<input class="su-in" id="suName" placeholder="실명을 입력해주세요" value="이영구">';
+  } else if (k === 'pw'){
+    f = '<label class="su-lb">비밀번호</label>' +
+        '<input class="su-in" type="password" value="actimedi12">' +
+        '<div class="su-gap"><label class="su-lb">비밀번호 확인</label>' +
+        '<input class="su-in" type="password" value="actimedi12"></div>';
+  } else {
+    f = '<label class="su-lb">생년월일</label>' +
+        '<input class="su-in" type="date" value="1984-03-11">' +
+        '<div class="su-gap"><label class="su-lb">성별</label><div class="su-seg">' +
+          '<button class="su-sg' + (suSex==='M'?' on':'') + '" onclick="suPick(\'sex\',\'M\')">남성</button>' +
+          '<button class="su-sg' + (suSex==='F'?' on':'') + '" onclick="suPick(\'sex\',\'F\')">여성</button>' +
+        '</div></div>' +
+        '<div class="su-gap su-row">' +
+          '<div style="flex:1"><label class="su-lb">키 (cm)</label><input class="su-in" type="number" value="173"></div>' +
+          '<div style="flex:1"><label class="su-lb">몸무게 (kg)</label><input class="su-in" type="number" value="71"></div>' +
+        '</div>' +
+        '<div class="su-gap"><label class="su-lb">활동 수준</label><div class="su-opt">' +
+          suActBtn('L', '거의 앉아서 지내요') +
+          suActBtn('M', '가볍게 움직이는 편이에요') +
+          suActBtn('H', '규칙적으로 운동해요') +
+        '</div></div>';
+  }
+
+  body.innerHTML =
+    '<div class="su-in-anim">' +
+      '<div class="su-t">' + head[0] + '</div>' +
+      '<div class="su-s">' + head[1] + '</div>' +
+      '<div class="su-f">' + f + '</div>' +
+    '</div>';
+
+  var label = (k === 'phone' && !suSent) ? '인증번호 받기' : (k === 'info' ? '가입 완료' : '다음');
+  var off = (k === 'info' && (!suSex || !suAct)) ? ' disabled' : '';
+  cta.innerHTML = '<button class="su-btn" id="suGo"' + off + ' onclick="suNext()">' + label + '</button>';
+}
+
+function suActBtn(v, label){
+  return '<button class="su-sg' + (suAct===v?' on':'') + '" style="text-align:left" onclick="suPick(\'act\',\'' + v + '\')">' + label + '</button>';
+}
+
+function suPick(kind, v){
+  if (kind === 'sex') suSex = v; else suAct = v;
+  suRender();
+}
+
+function suNext(){
+  var k = SU_STEPS[suIdx];
+  if (k === 'phone' && !suSent){ suSent = true; suRender(); return; }
+  if (k === 'name'){
+    var el = document.getElementById('suName');
+    suName = (el && el.value.trim()) ? el.value.trim() : '이영구';
+  }
+  if (k === 'info' && (!suSex || !suAct)) return;
+  suIdx++; suRender();
+}
+
+function suFinish(){
+  goOnboard();
+}
+
+/* ============ 온보딩 (AC-2·11·12·13·14) ============
+   현행 톡톡 앱 확인 결과를 그대로 옮긴 흐름이다.
+   인사 → 약관 동의 → 수술 종류 → 수술 날짜 → 증상 발생 시기 → 증상 → 시작.
+   수술 종류·날짜는 건너뛸 수 있고, 증상 발생 시기·증상은 필수다.
+   온보딩 완료 판정은 「증상 발생 시기와 증상이 모두 입력됨」이다. */
+var OB_STEPS = [
+  { key:'greeting',      bot:'안녕하세요! 정확한 상담을 위해 몇 가지 여쭤볼게요.', ui:'next' },
+  { key:'terms_consent', bot:'서비스 이용을 위해 약관에 동의해주세요.',            ui:'consent' },
+  { key:'surgery_type',  bot:'어떤 수술을 받으셨나요? 해당하는 것을 모두 선택해주세요.', ui:'chips', skip:true },
+  { key:'surgery_date',  bot:'수술 날짜를 알려주세요.',                            ui:'date',  skip:true },
+  { key:'symptom_onset', bot:'증상이 처음 나타난 시기는 언제인가요?',              ui:'date' },
+  { key:'symptoms',      bot:'현재 어떤 증상이 있으신가요?',                        ui:'text' },
+  { key:'complete',      bot:'감사합니다! 이제 맞춤 상담을 시작할게요.',            ui:'start' }
+];
+var OB_SURGERY = ['ACL 재건', 'PCL 재건', '반월상 봉합', '연골 재생', '인공관절(TKRA)', 'HTO'];
+
+var obIdx = 0, obLog = [], obConsent = [false, false, false], obPick = [], obText = '';
+
+function obReset(){
+  obIdx = 0; obLog = []; obConsent = [false, false, false]; obPick = []; obText = '';
+}
+
+function goOnboard(){
+    obReset();
+  show('o');
+  obRender();
+}
+
+function obRender(){
+  var body = document.getElementById('obBody');
+  var input = document.getElementById('obInput');
+  var step = OB_STEPS[obIdx];
+
+  var html = '';
+  for (var i = 0; i < obLog.length; i++){
+    html += '<div class="ob-bot">' + obLog[i].bot + '</div>';
+    if (obLog[i].ans) html += '<div class="ob-ansrow"><span class="ob-ans">' + obLog[i].ans + '</span></div>';
+  }
+  html += '<div class="ob-bot">' + step.bot + '</div>';
+  body.innerHTML = html;
+  body.scrollTop = body.scrollHeight;
+
+  document.getElementById('obProg').style.width = Math.round((obIdx / (OB_STEPS.length - 1)) * 100) + '%';
+
+  var skipBtn = step.skip ? '<button class="ob-btn ghost" onclick="obSkip()">건너뛰기</button>' : '';
+
+  if (step.ui === 'next'){
+    input.innerHTML = '<div class="ob-btns"><button class="ob-btn" onclick="obNext()">다음</button></div>';
+
+  } else if (step.ui === 'consent'){
+    input.innerHTML =
+      '<div class="ob-terms">' +
+        obTermRow(0, '서비스 이용약관 (필수)', 'AI 기반 운동·웰니스 정보 제공. 의학적 진단·치료·처방을 제공하지 않음') +
+        obTermRow(1, '개인정보 수집·이용 (필수)', '이름, 성별, 나이, 증상 발생 시기, 증상 내용, 최근 운동 내역') +
+        obTermRow(2, '민감정보(건강정보) 수집·이용 (필수)', '수술 기록, 수술 날짜') +
+        '<div class="ob-gap"><b>AC-11</b> · 현행 민감정보 동의 항목은 「수술 기록, 수술 날짜」뿐이다. ' +
+        '센터 검사 리포트의 수치는 여기에 없으므로, 약관에 <b>「센터 검사 결과」</b>와 ' +
+        '수집 목적 <b>「검사 결과에 대한 설명 제공」</b>이 추가되어야 리포트를 제공할 수 있다.</div>' +
+      '</div>' +
+      '<div class="ob-btns"><button class="ob-btn" id="obGo" ' + (obAllConsented() ? '' : 'disabled') +
+      ' onclick="obNext()">다음</button></div>';
+
+  } else if (step.ui === 'chips'){
+    var chips = '';
+    for (var c = 0; c < OB_SURGERY.length; c++){
+      chips += '<button class="ob-chip' + (obPick.indexOf(c) >= 0 ? ' on' : '') +
+               '" onclick="obPickToggle(' + c + ')">' + OB_SURGERY[c] + '</button>';
+    }
+    input.innerHTML = '<div class="ob-chips">' + chips + '</div>' +
+      '<div class="ob-btns">' + skipBtn + '<button class="ob-btn" onclick="obNext()">다음</button></div>';
+
+  } else if (step.ui === 'date'){
+    input.innerHTML = '<input class="ob-field" type="date" id="obDate" value="2026-06-02">' +
+      '<div class="ob-btns">' + skipBtn + '<button class="ob-btn" onclick="obNext()">다음</button></div>';
+
+  } else if (step.ui === 'text'){
+    input.innerHTML = '<textarea class="ob-field" id="obTextField" rows="2" ' +
+      'placeholder="예) 계단 내려갈 때 무릎 앞쪽이 시큰합니다">계단 내려갈 때 무릎 앞쪽이 시큰합니다</textarea>' +
+      '<div class="ob-btns"><button class="ob-btn" onclick="obNext()">다음</button></div>';
+
+  } else if (step.ui === 'start'){
+    input.innerHTML = '<div class="ob-btns"><button class="ob-btn start" onclick="obFinish()">상담 시작하기</button></div>';
+  }
+}
+
+function obTermRow(i, title, scope){
+  return '<div class="ob-term">' +
+    '<span class="ob-cb' + (obConsent[i] ? ' on' : '') + '" onclick="obConsentToggle(' + i + ')">✓</span>' +
+    '<span class="tx"><b>' + title + '</b><span class="scope">수집 항목 · ' + scope + '</span></span>' +
+  '</div>';
+}
+
+function obAllConsented(){ return obConsent[0] && obConsent[1] && obConsent[2]; }
+
+function obConsentToggle(i){
+  obConsent[i] = !obConsent[i];
+  obRender();
+}
+
+function obPickToggle(i){
+  var at = obPick.indexOf(i);
+  if (at >= 0) obPick.splice(at, 1); else obPick.push(i);
+  obRender();
+}
+
+function obAnswer(){
+  var step = OB_STEPS[obIdx];
+  if (step.ui === 'consent') return '✓ 약관에 동의했습니다';
+  if (step.ui === 'chips')   return obPick.length ? obPick.map(function(i){ return OB_SURGERY[i]; }).join(', ') : '건너뛰기';
+  if (step.ui === 'date'){
+    var el = document.getElementById('obDate');
+    return (el && el.value) ? el.value : '건너뛰기';
+  }
+  if (step.ui === 'text'){
+    var tf = document.getElementById('obTextField');
+    obText = (tf && tf.value.trim()) ? tf.value.trim() : '계단 내려갈 때 무릎 앞쪽이 시큰합니다';
+    return obText;
+  }
+  return '';
+}
+
+function obNext(){
+  var step = OB_STEPS[obIdx];
+  if (step.ui === 'consent' && !obAllConsented()){
+    toast('AC-11 · 필수 동의 3가지를 모두 체크해야 다음으로 넘어간다.');
+    return;
+  }
+  obLog.push({ bot: step.bot, ans: obAnswer() });
+  obIdx++;
+  obRender();
+}
+
+function obSkip(){
+  var step = OB_STEPS[obIdx];
+  obLog.push({ bot: step.bot, ans: '건너뛰기' });
+  obIdx++;
+  obRender();
+}
+
+function obFinish(){
+  enterApp();
+  toast('AC-13 · AC-2 · 온보딩을 마친 뒤에야 검사 결과 메시지가 대화에 표시된다. (시나리오 13-1 · 2-4)');
+}
+
+function simOnboard(){
+  reset();
+  goOnboard();
+  toast('AC-2 · 처음 쓰는 환자는 대화가 비어 있어, 온보딩을 마치기 전에는 검사 결과가 표시되지 않는다. (2-3)');
+}
+
+function simReconsent(){
+  reset();
+  enterApp();
+  toast('AC-12 · 동의 범위가 넓어지기 전에 가입한 환자는, 재동의를 마치기 전까지 검사 결과가 제공되지 않는다. (12-1)');
+}
+
+function hot(){
+  var v=document.getElementById('qInput').value.trim();
+  document.getElementById('sendBtn').classList.toggle('hot', v.length>0);
+}
+
+function ask(i){ render(QA[i]); }
+
+function send(){
+  var el=document.getElementById('qInput'); var q=el.value.trim();
+  el.value=''; hot();
+  if(!q){ render(QA[0]); return; }
+  render({ q:q, needReport:false,
+    a:function(){ return '질문 내용에 따라 톡톡 현행 답변 정책에 맞는 답변이 제공됩니다.\n\n(목업이므로 자유 입력에는 고정 안내만 표시합니다. 위 질문 칩으로 AC별 동작을 확인해 주세요.)'; },
+    note:null });
+}
+
+function render(x){
+  var convo=document.getElementById('convo');
+  var u=document.createElement('div');
+  u.className='t-user'; u.innerHTML='<span></span>';
+  u.firstChild.textContent=x.q;
+  convo.appendChild(u); scroll();
+
+  var typing=document.createElement('div');
+  typing.className='t-typing'; typing.innerHTML='<i></i><i></i><i></i>';
+  convo.appendChild(typing); scroll();
+
+  setTimeout(function(){
+    typing.remove();
+    var blocked = x.needReport && (failMode || !hasReport || expired);
+
+    var b=document.createElement('div');
+    b.className='t-bot';
+    if(blocked){
+      if(expired){
+        b.textContent='로그인이 만료되어 검사 결과를 확인할 수 없어요. 다시 로그인한 뒤 물어봐 주세요.';
+        toast('AC-10 시나리오 10-2 · 만료 상태에서는 검사 값이 답변에 포함되지 않습니다.');
+      } else if(failMode){
+        b.textContent='지금은 검사 결과를 확인할 수 없어요. 잠시 후 다시 시도해 주세요.\n\n결과를 불러온 뒤에 내용을 근거로 안내해 드릴 수 있습니다.';
+        toast('AC-3 시나리오 3-2 · 근거를 확보하지 못한 상태에서 값을 지어내지 않습니다.');
+      } else {
+        b.textContent='아직 받으신 검사 결과가 없어서 수치를 확인해 드리지 못해요.\n\n검사 결과가 도착하면 이 대화창에 안내해 드릴게요.';
+        toast('AC-6 시나리오 6-2 · 검사 결과가 없으면 수치를 인용한 답변이 나오지 않습니다.');
+      }
+      convo.appendChild(b); addFeedback(convo); scroll(); return;
+    }
+
+    b.textContent=x.a();
+    convo.appendChild(b);
+
+    if(x.warn){
+      var w=document.createElement('div');
+      w.className='t-warnbox';
+      w.setAttribute('data-testid','상담-답변-맥락밖안내-텍스트');
+      w.textContent=x.warn;
+      b.after(w);
+    }
+    var note=x.note?x.note():null;
+    if(note){
+      var g=document.createElement('div');
+      g.className='t-ground';
+      g.innerHTML='<span>📎</span><span><b>근거</b> · '+note+'</span>';
+      convo.appendChild(g);
+    }
+    addFeedback(convo); scroll();
+  },1000);
+}
+
+function addFeedback(convo){
+  var fb=document.createElement('div');
+  fb.className='t-feedback';
+  fb.innerHTML='<span>이 답변이 도움이 되셨나요?</span><span class="icons">👍 👎 ⧉ 🔊</span><span class="t">오후 4:44</span>';
+  convo.appendChild(fb);
+}
+
+function scroll(){
+  var b=document.getElementById('tBody');
+  setTimeout(function(){ b.scrollTop=b.scrollHeight; },40);
+}
+
+function toast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('on');
+  clearTimeout(t._x); t._x=setTimeout(function(){ t.classList.remove('on'); },3800);
+}
+
+function simEmpty(){ hasReport=false; failMode=false; expired=false; updated=false; enterApp(); }
+function simFail(){ hasReport=true; failMode=true; expired=false; updated=false; enterApp(); }
+function simExpire(){ hasReport=true; failMode=false; expired=true; updated=false; enterApp(); }
+function simUpdate(){
+  hasReport=true; failMode=false; expired=false; updated=true;
+  var wv=document.getElementById('webVal'); if(wv){ wv.textContent='71%'; }
+  enterApp();
+  toast('AC-4 · AC-8 · 갱신된 결과가 새 메시지로 추가되었습니다(신근력 64% → 71%). 다시 물어보면 최신 값이 근거가 됩니다. (4-1 · 8-1)');
+}
+
+function restart(){ reset(); }
+
+function reset(){
+  hasReport=true; failMode=false; expired=false; updated=false;
+  var wv=document.getElementById('webVal'); if(wv){ wv.textContent='64%'; }
+  document.getElementById('convo').innerHTML='';
+  document.getElementById('reportSlot').innerHTML='';
+  document.getElementById('qInput').value=''; hot();
+  obReset();
+  var pk = document.getElementById('pick'); if (pk) { pk.classList.remove('on'); pk.classList.remove('closing'); }
+  suIdx = 0; suSent = false;
+  show('k');
+}
+
+
+renderChips();
+</script>
+</body>
+</html>
