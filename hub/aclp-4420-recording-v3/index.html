@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ACLP-4420 무릎 수술군 확장 — 진료 녹음 목업 v3</title>
+<style>
+:root{
+  --primary-50:#eff6ff; --primary-400:#60a5fa; --primary-500:#3b82f6; --primary-600:#2563eb;
+  --mono-50:#f9fafb; --mono-100:#f3f4f6; --mono-200:#e5e7eb; --mono-300:#d1d5db;
+  --mono-400:#9ca3af; --mono-500:#6b7280; --mono-600:#4b5563; --mono-700:#374151;
+  --mono-800:#1f2937; --mono-900:#111827;
+  --green-50:#f0fdf4; --green-400:#4ade80; --green-600:#16a34a; --green-700:#15803d;
+  --warning:#d97706; --red-500:#ef4444; --red-600:#dc2626; --red-50:#fef2f2;
+  --yellow-50:#fefce8; --yellow-700:#a16207;
+  --new:#e8590c;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--mono-100);color:var(--mono-900);font-size:14px;line-height:1.5}
+button{font:inherit;cursor:pointer}
+p{margin:0}
+
+/* ===== 목업 컨트롤 바 ===== */
+.mockbar{background:#111827;color:#fff;padding:12px 20px;display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+.mockbar b{font-size:14px}
+.mockbar .sub{color:#9aa5b1;font-size:12px}
+.mockbar .spacer{flex:1}
+.tgl{display:inline-flex;align-items:center;gap:6px;color:#d1d5db;font-size:12px;cursor:pointer;user-select:none}
+.tgl input{accent-color:#60a5fa}
+.picker{background:#fff;border-bottom:1px solid var(--mono-200);padding:10px 20px;display:flex;flex-wrap:wrap;gap:18px}
+.pgroup{display:flex;flex-direction:column;gap:6px}
+.pgroup .lbl{font-size:11px;color:var(--mono-400);font-weight:700}
+.pbtns{display:flex;flex-wrap:wrap;gap:6px}
+.pbtn{border:1px solid var(--mono-200);background:#fff;color:var(--mono-600);padding:5px 11px;border-radius:999px;font-size:12px}
+.pbtn.on{background:var(--primary-600);border-color:var(--primary-600);color:#fff;font-weight:600}
+
+/* ===== 앱 프레임 ===== */
+.page{padding:0 20px 20px}
+.pagehd{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:18px 0 14px}
+.pagehd h1{margin:0;font-size:20px;font-weight:700}
+.chrome-note{border-radius:4px;background:var(--yellow-50);color:var(--yellow-700);padding:4px 10px;font-size:13px}
+.body{display:flex;gap:20px;align-items:flex-start}
+aside.side{display:flex;flex-direction:column;gap:16px;width:280px;flex:0 0 280px}
+main.mainarea{display:flex;flex-direction:column;gap:16px;flex:1;min-width:0}
+.box{border:1px solid var(--mono-200);border-radius:12px;background:#fff}
+.p16{padding:16px}
+
+/* 폼 요소 */
+.flabel{font-size:13px;color:var(--mono-600);margin-bottom:6px}
+.fselect{width:100%;border:1px solid var(--mono-300);border-radius:8px;padding:9px 10px;font:inherit;background:#fff}
+.bbtn{width:100%;border:1px solid var(--primary-600);background:var(--primary-600);color:#fff;border-radius:8px;padding:9px 12px;font-weight:600;font-size:14px;display:flex;align-items:center;justify-content:center;gap:6px}
+.bbtn.outlined{background:#fff;color:var(--mono-700);border-color:var(--mono-300);font-weight:500}
+.bbtn.sm{padding:5px 10px;font-size:13px;width:auto}
+.bbtn[disabled]{opacity:.45;cursor:not-allowed}
+
+/* 환자 카드 */
+.rowbetween{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.ptitle{font-weight:600;color:var(--mono-800);font-size:14px}
+.pname{font-weight:700;color:var(--mono-900);font-size:16px}
+.pmeta{color:var(--mono-500);font-size:13px;margin-top:2px}
+.visitrow{display:flex;align-items:stretch;gap:8px}
+.visitcount{display:flex;align-items:center;gap:4px;white-space:nowrap;padding:0 4px;color:var(--mono-600);font-size:14px}
+.visitcount b{color:var(--primary-600);font-size:20px;font-weight:700}
+.xbtn{border:none;background:none;color:var(--mono-400);font-size:16px;line-height:1}
+
+/* 녹음 패널 */
+.livebar{display:flex;align-items:center;justify-content:space-between}
+.livedot{width:8px;height:8px;border-radius:50%;background:var(--red-500);display:inline-block}
+.live{color:var(--red-500);font-weight:700;font-size:12px}
+.elapsed{font-weight:700;font-size:14px;font-variant-numeric:tabular-nums;color:var(--mono-800)}
+.wave{height:36px;border-radius:8px;background:var(--mono-50);border:1px solid var(--mono-200)}
+.sttbox{border-radius:8px;background:var(--mono-50);border:1px solid var(--mono-200);padding:10px;min-height:120px;font-size:13px;color:var(--mono-400)}
+.sttbox .l{color:var(--mono-800);margin-bottom:4px}
+.sttbox .who{color:var(--primary-600);font-weight:700;margin-right:5px}
+
+/* ===== 진료기록 패널 ===== */
+.sheet{display:flex;flex-direction:column;overflow:hidden;min-height:560px}
+.sheethd{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;padding:12px 16px;border-bottom:1px solid var(--mono-200)}
+.sheethd .left{display:flex;align-items:center;gap:8px}
+.sheethd .right{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.sheettitle{font-weight:700;color:var(--mono-900);font-size:16px}
+.chip{border-radius:6px;padding:2px 8px;font-size:12px;font-weight:600}
+.chip.count{background:var(--mono-100);color:var(--mono-700);font-size:13px;font-weight:700}
+.chip.visit{background:var(--primary-50);color:var(--primary-600)}
+.chip.dx{background:var(--green-50);color:var(--green-700)}
+.chip.dx.unknown{background:var(--mono-100);color:var(--mono-500)}
+.chip.status{background:var(--primary-50);color:var(--primary-600)}
+.chip.status.done{background:var(--green-50);color:var(--green-700)}
+.sheetdate{color:var(--mono-500);font-size:13px}
+.sheetbody{display:flex;flex-direction:column;gap:10px;padding:16px;overflow-y:auto;max-height:640px}
+
+/* 문진 그룹 헤더 (신규) */
+.grouphd{display:flex;align-items:center;gap:8px;margin:6px 0 2px}
+.grouphd .gt{font-weight:700;color:var(--mono-800);font-size:14px}
+.grouphd .gtag{border-radius:6px;background:var(--mono-100);color:var(--mono-500);font-size:11px;font-weight:700;padding:2px 7px}
+.grouphd .gline{flex:1;height:1px;background:var(--mono-200)}
+
+/* 문진 항목 카드 */
+.item{display:flex;flex-direction:column;gap:8px;border-radius:12px;border:1px dashed var(--mono-200);background:#fff;padding:16px}
+.item.ai{border-style:dashed;border-color:var(--green-400)}
+.item.doctor{border-style:solid;border-color:var(--primary-400);background:rgba(239,246,255,.5)}
+.item .qrow{display:flex;align-items:flex-start;gap:8px}
+.item .qno{flex:none;border-radius:6px;background:var(--mono-100);color:var(--mono-500);font-weight:700;font-size:12px;padding:1px 6px;margin-top:1px}
+.item .qtext{flex:1;font-weight:600;color:var(--mono-800);font-size:14px}
+.srcrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.badge{border-radius:6px;padding:2px 8px;font-size:12px;font-weight:600}
+.badge.ai{background:var(--green-50);color:var(--green-700)}
+.badge.doctor{background:var(--primary-50);color:var(--primary-600)}
+.badge.legacy{background:var(--mono-100);color:var(--mono-500)}
+.evid{color:var(--mono-500);font-size:12px}
+.ansinput{border:1px solid var(--mono-300);border-radius:8px;padding:9px 10px;font-size:14px;color:var(--mono-800);background:#fff}
+.ansinput.empty{color:var(--mono-300)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.optchip{border-radius:8px;border:1px solid var(--mono-200);color:var(--mono-600);background:#fff;padding:6px 12px;font-size:13px}
+.optchip:hover{border-color:var(--mono-300);background:var(--mono-50)}
+.optchip.sel{border-color:var(--primary-500);background:var(--primary-500);color:#fff;font-weight:600}
+.optchip.sel.ai{border-color:var(--green-600);background:var(--green-50);color:var(--green-700)}
+.optchip[disabled]{opacity:.6;cursor:not-allowed}
+
+/* SOAP */
+.soapitem{display:flex;flex-direction:column;gap:4px;margin-bottom:16px}
+.soaphd{display:flex;align-items:center;gap:8px}
+.soapletter{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px}
+.sl-s{background:#eff6ff;color:#2563eb}.sl-o{background:#f0fdf4;color:#15803d}
+.sl-a{background:#fef3c7;color:#b45309}.sl-p{background:#faf5ff;color:#7e22ce}
+.soaplabel{font-weight:700;color:var(--mono-800);font-size:14px}
+.soaptext{border-radius:8px;background:var(--mono-50);padding:10px 12px;font-size:14px;color:var(--mono-800);white-space:pre-wrap}
+.commentbox{border-top:1px solid var(--mono-200);padding:16px;display:flex;flex-direction:column;gap:6px}
+.commentbox .ct{display:flex;align-items:center;gap:6px}
+.commentbox .ct b{font-weight:600;color:var(--mono-700);font-size:13px}
+.commentbox .ct span{color:var(--mono-400);font-size:12px}
+.commentbox textarea{border:1px solid var(--mono-300);border-radius:8px;padding:10px;height:90px;font:inherit;resize:none}
+
+/* 하단 CTA */
+.ctabar{display:flex;flex-direction:column;gap:8px;padding:16px}
+.ctarow{display:flex;gap:8px}
+.ctarow .bbtn{flex:1;padding:13px 12px;font-size:15px}
+.ctahint{text-align:center;color:var(--mono-400);font-size:13px}
+
+/* 안내 배너 */
+.guide{display:flex;align-items:center;gap:6px;border-bottom:1px solid var(--mono-200);background:var(--mono-50);padding:10px 16px;color:var(--mono-500);font-size:13px}
+
+/* ===== 키/NEW 마커 ===== */
+.key{display:none;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;color:#7c3aed;background:#f6f1ff;border:1px solid #e5d9ff;border-radius:4px;padding:0 4px;margin-left:5px;white-space:nowrap;vertical-align:middle}
+body.showkeys .key{display:inline-block}
+.newbadge{display:none;font-size:9.5px;font-weight:800;color:#fff;background:var(--new);border-radius:3px;padding:0 4px;margin-left:5px;vertical-align:middle}
+body.shownew .newbadge{display:inline-block}
+body.shownew .newmark{outline:2px dashed var(--new);outline-offset:3px;border-radius:8px}
+
+/* ===== 다이얼로그 ===== */
+.overlay{position:fixed;inset:0;background:rgba(17,24,39,.45);display:none;align-items:center;justify-content:center;padding:20px;z-index:50}
+.overlay.open{display:flex}
+.dlg{background:#fff;border-radius:16px;width:400px;max-width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25);max-height:92vh;display:flex;flex-direction:column}
+.dlg.wide{width:520px}
+.dlghd{padding:24px 24px 0}
+.dlghd h3{margin:0;font-size:18px;font-weight:700}
+.dlgbd{padding:16px 24px 0;display:flex;flex-direction:column;gap:16px;overflow-y:auto}
+.dlgsub{color:var(--mono-600);font-size:14px}
+.steplbl{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--mono-700);margin-bottom:8px}
+.stepnum{width:18px;height:18px;border-radius:50%;background:var(--mono-800);color:#fff;font-size:11px;display:inline-flex;align-items:center;justify-content:center}
+.req{color:var(--red-600)}
+.optnote{color:var(--mono-400);font-weight:600;font-size:12px}
+.typerow{display:flex;gap:12px}
+.typebtn{flex:1;height:64px;border:1px solid var(--mono-300);border-radius:8px;background:#fff;color:var(--mono-700);font-size:16px}
+.typebtn.on{border-color:var(--primary-500);background:var(--primary-50);color:var(--primary-600);font-weight:600}
+.dnote{color:var(--mono-400);font-size:12px;margin-top:8px}
+.dlgft{display:flex;gap:8px;padding:20px 24px 24px}
+.dlgft button{flex:1;height:44px;border-radius:8px;font-size:15px;font-weight:600}
+.btn-cancel{border:1px solid var(--mono-300);background:#fff;color:var(--mono-700)}
+.btn-confirm{border:1px solid var(--primary-600);background:var(--primary-600);color:#fff}
+.btn-confirm[disabled]{opacity:.4;cursor:not-allowed}
+
+/* ===== 변경 지점 표 ===== */
+.spec{margin:24px 20px 40px;background:#fff;border:1px solid var(--mono-200);border-radius:12px;overflow:hidden}
+.spec h2{margin:0;padding:14px 16px;font-size:14px;border-bottom:1px solid var(--mono-200)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:10px 14px;border-bottom:1px solid var(--mono-200);text-align:left;vertical-align:top}
+th{background:var(--mono-50);color:var(--mono-600);font-size:12px;width:170px;font-weight:600}
+tr:last-child td,tr:last-child th{border-bottom:none}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;background:var(--mono-100);border-radius:4px;padding:1px 5px}
+.sc{color:var(--primary-600);font-weight:700}
+</style>
+</head>
+<body class="shownew">
+
+<div class="mockbar">
+  <div>
+    <b>ACLP-4420 무릎 수술군 확장 — 진료 녹음 목업 v3</b>
+    <div class="sub">apps/rise-k/src/pages/recording/index.tsx 레이아웃 기준 · 검토용</div>
+  </div>
+  <div class="spacer"></div>
+  <label class="tgl"><input type="checkbox" id="tNew" checked> 변경 지점(NEW) 표시</label>
+  <label class="tgl"><input type="checkbox" id="tKey"> 논리 ID(키) 표시</label>
+</div>
+
+<div class="picker">
+  <div class="pgroup">
+    <div class="lbl">① 환자 상태 — 다이얼로그 기본값이 달라집니다</div>
+    <div class="pbtns">
+      <button class="pbtn on" data-case="none">진료 이력 없음</button>
+      <button class="pbtn" data-case="has">이력 있음 (직전: 슬개골 탈구·불안정)</button>
+      <button class="pbtn" data-case="unknown">이력 있음 (직전: UNKNOWN)</button>
+    </div>
+  </div>
+  <div class="pgroup">
+    <div class="lbl">② 진료기록 패널 — 상태로 바로 이동</div>
+    <div class="pbtns">
+      <button class="pbtn on" data-view="empty">진료 시작 전</button>
+      <button class="pbtn" data-view="new-nodx">초진 · 질환 미선택</button>
+      <button class="pbtn" data-view="new-dx">초진 · 질환 선택</button>
+      <button class="pbtn" data-view="followup">재진</button>
+      <button class="pbtn" data-view="unknown">기존 진료(UNKNOWN)</button>
+    </div>
+  </div>
+</div>
+<div style="background:#fff;border-bottom:1px solid var(--mono-200);padding:8px 20px;color:var(--mono-500);font-size:12px">
+  좌측 <strong>‘＋ 새 진료 시작’</strong> 버튼을 눌러 다이얼로그부터 흐름을 그대로 따라가 보세요. 환자 상태(①)를 바꾸면 다이얼로그 기본값이 달라집니다.
+</div>
+
+<div class="page">
+  <div class="pagehd">
+    <h1>진료 녹음</h1>
+    <span class="chrome-note">이 기능은 크롬에 최적화되어 있습니다.</span>
+  </div>
+
+  <div class="body">
+    <!-- 좌측 사이드바 -->
+    <aside class="side">
+      <div class="box p16">
+        <div class="flabel">진료실 선택</div>
+        <select class="fselect"><option>본관 3진료실</option><option>본관 4진료실</option></select>
+      </div>
+
+      <div class="box p16" style="display:flex;flex-direction:column;gap:12px;min-height:260px">
+        <div class="rowbetween">
+          <span class="ptitle">환자 선택</span>
+          <button class="bbtn outlined sm">🔍 검색</button>
+        </div>
+        <div class="rowbetween" style="align-items:flex-start">
+          <div>
+            <p class="pname">김민준</p>
+            <p class="pmeta">남 · 차트번호 00124857</p>
+          </div>
+          <button class="xbtn">✕</button>
+        </div>
+        <div class="visitrow">
+          <div class="visitcount">진료 <b id="visitCount">0</b>회</div>
+          <button class="bbtn outlined" style="flex:1" id="calBtn">🗓 진료 선택<span class="key">녹음-진료선택-달력-버튼</span></button>
+        </div>
+        <button class="bbtn outlined" disabled>▶ 진료 이어하기</button>
+        <button class="bbtn" id="openDlgBtn">＋ 새 진료 시작<span class="key">녹음-진료선택-새진료시작-버튼</span></button>
+      </div>
+
+      <div class="box" style="padding:12px;display:flex;flex-direction:column;gap:10px;min-height:300px">
+        <button class="bbtn">녹음 시작<span class="key">녹음-제어-시작-버튼</span></button>
+        <div class="livebar">
+          <span style="display:flex;align-items:center;gap:6px"><span class="livedot"></span><span class="live">LIVE</span></span>
+          <span class="elapsed" id="elapsed">00:00</span>
+        </div>
+        <div class="wave"></div>
+        <div style="font-weight:600;font-size:13px;color:var(--mono-700)">실시간 STT</div>
+        <div class="sttbox" id="stt"></div>
+      </div>
+    </aside>
+
+    <!-- 우측 진료기록 -->
+    <main class="mainarea">
+      <section class="box sheet">
+        <div class="sheethd" id="sheetHd"></div>
+        <div id="sheetGuide"></div>
+        <div class="sheetbody" id="sheetBody"></div>
+        <div id="sheetFoot"></div>
+      </section>
+
+      <div class="box ctabar" id="ctaBar">
+        <div class="ctarow">
+          <button class="bbtn" disabled>진료 내용 발송</button>
+          <button class="bbtn outlined">진료기록 검토</button>
+        </div>
+        <p class="ctahint">진료기록 검토를 완료해야 발송할 수 있습니다.</p>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- 변경 지점 -->
+<div class="spec">
+  <h2>ACLP-4420 변경 지점</h2>
+  <table>
+    <tr><th>다이얼로그 선택 순서</th><td><strong>진료 유형(초진/재진)이 먼저</strong>, 질환이 나중 — 시나리오 <span class="sc">1-15</span></td></tr>
+    <tr><th>질환 선택 UI</th><td>다이얼로그는 <strong>셀렉트</strong>(<code>FormUiSelect</code>), 문진 내 질환 문항은 <strong>버튼(칩) 단일 선택</strong>(<code>ClinicalSheetOptionChip</code> 재사용). <strong>확인 필요</strong> — 현재 <code>Select</code>는 wrapper에만 <code>data-testid</code>를 붙이므로 옵션별 키(<code>녹음-진료유형선택-질환-{질환}-옵션</code>)는 컴포넌트 수정 없이는 부여 불가</td></tr>
+    <tr><th>질환 필수 여부</th><td>초진은 <strong>선택 사항</strong>, 재진은 <strong>필수</strong> — 시나리오 <span class="sc">1-1 · 2-12</span></td></tr>
+    <tr><th>다이얼로그 기본값</th><td>이력 0건 → 초진·질환 없음 / 1건 이상 → 재진 + 직전 질환 / 직전이 UNKNOWN → 재진 + 질환 없음(확인 비활성) — 시나리오 <span class="sc">1-14 · 2-15 · 2-16</span></td></tr>
+    <tr><th>초진 문진 구성</th><td>같은 패널 안에서 <strong>공통 문진</strong> → <strong>질환별 문진</strong> 순서. 공통 문진의 <strong>마지막 문항이 질환 선택 문항</strong> — 시나리오 <span class="sc">3-1 · 3-2~3-12</span></td></tr>
+    <tr><th>재진 정리 형식</th><td>같은 패널 안에서 <strong>S/O/A/P → 질환별 문진</strong>. 공통 문진은 없고, 따라서 <strong>질환 선택 문항도 없다</strong> — 재진의 질환은 다이얼로그에서만 확정 — 시나리오 <span class="sc">4-1~4-11 · 4-12</span></td></tr>
+    <tr><th>질환 확정 시점</th><td>질환별 문진 답안은 <strong>질환 확정 이후 녹음분</strong>으로만 채워짐. 종료 후 선택하면 문항만 뜨고 답안은 빈 상태 — 시나리오 <span class="sc">3-13 · 3-14</span></td></tr>
+    <tr><th>질환 변경·해제</th><td><strong>초진에서만</strong> 가능. 문진의 질환 문항에서 다른 질환을 고르면 아래 질환별 문진 세트가 통째로 교체되고 이전 질환 답안은 폐기, 공통 문진 답안은 유지 — 시나리오 <span class="sc">3-15 · 3-17 · 3-18</span><br><strong>폐기 대상</strong>: 2-14·4-15(재진에서 질환 변경·해제) — 재진에는 질환 문항 자체가 없으므로 성립하지 않음</td></tr>
+    <tr><th>질환 값 단일 기준</th><td>문진의 질환 답안과 진료의 질환 값이 함께 바뀜 — 시나리오 <span class="sc">3-19 · 3-20</span></td></tr>
+    <tr><th>기존 진료 백필</th><td>배포 전 진료는 <code>UNKNOWN</code>(회색 칩), 문진 답안은 저장된 그대로 — 시나리오 <span class="sc">5-1 · 5-2 · 5-3</span></td></tr>
+    <tr><th>질환 미선택 표기</th><td>질환이 없으면 질환 칩 자체가 표시되지 않음 — 시나리오 <span class="sc">1-1 · 5-4</span></td></tr>
+    <tr><th>신규 키</th><td><code>녹음-진료기록-공통문진-그룹</code> <code>녹음-진료기록-질환별문진-그룹</code> <code>녹음-진료기록-질환선택-문항</code> <code>녹음-진료기록-질환-칩</code> <code>녹음-진료유형선택-질환-선택</code> <code>녹음-진료유형선택-진료유형-그룹</code></td></tr>
+  </table>
+</div>
+
+<!-- 다이얼로그 -->
+<div class="overlay" id="overlay">
+  <div class="dlg wide">
+    <div class="dlghd"><h3>진료 유형 선택</h3></div>
+    <div class="dlgbd">
+      <p class="dlgsub">이번 진료의 진료 유형과 질환을 선택해 주세요.</p>
+
+      <div class="newmark">
+        <div class="steplbl"><span class="stepnum">1</span> 진료 유형 <span class="req">*</span><span class="newbadge">순서 변경</span><span class="key">녹음-진료유형선택-진료유형-그룹</span></div>
+        <div class="typerow">
+          <button class="typebtn" id="btNew">초진<span class="key">녹음-진료유형선택-초진-버튼</span></button>
+          <button class="typebtn" id="btFu">재진<span class="key">녹음-진료유형선택-재진-버튼</span></button>
+        </div>
+        <p class="dnote" id="typeNote"></p>
+      </div>
+
+      <div class="newmark">
+        <div class="steplbl"><span class="stepnum">2</span> 질환 <span id="dxReq"></span><span class="newbadge">신규</span><span class="key">녹음-진료유형선택-질환-선택</span></div>
+        <select class="fselect" id="dxSel"></select>
+        <p class="dnote" id="dxNote"></p>
+      </div>
+    </div>
+    <div class="dlgft">
+      <button class="btn-cancel" id="btCancel">취소</button>
+      <button class="btn-confirm" id="btOk">확인<span class="key">녹음-진료유형선택-확인-버튼</span></button>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+
+const DX = [
+  "관절연골 손상·자가관절보존술","내반 변형 관절염·HTO","내측 반월상 후방 뿌리파열(MMPR)",
+  "무릎 퇴행성 관절염","반월상 방사형 파열","반월상 수평파열","반월상연골 이식술(MAT)",
+  "슬개골 탈구·불안정","외측 반월상 파열","원판형 연골 파열","전방십자인대(ACL) 파열"
+];
+
+/* 공통 문진 8문항 + 마지막 질환 선택 문항 */
+const COMMON = [
+  {q:"주 증상이 발생한 시점은 언제인가요?", a:"3주 전 축구 경기 중 방향 전환하다가 무릎이 꺾임", src:"ai", ev:"“축구하다가 무릎이 꺾였어요” · 92%"},
+  {q:"통증의 위치는 어디인가요?", type:"chip", opts:["내측","외측","전방","후방","전반적"], a:"내측", src:"ai", ev:"“안쪽이 아파요” · 88%"},
+  {q:"수상 직후 부종이 있었나요?", type:"chip", opts:["있음","없음","모르겠음"], a:"있음", src:"ai", ev:"“저녁에 많이 부었어요” · 87%"},
+  {q:"현재 통증 강도(NRS)는 어느 정도인가요?", a:"평상시 3점, 계단 이용 시 6점", src:"ai", ev:"“계단에서 제일 아파요” · 84%"},
+  {q:"보행 시 불안정감(giving way)이 있나요?", type:"chip", opts:["있음","없음"], a:"있음", src:"ai", ev:"“무릎이 빠지는 느낌” · 78%"},
+  {q:"이전 무릎 수술력이 있나요?", type:"chip", opts:["있음","없음"], a:""},
+  {q:"현재 복용 중인 약물이 있나요?", a:"NSAIDs 2주째 복용 중", src:"ai", ev:"“소염제 먹고 있어요” · 81%"},
+  {q:"직업·운동 활동 수준은 어떻게 되나요?", a:"사무직, 주 2회 축구 동호회", src:"ai", ev:"“주말에 축구해요” · 76%"}
+];
+
+/* 질환별 문진 — 질환을 바꾸면 이 세트가 통째로 교체된다 (시나리오 3-17) */
+const DX_Q_MAP = {
+  "전방십자인대(ACL) 파열": [
+    {q:"수상 시 파열음(pop)을 느꼈나요?", type:"chip", opts:["있음","없음","모르겠음"], a:"있음", src:"ai", ev:"“뚝 소리가 났어요” · 90%"},
+    {q:"수상 후 24시간 이내 관절 혈종이 있었나요?", type:"chip", opts:["있음","없음"], a:"있음", src:"ai", ev:"“당일 저녁에 부었어요” · 86%"},
+    {q:"현재 완전 신전(full extension)이 가능한가요?", a:"약 5도 신전 제한 있음", src:"ai", ev:"“다 못 펴요” · 79%"},
+    {q:"반월상 연골 동반 손상 의심 소견이 있나요?", a:"내측 관절선 압통 양성, McMurray 경계성", src:"ai", ev:"검사 소견 · 72%"},
+    {q:"수술적 재건을 고려할 활동 수준인가요?", type:"chip", opts:["예","아니오","보류"], a:""}
+  ],
+  "무릎 퇴행성 관절염": [
+    {q:"아침 강직이 얼마나 지속되나요?", type:"chip", opts:["30분 미만","30분 이상","없음"], a:"30분 미만", src:"ai", ev:"“아침에 10분 정도” · 88%"},
+    {q:"계단 오르내릴 때 통증이 심해지나요?", type:"chip", opts:["있음","없음"], a:"있음", src:"ai", ev:"“계단이 제일 힘들어요” · 91%"},
+    {q:"보행 가능 거리는 어느 정도인가요?", a:"평지 기준 약 500m 후 통증", src:"ai", ev:"“동네 한 바퀴가 한계” · 77%"},
+    {q:"내반/외반 변형이 관찰되나요?", type:"chip", opts:["내반","외반","없음"], a:"내반", src:"ai", ev:"이학적 검사 · 83%"},
+    {q:"관절강 주사 이력이 있나요?", type:"chip", opts:["있음","없음"], a:""},
+    {q:"야간통이 있나요?", type:"chip", opts:["있음","없음"], a:"없음", src:"ai", ev:"“밤에는 괜찮아요” · 85%"}
+  ],
+  "슬개골 탈구·불안정": [
+    {q:"슬개골이 빠진 적이 있나요? 횟수는?", a:"2회, 최근은 6개월 전", src:"ai", ev:"“두 번 빠졌어요” · 89%"},
+    {q:"첫 탈구 시 외상이 있었나요?", type:"chip", opts:["외상성","비외상성","모르겠음"], a:"비외상성", src:"ai", ev:"“그냥 돌다가 빠졌어요” · 74%"},
+    {q:"apprehension test 결과는 어떤가요?", type:"chip", opts:["양성","음성"], a:"양성", src:"ai", ev:"이학적 검사 · 80%"},
+    {q:"양측성인가요?", type:"chip", opts:["편측","양측"], a:""}
+  ],
+  "반월상 수평파열": [
+    {q:"관절 잠김(locking) 증상이 있나요?", type:"chip", opts:["있음","없음"], a:"있음", src:"ai", ev:"“무릎이 걸려요” · 86%"},
+    {q:"쪼그려 앉을 때 통증이 있나요?", type:"chip", opts:["있음","없음"], a:"있음", src:"ai", ev:"“쪼그리면 아파요” · 90%"},
+    {q:"관절선 압통 부위는 어디인가요?", a:"내측 관절선 후방부", src:"ai", ev:"이학적 검사 · 81%"},
+    {q:"McMurray 검사 결과는?", type:"chip", opts:["양성","음성"], a:""}
+  ]
+};
+/* 나머지 질환은 목업용 대표 문항으로 대체 (실제 문항 세트는 별도 정의 필요) */
+const dxQuestions = (dx) => DX_Q_MAP[dx] || [
+  {q:"'"+dx+"' 관련 주 증상은 무엇인가요?", a:"", src:""},
+  {q:"'"+dx+"'로 진단받은 시점은 언제인가요?", a:"", src:""},
+  {q:"현재까지 받은 치료가 있나요?", type:"chip", opts:["보존 치료","수술","없음"], a:""},
+  {q:"이학적 검사 소견은 어떤가요?", a:"", src:""}
+];
+
+const SOAP = [
+  {k:"S", cls:"sl-s", label:"Subjective", t:"지난 방문 이후 계단 내려갈 때 통증이 줄었다고 함. 아침 강직은 10분 내외. 야간통 없음."},
+  {k:"O", cls:"sl-o", label:"Objective", t:"ROM 0–125°(이전 0–115°). 내측 관절선 압통 경도 잔존. McMurray 음성. 관절 삼출 없음."},
+  {k:"A", cls:"sl-a", label:"Assessment", t:"전방십자인대 부분 손상, 보존 치료에 부분 반응. 불안정감 잔존."},
+  {k:"P", cls:"sl-p", label:"Plan", t:"대퇴사두근 강화 운동 유지, NSAIDs 2주 연장. 6주 후 재평가. 증상 지속 시 재건술 상담."}
+];
+
+const LEGACY = [
+  {q:"주 증상이 발생한 시점은 언제인가요?", a:"2개월 전부터 서서히 시작", src:"legacy"},
+  {q:"통증의 위치는 어디인가요?", a:"우측 무릎 내측", src:"legacy"},
+  {q:"보존 치료 이력이 있나요?", a:"물리치료 4주, 호전 없음", src:"legacy"},
+  {q:"현재 통증 강도(NRS)는 어느 정도인가요?", a:"보행 시 5점", src:"legacy"}
+];
+
+const STT = [["의사","오늘 어떻게 오셨어요?"],["환자","3주 전에 축구하다가 무릎이 꺾였는데요."],
+  ["의사","그때 뚝 하는 소리 들으셨어요?"],["환자","네, 뚝 소리가 났고 저녁에 많이 부었어요."],
+  ["의사","계단 내려올 때 무릎이 빠지는 느낌은요?"],["환자","가끔 그런 느낌이 있어요."]];
+
+function key(k){ return '<span class="key">'+k+'</span>'; }
+
+function itemCard(it, no, extra){
+  const filled = !!it.a;
+  const cls = !filled ? '' : (it.src === 'ai' ? ' ai' : ' doctor');
+  let body;
+  if (it.type === 'chip'){
+    body = '<div class="chips">' + it.opts.map(o =>
+      '<button class="optchip'+(o===it.a ? ' sel'+(it.src==='ai'?' ai':'') : '')+'">'+o+'</button>').join('') + '</div>';
+  } else {
+    body = '<div class="ansinput'+(filled?'':' empty')+'">'+(filled ? it.a : '내용을 입력하세요.')+'</div>';
+  }
+  const badge = !filled ? '' :
+    (it.src === 'ai' ? '<span class="badge ai">AI 제안</span>'
+     : it.src === 'legacy' ? '<span class="badge legacy">저장된 답안</span>'
+     : '<span class="badge doctor">의사 입력</span>');
+  const src = (badge || it.ev) ? '<div class="srcrow">'+badge+(it.ev ? '<span class="evid">'+it.ev+'</span>' : '')+'</div>' : '';
+  return '<div class="item'+cls+'"'+(extra||'')+'>'
+    + '<div class="qrow"><span class="qno">Q'+no+'</span><p class="qtext">'+it.q+'</p></div>'
+    + src + body + '</div>';
+}
+
+/* 공통 문진 마지막 = 질환 선택 문항 (버튼형). 초진에만 존재한다. */
+function dxItem(no, selected){
+  const chips = DX.map(d =>
+    '<button class="optchip'+(d===selected?' sel':'')+'" data-dx="'+d+'">'+d+'</button>').join('');
+  const clear = selected
+    ? '<button class="optchip" data-dx="" style="border-style:dashed">선택 해제</button>' : '';
+  return '<div class="item newmark'+(selected?' doctor':'')+'" id="dxItem">'
+    + '<div class="qrow"><span class="qno">Q'+no+'</span><p class="qtext">해당하는 질환을 선택해 주세요.'
+    + '<span class="newbadge">신규</span>'+key('녹음-진료기록-질환선택-문항')+'</p></div>'
+    + '<div class="srcrow"><span class="evid">선택하면 아래에 질환별 문진이 이어서 나타납니다. 바꾸면 이전 질환의 문진은 폐기됩니다.</span></div>'
+    + '<div class="chips">'+chips+clear+'</div></div>';
+}
+
+function groupHd(title, tag, k){
+  return '<div class="grouphd newmark"><span class="gt">'+title+'</span>'
+    + (tag?'<span class="gtag">'+tag+'</span>':'')
+    + '<span class="newbadge">신규</span>'+key(k)+'<span class="gline"></span></div>';
+}
+
+function chips(arr){ return arr.join(''); }
+function dateSpan(){ return '<span class="sheetdate">2026.08.19 09:24</span>'; }
+
+const VIEWS = {
+  'empty': () => ({
+    hd: '',
+    guide: '',
+    body: '<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:80px 16px">'
+        + '<div style="font-size:40px;color:var(--mono-300)">🗒</div>'
+        + '<p style="color:var(--mono-400);font-size:14px;text-align:center">새 진료 시작 버튼을 눌러서 진료를 시작해 주세요.</p></div>',
+    foot: ''
+  }),
+
+  'new-nodx': () => ({
+    hd: '<div class="left"><span class="sheettitle">문진 답안</span><span class="chip count">7/9</span></div>'
+      + '<div class="right">'+chips(['<span class="chip visit">초진</span>','<span class="chip status">작성중</span>'])+dateSpan()+'</div>',
+    guide: '',
+    body: groupHd('공통 문진','항상 표시','녹음-진료기록-공통문진-그룹')
+        + COMMON.map((c,i)=>itemCard(c,i+1)).join('')
+        + dxItem(9, ''),
+    foot: ''
+  }),
+
+  'new-dx': () => {
+    const qs = dxQuestions(currentDx);
+    const answered = COMMON.filter(c=>c.a).length + 1 + qs.filter(c=>c.a).length;
+    return {
+    hd: '<div class="left"><span class="sheettitle">문진 답안</span><span class="chip count">'+answered+'/'+(COMMON.length+1+qs.length)+'</span></div>'
+      + '<div class="right">'+chips([
+          '<span class="chip visit">초진</span>',
+          '<span class="chip dx newmark">'+currentDx+'<span class="newbadge">신규</span>'+key('녹음-진료기록-질환-칩')+'</span>',
+          '<span class="chip status">작성중</span>'])+dateSpan()+'</div>',
+    guide: '',
+    body: groupHd('공통 문진','항상 표시','녹음-진료기록-공통문진-그룹')
+        + COMMON.map((c,i)=>itemCard(c,i+1)).join('')
+        + dxItem(9, currentDx)
+        + groupHd('질환별 문진 — '+currentDx,'질환 선택 시','녹음-진료기록-질환별문진-그룹')
+        + qs.map((c,i)=>itemCard(c,i+1)).join(''),
+    foot: ''
+  }},
+
+  'followup': () => ({
+    hd: '<div class="left"><span class="sheettitle">SOAP 기록</span></div>'
+      + '<div class="right">'+chips([
+          '<span class="chip visit">재진</span>',
+          '<span class="chip dx newmark">'+currentDx+'<span class="newbadge">신규</span>'+key('녹음-진료기록-질환-칩')+'</span>',
+          '<span class="chip status">작성중</span>'])+dateSpan()+'</div>',
+    guide: '<div class="guide">ℹ 재진은 진료 유형 선택 다이얼로그에서 질환이 확정됩니다. 문진 안에 질환 선택 문항이 없습니다.</div>',
+    body: SOAP.map(s =>
+        '<div class="soapitem"><div class="soaphd"><span class="soapletter '+s.cls+'">'+s.k+'</span>'
+        + '<span class="soaplabel">'+s.label.slice(1)+'</span>'+key('녹음-진료기록-SOAP_'+s.k+'-SOAP섹션')+'</div>'
+        + '<div class="soaptext">'+s.t+'</div></div>').join('')
+      + groupHd('질환별 문진 — '+currentDx,'재진에도 표시','녹음-진료기록-질환별문진-그룹')
+      + dxQuestions(currentDx).map((c,i)=>itemCard(c,i+1)).join(''),
+    foot: '<div class="commentbox"><div class="ct"><b>통합 코멘트</b><span>코멘트는 저장되지 않으며 검토 완료 시 SOAP에 반영됩니다.</span></div>'
+        + '<textarea placeholder="진료 중 메모를 입력하세요."></textarea></div>'
+  }),
+
+  'unknown': () => ({
+    hd: '<div class="left"><span class="sheettitle">문진 답안</span><span class="chip count">4/4</span></div>'
+      + '<div class="right">'+chips([
+          '<span class="chip visit">초진</span>',
+          '<span class="chip dx unknown newmark">UNKNOWN<span class="newbadge">백필</span>'+key('녹음-진료기록-질환-칩')+'</span>',
+          '<span class="chip status done">완료</span>'])+'<span class="sheetdate">2026.05.02 14:10</span></div>',
+    guide: '<div class="guide">ℹ 질환 축 배포 전에 만들어진 진료입니다. 문진 답안은 저장된 그대로 표시됩니다.</div>',
+    body: LEGACY.map((c,i)=>itemCard(c,i+1)).join(''),
+    foot: ''
+  })
+};
+
+let view = 'empty';
+let patientCase = 'none';
+let currentDx = '전방십자인대(ACL) 파열';
+
+const CASE_VISITS = { none:0, has:3, unknown:3 };
+
+function render(){
+  const v = VIEWS[view]();
+  const isEmpty = view === 'empty';
+  $('#sheetHd').innerHTML = v.hd;
+  $('#sheetHd').style.display = v.hd ? '' : 'none';
+  $('#sheetGuide').innerHTML = v.guide;
+  $('#sheetBody').innerHTML = v.body;
+  $('#sheetFoot').innerHTML = v.foot;
+  $('#ctaBar').style.display = isEmpty ? 'none' : '';
+  $('#visitCount').textContent = view === 'unknown' ? 3 : CASE_VISITS[patientCase];
+  $('#calBtn').disabled = CASE_VISITS[patientCase] === 0 && view !== 'unknown';
+  const noStt = isEmpty || view === 'new-nodx';
+  $('#stt').innerHTML = noStt
+    ? '녹음을 시작하면 STT 결과가 여기에 표시됩니다.'
+    : STT.map(l=>'<div class="l"><span class="who">'+l[0]+'</span>'+l[1]+'</div>').join('');
+  $('#elapsed').textContent = noStt ? '00:00' : '04:32';
+  document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('on', b.dataset.view===view));
+  document.querySelectorAll('[data-case]').forEach(b=>b.classList.toggle('on', b.dataset.case===patientCase));
+
+  // 문진 내 질환 선택 → 질환별 문진 교체 + 질환 칩 동기화 (시나리오 3-17 · 3-19)
+  $('#sheetBody').querySelectorAll('[data-dx]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const dx = btn.dataset.dx;
+      if (dx) { currentDx = dx; view = 'new-dx'; } else { view = 'new-nodx'; }
+      render();
+    });
+  });
+}
+
+/* 다이얼로그 */
+let dType = '초진', dDx = '';
+function renderDxSel(){
+  const placeholder = dType === '재진' ? '질환을 선택하세요.' : '선택 안 함';
+  $('#dxSel').innerHTML = ['<option value="">'+placeholder+'</option>']
+    .concat(DX.map(d => '<option'+(d===dDx?' selected':'')+'>'+d+'</option>')).join('');
+}
+function syncDlg(){
+  $('#btNew').classList.toggle('on', dType === '초진');
+  $('#btFu').classList.toggle('on', dType === '재진');
+  const required = dType === '재진';
+  $('#dxReq').innerHTML = required ? '<span class="req">*</span>' : '<span class="optnote">(선택)</span>';
+  $('#dxNote').textContent = required
+    ? '재진은 질환을 선택해야 진료를 시작할 수 있습니다.'
+    : "초진은 질환을 고르지 않아도 시작할 수 있습니다. '선택 안 함'으로 되돌릴 수 있습니다.";
+  const ok = !required || dDx !== '';
+  $('#btOk').disabled = !ok;
+  renderDxSel();
+}
+function openDlg(mode){
+  if (mode==='none'){ dType='초진'; dDx=''; $('#typeNote').textContent='진료 이력 0건 → 초진이 초기값 (시나리오 1-14)'; }
+  if (mode==='has'){ dType='재진'; dDx='슬개골 탈구·불안정'; $('#typeNote').textContent='진료 이력 1건 이상 → 재진 + 직전 진료의 질환이 초기값 (시나리오 2-15)'; }
+  if (mode==='unknown'){ dType='재진'; dDx=''; $('#typeNote').textContent='직전 진료가 UNKNOWN → 재진이되 질환은 초기값 없음 (시나리오 2-16)'; }
+  syncDlg();
+  $('#overlay').classList.add('open');
+}
+function closeDlg(){
+  $('#overlay').classList.remove('open');
+}
+
+document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>{view=b.dataset.view;render();}));
+document.querySelectorAll('[data-case]').forEach(b=>b.addEventListener('click',()=>{
+  patientCase=b.dataset.case; view='empty'; render();
+}));
+$('#openDlgBtn').addEventListener('click',()=>openDlg(patientCase));
+$('#btNew').addEventListener('click',()=>{dType='초진';$('#typeNote').textContent='초진으로 바꿔도 고른 질환은 유지됩니다 (시나리오 1-13)';syncDlg();});
+$('#btFu').addEventListener('click',()=>{dType='재진';$('#typeNote').textContent='재진으로 바꾸면 질환이 필수가 됩니다 (시나리오 2-13)';syncDlg();});
+$('#dxSel').addEventListener('change',e=>{dDx=e.target.value;syncDlg();});
+$('#btCancel').addEventListener('click',closeDlg);
+$('#btOk').addEventListener('click',()=>{
+  if ($('#btOk').disabled) return;
+  if (dDx) currentDx = dDx;
+  view = dType === '재진' ? 'followup' : (dDx ? 'new-dx' : 'new-nodx');
+  closeDlg(); render();
+});
+$('#overlay').addEventListener('click',e=>{ if(e.target.id==='overlay') closeDlg(); });
+$('#tNew').addEventListener('change',e=>document.body.classList.toggle('shownew',e.target.checked));
+$('#tKey').addEventListener('change',e=>document.body.classList.toggle('showkeys',e.target.checked));
+
+render();
+</script>
+</body>
+</html>
