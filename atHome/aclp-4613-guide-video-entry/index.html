@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ACLP-4613 · 앱 사용 가이드 영상 진입점 목업</title>
+<style>
+@import url("https://fastly.jsdelivr.net/gh/sunn-us/SUITE/fonts/variable/woff2/SUITE-Variable.css");
+@import url("https://fastly.jsdelivr.net/gh/sunn-us/SUIT/fonts/variable/woff2/SUIT-Variable.css");
+
+:root{
+  --am-blue:#1E5AF0; --am-navy:#0C1E6B; --am-skyblue:#38D2FF; --am-yellow:#FFCF2C;
+  --am-blue-700:#1342CC; --am-blue-500:#2E6CFF; --am-blue-300:#93B2FF;
+  --am-blue-100:#E3EBFF; --am-blue-50:#F3F6FF;
+  --am-ink-900:#101010; --am-ink-800:#1A1D24; --am-ink-700:#262A33; --am-ink-600:#3A3F4B;
+  --am-ink-500:#555B68; --am-ink-400:#7C8290; --am-ink-300:#A8ADBA; --am-ink-200:#C9CDD6;
+  --am-ink-100:#E5E7EC; --am-ink-50:#F3F4F7; --am-ink-30:#F8F9FB; --am-ink-0:#FFFFFF;
+  --r-sm:8px; --r-md:12px; --r-lg:16px; --r-xl:20px; --r-2xl:24px; --r-pill:999px;
+  --font-head:"SUITE Variable","SUITE","Pretendard","Noto Sans KR",system-ui,sans-serif;
+  --font-body:"SUIT Variable","SUIT","Pretendard","Noto Sans KR",system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:var(--font-body);
+  background:var(--am-ink-50);
+  color:var(--am-ink-900);
+  -webkit-font-smoothing:antialiased;
+  padding:48px 24px 72px;
+}
+.page-head{max-width:1000px;margin:0 auto 40px;text-align:center}
+.page-head .eyebrow{
+  display:inline-block;font-size:12px;font-weight:700;letter-spacing:.04em;
+  color:var(--am-blue);background:var(--am-blue-50);
+  border:1px solid var(--am-blue-100);border-radius:var(--r-pill);
+  padding:6px 14px;margin-bottom:14px;
+}
+.page-head h1{font-family:var(--font-head);font-size:26px;font-weight:800;letter-spacing:-.02em}
+.page-head p{margin-top:10px;font-size:14px;color:var(--am-ink-500);line-height:1.6}
+
+.stage{display:flex;gap:56px;justify-content:center;align-items:flex-start;flex-wrap:wrap;max-width:1000px;margin:0 auto}
+.slot{width:360px}
+.slot-label{margin-bottom:14px;text-align:center}
+.slot-label .no{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:22px;height:22px;border-radius:50%;background:var(--am-blue);color:#fff;
+  font-size:12px;font-weight:700;margin-right:8px;vertical-align:middle;
+}
+.slot-label .txt{font-family:var(--font-head);font-size:16px;font-weight:800}
+.slot-label .sub{margin-top:6px;font-size:12.5px;color:var(--am-ink-400)}
+
+/* ---------- phone ---------- */
+.phone{
+  position:relative;width:360px;height:740px;background:#fff;
+  border-radius:40px;border:9px solid #16181D;
+  box-shadow:0 24px 60px -18px rgba(12,30,107,.28), 0 4px 14px rgba(12,30,107,.08);
+  overflow:hidden;
+}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;background:#fff}
+
+.statusbar{
+  flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;
+  padding:14px 22px 6px;font-size:13.5px;font-weight:700;font-feature-settings:"tnum";
+}
+.statusbar .icons{display:flex;align-items:center;gap:5px}
+.bars{display:flex;align-items:flex-end;gap:1.5px;height:10px}
+.bars i{display:block;width:2.5px;background:var(--am-ink-900);border-radius:1px}
+.bars i:nth-child(1){height:4px}.bars i:nth-child(2){height:6px}
+.bars i:nth-child(3){height:8px}.bars i:nth-child(4){height:10px}
+.wifi{width:14px;height:10px}
+.batt{width:22px;height:11px;border:1.4px solid var(--am-ink-900);border-radius:3px;position:relative}
+.batt::after{content:"";position:absolute;right:-3.5px;top:3px;width:2px;height:5px;background:var(--am-ink-900);border-radius:0 1px 1px 0}
+.batt i{position:absolute;inset:1.5px;background:var(--am-ink-900);border-radius:1.5px}
+
+.body{flex:1 1 auto;overflow:hidden;position:relative}
+.scroll{height:100%;overflow-y:auto;padding:8px 20px 96px;scrollbar-width:none}
+.scroll::-webkit-scrollbar{display:none}
+
+/* ---------- home ---------- */
+.page-title{display:flex;align-items:center;justify-content:space-between;margin:10px 0 18px}
+.page-title h2{font-family:var(--font-head);font-size:30px;font-weight:800;letter-spacing:-.03em}
+.roadmap{
+  display:inline-flex;align-items:center;gap:6px;background:var(--am-ink-50);
+  border-radius:var(--r-pill);padding:9px 14px;font-size:13px;font-weight:600;color:var(--am-ink-700);
+}
+.chev{width:6px;height:6px;border-right:1.8px solid currentColor;border-bottom:1.8px solid currentColor;transform:rotate(-45deg)}
+
+.program{
+  position:relative;overflow:hidden;border-radius:var(--r-2xl);
+  background:linear-gradient(135deg,var(--am-blue-500) 0%,var(--am-blue) 55%,var(--am-blue-700) 100%);
+  color:#fff;padding:20px 20px 18px;margin-bottom:26px;
+  box-shadow:0 10px 24px -10px rgba(30,90,240,.55);
+}
+.program::after{
+  content:"";position:absolute;right:-70px;bottom:-120px;width:280px;height:280px;
+  border-radius:50%;border:36px solid rgba(255,255,255,.07);
+}
+.program .tag{
+  display:inline-block;background:rgba(255,255,255,.22);border-radius:var(--r-sm);
+  font-size:11.5px;font-weight:700;padding:5px 9px;margin-bottom:12px;
+}
+.program h3{font-family:var(--font-head);font-size:19px;font-weight:800;line-height:1.4;letter-spacing:-.02em}
+.program .prep{margin-top:10px;font-size:12.5px;color:rgba(255,255,255,.82)}
+.program .foot{display:flex;align-items:center;gap:10px;margin-top:44px;position:relative;z-index:1}
+.program .time{
+  display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.2);
+  border-radius:var(--r-pill);padding:6px 12px;font-size:12.5px;font-weight:600;
+}
+.program .prog{font-size:13px;font-weight:600;color:rgba(255,255,255,.85)}
+.program .prog b{font-size:17px;font-weight:800;color:#fff}
+.program .go{
+  margin-left:auto;width:42px;height:42px;border-radius:50%;background:#fff;
+  display:flex;align-items:center;justify-content:center;
+}
+.program .go span{width:8px;height:8px;border-right:2px solid var(--am-blue);border-bottom:2px solid var(--am-blue);transform:rotate(-45deg);margin-left:-2px}
+
+.sec-title{font-family:var(--font-head);font-size:19px;font-weight:800;letter-spacing:-.02em;margin-bottom:12px}
+
+.care-list{display:flex;flex-direction:column;gap:9px}
+.care{
+  display:flex;align-items:center;gap:10px;background:var(--am-ink-30);
+  border-radius:var(--r-lg);padding:16px 15px;
+}
+.care .t{font-size:14.5px;font-weight:600;color:var(--am-ink-800);letter-spacing:-.01em}
+.care .t small{
+  display:inline-block;margin-left:6px;background:var(--am-blue-50);color:var(--am-blue);
+  border-radius:6px;padding:3px 7px;font-size:11px;font-weight:700;vertical-align:middle;
+}
+.care .t .sub{display:block;margin-top:4px;font-size:12px;font-weight:500;color:var(--am-ink-400)}
+.care .meta{margin-left:auto;display:flex;align-items:center;gap:9px;flex:0 0 auto}
+.care .meta em{font-style:normal;font-size:12.5px;font-weight:600;color:var(--am-ink-500);font-feature-settings:"tnum"}
+.care .meta em b{color:var(--am-blue);font-weight:800}
+.care .meta .dot{
+  width:22px;height:22px;border-radius:50%;border:1.4px dashed var(--am-ink-200);
+  display:flex;align-items:center;justify-content:center;color:var(--am-ink-300);
+}
+.care .meta .dot span{width:5px;height:5px;border-right:1.6px solid currentColor;border-bottom:1.6px solid currentColor;transform:rotate(-45deg);margin-left:-1px}
+
+/* ---------- NEW: guide banner ---------- */
+.guide-banner{
+  position:relative;margin-top:18px;display:flex;align-items:center;gap:13px;
+  background:linear-gradient(120deg,var(--am-blue-50) 0%,var(--am-blue-100) 100%);
+  border:1px solid var(--am-blue-100);border-radius:var(--r-xl);
+  padding:16px 15px;
+}
+.guide-banner .thumb{
+  flex:0 0 auto;width:52px;height:52px;border-radius:14px;
+  background:linear-gradient(140deg,var(--am-blue) 0%,var(--am-blue-700) 100%);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 6px 14px -6px rgba(30,90,240,.7);
+}
+.guide-banner .thumb i{
+  display:block;width:0;height:0;border-left:12px solid #fff;
+  border-top:8px solid transparent;border-bottom:8px solid transparent;margin-left:3px;
+}
+.guide-banner .txt strong{
+  display:block;font-family:var(--font-head);font-size:15px;font-weight:800;
+  color:var(--am-navy);letter-spacing:-.02em;
+}
+.guide-banner .txt span{display:block;margin-top:5px;font-size:12.5px;font-weight:500;color:var(--am-ink-500)}
+.guide-banner .arrow{
+  margin-left:auto;flex:0 0 auto;width:24px;height:24px;border-radius:50%;
+  background:#fff;display:flex;align-items:center;justify-content:center;color:var(--am-blue);
+  box-shadow:0 1px 3px rgba(12,30,107,.12);
+}
+.guide-banner .arrow span{width:6px;height:6px;border-right:1.8px solid currentColor;border-bottom:1.8px solid currentColor;transform:rotate(-45deg);margin-left:-2px}
+
+/* ---------- profile ---------- */
+.profile-head{display:flex;align-items:center;gap:10px;margin:16px 0 22px}
+.profile-head h2{font-family:var(--font-head);font-size:27px;font-weight:800;letter-spacing:-.03em}
+.badge{
+  background:var(--am-blue);color:#fff;border-radius:var(--r-pill);
+  padding:6px 13px;font-size:12.5px;font-weight:700;
+}
+.profile-head .chev{margin-left:auto;color:var(--am-ink-400);width:8px;height:8px;border-width:2px}
+
+.menu-group{background:var(--am-ink-30);border-radius:var(--r-lg);overflow:hidden;margin-bottom:14px}
+.menu-group.open{overflow:visible}
+.menu{display:flex;align-items:center;gap:10px;padding:19px 16px;position:relative}
+.menu + .menu::before{content:"";position:absolute;left:16px;right:16px;top:0;height:1px;background:var(--am-ink-100)}
+.menu .t{font-size:15px;font-weight:600;color:var(--am-ink-800);letter-spacing:-.01em}
+.menu .t .sub{display:block;margin-top:4px;font-size:12px;font-weight:500;color:var(--am-ink-400)}
+.menu .right{margin-left:auto;display:flex;align-items:center;gap:9px;color:var(--am-ink-300)}
+.menu .pill{background:var(--am-blue-50);color:var(--am-blue);border-radius:6px;padding:4px 8px;font-size:11.5px;font-weight:700}
+.menu.guide .t{color:var(--am-navy);font-weight:700}
+.menu.guide .ico{
+  flex:0 0 auto;width:30px;height:30px;border-radius:9px;background:var(--am-blue);
+  display:flex;align-items:center;justify-content:center;
+}
+.menu.guide .ico i{display:block;width:0;height:0;border-left:8px solid #fff;border-top:5.5px solid transparent;border-bottom:5.5px solid transparent;margin-left:2px}
+
+.legal{margin:26px 0 10px;text-align:center;font-size:12.5px;color:var(--am-ink-400)}
+.legal span{margin:0 10px}
+
+/* ---------- shared chrome ---------- */
+.fab{
+  position:absolute;right:18px;bottom:184px;width:58px;height:58px;border-radius:50%;
+  background:var(--am-skyblue);border:3px solid #fff;color:#fff;
+  display:flex;align-items:center;justify-content:center;text-align:center;
+  font-family:var(--font-head);font-size:12.5px;font-weight:800;line-height:1.1;
+  box-shadow:0 8px 18px -6px rgba(56,210,255,.7);
+}
+.tabbar{
+  position:absolute;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--am-ink-100);
+  display:flex;padding:9px 0 20px;
+}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;font-size:11.5px;font-weight:600;color:var(--am-ink-300)}
+.tab.on{color:var(--am-blue)}
+.tab .g{width:22px;height:22px;border-radius:6px;background:currentColor;opacity:.85}
+.homebar{position:absolute;left:50%;transform:translateX(-50%);bottom:8px;width:120px;height:4.5px;border-radius:3px;background:var(--am-ink-900)}
+
+/* ---------- annotation ---------- */
+.marked{
+  outline:2px solid #E5484D;outline-offset:4px;
+  box-shadow:0 0 0 8px rgba(229,72,77,.10);
+}
+.mk{
+  position:absolute;left:-2px;top:-17px;z-index:3;
+  background:#E5484D;color:#fff;font-size:10.5px;font-weight:700;
+  border-radius:5px;padding:2px 7px;white-space:nowrap;letter-spacing:-.01em;
+}
+.note{
+  width:360px;margin-top:16px;background:#fff;border:1px solid var(--am-ink-100);
+  border-radius:var(--r-md);padding:14px 16px;font-size:12.5px;line-height:1.65;color:var(--am-ink-600);
+}
+.note b{color:var(--am-navy);font-weight:700}
+.note ul{margin:6px 0 0 16px}
+.note li{margin-top:3px}
+.footnote{max-width:1000px;margin:44px auto 0;text-align:center;font-size:12px;color:var(--am-ink-400);line-height:1.7}
+</style>
+</head>
+<body>
+
+<div class="page-head">
+  <div class="eyebrow">ACLP-4613 · 앳홈 환자 앱</div>
+  <h1>앱 사용 가이드 영상 진입점</h1>
+  <p>AC-1(홈 배너)·AC-2(프로필 메뉴)·AC-14(고정 문구) 기준 목업입니다. 영상 재생 화면은 포함하지 않았습니다.</p>
+</div>
+
+<div class="stage">
+
+  <!-- ============ 1. HOME ============ -->
+  <div class="slot">
+    <div class="slot-label">
+      <div><span class="no">1</span><span class="txt">홈 화면 진입점 배너</span></div>
+      <div class="sub">「함께 챙겨보기」 목록 아래 · 상시 노출</div>
+    </div>
+
+    <div class="phone">
+      <div class="screen">
+        <div class="statusbar">
+          <span>09:41</span>
+          <span class="icons">
+            <span class="bars"><i></i><i></i><i></i><i></i></span>
+            <svg class="wifi" viewBox="0 0 16 12" fill="none"><path d="M1 4.2A11 11 0 0 1 15 4.2" stroke="#101010" stroke-width="1.6" stroke-linecap="round"/><path d="M3.6 7A7.2 7.2 0 0 1 12.4 7" stroke="#101010" stroke-width="1.6" stroke-linecap="round"/><path d="M6.2 9.6a3.4 3.4 0 0 1 3.6 0" stroke="#101010" stroke-width="1.6" stroke-linecap="round"/><circle cx="8" cy="11.2" r=".9" fill="#101010"/></svg>
+            <span class="batt"><i></i></span>
+          </span>
+        </div>
+
+        <div class="body">
+          <div class="scroll">
+            <div class="page-title">
+              <h2>오늘</h2>
+              <span class="roadmap">나의 회복 로드맵 <span class="chev"></span></span>
+            </div>
+
+            <div class="program">
+              <span class="tag">3일차 프로그램</span>
+              <h3>#부기 감소 #혈액 순환 촉진<br>#압통 최소화</h3>
+              <div class="prep">준비물 : 긴 막대기, 수건</div>
+              <div class="foot">
+                <span class="time">약 32분</span>
+                <span class="prog"><b>0</b>/7 완료</span>
+                <span class="go"><span></span></span>
+              </div>
+            </div>
+
+            <div class="sec-title">함께 챙겨보기</div>
+            <div class="care-list">
+              <div class="care">
+                <div class="t">상처 소독하기</div>
+                <div class="meta"><em><b>1</b>/12 일 완료</em><span class="dot"><span></span></span></div>
+              </div>
+              <div class="care">
+                <div class="t">보행 시 보조기 0° 고정하기 <small>21일 남음</small></div>
+                <div class="meta"><span class="dot"><span></span></span></div>
+              </div>
+              <div class="care">
+                <div class="t">목발 사용하기 <small>21일 남음</small></div>
+                <div class="meta"><span class="dot"><span></span></span></div>
+              </div>
+              <div class="care">
+                <div class="t">오늘의 프로그램 운동하기</div>
+                <div class="meta"><em><b>1</b>/7 개</em><span class="dot"><span></span></span></div>
+              </div>
+              <div class="care">
+                <div class="t">식단 관리하기</div>
+                <div class="meta"><em><b>100</b>/1600 Kcal</em><span class="dot"><span></span></span></div>
+              </div>
+              <div class="care">
+                <div class="t">365 일상회복 Tip 시청하기<span class="sub">상처부위가 간질간질거릴땐 어떻게 해야..</span></div>
+                <div class="meta"><span class="dot"><span></span></span></div>
+              </div>
+            </div>
+
+            <!-- NEW -->
+            <div class="guide-banner marked" id="homeBanner">
+              <span class="mk">신규 · AC-1</span>
+              <span class="thumb"><i></i></span>
+              <span class="txt">
+                <strong>앱 사용 가이드 영상 보기</strong>
+                <span>약 3분 · 앱 사용법 안내</span>
+              </span>
+              <span class="arrow"><span></span></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="fab">Tok<br>Tok</div>
+        <div class="tabbar">
+          <div class="tab on"><span class="g"></span>홈</div>
+          <div class="tab"><span class="g"></span>운동</div>
+          <div class="tab"><span class="g"></span>기록</div>
+          <div class="tab"><span class="g"></span>프로필</div>
+        </div>
+        <div class="homebar"></div>
+      </div>
+    </div>
+
+    <div class="note">
+      <b>확인 포인트</b>
+      <ul>
+        <li>「함께 챙겨보기」 <b>목록 밖 독립 배너</b>입니다. 수행 완료 집계에 포함되지 않습니다 (시나리오 1-3)</li>
+        <li>기존 '365 일상회복 Tip 시청하기'와 구분되도록 배너 형태·브랜드 블루 면으로 차별화했습니다</li>
+        <li>수술 전후 구간과 무관하게 동일 문구를 씁니다 (AC-14)</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============ 2. PROFILE ============ -->
+  <div class="slot">
+    <div class="slot-label">
+      <div><span class="no">2</span><span class="txt">프로필 페이지 진입점</span></div>
+      <div class="sub">메뉴 그룹 최상단 · 상시 노출</div>
+    </div>
+
+    <div class="phone">
+      <div class="screen">
+        <div class="statusbar">
+          <span>09:41</span>
+          <span class="icons">
+            <span class="bars"><i></i><i></i><i></i><i></i></span>
+            <svg class="wifi" viewBox="0 0 16 12" fill="none"><path d="M1 4.2A11 11 0 0 1 15 4.2" stroke="#101010" stroke-width="1.6" stroke-linecap="round"/><path d="M3.6 7A7.2 7.2 0 0 1 12.4 7" stroke="#101010" stroke-width="1.6" stroke-linecap="round"/><path d="M6.2 9.6a3.4 3.4 0 0 1 3.6 0" stroke="#101010" stroke-width="1.6" stroke-linecap="round"/><circle cx="8" cy="11.2" r=".9" fill="#101010"/></svg>
+            <span class="batt"><i></i></span>
+          </span>
+        </div>
+
+        <div class="body">
+          <div class="scroll">
+            <div class="profile-head">
+              <h2>홍길동</h2>
+              <span class="badge">처방 버전</span>
+              <span class="chev"></span>
+            </div>
+
+            <div class="menu-group open">
+              <!-- NEW -->
+              <div class="menu guide marked" style="border-radius:var(--r-lg)">
+                <span class="mk">신규 · AC-2</span>
+                <span class="ico"><i></i></span>
+                <span class="t">앱 사용 가이드 영상</span>
+                <span class="right"><span class="chev"></span></span>
+              </div>
+              <div class="menu">
+                <span class="t">북마크</span>
+                <span class="right"><span class="chev"></span></span>
+              </div>
+              <div class="menu">
+                <span class="t">공지사항</span>
+                <span class="right"><span class="chev"></span></span>
+              </div>
+              <div class="menu">
+                <span class="t">알림 설정</span>
+                <span class="right"><span class="chev"></span></span>
+              </div>
+              <div class="menu">
+                <span class="t">앱 버전 0.0.18</span>
+                <span class="right"><span class="pill">최신 버전</span></span>
+              </div>
+            </div>
+
+            <div class="menu-group">
+              <div class="menu">
+                <span class="t">QR코드 스캔</span>
+                <span class="right"><span class="chev"></span></span>
+              </div>
+              <div class="menu">
+                <span class="t">로그아웃</span>
+                <span class="right"><span class="chev"></span></span>
+              </div>
+            </div>
+
+            <div class="legal">약관 및 정책<span>|</span>문의하기</div>
+          </div>
+
+        </div>
+
+        <div class="tabbar">
+          <div class="tab"><span class="g"></span>홈</div>
+          <div class="tab"><span class="g"></span>운동</div>
+          <div class="tab"><span class="g"></span>기록</div>
+          <div class="tab on"><span class="g"></span>프로필</div>
+        </div>
+        <div class="homebar"></div>
+      </div>
+    </div>
+
+    <div class="note">
+      <b>확인 포인트</b>
+      <ul>
+        <li>첨부 이미지의 빨간 테두리 위치(첫 메뉴 그룹 최상단)에 배치했습니다. 순서를 바꾸려면 알려주세요</li>
+        <li>기존 메뉴 진입 동작은 그대로 유지되어야 합니다 (시나리오 2-3, 회귀)</li>
+        <li>홈 배너와 동일한 영상으로 진입하되, 종료 시 <b>프로필로 복귀</b>합니다 (시나리오 7-2)</li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+<div class="footnote">
+  ActiMedi Brand Book v1.0 팔레트 · SUITE(제목) + SUIT(본문) 적용<br>
+  빨간 테두리는 이번 티켓에서 새로 추가되는 영역 표시이며 실제 UI에는 노출되지 않습니다.<br>
+  홈 화면은 배너가 보이도록 「함께 챙겨보기」 하단까지 스크롤한 상태입니다.
+</div>
+
+<script>
+  // 홈 화면은 신규 배너가 보이도록 하단까지 스크롤한 상태로 표시
+  window.addEventListener('load', function () {
+    var s = document.getElementById('homeBanner').closest('.scroll');
+    s.scrollTop = s.scrollHeight;
+  });
+</script>
+
+</body>
+</html>
