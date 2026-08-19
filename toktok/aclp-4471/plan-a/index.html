@@ -40,6 +40,24 @@
     background:#fff;border-radius:38px;overflow:hidden;position:relative;
     box-shadow:0 0 0 9px #23272d, 0 0 0 10px #353b42, 0 26px 60px rgba(0,0,0,.6);
   }
+  /* ===== 카톡 인앱 웹뷰 · 리포트 페이지 (ACLP-4453 범위) ===== */
+  .w-screen{background:#eceff2}
+  .w-chrome{flex:0 0 auto;background:#f6f7f9;border-bottom:1px solid #dfe3e7;padding:6px 12px 10px}
+  .w-url{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #e2e6ea;border-radius:20px;padding:8px 14px;font-size:12px;color:#5c646d}
+  .w-url .lock{font-size:11px}
+  .w-url .u{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .w-scope{
+    margin:10px 12px 0;background:#fff6e8;border:1px solid #f0d7ac;border-radius:9px;
+    padding:9px 12px;font-size:11.5px;color:#7a5b1d;line-height:1.5
+  }
+  .w-body{flex:1;overflow-y:auto;padding:12px}
+  .w-back{flex:0 0 auto;padding:10px 12px 6px}
+  .w-backbtn{
+    width:100%;background:#fff;border:1px solid #dfe3e7;border-radius:12px;padding:13px;
+    font-size:13.5px;color:#333;cursor:pointer;font-family:inherit
+  }
+  .w-backbtn:active{background:#f1f3f5}
+
   /* ===== APP SPLASH · 카톡 → 톡톡 앱 전환 (목업 연출) ===== */
   .sp-screen{background:linear-gradient(160deg,#2f6ff0 0%,#1f5fe0 55%,#164ab4 100%);color:#fff}
   .sp-screen .statusbar{color:#fff}
@@ -408,8 +426,8 @@
                     </ul>
                   </div>
                   <div class="k-btns">
-                    <button class="k-btn primaryish" onclick="goApp(true)">리포트 확인하기</button>
-                    <button class="k-btn" onclick="goApp(false)">AI 채팅 상담하기</button>
+                    <button class="k-btn primaryish" onclick="goWeb()">리포트 확인하기</button>
+                    <button class="k-btn" onclick="goApp()">AI 채팅 상담하기</button>
                   </div>
                 </div>
                 <div class="k-time">오후 4:41</div>
@@ -425,6 +443,55 @@
       </div>
 
       <!-- ---------- TOKTOK APP SCREEN ---------- -->
+      <!-- ===== 카톡 인앱 웹뷰 · 리포트 페이지 (ACLP-4453 범위) ===== -->
+      <div class="screen w-screen" id="scrWeb">
+        <div class="statusbar"><div></div><div class="r"><span class="pillbat">◗ 100</span></div></div>
+        <div class="w-chrome">
+          <div class="w-url"><span class="lock">🔒</span><span class="u">report.actimedi.com/r/8f2a…</span><span>⋮</span></div>
+        </div>
+        <div class="w-scope">
+          카톡 「리포트 확인하기」로 열리는 <b>인앱 웹뷰</b>입니다. 이 페이지는 <b>ACLP-4453(리포트 수신·열람) 범위</b>이며,
+          접근 제어·링크 만료·로드 실패 처리는 4471 AC에 포함하지 않았습니다.
+        </div>
+        <div class="w-body">
+          <div class="rep">
+            <div class="rep-h">
+              <div class="t1">무릎 건강 종합 리포트</div>
+              <div class="t2">ACTIMEDI · 스포츠의학센터</div>
+            </div>
+            <div class="rep-meta">
+              <div>이름 <b>이영구</b></div><div>검사일 <b>2026-08-14</b></div><div>대상 <b>좌측 무릎</b></div>
+            </div>
+            <div class="rep-sec">
+              <h4>기능 검사</h4>
+              <div class="rep-row"><span class="lab">굴곡 가동범위</span><span class="rep-bar"><i style="width:82%"></i></span><span class="val">124°</span></div>
+              <div class="rep-row"><span class="lab">신전 가동범위</span><span class="rep-bar"><i style="width:91%"></i></span><span class="val">-2°</span></div>
+              <div class="rep-row"><span class="lab">단일 점프</span><span class="rep-bar"><i class="warn" style="width:58%"></i></span><span class="val">58%</span></div>
+            </div>
+            <div class="rep-sec">
+              <h4>근력 · 균형</h4>
+              <div class="rep-row"><span class="lab">신근력(좌/우)</span><span class="rep-bar"><i class="warn" style="width:64%"></i></span><span class="val">64%</span></div>
+              <div class="rep-row"><span class="lab">굴근력(좌/우)</span><span class="rep-bar"><i style="width:88%"></i></span><span class="val">88%</span></div>
+              <div class="rep-row"><span class="lab">정적 균형</span><span class="rep-bar"><i style="width:76%"></i></span><span class="val">76점</span></div>
+            </div>
+            <div class="rep-sec">
+              <h4>주관적 평가 · 무릎나이</h4>
+              <div class="rep-kv">
+                <div><span>IKDC</span><b>68.9점</b></div>
+                <div><span>Lysholm</span><b>74점</b></div>
+                <div><span>통증(NRS)</span><b>3 / 10</b></div>
+                <div><span>무릎나이</span><b>41세</b></div>
+              </div>
+            </div>
+            <div class="rep-foot">본 리포트는 당일 센터에서 진행된 검사 결과를 종합한 자료이며, 의료 진단·치료·처방이 아닙니다. (목업 · 더미 데이터)</div>
+          </div>
+        </div>
+        <div class="w-back">
+          <button class="w-backbtn" onclick="reset()">‹ 카톡으로 돌아가기</button>
+        </div>
+        <div class="t-homebar"></div>
+      </div>
+
       <!-- ===== APP SPLASH · 카톡 → 톡톡 앱 전환 ===== -->
       <div class="screen sp-screen" id="scrSplash">
         <div class="statusbar"><div></div><div class="r"><span class="pillbat">◗ 100</span></div></div>
@@ -573,7 +640,7 @@
       <div class="p-card">
         <h2>진행 단계</h2>
         <ul class="steps" id="stepList">
-          <li class="on" data-s="0" onclick="jump(0)"><span class="n">1</span><span><b>알림톡 도착</b>카톡 채널에 리포트 안내가 도착한다 — 리포트 진입은 앱 안에만 있다(AC-7)</span></li>
+          <li class="on" data-s="0" onclick="jump(0)"><span class="n">1</span><span><b>알림톡 도착</b>「리포트 확인하기」는 카톡 웹뷰로, 「AI 채팅 상담하기」는 톡톡 앱으로 간다 — 챗봇 리포트 진입은 앱 안에만 있다(AC-7)</span></li>
           <li data-s="1" onclick="jump(1)"><span class="n">2</span><span><b>앱 챗봇 진입</b>리포트가 있으므로 우측 하단에 진입이 노출된다(AC-1·AC-11)</span></li>
           <li data-s="2" onclick="jump(2)"><span class="n">3</span><span><b>리포트 열람</b>진입을 누르면 이미지 뷰어가 열리고 검사일이 표시된다(AC-1·AC-12)</span></li>
           <li data-s="3" onclick="jump(3)"><span class="n">4</span><span><b>확대해서 읽기</b>핀치·끌기로 수치를 읽고 기본 배율로 돌아온다(AC-19)</span></li>
@@ -585,6 +652,7 @@
           <button class="ctrl" onclick="simFail()">불러오기 실패 (AC-4)</button>
           <button class="ctrl" onclick="simExpire()">세션 만료 (AC-6)</button>
           <button class="ctrl" onclick="simZoom()">확대해서 읽기 (AC-19)</button>
+          <button class="ctrl" onclick="goWeb()">카톡 웹뷰 (4453)</button>
         </div>
       </div>
 
@@ -618,8 +686,10 @@
           <b>AC-2(질의 맥락)</b> — 이 목업에서 챗봇은 리포트 이미지를 <b>보여주기만</b> 합니다.
           답변이 리포트 내용을 근거로 삼는지는 범위가 확정되지 않아 구현하지 않았습니다.
           아래 질의응답의 답변은 리포트 수치를 인용하지 않는 형태입니다.<br><br>
-          <b>카톡 '리포트 확인하기' 버튼</b> — AC에 정의되지 않은 동작입니다.
-          여기서는 앱 진입 후 뷰어가 자동으로 열리게 두었으나, 확정 사항이 아닙니다.<br><br>
+          <b>카톡 '리포트 확인하기' 버튼</b> — 이 티켓의 AC에 없는 동작입니다.
+          Plan B와 맞춰 <b>카톡 인앱 웹뷰</b>의 리포트 페이지로 열리게 두었고, 앱으로 넘어가지 않습니다.
+          그 페이지는 <b>ACLP-4453(리포트 수신·열람) 범위</b>이며 접근 제어·링크 만료·로드 실패는 4471 AC에 포함하지 않았습니다.
+          앱 내 이미지 뷰어(AC-1·12·13·19)는 「AI 채팅 상담하기」 → 챗봇 화면의 진입 버튼 경로에서만 확인합니다.<br><br>
           <b>회색 처리한 키 4개</b> — 톡톡 <code>test-ids.json</code>을 대조하지 못해 기존 키 존재 여부가 미확인입니다.<br><br>
           <b>AC-19 배율 컨트롤(− ＋ 맞춤)</b> — 실제 수단은 핀치·끌기·더블탭 제스처이고 신규 test-id를 두지 않았습니다.
           바의 버튼은 제스처를 쓸 수 없는 데스크톱에서 확인하기 위한 <b>목업 시연용</b>이며 AC 요소가 아닙니다.<br><br>
@@ -636,13 +706,12 @@
 
 <script>
 var step = 0;
-var autoOpen = false;
 var asked = false;
 
 var AC_MAP = {
   0: [
-    ['AC-7','진입 채널 한정','카톡 채널 대화방에는 리포트 진입 버튼이 없다 — 시나리오 7-1'],
-    ['개방','미정의','카톡 「리포트 확인하기」는 AC에 없는 동작이다']
+    ['AC-7','진입 채널 한정','카톡 대화방에는 챗봇 리포트 진입 버튼이 없다 — 시나리오 7-1'],
+    ['범위밖','4453','카톡 「리포트 확인하기」는 인앱 웹뷰로 열린다 — 이 티켓 범위 아님']
   ],
   1: [
     ['AC-1','진입 경로','리포트가 있는 환자가 챗봇 화면에 들어오면 진입이 노출된다 — 1-1'],
@@ -671,7 +740,7 @@ var AC_MAP = {
 function renderMap(){
   var rows = AC_MAP[step] || [];
   document.getElementById('acmap').innerHTML = rows.map(function(r){
-    var cls = r[0]==='개방' ? 'tag open' : (r[1]==='회귀' ? 'tag reg' : 'tag');
+    var cls = (r[0]==='개방'||r[0]==='범위밖') ? 'tag open' : (r[1]==='회귀' ? 'tag reg' : 'tag');
     return '<div class="row"><span class="'+cls+'">'+r[0]+'</span><span class="d"><b style="color:#dfe4ea">'+r[1]+'</b> · '+r[2]+'</span></div>';
   }).join('');
   var lis = document.querySelectorAll('#stepList li');
@@ -682,21 +751,27 @@ function renderMap(){
 
 function show(id){
   document.getElementById('scrKakao').classList.toggle('on', id==='k');
+  document.getElementById('scrWeb').classList.toggle('on', id==='w');
   document.getElementById('scrSplash').classList.toggle('on', id==='s');
   document.getElementById('scrApp').classList.toggle('on', id==='a');
 }
 
-function goApp(openReport){
-  // 카톡 버튼 → 톡톡 앱 전환. 스플래시를 거쳐 앱 챗봇 화면으로 들어간다.
-  splashTo(function(){ enterApp(openReport); });
+function goWeb(){
+  // 카톡 「리포트 확인하기」 → 카톡 인앱 웹뷰의 리포트 페이지. 앱으로 넘어가지 않는다. (ACLP-4453 범위)
+  splashCancel();
+  show('w');
+  step = 0; renderMap();
 }
 
-function enterApp(openReport){
+function goApp(){
+  // 카톡 「AI 채팅 상담하기」 → 톡톡 앱 전환. 스플래시를 거쳐 앱 챗봇 화면으로 들어간다.
+  splashTo(enterApp);
+}
+
+function enterApp(){
   splashCancel();
-  autoOpen = !!openReport;
   show('a');
   step = 1; renderMap();
-  if (autoOpen) { setTimeout(openViewer, 420); }
 }
 /* ============ 카톡 → 톡톡 앱 전환 스플래시 (약 2초) ============
    AC에 없는 목업 연출이다. 카톡 대화방과 앱 챗봇이 서로 다른 앱임을 보이기 위한 것으로,
