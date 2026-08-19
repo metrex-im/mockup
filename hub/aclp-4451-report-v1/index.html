@@ -167,6 +167,10 @@
   <button type="button" data-case="past" aria-pressed="false">오늘만 없음(과거 있음)</button>
   <button type="button" data-case="none" aria-pressed="false">검사 이력 없음</button>
   <span class="sep">|</span>
+  발송 결과
+  <button type="button" data-result="success" aria-pressed="true">성공</button>
+  <button type="button" data-result="fail" aria-pressed="false">실패</button>
+  <span class="sep">|</span>
   <button type="button" id="btn-send-demo">발송 확인 팝업</button>
   <button type="button" id="btn-print-demo">출력(인쇄창)</button>
   <span class="sep">|</span>
@@ -248,6 +252,17 @@
     <div class="row">
       <button class="btn" type="button" data-confirm="cancel">취소</button>
       <button class="btn primary" type="button" data-confirm="ok">발송</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="fail-dim">
+  <div class="confirm">
+    <h3>발송에 실패했습니다</h3>
+    <p>잠시 후 다시 시도해 주세요.</p>
+    <div class="row">
+      <button class="btn" type="button" data-fail="cancel">취소</button>
+      <button class="btn primary" type="button" data-fail="retry">다시 시도하기</button>
     </div>
   </div>
 </div>
@@ -395,13 +410,33 @@
     });
   });
 
+  var sendResult = 'success';
+
   function openConfirm() { document.getElementById('confirm-dim').classList.remove('hidden'); }
   function closeConfirm() { document.getElementById('confirm-dim').classList.add('hidden'); }
+  function openFail() { document.getElementById('fail-dim').classList.remove('hidden'); }
+  function closeFail() { document.getElementById('fail-dim').classList.add('hidden'); }
   function showToast() {
     var t = document.getElementById('toast');
     t.classList.remove('hidden');
     setTimeout(function () { t.classList.add('hidden'); }, 2200);
   }
+
+  // 발송 요청: 화면을 막지 않고 응답을 기다린 뒤 결과만 노출한다.
+  function requestSend() {
+    setTimeout(function () {
+      if (sendResult === 'success') { showToast(); } else { openFail(); }
+    }, 700);
+  }
+
+  document.querySelectorAll('.mock-bar button[data-result]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('.mock-bar button[data-result]').forEach(function (x) {
+        x.setAttribute('aria-pressed', String(x === b));
+      });
+      sendResult = b.dataset.result;
+    });
+  });
 
   document.getElementById('actions').addEventListener('click', function (e) {
     var b = e.target.closest('.btn');
@@ -414,7 +449,14 @@
     var b = e.target.closest('[data-confirm]');
     if (!b) return;
     closeConfirm();
-    if (b.dataset.confirm === 'ok') showToast();
+    if (b.dataset.confirm === 'ok') requestSend();
+  });
+
+  document.getElementById('fail-dim').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-fail]');
+    if (!b) return;
+    closeFail();
+    if (b.dataset.fail === 'retry') requestSend();
   });
 
   document.getElementById('btn-send-demo').addEventListener('click', openConfirm);
