@@ -58,7 +58,7 @@
   .mk-row{display:flex;justify-content:space-between;font-size:11.5px;color:#5c646d;padding:5px 0}
   .mk-row b{color:#16181b}
 
-  /* ===== 온보딩 (AC-7·9·10 · B-2) ===== */
+  /* ===== 온보딩 (AC-2·11·13·14) ===== */
   .ob-screen{background:#fff}
   .ob-top{
     flex:0 0 auto;padding:2px 18px 10px;display:flex;align-items:center;gap:10px
@@ -110,7 +110,7 @@
     padding:8px 10px;font-size:10.5px;color:#7a5b1d;line-height:1.5
   }
   .ob-gap b{color:#5f4514}
-  /* 온보딩 하단 고지 (AC-10) */
+  /* 온보딩 하단 고지 (AC-14) */
   .ob-disc{
     flex:0 0 auto;display:flex;gap:7px;align-items:flex-start;
     padding:9px 16px 14px;font-size:10.5px;color:#9aa1a9;line-height:1.5
@@ -288,13 +288,6 @@
   .acmap .tag.open{background:#2c1f24;color:#ff7a85}
   .acmap .tag.b{background:#1d3320;color:#67d39a}
   .acmap .tag.out{background:#22262c;color:#8b949e}
-  .acmap .tag.own{background:#2b2416;color:#e8b96a}
-  .aclegend{display:flex;flex-wrap:wrap;gap:12px;margin:-4px 0 12px;font-size:10.5px;color:#7b858f}
-  .aclegend span{display:inline-flex;align-items:center;gap:5px}
-  .aclegend .sw{width:9px;height:9px;border-radius:3px;display:inline-block}
-  .aclegend .sw.c{background:#8fb6ff}
-  .aclegend .sw.o{background:#e8b96a}
-  .aclegend .sw.x{background:#8b949e}
 
   .acmap .d{color:#aeb6c0}
   .diff{font-size:12px;line-height:1.7}
@@ -320,12 +313,11 @@
 <body>
 <div class="wrap">
   <header class="top">
-    <h1>ACLP-4471 · 리포트 내용 챗봇 질의 — 인터랙션 목업 <span class="tag">plan B</span></h1>
+    <h1>ACLP-4471 · 리포트 내용 챗봇 질의 — 인터랙션 목업 <span class="tag">확정안</span></h1>
     <p>
-      앱에서 리포트 <b>이미지를 못 보여줄 때의 대비판</b>. 앱 챗봇 대화에는 검사 결과가 <b>텍스트로 이미 적혀 있고</b>,
-      이미지는 카톡 「리포트 확인하기」 → 외부 static 페이지(ACLP-4453 범위)에서 본다.
-      · <a href="https://metrex.atlassian.net/wiki/spaces/Product/pages/425984107/Plan+B.+Ver1">Plan B. Ver1</a>
-      · <a href="https://metrex-im.github.io/mockup/toktok/aclp-4471/plan-a/">plan A 목업</a>
+      검사 결과를 <b>텍스트로 챗봇 대화에 표시</b>하고, 챗봇은 그 결과를 <b>근거로 답한다</b>.
+      리포트 이미지는 카톡 「리포트 확인하기」 → 외부 페이지(ACLP-4453 범위)에서 본다.
+      · <a href="https://metrex.atlassian.net/wiki/spaces/Product/pages/426803229">AC + GWT 문서</a>
       · <a href="https://metrex.atlassian.net/browse/ACLP-4471">ACLP-4471</a> · 모든 데이터는 더미입니다.
     </p>
   </header>
@@ -461,7 +453,7 @@
         </div>
       </div>
 
-      <!-- ===== 온보딩 (AC-7·9·10 · B-2) ===== -->
+      <!-- ===== 온보딩 (AC-2·11·13·14) ===== -->
       <div class="screen ob-screen" id="scrOnboard">
         <div class="statusbar"><div></div><div class="r"><span class="pillbat">◗ 100</span></div></div>
         <div class="ob-top">
@@ -474,7 +466,7 @@
         <div class="ob-body" id="obBody"></div>
         <div class="ob-input" id="obInput"></div>
         <div class="ob-disc">
-          <span class="bd">AC-10</span>
+          <span class="bd">AC-14</span>
           <span>톡톡의 답변은 의료 진단·치료·처방이 아닙니다. 증상이 지속되면 의료기관을 방문하세요.<br>
           <span style="color:#c2864a">현행 앱은 이 고지가 질문 입력창에 붙어 있어 온보딩 중에는 보이지 않는다.</span></span>
         </div>
@@ -547,58 +539,42 @@
         <ul class="steps" id="stepList">
           <li class="on" data-s="0" onclick="jump(0)"><span class="n">1</span><span><b>알림톡 도착</b>카톡은 현행과 동일. 버튼 두 개 모두 유지</span></li>
           <li data-s="1" onclick="jump(1)"><span class="n">2</span><span><b>리포트 확인하기</b>외부 static 이미지 페이지 — <b style="color:#8b949e">이 티켓 범위 아님(4453)</b></span></li>
-          <li data-s="2" onclick="jump(2)"><span class="n">3</span><span><b>AI 채팅 상담하기</b>대화에 검사 결과가 이미 텍스트로 적혀 있다 (B-1·B-5·AC-6)</span></li>
-          <li data-s="3" onclick="jump(3)"><span class="n">4</span><span><b>근거 기반 질의</b>챗봇이 그 텍스트를 근거로 답한다 (AC-1·2·4)</span></li>
+          <li data-s="2" onclick="jump(2)"><span class="n">3</span><span><b>AI 채팅 상담하기</b>대화에 검사 결과가 이미 텍스트로 적혀 있다 (AC-1·2·5·17)</span></li>
+          <li data-s="3" onclick="jump(3)"><span class="n">4</span><span><b>근거 기반 질의</b>챗봇이 그 텍스트를 근거로 답한다 (AC-6·7·9)</span></li>
         </ul>
         <div class="ctrls">
           <button class="ctrl" onclick="reset()">처음부터</button>
-          <button class="ctrl" onclick="simEmpty()">리포트 없음 (B-2)</button>
-          <button class="ctrl" onclick="simFail()">확보 실패 (B-3)</button>
-          <button class="ctrl" onclick="simUpdate()">리포트 갱신 (B-4)</button>
-          <button class="ctrl" onclick="simExpire()">세션 만료 (AC-5)</button>
+          <button class="ctrl" onclick="simEmpty()">리포트 없음 (AC-2)</button>
+          <button class="ctrl" onclick="simFail()">확보 실패 (AC-3)</button>
+          <button class="ctrl" onclick="simUpdate()">리포트 갱신 (AC-4·8)</button>
+          <button class="ctrl" onclick="simExpire()">세션 만료 (AC-10)</button>
           <button class="ctrl" onclick="simNewUser()">앱 미설치 → 마켓 (범위 밖)</button>
-          <button class="ctrl" onclick="simOnboard()">신규 환자 온보딩 (AC-7·9 · B-2)</button>
-          <button class="ctrl" onclick="simReconsent()">재동의 필요 (AC-8)</button>
+          <button class="ctrl" onclick="simOnboard()">신규 환자 온보딩 (AC-2·11·13)</button>
+          <button class="ctrl" onclick="simReconsent()">재동의 필요 (AC-12)</button>
         </div>
       </div>
 
       <div class="p-card">
         <h2>이 화면이 검증하는 것</h2>
-        <div class="aclegend">
-          <span><i class="sw c"></i>AC-n 공통 (부모 페이지)</span>
-          <span><i class="sw o"></i>B-n 이 플랜 전용</span>
-          <span><i class="sw x"></i>범위 밖</span>
-        </div>
-
         <div class="acmap" id="acmap"></div>
       </div>
 
       <div class="p-card">
-        <h2>plan A와 달라지는 지점</h2>
-        <div class="diff">
-          <div class="row"><span class="k">보는 곳</span><span class="v">앱 내 이미지 뷰어 → <b style="color:#dfe4ea">챗봇 대화의 텍스트</b> (이미지는 카톡→외부 페이지)</span></div>
-          <div class="row"><span class="k">진입 동작</span><span class="v">플로팅 버튼 → 뷰어 열기 → <b style="color:#dfe4ea">없음.</b> 들어오면 이미 적혀 있다</span></div>
-          <div class="row"><span class="k">근거 주입</span><span class="v">양쪽 모두 리포트를 근거로 답한다 — 공통 <b style="color:#dfe4ea">AC-1</b>로 올라감</span></div>
-          <div class="row"><span class="k">판정 금지</span><span class="v">공통 <b style="color:#dfe4ea">AC-4</b>. 수치를 알게 되므로 판정을 막는 것이 실제 규칙이 된다</span></div>
-          <div class="row"><span class="k">뷰어 항목</span><span class="v"><b style="color:#ff7a85">해당 없음</b> — 이미지 확대·뷰어 열고 닫기(A-4·A-7)는 plan B에 없다</span></div>
-          <div class="row"><span class="k">B-4·B-5</span><span class="v">갱신 표시 / 대화 메시지 순서 — plan B 전용</span></div>
-          <div class="row"><span class="k">근거 범위</span><span class="v"><b style="color:#ff7a85">폐기</b> — 근거를 검사 결과로만 한정하면 온보딩에서 받은 수술·증상까지 배제하게 된다</span></div>
-          <div class="row"><span class="k">B-5</span><span class="v">기존 병원 안내 메시지가 그대로 유지되는지 (같은 대화 경로 공유)</span></div>
-        </div>
-      </div>
-      <div class="p-card">
         <h2>목업이 대신 정하지 않은 것</h2>
         <div class="note">
+          <b>여러 시점의 검사 결과</b> — 톡톡은 계정당 대화 세션을 하나만 쓰고 환자가 새 대화를 시작할 수단이 없어,
+          검사를 여러 번 받으면 서로 다른 시점의 결과가 같은 대화에 쌓입니다.
+          그때 「제 근력이 어떻게 됐나요」에 최신만 답할지·두 검사를 비교할지·되물을지는 결정 전입니다(AC-8은 <b>갱신</b>만 다룹니다).<br><br>
           <b>답변 아래 「근거」 점선 박스</b> — AC에 없는 요소입니다. 어떤 값을 근거로 답했는지 보여줄지는 결정 전입니다.<br><br>
           <b>결과 메시지가 쓰이는 시점</b> — 알림톡과 동시에 푸시되는지, 챗봇 진입 시 조회해 뿌리는지 미확정입니다. 여기서는 이미 도착해 있는 상태로 그렸습니다.<br><br>
           <b>결과 텍스트의 항목 구성</b> — ACLP-4450 산출물이 나와야 확정됩니다. 외부 이미지 페이지와 <b>같은 항목</b>을 담는다는 것만 확인된 상태라, 목업에서도 두 화면의 항목을 일치시켜 두었습니다.<br><br>
           <b>온보딩 · 마켓 화면</b> — 현행 톡톡 앱의 흐름을 그대로 옮긴 것입니다(인사 → 약관 동의 → 수술 종류 → 수술 날짜 → 증상 발생 시기 → 증상 → 시작).
           수술 종류·날짜는 건너뛸 수 있고, 증상 발생 시기·증상은 필수이며, 이 둘이 모두 입력되어야 온보딩을 마친 것으로 봅니다.
           마켓 화면은 AppsFlyer 링크의 미설치 분기를 보이기 위한 것이고 실제 스토어 페이지 디자인이 아닙니다.<br><br>
-          <b>온보딩 화면의 면책 고지</b> — 공통 AC-10이 요구하는 「입력창이 없어도 고지가 보이는」 상태로 그렸습니다.
+          <b>온보딩 화면의 면책 고지</b> — AC-14가 요구하는 「입력창이 없어도 고지가 보이는」 상태로 그렸습니다.
           현행 앱은 고지가 질문 입력창에 붙어 있어 온보딩 중에는 보이지 않습니다. 어디에 둘지는 결정 전입니다.<br><br>
           <b>약관 동의 화면의 수집 항목</b> — 현행 문구를 그대로 옮겼습니다. 「센터 검사 결과」는 아직 없는 항목이라
-          경고 박스로 표시했을 뿐, 추가된 문구를 확정한 것이 아닙니다. 공통 AC-7·8은 법무 확인이 따르는 선행 조건입니다.<br><br>
+          경고 박스로 표시했을 뿐, 추가된 문구를 확정한 것이 아닙니다. AC-11·12는 법무 확인이 따르는 선행 조건입니다.<br><br>
           <b>앱 전환 스플래시</b> — 카톡에서 톡톡 앱으로 넘어간다는 것을 보이기 위한 목업 연출(약 2초)입니다.
           실제 톡톡 앱의 스플래시 디자인·지속 시간과 무관하며 AC 요소가 아닙니다.
           「리포트 확인하기」는 외부 웹 페이지로 가므로 스플래시를 거치지 않고,
@@ -666,28 +642,28 @@ var QA = [
 var AC_MAP = {
   'mk': [
     ['범위 밖','앱 진입 링크','AppsFlyer 링크(설치 시 앱 · 미설치 시 마켓)는 이 티켓 AC에서 제외 — 별도 티켓'],
-    ['AC-9','온보딩 우선','설치 후 열면 온보딩을 거치고, 그 뒤에 검사 결과가 표시된다 — 9-1·9-2']
+    ['AC-13','온보딩 우선','설치 후 열면 온보딩을 거치고, 그 뒤에 검사 결과가 표시된다 — 13-1']
   ],
   'ob': [
-    ['AC-9','온보딩 우선','온보딩을 마치기 전에는 검사 결과가 표시되지 않는다 — 9-1'],
-    ['AC-7','동의 범위','민감정보 항목에 「센터 검사 결과」가 없으면 근거로 쓸 수 없다 — 7-1·7-2'],
-    ['B-2','신규 환자','처음 쓰는 환자는 대화가 비어 있어 B1-2가 성립하지 않는다 — B2-3'],
-    ['AC-10','고지 상시성','입력창이 없는 이 화면에도 고지가 보여야 한다 — 10-2']
+    ['AC-13','온보딩 우선','온보딩을 마치기 전에는 검사 결과가 표시되지 않는다 — 13-1'],
+    ['AC-11','동의 범위','민감정보 항목에 「센터 검사 결과」가 없으면 근거로 쓸 수 없다 — 11-1·11-2'],
+    ['AC-2','미표시 조건','처음 쓰는 환자는 대화가 비어 있어 1-2가 성립하지 않는다 — 2-3'],
+    ['AC-14','고지 상시성','입력창이 없는 이 화면에도 고지가 보여야 한다 — 14-2']
   ],
 
-  0:[['B-1','결과 표시','알림톡은 현행과 동일하다 — B1-2의 출발점'],
-     ['범위 밖','4453','「리포트 확인하기」→ static 이미지 페이지는 이 티켓 범위가 아니다'],
+  0:[['AC-1','결과 표시','알림톡은 현행과 동일하다 — 1-2의 출발점'],
+     ['범위 밖','4453','「리포트 확인하기」→ 외부 이미지 페이지는 이 티켓 범위가 아니다'],
      ['범위 밖','앱 진입 링크','「AI 채팅 상담하기」의 AppsFlyer 분기는 별도 티켓']],
   1:[['범위 밖','4453','이미지 페이지의 접근 제어·만료·로드 실패는 이 티켓 AC에 없다'],
-     ['개방','정합성','이 페이지 항목과 대화 텍스트 항목이 어긋나면 공통 AC-2가 무너진다']],
-  2:[['B-1','결과 표시','여는 동작 없이 대화에 이미 적혀 있다 — B1-1·B1-2'],
-     ['B-2','미표시 조건','리포트가 없거나 온보딩 중이면 표시되지 않는다 — B2-1·B2-3'],
-     ['B-5','회귀','기존 진료 안내 메시지가 시각 순서대로 그대로 남는다 — B5-1'],
-     ['AC-6','대상 특정','메시지에 검사일이 표시된다 — 6-1']],
-  3:[['AC-1','질의 맥락','답변에 그 환자의 검사 값이 인용된다 — 1-1'],
-     ['AC-4','판정 금지','정상 여부·치료 필요 여부를 판정하지 않는다 — 4-1·4-2'],
-     ['AC-2','맥락 밖','결과에 없는 값을 지어내지 않는다 — 2-1'],
-     ['AC-12','회귀','참고문헌·피드백 수단이 기존과 동일하게 제공된다 — 12-1'],
+     ['개방','정합성','이 페이지 항목과 대화 텍스트 항목이 어긋나면 AC-7이 무너진다']],
+  2:[['AC-1','결과 표시','여는 동작 없이 대화에 이미 적혀 있다 — 1-1·1-2'],
+     ['AC-2','미표시 조건','리포트가 없거나 온보딩 중이면 표시되지 않는다 — 2-1·2-3'],
+     ['AC-5','대상 특정','메시지에 검사일이 표시된다 — 5-1'],
+     ['AC-17','회귀','기존 진료 안내 메시지가 시각 순서대로 그대로 남는다 — 17-1']],
+  3:[['AC-6','질의 맥락','답변에 그 환자의 검사 값이 인용된다 — 6-1'],
+     ['AC-9','판정 금지','정상 여부·치료 필요 여부를 판정하지 않는다 — 9-1·9-2'],
+     ['AC-7','맥락 밖','결과에 없는 값을 지어내지 않는다 — 7-1'],
+     ['AC-16','회귀','참고문헌·피드백 수단이 기존과 동일하게 제공된다 — 16-1'],
      ['개방','미정의','답변의 「근거」 표시는 AC에 없다']]
 };
 
@@ -736,8 +712,7 @@ function renderMap(){
   document.getElementById('acmap').innerHTML = rows.map(function(r){
     var cls = r[0]==='개방' ? 'tag open'
             : r[0]==='범위 밖' ? 'tag out'
-            : (/^B-/.test(r[0]) ? 'tag own'
-            : (r[1]==='회귀' ? 'tag reg' : 'tag'));
+            : (r[1]==='회귀' ? 'tag reg' : 'tag');
     return '<div class="row"><span class="'+cls+'">'+r[0]+'</span><span class="d"><b style="color:#dfe4ea">'+r[1]+'</b> · '+r[2]+'</span></div>';
   }).join('');
   var lis=document.querySelectorAll('#stepList li');
@@ -769,9 +744,9 @@ function goApp(){
 function enterApp(){
   splashCancel();
   show('a'); paintReport(); step=2; renderMap(); scroll();
-  if(expired){ toast('AC-5 · 로그인이 만료되어 검사 결과가 표시되지 않습니다. (시나리오 5-1)'); }
-  else if(failMode){ toast('B-3 · 결과를 불러오지 못했습니다. 빈 결과 메시지는 표시되지 않습니다. (B3-1)'); }
-  else if(!hasReport){ toast('B-2 · 발송된 리포트가 없어 검사 결과 메시지가 없습니다. (B2-1)'); }
+  if(expired){ toast('AC-10 · 로그인이 만료되어 검사 결과가 표시되지 않습니다. (시나리오 10-1)'); }
+  else if(failMode){ toast('AC-3 · 결과를 불러오지 못했습니다. 빈 결과 메시지는 표시되지 않습니다. (3-1)'); }
+  else if(!hasReport){ toast('AC-2 · AC-15 · 발송된 리포트가 없어 결과 메시지가 없고, 기존 챗봇 대화는 그대로 동작합니다. (2-1 · 15-1)'); }
 }
 
 
@@ -792,7 +767,7 @@ function splashTo(after){
 }
 
 
-/* ============ 온보딩 · 마켓 (AC-7·8·9·10 · B-2) ============
+/* ============ 온보딩 · 마켓 (AC-2·11·12·13·14) ============
    현행 톡톡 앱 확인 결과를 그대로 옮긴 흐름이다.
    인사 → 약관 동의 → 수술 종류 → 수술 날짜 → 증상 발생 시기 → 증상 → 시작.
    수술 종류·날짜는 건너뛸 수 있고, 증상 발생 시기·증상은 필수다.
@@ -849,7 +824,7 @@ function obRender(){
         obTermRow(0, '서비스 이용약관 (필수)', 'AI 기반 운동·웰니스 정보 제공. 의학적 진단·치료·처방을 제공하지 않음') +
         obTermRow(1, '개인정보 수집·이용 (필수)', '이름, 성별, 나이, 증상 발생 시기, 증상 내용, 최근 운동 내역') +
         obTermRow(2, '민감정보(건강정보) 수집·이용 (필수)', '수술 기록, 수술 날짜') +
-        '<div class="ob-gap"><b>AC-7</b> · 현행 민감정보 동의 항목은 「수술 기록, 수술 날짜」뿐이다. ' +
+        '<div class="ob-gap"><b>AC-11</b> · 현행 민감정보 동의 항목은 「수술 기록, 수술 날짜」뿐이다. ' +
         '센터 검사 리포트의 수치는 여기에 없으므로, 약관에 <b>「센터 검사 결과」</b>와 ' +
         '수집 목적 <b>「검사 결과에 대한 설명 제공」</b>이 추가되어야 리포트를 제공할 수 있다.</div>' +
       '</div>' +
@@ -918,7 +893,7 @@ function obAnswer(){
 function obNext(){
   var step = OB_STEPS[obIdx];
   if (step.ui === 'consent' && !obAllConsented()){
-    toast('AC-7 · 필수 동의 3가지를 모두 체크해야 다음으로 넘어간다.');
+    toast('AC-11 · 필수 동의 3가지를 모두 체크해야 다음으로 넘어간다.');
     return;
   }
   obLog.push({ bot: step.bot, ans: obAnswer() });
@@ -947,7 +922,7 @@ function installFromMarket(){
 
 function obFinish(){
   enterApp();
-  toast('AC-9 · B-2 · 온보딩을 마친 뒤에야 검사 결과 메시지가 대화에 표시된다. (시나리오 9-2 · B2-4)');
+  toast('AC-13 · AC-2 · 온보딩을 마친 뒤에야 검사 결과 메시지가 대화에 표시된다. (시나리오 13-1 · 2-4)');
 }
 
 function simNewUser(){
@@ -958,13 +933,13 @@ function simNewUser(){
 function simOnboard(){
   reset();
   goOnboard();
-  toast('B-2 · 처음 쓰는 환자는 대화가 비어 있어, 온보딩을 마치기 전에는 검사 결과가 표시되지 않는다. (B2-3)');
+  toast('AC-2 · 처음 쓰는 환자는 대화가 비어 있어, 온보딩을 마치기 전에는 검사 결과가 표시되지 않는다. (2-3)');
 }
 
 function simReconsent(){
   reset();
   enterApp();
-  toast('AC-8 · 동의 범위가 넓어지기 전에 가입한 환자는, 재동의를 마치기 전까지 검사 결과가 제공되지 않는다. (8-1)');
+  toast('AC-12 · 동의 범위가 넓어지기 전에 가입한 환자는, 재동의를 마치기 전까지 검사 결과가 제공되지 않는다. (12-1)');
 }
 
 function splashCancel(){
@@ -1009,13 +984,13 @@ function render(x){
     if(blocked){
       if(expired){
         b.textContent='로그인이 만료되어 검사 결과를 확인할 수 없어요. 다시 로그인한 뒤 물어봐 주세요.';
-        toast('AC-5 시나리오 5-2 · 만료 상태에서는 검사 값이 답변에 포함되지 않습니다.');
+        toast('AC-10 시나리오 10-2 · 만료 상태에서는 검사 값이 답변에 포함되지 않습니다.');
       } else if(failMode){
         b.textContent='지금은 검사 결과를 확인할 수 없어요. 잠시 후 다시 시도해 주세요.\n\n결과를 불러온 뒤에 내용을 근거로 안내해 드릴 수 있습니다.';
-        toast('AC-2 시나리오 2-3 · 근거를 확보하지 못한 상태에서 값을 지어내지 않습니다.');
+        toast('AC-3 시나리오 3-2 · 근거를 확보하지 못한 상태에서 값을 지어내지 않습니다.');
       } else {
         b.textContent='아직 받으신 검사 결과가 없어서 수치를 확인해 드리지 못해요.\n\n검사 결과가 도착하면 이 대화창에 안내해 드릴게요.';
-        toast('AC-1 시나리오 1-2 · 검사 결과가 없으면 수치를 인용한 답변이 나오지 않습니다.');
+        toast('AC-6 시나리오 6-2 · 검사 결과가 없으면 수치를 인용한 답변이 나오지 않습니다.');
       }
       convo.appendChild(b); addFeedback(convo);
       step=3; renderMap(); scroll(); return;
@@ -1068,7 +1043,7 @@ function simUpdate(){
   hasReport=true; failMode=false; expired=false; updated=true;
   var wv=document.getElementById('webVal'); if(wv){ wv.textContent='71%'; }
   enterApp(); step=3; renderMap();
-  toast('B-4 · AC-3 · 갱신된 결과가 새 메시지로 추가되었습니다(신근력 64% → 71%). 다시 물어보면 최신 값이 근거가 됩니다. (B4-1 · 3-1)');
+  toast('AC-4 · AC-8 · 갱신된 결과가 새 메시지로 추가되었습니다(신근력 64% → 71%). 다시 물어보면 최신 값이 근거가 됩니다. (4-1 · 8-1)');
 }
 
 function reset(){
