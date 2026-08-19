@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ACLP-4453 리포트 수신·열람 목업 v2</title>
+<style>
+  @import url("https://fastly.jsdelivr.net/gh/sunn-us/SUIT/fonts/variable/woff2/SUIT-Variable.css");
+  @import url("https://fastly.jsdelivr.net/gh/sunn-us/SUITE/fonts/variable/woff2/SUITE-Variable.css");
+  :root{
+    --am-blue:#1E5AF0; --am-navy:#0C1E6B; --am-sky:#38D2FF; --am-yellow:#FFCF2C;
+    --blue-50:#F3F6FF; --blue-100:#E3EBFF;
+    --ink-900:#101010; --ink-700:#262A33; --ink-500:#555B68; --ink-400:#7C8290;
+    --ink-200:#C9CDD6; --ink-100:#E5E7EC; --ink-50:#F3F4F7; --ink-30:#F8F9FB;
+    --pos:#1FAE6B; --caution:#F2A02D; --line:#E5E7EC;
+    --kk-yellow:#FEE500; --kk-bg:#1A1A1E; --sms-green:#0B8A3D;
+    font-family:"SUIT Variable","Pretendard","Noto Sans KR",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--ink-50);color:var(--ink-900);-webkit-font-smoothing:antialiased;
+    font-feature-settings:"tnum";padding:28px 16px 60px}
+  .wrap{max-width:460px;margin:0 auto}
+  .head{text-align:center;margin-bottom:16px}
+  .head h1{font-family:"SUITE Variable";font-weight:800;font-size:20px;color:var(--am-navy);letter-spacing:-.4px}
+  .head p{font-size:13px;color:var(--ink-500);margin-top:6px;line-height:1.5}
+
+  .seg{display:flex;gap:6px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:5px;margin:0 auto 16px;max-width:360px}
+  .seg button{flex:1;border:none;background:transparent;padding:9px;border-radius:8px;font-family:inherit;
+    font-size:13px;font-weight:700;color:var(--ink-500);cursor:pointer}
+  .seg button.on{background:var(--am-blue);color:#fff}
+
+  .phone{width:100%;max-width:390px;margin:0 auto;background:#000;border-radius:44px;
+    padding:10px;box-shadow:0 24px 60px -18px rgba(12,30,107,.45),0 4px 14px rgba(0,0,0,.2)}
+  .screen{position:relative;background:#fff;border-radius:36px;overflow:hidden;height:764px}
+  .statusbar{height:34px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;font-size:12px;font-weight:600}
+  .statusbar .r{display:flex;gap:6px;align-items:center;color:var(--ink-700)}
+  .view{position:absolute;inset:0;top:34px;display:none;flex-direction:column}
+  .view.active{display:flex}
+  .scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+  .scroll::-webkit-scrollbar{width:0}
+
+  /* KakaoTalk */
+  .kk{background:var(--kk-bg)}
+  .kk .topbar{background:var(--kk-bg);display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid rgba(255,255,255,.06)}
+  .kk .brandname{color:#fff;font-weight:700;font-size:16px;display:flex;align-items:center;gap:5px}
+  .kk .badge{width:15px;height:15px;background:var(--am-blue);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:9px}
+  .kk .sub{color:#9a9aa2;font-size:11px;margin-top:1px}
+  .kk .back{color:#fff;font-size:20px}
+  .kk .ic{margin-left:auto;color:#cfcfd6;font-size:18px}
+  .kk .body{padding:16px 14px 20px}
+  .kk .datesep{text-align:center;margin:6px 0 14px}
+  .kk .datesep span{background:#3a3a42;color:#d0d0d6;font-size:11px;padding:5px 14px;border-radius:999px}
+  .kk .msgrow{display:flex;gap:9px;align-items:flex-start}
+  .kk .avatar{width:38px;height:38px;border-radius:13px;background:#fff;flex:none;display:flex;align-items:center;justify-content:center;overflow:hidden}
+  .kk .msgcol{max-width:80%}
+  .kk .sender{color:#c9c9d0;font-size:12px;margin-bottom:5px}
+  .kk .talkcard{background:#fff;border-radius:4px 16px 16px 16px;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.2)}
+  .kk .alimhead{background:var(--kk-yellow);padding:11px 16px;font-weight:800;font-size:14px;color:#3a2e00;font-family:"SUITE Variable"}
+  .kk .alimbody{padding:16px 16px 6px}
+  .kk .alimbody .greet{font-size:14.5px;line-height:1.55;color:#111;white-space:pre-line}
+  .kk .talkbtns{padding:6px 12px 14px}
+  .kk .talkbtn{display:block;width:100%;text-align:center;background:#f3f3f5;border:none;border-radius:8px;padding:13px;font-size:14px;font-weight:600;color:#222;margin-top:8px;cursor:pointer;font-family:inherit}
+  .kk .talkbtn.primary{background:var(--blue-50);color:var(--am-blue)}
+  .kk .stamp{font-size:10px;color:#8a8a92;align-self:flex-end;margin-left:6px}
+
+  /* SMS */
+  .sms{background:#EDEDED}
+  .sms .topbar{background:#F7F7F7;display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid #dcdce0}
+  .sms .topbar .back{color:var(--am-blue);font-size:20px}
+  .sms .topbar .who{font-weight:700;font-size:15px;color:#111}
+  .sms .topbar .who small{display:block;font-weight:500;font-size:11px;color:#8a8a92}
+  .sms .fallback{margin:12px 14px 0;background:var(--blue-50);border:1px solid var(--blue-100);border-radius:10px;padding:9px 12px;font-size:11px;color:var(--am-navy);line-height:1.45}
+  .sms .fallback b{color:var(--am-blue)}
+  .sms .body{padding:12px 14px 20px}
+  .sms .bubble{background:#fff;border-radius:4px 16px 16px 16px;padding:14px 15px;max-width:88%;font-size:13.5px;line-height:1.6;color:#111;box-shadow:0 1px 2px rgba(0,0,0,.06);white-space:pre-line}
+  .sms .webflag{font-size:10.5px;color:#8a8a92;margin-bottom:6px}
+  .sms .smslink{color:var(--am-blue);text-decoration:underline;word-break:break-all;cursor:pointer}
+  .sms .linkblock{margin-top:6px}
+  .sms .linklabel{font-weight:700}
+  .sms .stamp{font-size:10px;color:#9a9aa2;margin:6px 4px 0}
+
+  /* Report (RISE-K) */
+  .rp{background:var(--ink-30)}
+  .rp .rtop{background:#0f1116;color:#fff;display:flex;align-items:center;gap:10px;padding:12px 14px}
+  .rp .rtop .nav{color:#fff;font-size:18px;cursor:pointer;opacity:.9}
+  .rp .rtop .center{flex:1;text-align:center}
+  .rp .rtop .center .t{font-family:"SUITE Variable";font-weight:800;font-size:16px;letter-spacing:1px}
+  .rp .rtop .center .u{font-size:10px;color:#9aa0ac;margin-top:1px}
+  .rp .rtop .chat{width:34px;height:34px;border-radius:50%;background:var(--kk-yellow);display:flex;align-items:center;justify-content:center;font-size:16px}
+  .rp .rbody{padding:16px 14px 30px}
+  .rhead{display:flex;justify-content:space-between;align-items:flex-start;margin:4px 2px 14px}
+  .rhead .t{font-family:"SUITE Variable";font-weight:800;font-size:19px;color:var(--am-navy)}
+  .rhead .d{font-size:11px;color:var(--ink-400);margin-top:4px}
+  .rhead .who{text-align:right}
+  .rhead .who .id{font-size:10px;color:var(--ink-400)}
+  .rhead .who .nm{font-weight:800;color:var(--am-blue);font-size:16px}
+  .rhead .who .meta{font-size:10px;color:var(--ink-500);margin-top:3px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:15px;margin-bottom:13px;box-shadow:0 2px 8px rgba(30,90,240,.04)}
+  .sec{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+  .pill{background:var(--ink-100);color:var(--ink-700);font-size:10px;font-weight:800;padding:3px 8px;border-radius:6px;letter-spacing:.3px}
+  .sec .st{font-family:"SUITE Variable";font-weight:800;font-size:14px;color:var(--ink-900)}
+  .sec .rt{margin-left:auto;font-size:10px;color:var(--ink-400)}
+  .chart-title{text-align:center;font-size:11px;color:var(--ink-500);margin-bottom:8px}
+  .bars{display:flex;justify-content:space-around;align-items:flex-end;height:120px;padding:0 4px;border-bottom:1px solid var(--ink-100);margin-bottom:6px}
+  .bgrp{display:flex;gap:3px;align-items:flex-end;height:100%}
+  .bar{width:15px;border-radius:3px 3px 0 0}
+  .bar.h{background:var(--am-blue)} .bar.g{background:var(--caution)}
+  .blabels{display:flex;justify-content:space-around;font-size:9px;color:var(--ink-500);margin-bottom:6px}
+  .blabels span{width:25%;text-align:center}
+  .legend{display:flex;gap:14px;justify-content:center;font-size:10px;color:var(--ink-500);margin-bottom:12px}
+  .legend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:4px;vertical-align:middle}
+  .tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+  .tile{background:var(--ink-30);border-radius:11px;padding:9px 6px;text-align:center}
+  .tile .lb{font-size:9px;color:var(--ink-500);line-height:1.25;min-height:22px;display:flex;align-items:center;justify-content:center}
+  .tile .vl{font-family:"SUITE Variable";font-weight:800;font-size:16px;color:var(--ink-900);margin:2px 0}
+  .tile .cap{font-size:9px;font-weight:700}
+  .cap.pos{color:var(--pos)} .cap.cau{color:var(--caution)} .cap.info{color:var(--am-blue)} .cap.mut{color:var(--ink-400)}
+  .note{margin-top:12px;background:var(--blue-50);border-radius:10px;padding:10px 12px;font-size:11px;color:var(--am-navy);line-height:1.5;text-align:center}
+  .footpanel{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:6px}
+  .foot-svg{display:flex;flex-direction:column;align-items:center}
+  .foot-svg .ct{font-size:10px;color:var(--ink-500);margin-bottom:6px;text-align:center;line-height:1.3}
+  .hmt{display:flex;gap:14px;justify-content:center}
+  .hmtfoot{display:flex;flex-direction:column;gap:3px;width:34px}
+  .hmtseg{height:26px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff}
+  .rfoot{display:flex;justify-content:space-between;align-items:center;margin-top:4px;padding:0 4px}
+  .rfoot .org,.rfoot .pg{font-size:10px;color:var(--ink-400)}
+
+  .loading{position:absolute;inset:0;background:rgba(248,249,251,.96);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:20;opacity:0;pointer-events:none;transition:opacity .2s}
+  .loading.on{opacity:1;pointer-events:auto}
+  .spinner{width:38px;height:38px;border:3px solid var(--blue-100);border-top-color:var(--am-blue);border-radius:50%;animation:spin .8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .loading p{font-size:12px;color:var(--ink-500)}
+
+  /* Chatbot routing modal */
+  .modal{position:absolute;inset:0;background:rgba(16,16,16,.55);display:none;align-items:flex-end;z-index:30}
+  .modal.on{display:flex}
+  .sheet{background:#fff;width:100%;border-radius:22px 22px 0 0;padding:18px 18px 22px;max-height:88%;overflow-y:auto}
+  .sheet h3{font-family:"SUITE Variable";font-weight:800;font-size:16px;color:var(--am-navy);display:flex;align-items:center;gap:6px}
+  .sheet .close{margin-left:auto;font-size:18px;color:var(--ink-400);cursor:pointer;background:none;border:none}
+  .sheet .desc{font-size:12px;color:var(--ink-500);line-height:1.5;margin:8px 0 14px}
+  .sheet .desc code{background:var(--blue-50);color:var(--am-blue);padding:1px 6px;border-radius:5px;font-weight:700;font-family:inherit}
+  .instoggle{display:flex;gap:6px;background:var(--ink-50);border-radius:10px;padding:5px;margin-bottom:14px}
+  .instoggle button{flex:1;border:none;background:transparent;padding:9px;border-radius:7px;font-family:inherit;font-size:12.5px;font-weight:700;color:var(--ink-500);cursor:pointer}
+  .instoggle button.on{background:#fff;color:var(--am-blue);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+  .routebox{border:1px dashed var(--ink-200);border-radius:14px;padding:16px;text-align:center;min-height:190px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}
+  .routebox .rico{width:56px;height:56px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:26px}
+  .routebox .rt{font-family:"SUITE Variable";font-weight:800;font-size:15px;color:var(--ink-900)}
+  .routebox .rd{font-size:11.5px;color:var(--ink-500);line-height:1.5}
+  .routebox .rstep{font-size:10px;color:var(--am-blue);font-weight:700;background:var(--blue-50);padding:3px 10px;border-radius:999px}
+  .appmock{background:var(--am-blue);color:#fff}
+  .appmock .chatline{background:rgba(255,255,255,.16);border-radius:12px;padding:8px 12px;font-size:11px;margin-top:6px;max-width:220px}
+  .storemock .rico{background:var(--ink-100)}
+
+  .legendbar{max-width:390px;margin:16px auto 0;background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;font-size:12px;color:var(--ink-500);line-height:1.6}
+  .legendbar b{color:var(--am-navy);font-family:"SUITE Variable";font-weight:800;display:block;margin-bottom:6px}
+  .legendbar code{background:var(--blue-50);color:var(--am-blue);padding:1px 6px;border-radius:5px;font-weight:700;font-family:inherit}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <h1>ACLP-4453 · 리포트 수신·열람 목업 v2</h1>
+    <p>카톡 알림톡(실패 시 문자 대체발송)으로 리포트를 받아 열람하고, 챗봇으로 질의하는 흐름</p>
+  </div>
+
+  <div class="seg">
+    <button id="segKk" class="on" onclick="showEntry('kk')">카카오 알림톡</button>
+    <button id="segSms" onclick="showEntry('sms')">문자 대체발송</button>
+  </div>
+
+  <div class="phone">
+    <div class="screen">
+      <div class="statusbar"><span>9:01</span><span class="r">HD · 91%</span></div>
+
+      <!-- Kakao -->
+      <div class="view kk active" id="kkView">
+        <div class="topbar">
+          <span class="back">‹</span>
+          <div><div class="brandname">액티메디 <span class="badge">✓</span></div><div class="sub">07041325529</div></div>
+          <span class="ic">☰</span>
+        </div>
+        <div class="scroll">
+          <div class="body">
+            <div class="datesep"><span>2026년 7월 24일 금요일 ›</span></div>
+            <div class="msgrow">
+              <div class="avatar"><svg viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="12" fill="#1E5AF0"/><path d="M12 26c3-9 6-13 9-13s3 4 0 8c4-2 7-1 5 2-2 2-8 4-14 3z" fill="#38D2FF"/><circle cx="26" cy="14" r="3" fill="#FFCF2C"/></svg></div>
+              <div class="msgcol">
+                <div class="sender">액티메디</div>
+                <div class="talkcard">
+                  <div class="alimhead">종합검사 리포트가 준비됐어요</div>
+                  <div class="alimbody">
+                    <div class="greet">최효식님, 오늘 진행하신 종합검사 결과를 정리한 리포트가 준비됐어요.
+
+검사일 2026-07-24 기준으로 정리된 개인 리포트입니다.
+아래 버튼에서 종합 검사 결과를 확인하실 수 있어요.
+결과에서 궁금한 점은 AI 챗봇에게 바로 물어보세요.</div>
+                  </div>
+                  <div class="talkbtns">
+                    <button class="talkbtn primary" onclick="openReport('kk')">종합 검사 리포트 확인하기</button>
+                    <button class="talkbtn" onclick="openChatbot()">AI 챗봇에게 질문하기</button>
+                  </div>
+                </div>
+                <span class="stamp">오전 10:20</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SMS fallback -->
+      <div class="view sms" id="smsView">
+        <div class="topbar">
+          <span class="back">‹</span>
+          <div class="who">액티메디<small>문자 메시지 (LMS)</small></div>
+        </div>
+        <div class="fallback">카카오 알림톡 발송에 실패해 <b>문자로 대체발송</b>된 화면입니다. 같은 양식이며 이모지·특수문자는 빠지고, 버튼은 링크로 들어갑니다. (AC-4·AC-5)</div>
+        <div class="scroll">
+          <div class="body">
+            <div class="datesep" style="text-align:center;margin:2px 0 12px"><span style="background:#dcdce0;color:#6a6a72;font-size:11px;padding:5px 14px;border-radius:999px">2026년 7월 24일 금요일</span></div>
+            <div class="bubble">
+              <div class="webflag">[Web발신]</div>액티메디 종합검사 리포트 안내
+
+최효식님, 오늘 진행하신 종합검사 결과를 정리한 리포트가 준비됐어요.
+검사일 2026-07-24 기준으로 정리된 개인 리포트입니다.
+종합 검사 결과를 확인하고 궁금한 점은 AI 챗봇에게 물어보세요.<div class="linkblock"><span class="linklabel">종합 검사 리포트 확인</span><br><span class="smslink" onclick="openReport('sms')">https://rise-k.ai/r/8f2a1c</span></div><div class="linkblock"><span class="linklabel">AI 챗봇에게 질문</span><br><span class="smslink" onclick="openChatbot()">https://link.actimedi.com/toktok/chat</span></div>
+            </div>
+            <div class="stamp">오전 10:21 · LMS</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Report -->
+      <div class="view rp" id="rpView">
+        <div class="rtop">
+          <span class="nav" onclick="backToEntry()">✕</span>
+          <span class="nav" onclick="backToEntry()">‹</span>
+          <div class="center"><div class="t">RISE-K</div><div class="u">www.rise-k.ai</div></div>
+          <span class="nav">›</span>
+          <div class="chat">💬</div>
+        </div>
+        <div class="scroll">
+          <div class="rbody">
+            <div class="rhead">
+              <div><div class="t">통합 운동기능 검사 리포트</div><div class="d">검사일 2026. 07. 24</div></div>
+              <div class="who"><div class="id">MG12345678</div><div class="nm">최효식</div><div class="meta">남 · 172cm · 68kg · 1990.05.12 (만 36세)</div></div>
+            </div>
+            <div class="card">
+              <div class="sec"><span class="pill">sEMG</span><span class="st">표면 근전도 (VMO / VL)</span><span class="rt">표면 근전도</span></div>
+              <div class="chart-title">환측(좌) · 건측(우) RMS(mV)</div>
+              <div class="bars">
+                <div class="bgrp"><div class="bar h" style="height:52%"></div><div class="bar g" style="height:40%"></div></div>
+                <div class="bgrp"><div class="bar h" style="height:77%"></div><div class="bar g" style="height:72%"></div></div>
+                <div class="bgrp"><div class="bar h" style="height:52%"></div><div class="bar g" style="height:45%"></div></div>
+                <div class="bgrp"><div class="bar h" style="height:85%"></div><div class="bar g" style="height:77%"></div></div>
+              </div>
+              <div class="blabels"><span>VMO Mean</span><span>VMO Peak</span><span>VL Mean</span><span>VL Peak</span></div>
+              <div class="legend"><span><i style="background:var(--am-blue)"></i>환측(좌)</span><span><i style="background:var(--caution)"></i>건측(우)</span><span>RMS (mV)</span></div>
+              <div class="tiles">
+                <div class="tile"><div class="lb">VMO RMS Peak 좌/우</div><div class="vl">0.288<br><span style="font-size:11px">/0.248mv</span></div><div class="cap cau">환측 ↑</div></div>
+                <div class="tile"><div class="lb">VL RMS Peak 좌/우</div><div class="vl">0.301<br><span style="font-size:11px">/0.270mv</span></div><div class="cap cau">환측 ↑</div></div>
+                <div class="tile"><div class="lb">VMO LSI</div><div class="vl">98%</div><div class="cap cau">과활성</div></div>
+                <div class="tile"><div class="lb">VL LSI</div><div class="vl">98%</div><div class="cap cau">과활성</div></div>
+              </div>
+              <div class="note">환측(좌) VMO · VL이 건측보다 10~14% 높게 활성 → 정확한 원인은 담당 의료진 확인 필요</div>
+            </div>
+            <div class="card">
+              <div class="sec"><span class="pill">ISOMETRIC</span><span class="st">등척성 신전근력 · 추이</span><span class="rt">MicroFET</span></div>
+              <div class="tiles" style="grid-template-columns:repeat(5,1fr)">
+                <div class="tile"><div class="lb">최고 Max Force</div><div class="vl" style="font-size:14px">573N</div><div class="cap mut">최근 최고</div></div>
+                <div class="tile"><div class="lb">평균 비대칭</div><div class="vl" style="font-size:14px">4.4%</div><div class="cap info">R우세·대칭</div></div>
+                <div class="tile"><div class="lb">Average Force</div><div class="vl" style="font-size:14px">501N</div><div class="cap cau">최근 좌/우</div></div>
+                <div class="tile"><div class="lb">Duration/secs</div><div class="vl" style="font-size:14px">320N</div><div class="cap mut">환측</div></div>
+                <div class="tile"><div class="lb">Duration/secs</div><div class="vl" style="font-size:14px">503N</div><div class="cap mut">건측</div></div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="sec"><span class="pill">NSWT</span><span class="st">보행 양상 · 족저압</span><span class="rt">Gilon 족저압</span></div>
+              <div class="footpanel">
+                <div class="foot-svg">
+                  <div class="ct">족저압 중심 (Cop)<br>발바닥 평균 딛음 상태</div>
+                  <svg width="120" height="150" viewBox="0 0 120 150"><g opacity="0.9">
+                    <ellipse cx="34" cy="30" rx="15" ry="18" fill="#E3EBFF"/><ellipse cx="86" cy="30" rx="15" ry="18" fill="#E3EBFF"/>
+                    <ellipse cx="34" cy="75" rx="18" ry="24" fill="#E3EBFF"/><ellipse cx="86" cy="75" rx="18" ry="24" fill="#E3EBFF"/>
+                    <ellipse cx="34" cy="120" rx="13" ry="16" fill="#E3EBFF"/><ellipse cx="86" cy="120" rx="13" ry="16" fill="#E3EBFF"/>
+                    <circle cx="34" cy="30" r="7" fill="#1FAE6B"/><circle cx="86" cy="30" r="7" fill="#1FAE6B"/>
+                    <circle cx="30" cy="72" r="9" fill="#F2A02D"/><circle cx="90" cy="72" r="9" fill="#F2A02D"/>
+                    <circle cx="34" cy="120" r="8" fill="#E5484D"/><circle cx="86" cy="120" r="8" fill="#E5484D"/>
+                    <path d="M34 30 L30 72 L34 120" stroke="#7C8290" stroke-width="1.5" fill="none"/>
+                    <path d="M86 30 L90 72 L86 120" stroke="#7C8290" stroke-width="1.5" fill="none"/>
+                  </g></svg>
+                  <div style="font-size:9px;color:var(--pos);margin-top:4px">좌우 균형 ± · 중앙 정렬 (양호)</div>
+                </div>
+                <div class="foot-svg">
+                  <div class="ct">Heel-Mid-Toe<br>압력 분포 (%)</div>
+                  <div class="hmt" style="margin-top:6px">
+                    <div class="hmtfoot"><div class="hmtseg" style="background:#5D8CFF">31%</div><div class="hmtseg" style="background:#2E6CFF">33%</div><div class="hmtseg" style="background:#1342CC">36%</div></div>
+                    <div class="hmtfoot"><div class="hmtseg" style="background:#5D8CFF">30%</div><div class="hmtseg" style="background:#2E6CFF">33%</div><div class="hmtseg" style="background:#1342CC">37%</div></div>
+                  </div>
+                  <div style="font-size:9px;color:var(--ink-400);margin-top:8px;text-align:center;line-height:1.3">좌우 분포 거의 대칭<br>후측부(Heel) 착지 정상 패턴</div>
+                </div>
+              </div>
+              <div class="tiles" style="grid-template-columns:repeat(6,1fr)">
+                <div class="tile"><div class="lb">분당걸음수</div><div class="vl" style="font-size:13px">122<span style="font-size:9px">spm</span></div><div class="cap pos">Good</div></div>
+                <div class="tile"><div class="lb">속도</div><div class="vl" style="font-size:13px">5.3<span style="font-size:9px">km/h</span></div><div class="cap pos">Good</div></div>
+                <div class="tile"><div class="lb">보폭</div><div class="vl" style="font-size:13px">145<span style="font-size:9px">cm</span></div><div class="cap pos">Good</div></div>
+                <div class="tile"><div class="lb">스윙비율 L/R</div><div class="vl" style="font-size:13px">34/32%</div><div class="cap info">Normal</div></div>
+                <div class="tile"><div class="lb">좌우균형</div><div class="vl" style="font-size:13px">±11°</div><div class="cap mut">중앙</div></div>
+                <div class="tile"><div class="lb">종합 좌/우</div><div class="vl" style="font-size:13px">93/92</div><div class="cap pos">Good</div></div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="sec"><span class="pill">SPPB</span><span class="st">신체기능 · 노쇠 평가</span><span class="rt">Gilon</span></div>
+              <div class="tiles" style="grid-template-columns:repeat(7,1fr)">
+                <div class="tile"><div class="lb">정적균형</div><div class="vl" style="font-size:13px">4/4</div><div class="cap mut">양호</div></div>
+                <div class="tile"><div class="lb">보행속도</div><div class="vl" style="font-size:13px">4/4</div><div class="cap pos">4.8km/h</div></div>
+                <div class="tile"><div class="lb">일어서기</div><div class="vl" style="font-size:13px">4/4</div><div class="cap pos">9.2s</div></div>
+                <div class="tile"><div class="lb">노쇠</div><div class="vl" style="font-size:12px">양호</div><div class="cap pos">Good</div></div>
+                <div class="tile"><div class="lb">낙상</div><div class="vl" style="font-size:12px">양호</div><div class="cap pos">Good</div></div>
+                <div class="tile"><div class="lb">근감소</div><div class="vl" style="font-size:12px">양호</div><div class="cap mut">최근 최고</div></div>
+                <div class="tile"><div class="lb">총점</div><div class="vl" style="font-size:13px">12/12</div><div class="cap info">최상위</div></div>
+              </div>
+            </div>
+            <div class="rfoot"><span class="org">명지병원 스포츠의학센터</span><span class="pg">1 / 3</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- loading -->
+      <div class="loading" id="loading"><div class="spinner"></div><p>리포트를 불러오는 중…</p></div>
+
+      <!-- chatbot routing modal -->
+      <div class="modal" id="chatModal">
+        <div class="sheet">
+          <h3>AI 챗봇 링크 <button class="close" onclick="closeChatbot()">✕</button></h3>
+          <div class="desc">챗봇 링크는 <code>https 앱링크</code>입니다. 앱 설치 여부에 따라 이동이 달라집니다. (AC-6) — 아래에서 두 경우를 확인해 보세요.</div>
+          <div class="instoggle">
+            <button id="insOn" class="on" onclick="setInstalled(true)">톡톡 앱 설치됨</button>
+            <button id="insOff" onclick="setInstalled(false)">앱 미설치</button>
+          </div>
+          <div id="routeInstalled" class="routebox appmock">
+            <span class="rstep" style="background:rgba(255,255,255,.2);color:#fff">설치됨 → 앱 진입</span>
+            <div class="rico" style="background:rgba(255,255,255,.16)">💬</div>
+            <div class="rt" style="color:#fff">액티메디 톡톡 앱 실행</div>
+            <div class="chatline">안녕하세요, 최효식님! 종합검사 결과에서 궁금하신 점을 물어봐 주세요.</div>
+          </div>
+          <div id="routeStore" class="routebox storemock" style="display:none">
+            <span class="rstep">미설치 → 스토어 이동</span>
+            <div class="rico">⬇️</div>
+            <div class="rt">앱 스토어 (설치 페이지)</div>
+            <div class="rd">‘액티메디 톡톡’ 설치 페이지로 이동합니다.<br>App Store / Google Play</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="legendbar">
+    <b>이 목업이 보여주는 것</b>
+    <code>AC-1·3</code> 카톡 링크로 인증 없이 리포트 열람 · <code>AC-4</code> 카톡 실패 시 문자 대체발송(상단 토글) · <code>AC-5</code> 문자는 같은 문구·이모지/특수문자 제외·버튼은 링크 텍스트 · <code>AC-6</code> 챗봇 링크는 설치 시 앱·미설치 시 스토어(챗봇 버튼 → 시트). 리포트 데이터는 데모 예시값입니다.
+  </div>
+</div>
+
+<script>
+  var currentEntry='kk';
+  function showView(id){
+    document.querySelectorAll('.view').forEach(function(v){v.classList.remove('active')});
+    document.getElementById(id).classList.add('active');
+    var s=document.querySelector('#'+id+' .scroll'); if(s) s.scrollTop=0;
+  }
+  function showEntry(which){
+    currentEntry=which;
+    document.getElementById('segKk').classList.toggle('on', which==='kk');
+    document.getElementById('segSms').classList.toggle('on', which==='sms');
+    showView(which==='kk'?'kkView':'smsView');
+  }
+  function openReport(from){
+    if(from) currentEntry=from;
+    var l=document.getElementById('loading'); l.classList.add('on');
+    setTimeout(function(){ showView('rpView'); l.classList.remove('on'); }, 650);
+  }
+  function backToEntry(){ showView(currentEntry==='kk'?'kkView':'smsView'); }
+  function openChatbot(){ document.getElementById('chatModal').classList.add('on'); }
+  function closeChatbot(){ document.getElementById('chatModal').classList.remove('on'); }
+  function setInstalled(on){
+    document.getElementById('insOn').classList.toggle('on',on);
+    document.getElementById('insOff').classList.toggle('on',!on);
+    document.getElementById('routeInstalled').style.display=on?'flex':'none';
+    document.getElementById('routeStore').style.display=on?'none':'flex';
+  }
+</script>
+</body>
+</html>
