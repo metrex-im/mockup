@@ -58,6 +58,100 @@
   }
   .w-backbtn:active{background:#f1f3f5}
 
+  /* ===== 앱 마켓 (AC-26) ===== */
+  .mk-screen{background:#f7f8fa}
+  .mk-top{flex:0 0 auto;display:flex;align-items:center;gap:10px;padding:4px 16px 12px;color:#111}
+  .mk-top .b{font-size:19px}
+  .mk-top .t{font-size:15.5px;font-weight:700}
+  .mk-body{flex:1;overflow-y:auto;padding:4px 16px 16px}
+  .mk-app{display:flex;align-items:center;gap:13px;padding:6px 0 16px}
+  .mk-icon{
+    width:74px;height:74px;border-radius:18px;flex:0 0 74px;font-size:34px;
+    background:linear-gradient(160deg,#2f6ff0,#164ab4);color:#fff;
+    display:flex;align-items:center;justify-content:center;box-shadow:0 6px 16px rgba(31,95,224,.28)
+  }
+  .mk-meta{flex:1;min-width:0}
+  .mk-meta b{display:block;font-size:17px;color:#16181b;letter-spacing:-.3px}
+  .mk-meta span{display:block;font-size:11.5px;color:#8b9199;margin-top:3px}
+  .mk-get{
+    border:0;background:#1f5fe0;color:#fff;border-radius:16px;padding:7px 18px;
+    font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;flex:0 0 auto
+  }
+  .mk-get:active{opacity:.85}
+  .mk-note{
+    background:#eef4ff;border:1px solid #cfe0ff;border-radius:10px;padding:10px 12px;
+    font-size:11.5px;color:#2f62c9;line-height:1.55
+  }
+  .mk-shots{display:flex;gap:9px;margin-top:14px}
+  .mk-shot{
+    flex:1;height:150px;border-radius:12px;background:#e7ebf0;
+    display:flex;align-items:center;justify-content:center;font-size:10.5px;color:#a7aeb6
+  }
+  .mk-rows{margin-top:16px;border-top:1px solid #e7ebf0;padding-top:12px}
+  .mk-row{display:flex;justify-content:space-between;font-size:11.5px;color:#5c646d;padding:5px 0}
+  .mk-row b{color:#16181b}
+
+  /* ===== 온보딩 (AC-20·22·23·24·25) ===== */
+  .ob-screen{background:#fff}
+  .ob-top{
+    flex:0 0 auto;padding:2px 18px 10px;display:flex;align-items:center;gap:10px
+  }
+  .ob-top .nm{font-size:14px;font-weight:700;color:#16181b}
+  .ob-top .sub{font-size:11px;color:#9aa1a9}
+  .ob-prog{flex:1;height:4px;border-radius:3px;background:#eef1f4;overflow:hidden}
+  .ob-prog i{display:block;height:100%;background:#1f5fe0;border-radius:3px;transition:width .28s}
+  .ob-body{flex:1;overflow-y:auto;padding:4px 18px 8px}
+  .ob-bot{font-size:14.5px;line-height:1.65;color:#16181b;margin:14px 0 0}
+  .ob-ans{
+    display:inline-block;margin:9px 0 0;background:#1f5fe0;color:#fff;border-radius:16px;
+    padding:9px 14px;font-size:13.5px;font-weight:600;max-width:78%
+  }
+  .ob-ansrow{display:flex;justify-content:flex-end}
+  .ob-input{flex:0 0 auto;padding:8px 16px 4px;border-top:1px solid #f0f1f3}
+  .ob-chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:9px}
+  .ob-chip{
+    border:1.5px solid #e2e6ea;background:#fff;border-radius:16px;padding:7px 12px;
+    font-size:12px;color:#4d555d;cursor:pointer;font-family:inherit
+  }
+  .ob-chip.on{border-color:#1f5fe0;background:#eef4ff;color:#1f5fe0;font-weight:700}
+  .ob-field{
+    width:100%;border:1px solid #e2e6ea;border-radius:11px;padding:11px 13px;
+    font-size:13.5px;font-family:inherit;color:#16181b;margin-bottom:9px;background:#fff
+  }
+  .ob-btns{display:flex;gap:8px}
+  .ob-btn{
+    flex:1;border:0;border-radius:12px;padding:12px;font-size:13.5px;font-weight:700;
+    cursor:pointer;font-family:inherit;background:#1f5fe0;color:#fff
+  }
+  .ob-btn:disabled{opacity:.4;cursor:default}
+  .ob-btn.ghost{background:#f1f3f5;color:#5c646d;font-weight:600;flex:0 0 92px}
+  .ob-btn.start{background:#ffdb3a;color:#16181b}
+  /* 약관 동의 카드 */
+  .ob-terms{border:1px solid #e7ebf0;border-radius:13px;padding:11px 12px;margin-bottom:9px;background:#fff}
+  .ob-term{display:flex;gap:9px;align-items:flex-start;padding:7px 0}
+  .ob-term + .ob-term{border-top:1px solid #f2f4f6}
+  .ob-cb{
+    width:19px;height:19px;flex:0 0 19px;border-radius:6px;border:1.5px solid #d4dae0;background:#fff;
+    display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;cursor:pointer
+  }
+  .ob-cb.on{background:#1f5fe0;border-color:#1f5fe0}
+  .ob-term .tx{flex:1;min-width:0;font-size:12px;color:#4d555d;line-height:1.5}
+  .ob-term .tx b{color:#16181b;font-size:12.5px}
+  .ob-term .scope{display:block;margin-top:3px;font-size:10.5px;color:#8b9199}
+  .ob-gap{
+    margin-top:6px;background:#fff6e8;border:1px solid #f0d7ac;border-radius:9px;
+    padding:8px 10px;font-size:10.5px;color:#7a5b1d;line-height:1.5
+  }
+  .ob-gap b{color:#5f4514}
+  /* 온보딩 하단 고지 (AC-23) */
+  .ob-disc{
+    flex:0 0 auto;display:flex;gap:7px;align-items:flex-start;
+    padding:9px 16px 14px;font-size:10.5px;color:#9aa1a9;line-height:1.5
+  }
+  .ob-disc .bd{
+    flex:0 0 auto;background:#eef4ff;color:#2f62c9;border-radius:5px;padding:1px 5px;
+    font-size:9.5px;font-weight:700
+  }
   /* ===== APP SPLASH · 카톡 → 톡톡 앱 전환 (목업 연출) ===== */
   .sp-screen{background:linear-gradient(160deg,#2f6ff0 0%,#1f5fe0 55%,#164ab4 100%);color:#fff}
   .sp-screen .statusbar{color:#fff}
@@ -375,7 +469,7 @@
     <h1>ACLP-4471 · 리포트 내용 챗봇 질의 — 인터랙션 목업 (plan A)</h1>
     <p>
       알림톡 도착 → 카톡에서 진입 → 톡톡 앱 챗봇에서 리포트 열람 → 질의응답까지.
-      각 요소에는 GWT 논리 ID를 <code>data-testid</code>로 심어 두었습니다.
+      신규 환자의 설치·온보딩 경로는 우측 시뮬 버튼에서 볼 수 있습니다.
       · 기준: <a href="https://metrex.atlassian.net/wiki/spaces/Product/pages/425984062/Ver.1">AC/GWT Ver.1</a>
       · 티켓: <a href="https://metrex.atlassian.net/browse/ACLP-4471">ACLP-4471</a>
       · 모든 데이터는 더미입니다.
@@ -490,6 +584,52 @@
           <button class="w-backbtn" onclick="reset()">‹ 카톡으로 돌아가기</button>
         </div>
         <div class="t-homebar"></div>
+      </div>
+
+      <!-- ===== 앱 마켓 (AC-26) ===== -->
+      <div class="screen mk-screen" id="scrMarket">
+        <div class="statusbar"><div></div><div class="r"><span class="pillbat">◗ 100</span></div></div>
+        <div class="mk-top"><span class="b">‹</span><span class="t">앱 스토어</span></div>
+        <div class="mk-body">
+          <div class="mk-app">
+            <div class="mk-icon">💬</div>
+            <div class="mk-meta">
+              <b>톡톡</b>
+              <span>ACTIMEDI · 의료 / 건강</span>
+              <span>★ 4.8 · 무료</span>
+            </div>
+            <button class="mk-get" onclick="installFromMarket()">받기</button>
+          </div>
+          <div class="mk-note">
+            <b>AC-26</b> · 카톡 「AI 채팅 상담하기」는 AppsFlyer 링크로 연결한다.
+            앱이 없으면 이 마켓 페이지로, 설치되어 있으면 앱으로 바로 간다. (시나리오 26-2)
+          </div>
+          <div class="mk-shots"><div class="mk-shot">스크린샷</div><div class="mk-shot">스크린샷</div></div>
+          <div class="mk-rows">
+            <div class="mk-row"><span>카테고리</span><b>의료</b></div>
+            <div class="mk-row"><span>연령</span><b>4+</b></div>
+            <div class="mk-row"><span>크기</span><b>48.2MB</b></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== 온보딩 (AC-20·22·23) ===== -->
+      <div class="screen ob-screen" id="scrOnboard">
+        <div class="statusbar"><div></div><div class="r"><span class="pillbat">◗ 100</span></div></div>
+        <div class="ob-top">
+          <div>
+            <div class="nm">톡톡</div>
+            <div class="sub">첫 상담 준비</div>
+          </div>
+          <div class="ob-prog"><i id="obProg" style="width:0%"></i></div>
+        </div>
+        <div class="ob-body" id="obBody"></div>
+        <div class="ob-input" id="obInput"></div>
+        <div class="ob-disc">
+          <span class="bd">AC-23</span>
+          <span>톡톡의 답변은 의료 진단·치료·처방이 아닙니다. 증상이 지속되면 의료기관을 방문하세요.<br>
+          <span style="color:#c2864a">현행 앱은 이 고지가 질문 입력창에 붙어 있어 온보딩 중에는 보이지 않는다.</span></span>
+        </div>
       </div>
 
       <!-- ===== APP SPLASH · 카톡 → 톡톡 앱 전환 ===== -->
@@ -653,6 +793,9 @@
           <button class="ctrl" onclick="simExpire()">세션 만료 (AC-6)</button>
           <button class="ctrl" onclick="simZoom()">확대해서 읽기 (AC-19)</button>
           <button class="ctrl" onclick="goWeb()">카톡 웹뷰 (4453)</button>
+          <button class="ctrl" onclick="simNewUser()">앱 미설치 → 마켓 (AC-26)</button>
+          <button class="ctrl" onclick="simOnboard()">신규 환자 온보딩 (AC-20·22·24)</button>
+          <button class="ctrl" onclick="simReconsent()">재동의 필요 (AC-21)</button>
         </div>
       </div>
 
@@ -660,26 +803,6 @@
         <h2>이 화면이 검증하는 것</h2>
         <div class="acmap" id="acmap"></div>
       </div>
-
-      <div class="p-card">
-        <h2>화면 요소 키 (논리 ID)</h2>
-        <table class="keys">
-          <thead><tr><th>요소</th><th>키</th><th>상태</th></tr></thead>
-          <tbody>
-            <tr><td>리포트 진입</td><td><code>리포트-챗봇-열기-버튼</code></td><td><span class="st new">신규</span></td></tr>
-            <tr><td>이미지 뷰어</td><td><code>리포트-뷰어-이미지-팝업</code></td><td><span class="st new">신규</span></td></tr>
-            <tr><td>뷰어 닫기</td><td><code>리포트-뷰어-닫기-버튼</code></td><td><span class="st new">신규</span></td></tr>
-            <tr><td>검사일 표시</td><td><code>리포트-뷰어-검사일-텍스트</code></td><td><span class="st new">신규</span></td></tr>
-            <tr><td>불러오기 실패</td><td><code>리포트-뷰어-불러오기실패-팝업</code></td><td><span class="st new">신규</span></td></tr>
-            <tr><td>이미지 확대 (AC-19)</td><td><code>—</code> 제스처</td><td><span class="st chk">키 없음</span></td></tr>
-            <tr><td>질문 입력창</td><td><code>상담-질문-입력</code></td><td><span class="st chk">확인필요</span></td></tr>
-            <tr><td>전송 버튼</td><td><code>상담-질문-전송-버튼</code></td><td><span class="st chk">확인필요</span></td></tr>
-            <tr><td>면책 고지</td><td><code>상담-답변-면책고지-텍스트</code></td><td><span class="st chk">확인필요</span></td></tr>
-            <tr><td>상담 탭</td><td><code>상담-화면-이동-탭</code></td><td><span class="st chk">확인필요</span></td></tr>
-          </tbody>
-        </table>
-      </div>
-
       <div class="p-card">
         <h2>목업이 대신 정하지 않은 것</h2>
         <div class="note">
@@ -690,8 +813,14 @@
           Plan B와 맞춰 <b>카톡 인앱 웹뷰</b>의 리포트 페이지로 열리게 두었고, 앱으로 넘어가지 않습니다.
           그 페이지는 <b>ACLP-4453(리포트 수신·열람) 범위</b>이며 접근 제어·링크 만료·로드 실패는 4471 AC에 포함하지 않았습니다.
           앱 내 이미지 뷰어(AC-1·12·13·19)는 「AI 채팅 상담하기」 → 챗봇 화면의 진입 버튼 경로에서만 확인합니다.<br><br>
-          <b>회색 처리한 키 4개</b> — 톡톡 <code>test-ids.json</code>을 대조하지 못해 기존 키 존재 여부가 미확인입니다.<br><br>
-          <b>AC-19 배율 컨트롤(− ＋ 맞춤)</b> — 실제 수단은 핀치·끌기·더블탭 제스처이고 신규 test-id를 두지 않았습니다.
+          <b>온보딩 · 마켓 화면</b> — 현행 톡톡 앱의 흐름을 그대로 옮긴 것입니다(인사 → 약관 동의 → 수술 종류 → 수술 날짜 → 증상 발생 시기 → 증상 → 시작).
+          수술 종류·날짜는 건너뛸 수 있고, 증상 발생 시기·증상은 필수이며, 이 둘이 모두 입력되어야 온보딩을 마친 것으로 봅니다.
+          마켓 화면은 AppsFlyer 링크의 미설치 분기를 보이기 위한 것이고 실제 스토어 페이지 디자인이 아닙니다.<br><br>
+          <b>온보딩 화면의 면책 고지</b> — AC-23이 요구하는 「입력창이 없어도 고지가 보이는」 상태로 그렸습니다.
+          현행 앱은 고지가 질문 입력창에 붙어 있어 온보딩 중에는 보이지 않습니다. 어디에 둘지는 결정 전입니다.<br><br>
+          <b>약관 동의 화면의 수집 항목</b> — 현행 문구를 그대로 옮겼습니다. 「센터 검사 결과」는 아직 없는 항목이라
+          경고 박스로 표시했을 뿐, 추가된 문구를 확정한 것이 아닙니다. AC-20·21은 법무 확인이 따르는 선행 조건입니다.<br><br>
+          <b>AC-19 배율 컨트롤(− ＋ 맞춤)</b> — 실제 수단은 핀치·끌기·더블탭 제스처입니다.
           바의 버튼은 제스처를 쓸 수 없는 데스크톱에서 확인하기 위한 <b>목업 시연용</b>이며 AC 요소가 아닙니다.<br><br>
           <b>앱 전환 스플래시</b> — 카톡에서 톡톡 앱으로 넘어간다는 것을 보이기 위한 목업 연출(약 2초)입니다.
           실제 톡톡 앱의 스플래시 디자인·지속 시간과 무관하며 AC 요소가 아닙니다.
@@ -700,6 +829,7 @@
           시나리오 19-3의 「리포트 전체가 한 화면에 표시된다」는 리포트가 세로로 길 때 성립하지 않으므로, 실제 리포트 이미지 비율이 확정되면 문구를 맞춰야 합니다.
         </div>
       </div>
+
     </div>
   </div>
 </div>
@@ -709,6 +839,17 @@ var step = 0;
 var asked = false;
 
 var AC_MAP = {
+  'mk': [
+    ['AC-26','앱 진입 링크','앱이 없으면 AppsFlyer 링크가 마켓으로 보낸다 — 26-2'],
+    ['AC-26','설치 후 첫 실행','설치 후 열면 로그인·온보딩을 거쳐 챗봇에 도달한다 — 26-3']
+  ],
+  'ob': [
+    ['AC-22','온보딩 우선','온보딩을 마치기 전에는 리포트가 제공되지 않는다 — 22-1'],
+    ['AC-20','동의 범위','민감정보 항목에 「센터 검사 결과」가 없으면 제공할 수 없다 — 20-1·20-2'],
+    ['AC-24','진입 미노출','온보딩 중에는 리포트 진입 버튼이 노출되지 않는다 — 24-1'],
+    ['AC-23','고지 상시성','입력창이 없는 이 화면에도 고지가 보여야 한다 — 23-2']
+  ],
+
   0: [
     ['AC-7','진입 채널 한정','카톡 대화방에는 챗봇 리포트 진입 버튼이 없다 — 시나리오 7-1'],
     ['범위밖','4453','카톡 「리포트 확인하기」는 인앱 웹뷰로 열린다 — 이 티켓 범위 아님']
@@ -752,6 +893,8 @@ function renderMap(){
 function show(id){
   document.getElementById('scrKakao').classList.toggle('on', id==='k');
   document.getElementById('scrWeb').classList.toggle('on', id==='w');
+  document.getElementById('scrMarket').classList.toggle('on', id==='m');
+  document.getElementById('scrOnboard').classList.toggle('on', id==='o');
   document.getElementById('scrSplash').classList.toggle('on', id==='s');
   document.getElementById('scrApp').classList.toggle('on', id==='a');
 }
@@ -787,6 +930,182 @@ function splashTo(after){
     sp.classList.add('leaving');
     splashOut = setTimeout(function(){ sp.classList.remove('leaving'); after(); }, 260);
   }, SPLASH_MS - 260);
+}
+
+
+/* ============ 온보딩 · 마켓 (AC-20·21·22·23·24·25·26) ============
+   현행 톡톡 앱 확인 결과를 그대로 옮긴 흐름이다.
+   인사 → 약관 동의 → 수술 종류 → 수술 날짜 → 증상 발생 시기 → 증상 → 시작.
+   수술 종류·날짜는 건너뛸 수 있고, 증상 발생 시기·증상은 필수다.
+   온보딩 완료 판정은 「증상 발생 시기와 증상이 모두 입력됨」이다. */
+var OB_STEPS = [
+  { key:'greeting',      bot:'안녕하세요! 정확한 상담을 위해 몇 가지 여쭤볼게요.', ui:'next' },
+  { key:'terms_consent', bot:'서비스 이용을 위해 약관에 동의해주세요.',            ui:'consent' },
+  { key:'surgery_type',  bot:'어떤 수술을 받으셨나요? 해당하는 것을 모두 선택해주세요.', ui:'chips', skip:true },
+  { key:'surgery_date',  bot:'수술 날짜를 알려주세요.',                            ui:'date',  skip:true },
+  { key:'symptom_onset', bot:'증상이 처음 나타난 시기는 언제인가요?',              ui:'date' },
+  { key:'symptoms',      bot:'현재 어떤 증상이 있으신가요?',                        ui:'text' },
+  { key:'complete',      bot:'감사합니다! 이제 맞춤 상담을 시작할게요.',            ui:'start' }
+];
+var OB_SURGERY = ['ACL 재건', 'PCL 재건', '반월상 봉합', '연골 재생', '인공관절(TKRA)', 'HTO'];
+
+var obIdx = 0, obLog = [], obConsent = [false, false, false], obPick = [], obText = '';
+
+function obReset(){
+  obIdx = 0; obLog = []; obConsent = [false, false, false]; obPick = []; obText = '';
+}
+
+function goOnboard(){
+  splashCancel();
+  obReset();
+  show('o');
+  step = 'ob'; renderMap();
+  obRender();
+}
+
+function obRender(){
+  var body = document.getElementById('obBody');
+  var input = document.getElementById('obInput');
+  var step = OB_STEPS[obIdx];
+
+  var html = '';
+  for (var i = 0; i < obLog.length; i++){
+    html += '<div class="ob-bot">' + obLog[i].bot + '</div>';
+    if (obLog[i].ans) html += '<div class="ob-ansrow"><span class="ob-ans">' + obLog[i].ans + '</span></div>';
+  }
+  html += '<div class="ob-bot">' + step.bot + '</div>';
+  body.innerHTML = html;
+  body.scrollTop = body.scrollHeight;
+
+  document.getElementById('obProg').style.width = Math.round((obIdx / (OB_STEPS.length - 1)) * 100) + '%';
+
+  var skipBtn = step.skip ? '<button class="ob-btn ghost" onclick="obSkip()">건너뛰기</button>' : '';
+
+  if (step.ui === 'next'){
+    input.innerHTML = '<div class="ob-btns"><button class="ob-btn" onclick="obNext()">다음</button></div>';
+
+  } else if (step.ui === 'consent'){
+    input.innerHTML =
+      '<div class="ob-terms">' +
+        obTermRow(0, '서비스 이용약관 (필수)', 'AI 기반 운동·웰니스 정보 제공. 의학적 진단·치료·처방을 제공하지 않음') +
+        obTermRow(1, '개인정보 수집·이용 (필수)', '이름, 성별, 나이, 증상 발생 시기, 증상 내용, 최근 운동 내역') +
+        obTermRow(2, '민감정보(건강정보) 수집·이용 (필수)', '수술 기록, 수술 날짜') +
+        '<div class="ob-gap"><b>AC-20</b> · 현행 민감정보 동의 항목은 「수술 기록, 수술 날짜」뿐이다. ' +
+        '센터 검사 리포트의 수치는 여기에 없으므로, 약관에 <b>「센터 검사 결과」</b>와 ' +
+        '수집 목적 <b>「검사 결과에 대한 설명 제공」</b>이 추가되어야 리포트를 제공할 수 있다.</div>' +
+      '</div>' +
+      '<div class="ob-btns"><button class="ob-btn" id="obGo" ' + (obAllConsented() ? '' : 'disabled') +
+      ' onclick="obNext()">다음</button></div>';
+
+  } else if (step.ui === 'chips'){
+    var chips = '';
+    for (var c = 0; c < OB_SURGERY.length; c++){
+      chips += '<button class="ob-chip' + (obPick.indexOf(c) >= 0 ? ' on' : '') +
+               '" onclick="obPickToggle(' + c + ')">' + OB_SURGERY[c] + '</button>';
+    }
+    input.innerHTML = '<div class="ob-chips">' + chips + '</div>' +
+      '<div class="ob-btns">' + skipBtn + '<button class="ob-btn" onclick="obNext()">다음</button></div>';
+
+  } else if (step.ui === 'date'){
+    input.innerHTML = '<input class="ob-field" type="date" id="obDate" value="2026-06-02">' +
+      '<div class="ob-btns">' + skipBtn + '<button class="ob-btn" onclick="obNext()">다음</button></div>';
+
+  } else if (step.ui === 'text'){
+    input.innerHTML = '<textarea class="ob-field" id="obTextField" rows="2" ' +
+      'placeholder="예) 계단 내려갈 때 무릎 앞쪽이 시큰합니다">계단 내려갈 때 무릎 앞쪽이 시큰합니다</textarea>' +
+      '<div class="ob-btns"><button class="ob-btn" onclick="obNext()">다음</button></div>';
+
+  } else if (step.ui === 'start'){
+    input.innerHTML = '<div class="ob-btns"><button class="ob-btn start" onclick="obFinish()">상담 시작하기</button></div>';
+  }
+}
+
+function obTermRow(i, title, scope){
+  return '<div class="ob-term">' +
+    '<span class="ob-cb' + (obConsent[i] ? ' on' : '') + '" onclick="obConsentToggle(' + i + ')">✓</span>' +
+    '<span class="tx"><b>' + title + '</b><span class="scope">수집 항목 · ' + scope + '</span></span>' +
+  '</div>';
+}
+
+function obAllConsented(){ return obConsent[0] && obConsent[1] && obConsent[2]; }
+
+function obConsentToggle(i){
+  obConsent[i] = !obConsent[i];
+  obRender();
+}
+
+function obPickToggle(i){
+  var at = obPick.indexOf(i);
+  if (at >= 0) obPick.splice(at, 1); else obPick.push(i);
+  obRender();
+}
+
+function obAnswer(){
+  var step = OB_STEPS[obIdx];
+  if (step.ui === 'consent') return '✓ 약관에 동의했습니다';
+  if (step.ui === 'chips')   return obPick.length ? obPick.map(function(i){ return OB_SURGERY[i]; }).join(', ') : '건너뛰기';
+  if (step.ui === 'date'){
+    var el = document.getElementById('obDate');
+    return (el && el.value) ? el.value : '건너뛰기';
+  }
+  if (step.ui === 'text'){
+    var tf = document.getElementById('obTextField');
+    obText = (tf && tf.value.trim()) ? tf.value.trim() : '계단 내려갈 때 무릎 앞쪽이 시큰합니다';
+    return obText;
+  }
+  return '';
+}
+
+function obNext(){
+  var step = OB_STEPS[obIdx];
+  if (step.ui === 'consent' && !obAllConsented()){
+    toast('AC-20 · 필수 동의 3가지를 모두 체크해야 다음으로 넘어간다.');
+    return;
+  }
+  obLog.push({ bot: step.bot, ans: obAnswer() });
+  obIdx++;
+  obRender();
+}
+
+function obSkip(){
+  var step = OB_STEPS[obIdx];
+  obLog.push({ bot: step.bot, ans: '건너뛰기' });
+  obIdx++;
+  obRender();
+}
+
+function goMarket(){
+  splashCancel();
+  show('m');
+  step = 'mk'; renderMap();
+  toast('AC-26 · 앱이 없는 환자는 AppsFlyer 링크로 마켓에 도착한다. (시나리오 26-2)');
+}
+
+function installFromMarket(){
+  // 설치 후 첫 실행 → 스플래시 → 온보딩 (시나리오 26-3)
+  splashTo(goOnboard);
+}
+
+function obFinish(){
+  enterApp();
+  toast('AC-22·24 · 온보딩을 마친 뒤에야 리포트 진입이 노출된다. (시나리오 22-2 · 24-2)');
+}
+
+function simNewUser(){
+  reset();
+  goMarket();
+}
+
+function simOnboard(){
+  reset();
+  goOnboard();
+  toast('AC-24 · 온보딩 중에는 리포트가 발송되어 있어도 진입 버튼이 노출되지 않는다. (시나리오 24-1)');
+}
+
+function simReconsent(){
+  reset();
+  enterApp();
+  toast('AC-21 · 동의 범위가 넓어지기 전에 가입한 환자는, 재동의를 마치기 전까지 리포트가 제공되지 않는다. (21-1)');
 }
 
 function splashCancel(){
@@ -896,7 +1215,7 @@ function reset(){
   document.getElementById('floatBtn').style.display = '';
   document.getElementById('convo').innerHTML = '';
   document.getElementById('qInput').value = ''; hot();
-  asked = false; step = 0; splashCancel(); zReset(true); renderMap();
+  asked = false; step = 0; splashCancel(); obReset(); zReset(true); renderMap();
 }
 
 function jump(s){
