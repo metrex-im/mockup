@@ -150,7 +150,7 @@
   .su-opt{display:flex;flex-direction:column;gap:8px}
   /* 약관 동의 카드 (회원가입 시점 · AC-11) */
   .su-terms{border:1px solid #e7ebf0;border-radius:13px;padding:11px 12px;margin-bottom:9px;background:#fff}
-  .su-term{display:flex;gap:9px;align-items:flex-start;padding:7px 0}
+  .su-term{display:flex;gap:9px;align-items:flex-start;padding:7px 0;cursor:pointer}
   .su-term + .su-term{border-top:1px solid #f2f4f6}
   .su-cb{
     width:19px;height:19px;flex:0 0 19px;border-radius:6px;border:1.5px solid #d4dae0;background:#fff;
@@ -705,8 +705,8 @@ function suConsentToggle(i){
 }
 
 function suTermRow(i, title, scope){
-  return '<div class="su-term">' +
-    '<span class="su-cb' + (suConsent[i] ? ' on' : '') + '" onclick="suConsentToggle(' + i + ')">✓</span>' +
+  return '<div class="su-term" onclick="suConsentToggle(' + i + ')">' +
+    '<span class="su-cb' + (suConsent[i] ? ' on' : '') + '">✓</span>' +
     '<span class="tx"><b>' + title + '</b><span class="scope">수집 항목 · ' + scope + '</span></span>' +
   '</div>';
 }
