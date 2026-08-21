@@ -25,7 +25,7 @@
   .phone{width:378px;height:812px;flex:0 0 378px;background:#fff;border-radius:38px;
          overflow:hidden;position:relative;
          box-shadow:0 0 0 9px #23272d,0 0 0 10px #353b42,0 26px 60px rgba(0,0,0,.6)}
-    /* ===== 온보딩 (AC-2·13·14 · 약관 화면은 AC-11에 따라 제거) ===== */
+    /* ===== 온보딩 (AC-1·2 · 약관 화면은 AC-8에 따라 제거) ===== */
   .ob-screen{background:#fff}
   .ob-top{
     flex:0 0 auto;padding:2px 18px 10px;display:flex;align-items:center;gap:10px
@@ -60,7 +60,7 @@
   .ob-btn:disabled{opacity:.4;cursor:default}
   .ob-btn.ghost{background:#f1f3f5;color:#5c646d;font-weight:600;flex:0 0 92px}
   .ob-btn.start{background:#ffdb3a;color:#16181b}
-  /* 온보딩 하단 고지 (AC-14) */
+  /* 온보딩 하단 고지 (참고 — 관련 AC는 제거됨) */
   .ob-disc{
     flex:0 0 auto;display:flex;gap:7px;align-items:flex-start;
     padding:9px 16px 14px;font-size:10.5px;color:#9aa1a9;line-height:1.5
@@ -148,7 +148,7 @@
   }
   .su-sg.on{border-color:#1f5fe0;background:#eef4ff;color:#1f5fe0;font-weight:700}
   .su-opt{display:flex;flex-direction:column;gap:8px}
-  /* 약관 동의 카드 (회원가입 시점 · AC-11) */
+  /* 약관 동의 카드 (회원가입 시점 · AC-8) */
   .su-terms{border:1px solid #e7ebf0;border-radius:13px;padding:11px 12px;margin-bottom:9px;background:#fff}
   .su-term{display:flex;gap:9px;align-items:flex-start;padding:7px 0;cursor:pointer}
   .su-term + .su-term{border-top:1px solid #f2f4f6}
@@ -436,7 +436,7 @@
         <div class="su-cta" id="suCta"></div>
       </div>
 
-      <!-- ===== 온보딩 (AC-2·13·14 · 약관은 회원가입 시 앳홈 동의로 충족 — AC-11) ===== -->
+      <!-- ===== 온보딩 (AC-1·2 · 약관은 회원가입 시 앳홈 동의로 충족 — AC-8) ===== -->
       <div class="screen ob-screen" id="scrOnboard">
         <div class="statusbar"><div></div><div class="r"><span class="pillbat">◗ 100</span></div></div>
         <div class="ob-top">
@@ -449,7 +449,7 @@
         <div class="ob-body" id="obBody"></div>
         <div class="ob-input" id="obInput"></div>
         <div class="ob-disc">
-          <span class="bd">AC-14</span>
+          <span class="bd">참고</span>
           <span>톡톡의 답변은 의료 진단·치료·처방이 아닙니다. 증상이 지속되면 의료기관을 방문하세요.<br>
           <span style="color:#c2864a">현행 앱은 이 고지가 질문 입력창에 붙어 있어 온보딩 중에는 보이지 않는다.</span></span>
         </div>
@@ -675,17 +675,17 @@ function pickCase(i){
 
 function enterApp(){
     show('a'); paintReport(); scroll();
-  if(expired){ toast('AC-10 · 로그인이 만료되어 검사 결과가 표시되지 않습니다. (시나리오 10-1)'); }
-  else if(failMode){ toast('AC-3 · 결과를 불러오지 못했습니다. 빈 결과 메시지는 표시되지 않습니다. (3-1)'); }
-  else if(!hasReport){ toast('AC-2 · AC-15 · 발송된 리포트가 없어 결과 메시지가 없고, 기존 챗봇 대화는 그대로 동작합니다. (2-1 · 15-1)'); }
+  if(expired){ toast('로그인이 만료되어 검사 결과가 표시되지 않습니다. (문서에 없는 시나리오 · 세션 만료 처리는 별도 확인 필요)'); }
+  else if(failMode){ toast('결과를 불러오지 못했습니다. 빈 결과 메시지는 표시되지 않습니다. (구 AC-3, 제거됨 — 데모 참고용)'); }
+  else if(!hasReport){ toast('AC-6 · 발송된 리포트가 없어 결과 메시지가 없고, 기존 챗봇 대화는 그대로 동작합니다. (6-1)'); }
 }
 
 
 
-/* ============ 회원가입 (AC-1 진입 준비 · AC-11 약관 동의는 가입 시점에 받는다) ============
+/* ============ 회원가입 (AC-1 진입 준비 · AC-8 약관 동의는 가입 시점에 받는다) ============
    약관 동의(서비스 이용약관·개인정보·민감정보) → 휴대폰 인증 → 이름 → 비밀번호 → 신체정보 → 완료.
    이 가입 단계에서 받은 동의로 충족한 것으로 보고, AI 상담 온보딩에서는
-   별도의 약관 동의 화면을 다시 두지 않는다 (AC-11). */
+   별도의 약관 동의 화면을 다시 두지 않는다 (AC-8). */
 var SU_STEPS = ['consent','phone','name','pw','info','done'];
 var suIdx = 0, suSent = false, suName = '', suSex = '', suAct = '';
 var suConsent = [false, false, false];
@@ -747,7 +747,7 @@ function suRender(){
       suTermRow(0, '서비스 이용약관 (필수)', 'AI 기반 운동·웰니스 정보 제공. 의학적 진단·치료·처방을 제공하지 않음') +
       suTermRow(1, '개인정보 수집·이용 (필수)', '이름, 성별, 나이, 증상 발생 시기, 증상 내용, 최근 운동 내역') +
       suTermRow(2, '민감정보(건강정보) 수집·이용 (필수)', '수술 기록, 수술 날짜') +
-      '<div class="su-gapnote"><b>AC-11 · AC-12</b> · 현행 민감정보 동의 항목은 「수술 기록, 수술 날짜」뿐이다. ' +
+      '<div class="su-gapnote"><b>AC-2 · AC-8</b> · 현행 민감정보 동의 항목은 「수술 기록, 수술 날짜」뿐이다. ' +
       '센터 검사 리포트의 수치는 여기에 없으므로, 약관에 <b>「센터 검사 결과」</b>와 ' +
       '수집 목적 <b>「검사 결과에 대한 설명 제공」</b>이 추가되어야 리포트를 제공할 수 있다. ' +
       '이 동의로 서비스 이용약관·개인정보·민감정보 항목을 충족하며, AI 상담 온보딩에서는 다시 묻지 않는다.</div>' +
@@ -810,7 +810,7 @@ function suPick(kind, v){
 function suNext(){
   var k = SU_STEPS[suIdx];
   if (k === 'consent' && !suAllConsented()){
-    toast('AC-11 · 필수 동의 3가지를 모두 체크해야 다음으로 넘어간다.');
+    toast('AC-8 · 필수 동의 3가지를 모두 체크해야 다음으로 넘어간다.');
     return;
   }
   if (k === 'phone' && !suSent){ suSent = true; suRender(); return; }
@@ -823,14 +823,14 @@ function suNext(){
 }
 
 function suFinish(){
-  toast('AC-11 · 회원가입 시 받은 동의로 서비스 이용약관·개인정보·민감정보 항목을 충족한 것으로 보아, 온보딩에서 별도의 약관 동의 화면을 두지 않는다.');
+  toast('AC-8 · 회원가입 시 받은 동의로 서비스 이용약관·개인정보·민감정보 항목을 충족한 것으로 보아, 온보딩에서 별도의 약관 동의 화면을 두지 않는다.');
   goOnboard();
 }
 
-/* ============ 온보딩 (AC-2·13·14) ============
+/* ============ 온보딩 (AC-1·2) ============
    현행 톡톡 앱 확인 결과를 그대로 옮긴 흐름이다.
    인사 → 수술 종류 → 수술 날짜 → 증상 발생 시기 → 증상 → 시작.
-   (약관 동의 단계는 AC-11에 따라 제거 — 회원가입 시 동의로 충족)
+   (약관 동의 단계는 AC-8에 따라 제거 — 회원가입 시 동의로 충족)
    수술 종류·날짜는 건너뛸 수 있고, 증상 발생 시기·증상은 필수다.
    온보딩 완료 판정은 「증상 발생 시기와 증상이 모두 입력됨」이다. */
 var OB_STEPS = [
@@ -936,19 +936,19 @@ function obSkip(){
 
 function obFinish(){
   enterApp();
-  toast('AC-13 · AC-2 · 온보딩을 마친 뒤에야 검사 결과 메시지가 대화에 표시된다. (시나리오 13-1 · 2-4)');
+  toast('AC-1 · 온보딩을 마친 뒤에야 검사 결과 메시지가 대화에 표시된다. (시나리오 1-3·1-4)');
 }
 
 function simOnboard(){
   reset();
   goOnboard();
-  toast('AC-2 · 처음 쓰는 환자는 대화가 비어 있어, 온보딩을 마치기 전에는 검사 결과가 표시되지 않는다. (2-3)');
+  toast('AC-1 · 처음 쓰는 환자는 대화가 비어 있어, 온보딩을 마치기 전에는 검사 결과가 표시되지 않는다. (1-3)');
 }
 
 function simReconsent(){
   reset();
   enterApp();
-  toast('AC-12 · 동의 범위가 넓어지기 전에 가입한 환자는, 재동의를 마치기 전까지 검사 결과가 제공되지 않는다. (12-1)');
+  toast('AC-2 · 동의 범위가 넓어지기 전에 가입한 환자는, 재동의를 마치기 전까지 검사 결과가 제공되지 않는다. (2-3)');
 }
 
 function hot(){
@@ -987,13 +987,13 @@ function render(x){
     if(blocked){
       if(expired){
         b.textContent='로그인이 만료되어 검사 결과를 확인할 수 없어요. 다시 로그인한 뒤 물어봐 주세요.';
-        toast('AC-10 시나리오 10-2 · 만료 상태에서는 검사 값이 답변에 포함되지 않습니다.');
+        toast('만료 상태에서는 검사 값이 답변에 포함되지 않습니다. (문서에 없는 시나리오 · 세션 만료 처리는 별도 확인 필요)');
       } else if(failMode){
         b.textContent='지금은 검사 결과를 확인할 수 없어요. 잠시 후 다시 시도해 주세요.\n\n결과를 불러온 뒤에 내용을 근거로 안내해 드릴 수 있습니다.';
-        toast('AC-3 시나리오 3-2 · 근거를 확보하지 못한 상태에서 값을 지어내지 않습니다.');
+        toast('AC-4 시나리오 4-5 · 근거를 확보하지 못한 상태에서 값을 지어내지 않습니다.');
       } else {
         b.textContent='아직 받으신 검사 결과가 없어서 수치를 확인해 드리지 못해요.\n\n검사 결과가 도착하면 이 대화창에 안내해 드릴게요.';
-        toast('AC-6 시나리오 6-2 · 검사 결과가 없으면 수치를 인용한 답변이 나오지 않습니다.');
+        toast('AC-4 시나리오 4-2 · 검사 결과가 없으면 수치를 인용한 답변이 나오지 않습니다.');
       }
       convo.appendChild(b); addFeedback(convo); scroll(); return;
     }
@@ -1044,7 +1044,7 @@ function simUpdate(){
   hasReport=true; failMode=false; expired=false; updated=true;
   var wv=document.getElementById('webVal'); if(wv){ wv.textContent='71%'; }
   enterApp();
-  toast('AC-4 · AC-8 · 갱신된 결과가 새 메시지로 추가되었습니다(신근력 64% → 71%). 다시 물어보면 최신 값이 근거가 됩니다. (4-1 · 8-1)');
+  toast('갱신된 결과가 새 메시지로 추가되었습니다(신근력 64% → 71%). 다시 물어보면 최신 값이 근거가 됩니다. (구 AC-6 갱신 반영, 제거됨 — 데모 참고용)');
 }
 
 function restart(){ reset(); }
