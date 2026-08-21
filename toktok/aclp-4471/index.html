@@ -148,6 +148,23 @@
   }
   .su-sg.on{border-color:#1f5fe0;background:#eef4ff;color:#1f5fe0;font-weight:700}
   .su-opt{display:flex;flex-direction:column;gap:8px}
+  /* 약관 동의 카드 (회원가입 시점 · AC-11) */
+  .su-terms{border:1px solid #e7ebf0;border-radius:13px;padding:11px 12px;margin-bottom:9px;background:#fff}
+  .su-term{display:flex;gap:9px;align-items:flex-start;padding:7px 0}
+  .su-term + .su-term{border-top:1px solid #f2f4f6}
+  .su-cb{
+    width:19px;height:19px;flex:0 0 19px;border-radius:6px;border:1.5px solid #d4dae0;background:#fff;
+    display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;cursor:pointer
+  }
+  .su-cb.on{background:#1f5fe0;border-color:#1f5fe0}
+  .su-term .tx{flex:1;min-width:0;font-size:12px;color:#4d555d;line-height:1.5}
+  .su-term .tx b{color:#16181b;font-size:12.5px}
+  .su-term .scope{display:block;margin-top:3px;font-size:10.5px;color:#8b9199}
+  .su-gapnote{
+    margin-top:6px;background:#fff6e8;border:1px solid #f0d7ac;border-radius:9px;
+    padding:8px 10px;font-size:10.5px;color:#7a5b1d;line-height:1.5
+  }
+  .su-gapnote b{color:#5f4514}
   .su-sent{
     margin-top:10px;font-size:11.5px;color:#2f62c9;background:#eef4ff;
     border-radius:10px;padding:9px 12px;line-height:1.5;
@@ -665,18 +682,33 @@ function enterApp(){
 
 
 
-/* ============ 회원가입 (AC-1 진입 준비 · AC-11 온보딩 약관 화면 제거) ============
-   현행 톡톡 앱의 가입 단계를 그대로 옮겼다.
-   휴대폰 인증 → 이름 → 비밀번호 → 신체정보 → 완료.
-   약관 동의(서비스 이용약관·개인정보·민감정보)는 이 가입 단계에서 받는 것으로 갈음하고,
-   AI 상담 온보딩에서 별도로 다시 묻지 않는다 (AC-11). */
-var SU_STEPS = ['phone','name','pw','info','done'];
+/* ============ 회원가입 (AC-1 진입 준비 · AC-11 약관 동의는 가입 시점에 받는다) ============
+   약관 동의(서비스 이용약관·개인정보·민감정보) → 휴대폰 인증 → 이름 → 비밀번호 → 신체정보 → 완료.
+   이 가입 단계에서 받은 동의로 충족한 것으로 보고, AI 상담 온보딩에서는
+   별도의 약관 동의 화면을 다시 두지 않는다 (AC-11). */
+var SU_STEPS = ['consent','phone','name','pw','info','done'];
 var suIdx = 0, suSent = false, suName = '', suSex = '', suAct = '';
+var suConsent = [false, false, false];
 
 function suStart(){
   suIdx = 0; suSent = false; suName = ''; suSex = ''; suAct = '';
+  suConsent = [false, false, false];
   show('u');
   suRender();
+}
+
+function suAllConsented(){ return suConsent[0] && suConsent[1] && suConsent[2]; }
+
+function suConsentToggle(i){
+  suConsent[i] = !suConsent[i];
+  suRender();
+}
+
+function suTermRow(i, title, scope){
+  return '<div class="su-term">' +
+    '<span class="su-cb' + (suConsent[i] ? ' on' : '') + '" onclick="suConsentToggle(' + i + ')">✓</span>' +
+    '<span class="tx"><b>' + title + '</b><span class="scope">수집 항목 · ' + scope + '</span></span>' +
+  '</div>';
 }
 
 function suBack(){
@@ -702,6 +734,7 @@ function suRender(){
   }
 
   var head = {
+    consent: ['약관에 동의해주세요', '톡톡 서비스 이용을 위해 아래 약관에 동의가 필요해요'],
     phone: ['휴대폰 번호를 알려주세요', '본인 확인을 위해 인증번호를 보내드려요'],
     name:  ['이름을 알려주세요', '검사 결과를 안내할 때 사용합니다'],
     pw:    ['비밀번호를 설정해주세요', '영문·숫자를 포함해 8자 이상'],
@@ -709,7 +742,17 @@ function suRender(){
   }[k];
 
   var f = '';
-  if (k === 'phone'){
+  if (k === 'consent'){
+    f = '<div class="su-terms">' +
+      suTermRow(0, '서비스 이용약관 (필수)', 'AI 기반 운동·웰니스 정보 제공. 의학적 진단·치료·처방을 제공하지 않음') +
+      suTermRow(1, '개인정보 수집·이용 (필수)', '이름, 성별, 나이, 증상 발생 시기, 증상 내용, 최근 운동 내역') +
+      suTermRow(2, '민감정보(건강정보) 수집·이용 (필수)', '수술 기록, 수술 날짜') +
+      '<div class="su-gapnote"><b>AC-11 · AC-12</b> · 현행 민감정보 동의 항목은 「수술 기록, 수술 날짜」뿐이다. ' +
+      '센터 검사 리포트의 수치는 여기에 없으므로, 약관에 <b>「센터 검사 결과」</b>와 ' +
+      '수집 목적 <b>「검사 결과에 대한 설명 제공」</b>이 추가되어야 리포트를 제공할 수 있다. ' +
+      '이 동의로 서비스 이용약관·개인정보·민감정보 항목을 충족하며, AI 상담 온보딩에서는 다시 묻지 않는다.</div>' +
+    '</div>';
+  } else if (k === 'phone'){
     f = '<label class="su-lb">휴대폰 번호</label>' +
         '<input class="su-in" type="tel" id="suPhone" value="010-4132-5529" inputmode="numeric">' +
         (suSent
@@ -751,7 +794,7 @@ function suRender(){
     '</div>';
 
   var label = (k === 'phone' && !suSent) ? '인증번호 받기' : (k === 'info' ? '가입 완료' : '다음');
-  var off = (k === 'info' && (!suSex || !suAct)) ? ' disabled' : '';
+  var off = ((k === 'info' && (!suSex || !suAct)) || (k === 'consent' && !suAllConsented())) ? ' disabled' : '';
   cta.innerHTML = '<button class="su-btn" id="suGo"' + off + ' onclick="suNext()">' + label + '</button>';
 }
 
@@ -766,6 +809,10 @@ function suPick(kind, v){
 
 function suNext(){
   var k = SU_STEPS[suIdx];
+  if (k === 'consent' && !suAllConsented()){
+    toast('AC-11 · 필수 동의 3가지를 모두 체크해야 다음으로 넘어간다.');
+    return;
+  }
   if (k === 'phone' && !suSent){ suSent = true; suRender(); return; }
   if (k === 'name'){
     var el = document.getElementById('suName');
