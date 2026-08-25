@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ACLP-4420 무릎 수술군 확장 — 진료 녹음 목업 v6 (admin-theme 기준)</title>
+<style>
+/* ══════════════════════════════════════════════════════════════
+   packages/admin-theme/config/tailwind.config.ts 토큰 그대로 사용
+   rem base = 10px → font-size-14 = 1.4rem = 14px
+   ══════════════════════════════════════════════════════════════ */
+html{font-size:10px}
+:root{
+  /* primary */
+  --primary-700:#0D3F9C; --primary-600:#0651DB; --primary-500:#1467FF; --primary-400:#4B93FF;
+  --primary-100:#CCE5FF; --primary-50:#EBF5FF;
+  /* mono */
+  --mono-900:#000000; --mono-800:#24262E; --mono-700:#393C47; --mono-600:#565A67; --mono-500:#6F7685;
+  --mono-400:#9398A5; --mono-300:#B4B7C0; --mono-200:#D2D4DA; --mono-100:#E8E9ED; --mono-50:#F6F7F8;
+  /* green */
+  --green-700:#127D44; --green-600:#21A158; --green-500:#2DBE70; --green-400:#39D582; --green-50:#E7F8EC;
+  /* red / yellow / etc */
+  --red-600:#AD261F; --red-50:#FEECEB; --yellow-700:#8D6813; --yellow-50:#FDFAE7;
+  --warning:#FF8B47; --violet-500:#7C52E5; --violet-50:#F5F1FE;
+  /* radius */
+  --r-xs:.4rem; --r-sm:.8rem; --r-md:1.6rem;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--mono-50);color:var(--mono-800);
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  font-size:1.4rem;line-height:2rem;font-weight:400;
+}
+/* admin-theme font-size utilities */
+.fs-11{font-size:1.1rem;line-height:1.5rem}
+.fs-12{font-size:1.2rem;line-height:1.7rem}
+.fs-13{font-size:1.3rem;line-height:1.9rem}
+.fs-14{font-size:1.4rem;line-height:2rem}
+.fs-16{font-size:1.6rem;line-height:2.2rem}
+.fs-18{font-size:1.8rem;line-height:2.5rem}
+.fs-20{font-size:2rem;line-height:2.8rem}
+.medium{font-weight:500}.semibold{font-weight:600}.bold{font-weight:700}
+.t-600{color:var(--mono-600)}.t-500{color:var(--mono-500)}.t-400{color:var(--mono-400)}
+
+.shell{max-width:139rem;margin:0 auto;padding:2rem}
+
+/* ─── 문서용 헤더(목업 설명 영역) ─── */
+.doc-h1{font-size:1.9rem;line-height:2.6rem;font-weight:700;margin:0 0 .4rem}
+.doc-sub{color:var(--mono-500);font-size:1.3rem;margin-bottom:1.6rem}
+.doc-card{background:#fff;border:1px solid var(--mono-200);border-radius:1.2rem;padding:1.6rem}
+
+/* ─── 카드 (실제 앱: border rounded-12 border-mono-200 bg-white p-16) ─── */
+.card{border:1px solid var(--mono-200);border-radius:1.2rem;background:#fff;padding:1.6rem}
+
+/* ─── PageLayout.Header ─── */
+.pg-head{display:flex;justify-content:space-between;align-items:center;gap:.8rem;
+         min-height:5.7rem;padding:0 .2rem 1.2rem}
+.pg-title{font-size:2rem;line-height:2.8rem;font-weight:700}
+.chrome{border-radius:.4rem;background:var(--yellow-50);padding:.4rem 1rem;
+        color:var(--yellow-700);font-size:1.3rem}
+
+/* ─── 본문 그리드 (aside w-280 / main flex-1 / gap-20) ─── */
+.pg-body{display:grid;grid-template-columns:28rem 1fr;gap:2rem;align-items:start}
+.aside{display:flex;flex-direction:column;gap:1.6rem}
+.main{display:flex;flex-direction:column;gap:1.6rem}
+
+/* ─── FormComponent 라벨 ─── */
+.f-label{font-weight:500;font-size:1.4rem;color:var(--mono-600);margin-bottom:.4rem;display:block}
+
+/* ─── Select (OUTLINED) — 진료실 선택에만 사용 ─── */
+.sel{position:relative}
+.sel-trigger{display:flex;align-items:center;justify-content:space-between;gap:.8rem;
+  width:100%;height:4rem;padding:0 1.2rem;border:1px solid var(--mono-200);border-radius:var(--r-sm);
+  background:#fff;font-size:1.4rem;font-family:inherit;color:var(--mono-800);cursor:pointer;text-align:left}
+.sel-trigger:hover{border-color:var(--mono-300)}
+.sel-val{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.caret{width:1rem;height:1rem;border-right:.15rem solid var(--mono-500);border-bottom:.15rem solid var(--mono-500);
+       transform:rotate(45deg) translateY(-.2rem);flex:none}
+
+/* ─── BoxButton (h-32 M / h-46 XL, px-12, rounded-small) ─── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;
+  border-radius:var(--r-sm);border:1px solid transparent;font-family:inherit;cursor:pointer;
+  padding:0 1.2rem;transition:background .15s,border-color .15s}
+.btn-m{height:3.2rem;font-size:1.4rem}
+.btn-xl{height:4.6rem;font-size:1.6rem}
+.btn-contained{background:var(--primary-500);color:#fff;font-weight:600}
+.btn-contained:hover:not(:disabled){background:var(--primary-600)}
+.btn-outlined{background:#fff;border-color:var(--mono-200);color:var(--mono-700)}
+.btn-outlined:hover:not(:disabled){border-color:var(--mono-300);background:var(--mono-50)}
+.btn:disabled{cursor:not-allowed}
+.btn-contained:disabled{background:var(--mono-100);color:var(--mono-300)}
+.btn-outlined:disabled{color:var(--mono-200);border-color:var(--mono-100)}
+.w-full{width:100%}
+
+/* ─── Chip (design-system Chip: M h-36 px-8 rounded-small / 여기선 S~M 사이) ─── */
+.chip{display:inline-flex;align-items:center;gap:.4rem;height:2.8rem;padding:0 .8rem;
+  border-radius:var(--r-sm);font-size:1.3rem;font-weight:600;border:1px solid transparent;white-space:nowrap}
+.chip-visit{background:var(--primary-50);color:var(--primary-600);border-color:var(--primary-100)}
+.chip-dx{background:var(--green-50);color:var(--green-700);border-color:var(--green-400)}
+.chip-none{background:var(--mono-50);color:var(--mono-500);border-color:var(--mono-200)}
+.chip-status{background:var(--mono-50);color:var(--mono-600);border-color:var(--mono-200)}
+.chips{display:flex;flex-wrap:wrap;gap:.6rem}
+
+/* ─── Dialog (ConfirmDialog) ─── */
+.dim{position:fixed;inset:0;background:rgba(36,38,46,.5);display:none;align-items:center;justify-content:center;
+  padding:2rem;z-index:5000}
+.dim.open{display:flex}
+.dlg{background:#fff;border-radius:var(--r-md);width:48rem;max-width:100%;max-height:90vh;overflow:auto;
+  padding:2.4rem;box-shadow:0 12px 12px 0 rgba(0,0,0,.25)}
+.dlg-title{font-size:1.8rem;line-height:2.5rem;font-weight:700;margin:0 0 .4rem}
+.dlg-sub{color:var(--mono-500);font-size:1.4rem;margin-bottom:2rem}
+.dlg-foot{display:flex;gap:.8rem;margin-top:2.4rem}
+.dlg-foot .btn{flex:1}
+.step{display:flex;align-items:center;gap:.6rem;font-size:1.3rem;font-weight:600;color:var(--mono-600);
+  margin-bottom:.8rem;flex-wrap:wrap}
+.step-no{width:1.8rem;height:1.8rem;border-radius:9999px;background:var(--mono-800);color:#fff;
+  display:grid;place-items:center;font-size:1.1rem;font-weight:700;flex:none}
+.type-grp{display:flex;gap:1.2rem;margin-bottom:2rem}
+.type-btn{flex:1;height:6.4rem;border:1px solid var(--mono-200);background:#fff;border-radius:var(--r-sm);
+  font-size:1.6rem;cursor:pointer;font-family:inherit;color:var(--mono-700)}
+.type-btn:hover{border-color:var(--mono-300)}
+.type-btn.on{border-color:var(--primary-500);background:var(--primary-50);color:var(--primary-600);font-weight:600}
+.req{font-size:1.2rem}
+
+/* ─── 질환 리스트 (한 줄 1개 · 선택 primary / 미선택 흰색 · 내부 스크롤) ─── */
+.dx-list{border:1px solid var(--mono-200);border-radius:var(--r-sm);background:#fff;
+  height:22rem;overflow-y:auto;overscroll-behavior:contain;padding:.6rem}
+.dx-list::-webkit-scrollbar{width:.6rem}
+.dx-list::-webkit-scrollbar-thumb{background:var(--mono-300);border-radius:9999px}
+.dx-list::-webkit-scrollbar-track{background:transparent}
+.dx-item{display:block;width:100%;text-align:left;border:1px solid var(--mono-200);
+  border-radius:var(--r-sm);background:#fff;color:var(--mono-700);font-family:inherit;
+  font-size:1.4rem;padding:1rem 1.2rem;margin-bottom:.6rem;cursor:pointer;transition:all .15s}
+.dx-item:last-child{margin-bottom:0}
+.dx-item:hover{border-color:var(--mono-300);background:var(--mono-50)}
+.dx-item.on{border-color:var(--primary-500);background:var(--primary-500);color:#fff;font-weight:600}
+.dx-item.on:hover{background:var(--primary-600)}
+.dx-item.on .k{background:rgba(255,255,255,.9)}
+
+/* ─── 진료기록 카드 내부 섹션 (카드를 나누지 않고 서브 타이틀로 구분) ─── */
+.sec{padding-top:1.6rem;margin-top:1.6rem;border-top:1px solid var(--mono-100)}
+.sec:first-child{padding-top:0;margin-top:0;border-top:0}
+.sec-t{display:flex;justify-content:space-between;align-items:baseline;gap:.8rem;margin-bottom:.4rem;
+  font-size:1.4rem;font-weight:600;color:var(--mono-800)}
+.sec-t .dot-m{width:.6rem;height:.6rem;border-radius:9999px;background:var(--primary-500);
+  display:inline-block;margin-right:.6rem;vertical-align:middle;flex:none}
+.sec-meta{font-size:1.2rem;font-weight:400;color:var(--mono-400);white-space:nowrap;flex:none}
+
+/* ─── 질환 요약 칩 + hoverbox ─── */
+.chip-more{background:var(--mono-50);color:var(--mono-600);border-color:var(--mono-200);
+  position:relative;cursor:default;font-weight:500}
+.chip-more:hover,.chip-more:focus-visible{border-color:var(--mono-300);background:#fff;outline:none}
+.hb{position:absolute;top:calc(100% + .6rem);left:0;z-index:200;display:none;
+  min-width:24rem;max-width:34rem;padding:1rem;background:#fff;border:1px solid var(--mono-800);
+  border-radius:var(--r-sm);box-shadow:0 8px 8px 0 rgba(0,0,0,.1);cursor:default}
+.chip-more:hover .hb,.chip-more:focus-within .hb{display:block}
+.hb-t{display:block;font-size:1.1rem;font-weight:700;color:var(--mono-500);margin-bottom:.6rem;white-space:nowrap}
+.hb-i{display:flex;align-items:flex-start;gap:.6rem;font-size:1.3rem;font-weight:400;line-height:2rem;
+  color:var(--mono-700);white-space:normal}
+.hb-n{min-width:1.8rem;font-size:1.1rem;color:var(--mono-400);font-variant-numeric:tabular-nums;flex:none}
+
+/* ─── 문진 / SOAP ─── */
+.q{display:flex;gap:1.2rem;padding:.8rem 0;border-bottom:1px dashed var(--mono-100);font-size:1.3rem}
+.q:last-child{border-bottom:0}
+.q-no{color:var(--mono-400);font-size:1.2rem;min-width:3.4rem;font-variant-numeric:tabular-nums;flex:none}
+.q-t{flex:1;color:var(--mono-700)}
+.q-a{color:var(--mono-800);font-weight:600;text-align:right}
+.q-a.empty{color:var(--mono-400);font-weight:400}
+.soap{border:1px solid var(--mono-200);border-radius:var(--r-sm);padding:1.2rem 1.4rem;margin-bottom:.8rem}
+.soap:last-child{margin-bottom:0}
+.soap-h{font-size:1.3rem;font-weight:700;color:var(--primary-600);margin-bottom:.4rem}
+.soap-b{font-size:1.3rem;color:var(--mono-700)}
+.empty-panel{padding:6rem 1.6rem;text-align:center;color:var(--mono-400);font-size:1.4rem}
+
+/* ─── 라이브 패널 ─── */
+.live{display:flex;align-items:center;gap:.8rem;font-size:1.3rem;color:var(--mono-500)}
+.dot{width:.7rem;height:.7rem;border-radius:9999px;background:var(--red-600);flex:none}
+.stt{margin-top:1rem;border:1px solid var(--mono-100);border-radius:var(--r-sm);background:var(--mono-50);
+  padding:1rem;min-height:6rem;font-size:1.3rem;color:var(--mono-400)}
+
+/* ─── 키/NEW 배지 ─── */
+.k{display:none;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:1rem;line-height:1.4rem;
+  background:var(--yellow-50);color:var(--yellow-700);border:1px solid #E8DDA8;border-radius:.4rem;
+  padding:0 .4rem;margin-left:.4rem;white-space:nowrap;vertical-align:middle;font-weight:400}
+body.keys .k{display:inline-block}
+.new{display:none;font-size:1rem;line-height:1.4rem;font-weight:700;background:var(--red-50);color:var(--red-600);
+  border-radius:.4rem;padding:0 .4rem;margin-left:.4rem;vertical-align:middle}
+body.diffs .new{display:inline-block}
+
+/* ─── 컨트롤 바 ─── */
+.ctrl{display:flex;flex-wrap:wrap;gap:2rem;align-items:flex-start;margin-bottom:1.6rem}
+.ctrl-g{display:flex;flex-direction:column;gap:.6rem}
+.ctrl-l{font-size:1.2rem;font-weight:700;color:var(--mono-600)}
+.seg{display:flex;gap:.6rem;flex-wrap:wrap}
+.seg button{border:1px solid var(--mono-200);background:#fff;border-radius:var(--r-sm);height:2.8rem;
+  padding:0 1rem;font-size:1.2rem;cursor:pointer;color:var(--mono-600);font-family:inherit}
+.seg button.on{border-color:var(--primary-500);background:var(--primary-50);color:var(--primary-600);font-weight:600}
+.sw{display:inline-flex;align-items:center;gap:.6rem;font-size:1.2rem;color:var(--mono-600);cursor:pointer}
+
+/* ─── 표 / 노트 ─── */
+table{width:100%;border-collapse:collapse;font-size:1.3rem;margin-top:.8rem}
+th,td{border:1px solid var(--mono-200);padding:.9rem 1.1rem;text-align:left;vertical-align:top}
+th{background:var(--mono-50);font-weight:600;white-space:nowrap;width:17rem;color:var(--mono-700)}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:1.2rem;background:var(--mono-100);
+  padding:.1rem .4rem;border-radius:.3rem}
+.note{background:var(--yellow-50);border:1px solid #E8DDA8;border-radius:var(--r-sm);padding:1.2rem 1.4rem;
+  font-size:1.3rem;color:var(--yellow-700);margin-top:1rem}
+.note-v{background:var(--violet-50);border-color:#D9CDF7;color:#4B2E9E}
+.hint{color:var(--mono-500);font-size:1.3rem;margin:1rem 0 0}
+</style>
+</head>
+<body class="diffs keys">
+<div class="shell">
+
+  <div class="doc-h1">ACLP-4420 무릎 수술군 확장 — 진료 녹음 목업 <span style="color:var(--primary-500)">v6</span></div>
+  <div class="doc-sub">
+    <strong>admin-theme 기준</strong> — <code>packages/admin-theme/config/tailwind.config.ts</code> 토큰과
+    <code>BoxButton</code> · <code>Chip</code> 실제 스타일 반영 · 질환 선택은 <code>FormUiSelectMultiple</code>을 쓰지 않고 리스트로 대체 ·
+    레이아웃은 <code>apps/rise-k/src/pages/recording/index.tsx</code>
+  </div>
+
+  <div class="doc-card ctrl">
+    <div class="ctrl-g">
+      <div class="ctrl-l">표시 옵션</div>
+      <label class="sw"><input type="checkbox" id="swDiff" checked> 변경 지점(NEW)</label>
+      <label class="sw"><input type="checkbox" id="swKey" checked> 논리 ID(키)</label>
+    </div>
+    <div class="ctrl-g">
+      <div class="ctrl-l">① 환자 상태 — 다이얼로그 기본값이 달라집니다</div>
+      <div class="seg" id="segPt">
+        <button data-pt="none" class="on">진료 이력 없음</button>
+        <button data-pt="multi">직전: 질환 2개</button>
+        <button data-pt="one">직전: 질환 1개</button>
+        <button data-pt="unknown">직전: 미지정</button>
+      </div>
+    </div>
+    <div class="ctrl-g">
+      <div class="ctrl-l">② 진료기록 패널</div>
+      <div class="seg" id="segView">
+        <button data-v="idle" class="on">진료 시작 전</button>
+        <button data-v="new0">초진 · 0개</button>
+        <button data-v="new2">초진 · 2개</button>
+        <button data-v="new11">초진 · 11개</button>
+        <button data-v="fu0">재진 · 0개</button>
+        <button data-v="fu2">재진 · 2개</button>
+        <button data-v="fu11">재진 · 11개</button>
+        <button data-v="legacy">기존 진료(미지정)</button>
+      </div>
+    </div>
+  </div>
+
+  <p class="hint" style="margin-bottom:1.6rem">
+    좌측 <strong>‘＋ 새 진료 시작’</strong>을 눌러 다이얼로그부터 따라가 보세요.
+    질환은 <strong>한 줄에 하나씩 리스트</strong>에서 고르고(선택 = 파란색), 진료가 시작된 뒤에는
+    진료기록 헤더의 <strong>‘질환 선택’ 버튼</strong>으로 바꿉니다.
+  </p>
+
+  <!-- ══════════ 실제 화면 ══════════ -->
+  <div class="pg-head">
+    <div class="pg-title">진료 녹음</div>
+    <div class="chrome">이 기능은 크롬에 최적화되어 있습니다.</div>
+  </div>
+
+  <div class="pg-body">
+    <!-- ─── aside w-280 ─── -->
+    <aside class="aside">
+      <div class="card">
+        <label class="f-label">진료실 <span class="k">녹음-진료실-선택</span></label>
+        <div class="sel">
+          <button class="sel-trigger"><span class="sel-val">본관 3진료실</span><span class="caret"></span></button>
+        </div>
+      </div>
+
+      <div class="card" style="display:flex;flex-direction:column;gap:1.2rem;min-height:26rem">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:.8rem">
+          <div class="fs-14 semibold">환자</div>
+          <button class="btn btn-outlined btn-m fs-12">🔍 검색</button>
+        </div>
+        <div>
+          <div class="fs-16 bold">김민준</div>
+          <div class="fs-13 t-500" style="margin-top:.2rem">남 · 차트번호 00124857</div>
+        </div>
+        <div class="fs-14 t-600">진료 <strong class="fs-20 bold" style="color:var(--primary-600)" id="visitCount">0</strong>회</div>
+        <button class="btn btn-outlined btn-m w-full">🗓 진료 선택<span class="k">녹음-진료선택-달력-버튼</span></button>
+        <button class="btn btn-outlined btn-m w-full" disabled>▶ 진료 이어하기<span class="k">녹음-진료선택-이어하기-버튼</span></button>
+        <button class="btn btn-contained btn-m w-full" id="btnNew">＋ 새 진료 시작<span class="k">녹음-진료선택-새진료시작-버튼</span></button>
+      </div>
+
+      <div class="card">
+        <button class="btn btn-contained btn-m w-full" style="margin-bottom:1rem">녹음 시작<span class="k">녹음-제어-시작-버튼</span></button>
+        <div class="live"><span class="dot"></span> LIVE 00:00</div>
+        <div class="stt">실시간 STT 결과가 여기에 표시됩니다.</div>
+      </div>
+    </aside>
+
+    <!-- ─── main ─── -->
+    <main class="main">
+      <div class="card" style="min-height:46rem">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1.2rem;
+                    padding-bottom:1.2rem;border-bottom:1px solid var(--mono-100);margin-bottom:1.4rem">
+          <div>
+            <div class="fs-16 semibold" style="margin-bottom:.8rem">진료기록</div>
+            <div class="chips" id="chipBar"></div>
+          </div>
+          <button class="btn btn-outlined btn-m" id="btnDxSelect" style="flex:none">질환 선택<span class="k">녹음-진료기록-질환선택-버튼</span><span class="new">NEW</span></button>
+        </div>
+        <div id="record"></div>
+      </div>
+
+      <div class="card" style="display:flex;flex-direction:column;gap:.8rem">
+        <div style="display:flex;gap:.8rem">
+          <button class="btn btn-contained btn-xl" style="flex:1" disabled>진료 내용 발송<span class="k">녹음-환자발송-열기-버튼</span></button>
+          <button class="btn btn-outlined btn-xl" style="flex:1">진료기록 검토<span class="k">녹음-진료기록-검토-버튼</span></button>
+        </div>
+        <div class="fs-13 t-400" style="text-align:center">진료기록 검토를 완료해야 발송할 수 있습니다.</div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ══════════ 진료 유형 선택 다이얼로그 ══════════ -->
+  <div class="dim" id="dim">
+    <div class="dlg">
+      <div class="dlg-title">진료 유형 선택<span class="k">녹음-진료유형선택-제목-텍스트</span><span class="new">NEW</span></div>
+      <div class="dlg-sub">이번 진료의 진료 유형을 선택해 주세요. <strong>질환은 고르지 않아도 진료를 시작할 수 있습니다.</strong></div>
+
+      <div class="step"><span class="step-no">1</span> 진료 유형<span class="k">녹음-진료유형선택-진료유형-그룹</span></div>
+      <div class="type-grp">
+        <button class="type-btn" data-vt="NEW">초진<span class="k">녹음-진료유형선택-초진-버튼</span></button>
+        <button class="type-btn" data-vt="FOLLOW_UP">재진<span class="k">녹음-진료유형선택-재진-버튼</span></button>
+      </div>
+
+      <div class="step">
+        <span class="step-no">2</span> 질환<span class="new">NEW · 다중 선택</span>
+        <span class="k">녹음-진료유형선택-질환-선택</span>
+      </div>
+      <div class="dx-list" id="dxList"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:.8rem;margin-top:.6rem">
+        <span class="fs-12 t-500" id="dxHead">선택 0개 · 개수 상한 없음</span>
+        <span class="req" id="dxReq"></span>
+      </div>
+
+      <div class="dlg-foot">
+        <button class="btn btn-outlined btn-xl" id="btnCancel">취소<span class="k">녹음-진료유형선택-취소-버튼</span></button>
+        <button class="btn btn-contained btn-xl" id="btnOk">확인<span class="k">녹음-진료유형선택-확인-버튼</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 질환 선택 다이얼로그 (진료 시작 후 변경) ══════════ -->
+  <div class="dim" id="dim2">
+    <div class="dlg" style="width:44rem">
+      <div class="dlg-title">질환 선택<span class="k">녹음-질환선택-제목-텍스트</span><span class="new">NEW</span></div>
+      <div class="dlg-sub">이 진료의 질환을 고르세요. 여러 개 고를 수 있습니다.</div>
+
+      <div class="dx-list" id="dxList2"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:.8rem;margin-top:.6rem">
+        <span class="fs-12 t-500" id="dxHead2">선택 0개</span>
+        <span class="fs-12 t-400" id="dxDirty">변경 없음 — ‘완료’ 비활성</span>
+      </div>
+
+      <div class="dlg-foot">
+        <button class="btn btn-outlined btn-xl" id="btnDxCancel">취소<span class="k">녹음-질환선택-취소-버튼</span></button>
+        <button class="btn btn-contained btn-xl" id="btnDxDone" disabled>완료<span class="k">녹음-질환선택-완료-버튼</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 변경 지점 ══════════ -->
+  <div class="doc-card" style="margin-top:2.4rem">
+    <div class="fs-18 bold" style="margin-bottom:.4rem">v5 → v6 · 질환 선택이 문진 문항에서 헤더로 이동</div>
+    <table style="margin-bottom:2rem">
+      <tr><th>질환 선택 위치</th><td>공통 문진의 <strong>마지막 문항이었던 질환 선택이 사라졌습니다.</strong> 대신 진료기록 헤더의 질환 요약(<code>{질환} 외 {n}개</code>) 오른쪽에 <strong>‘질환 선택’ 버튼</strong>이 생기고, 누르면 <strong>‘질환 선택’ 다이얼로그</strong>가 열립니다. <strong>초진·재진 모두</strong> 같습니다 — 시나리오 2-21 · 2-22</td></tr>
+      <tr><th>질환 선택 다이얼로그</th><td>11개 질환을 <strong>한 줄에 하나씩</strong> 리스트로 표시하고 <strong>선택 = primary(파란색) / 미선택 = 흰색</strong>. <strong>‘취소’와 ‘완료’</strong>가 있고 <strong>‘완료’는 변경이 있을 때만 활성</strong>입니다. 열었을 때와 같은 선택으로 되돌리면 다시 비활성이 됩니다(하단 우측에 현재 상태 표기) — 시나리오 2-23 ~ 2-27</td></tr>
+      <tr><th>진료 유형 선택도 같은 리스트</th><td>체크박스 드롭다운을 <strong>같은 세로 리스트로 통일</strong>했고, <strong>리스트 안에서만 상하 스크롤</strong>됩니다(높이 <code>22rem</code> 고정). 0개 → 11개를 골라도 다이얼로그 높이와 ‘확인’·‘취소’ 위치가 그대로입니다 — 시나리오 2-29</td></tr>
+      <tr><th>‘선택한 질환’ 칩 영역 삭제</th><td>리스트에 선택이 primary로 드러나므로 하단 칩 목록은 같은 정보의 중복이고 <strong>스크롤 영역이 두 개</strong>가 됩니다. 그래서 없앴습니다. 해제는 <strong>리스트 항목을 다시 클릭</strong>합니다 — 시나리오 2-19</td></tr>
+      <tr><th>재진에서도 질환 변경 가능</th><td>헤더 버튼이 재진에도 있으므로 <strong>2-14(“재진에서는 바꿀 수 없음”)가 폐기</strong>되고 <strong>4-15가 부활</strong>합니다. 재진 화면 하단 노란 박스에 표시해 뒀습니다. <strong>QA 합의 사항이 뒤집히는 부분이라 별도 공유가 필요합니다.</strong></td></tr>
+      <tr><th>옵션 키 11개 확보</th><td><code>SelectMultiple</code>을 쓰지 않게 되어 <strong>옵션마다 <code>data-testid</code>를 붙일 수 있습니다.</strong> 막혀 있던 <code>녹음-진료유형선택-질환-{질환}-옵션</code> 11개가 해소되고, ‘질환 선택’ 다이얼로그에는 <code>녹음-질환선택-{질환}-옵션</code>을 부여했습니다.</td></tr>
+    </table>
+
+    <div class="note" style="margin-bottom:2rem">
+      <strong>확인 방법</strong>
+      <ol style="margin:.6rem 0 0;padding-left:1.9rem">
+        <li><strong>2-23~2-25</strong> — ‘초진 · 2개’ → 헤더 <strong>‘질환 선택’</strong> → 항목을 눌러 ‘완료’가 활성되는지, 다시 눌러 원상 복귀하면 비활성으로 돌아가는지</li>
+        <li><strong>2-27 · 3-14</strong> — 위에서 새 질환을 추가하고 ‘완료’ → 추가된 질환의 문진은 <strong>답안이 ‘미입력’</strong>으로 나옵니다(서브 타이틀에 <code>녹음 종료 후 추가 — 답안 없음</code>)</li>
+        <li><strong>2-26</strong> — 같은 화면에서 바꾼 뒤 ‘취소’ → 헤더 요약과 문진이 그대로인지</li>
+        <li><strong>2-29</strong> — ‘＋ 새 진료 시작’ → 질환을 0개에서 11개까지 늘려도 ‘확인’·‘취소’ 위치가 움직이지 않는지</li>
+      </ol>
+    </div>
+
+    <div class="note note-v" style="margin-bottom:2rem">
+      <strong>확인 필요 2건 — 이번 수정에서 새로 생긴 결정 지점</strong>
+      <ol style="margin:.6rem 0 0;padding-left:1.9rem">
+        <li><strong>‘질환 선택’ 다이얼로그의 저장 실패·동시 변경 처리</strong> — <code>[QA 의견]</code>의 6-1~6-4 · 8-2가 <strong>문진 문항 클릭</strong>을 전제로 쓰여 있습니다. 이제 <strong>‘완료’를 누른 시점</strong>이 저장 시점이므로, 채택 시 그 기준으로 다시 써야 합니다.</li>
+        <li><strong>hoverbox는 마우스 전용입니다</strong> — 터치 환경에서 hover가 없습니다. 크롬 데스크톱 전용이라 현재는 문제없지만, 태블릿 사용이 생기면 탭 토글이 필요합니다.</li>
+      </ol>
+    </div>
+
+    <div class="fs-18 bold" style="margin-bottom:.4rem">v4 → v5 · admin-theme 반영으로 달라진 것 (참고)</div>
+    <div class="doc-sub" style="margin-bottom:1rem">v6에서 대체된 항목(체크박스 드롭다운 · 선택값 truncate)은 뺐습니다.</div>
+    <table>
+      <tr><th>토큰</th><td>임의 색·크기를 쓰지 않고 <code>primary-500 #1467FF</code> · <code>mono-*</code> · <code>green-*</code>, <code>rounded-small .8rem</code>, <code>BoxButton</code> 높이(M <code>h-32</code> / XL <code>h-46</code>), <code>font-size-13/14/16</code>을 그대로 사용. rem base는 <strong>10px</strong>입니다.</td></tr>
+      <tr><th>다이얼로그 폭</th><td>기존 <code>VisitTypeSelectDialog</code>는 <code>width="w-400"</code>(40rem)입니다. 질환 11개 리스트가 들어가면 좁아 <strong><code>w-480</code>으로 넓혔습니다</strong> — 확정 필요.</td></tr>
+    </table>
+
+    <div class="note">
+      <strong>남은 확인 3건</strong>
+      <ol style="margin:.6rem 0 0;padding-left:1.9rem">
+        <li><strong>Examples 표 행 번호 ≠ 화면 정렬 순서</strong> — Confluence <em>질환 Examples</em> 표는 노드 색인 순서(1~11행), 화면은 가나다·ABC입니다.
+            시나리오 3-21이 “(11행)”·“(10행)”으로 인용하는데 <strong>화면에서는 무릎 퇴행성 관절염이 4번째, 전방십자인대가 11번째</strong>입니다.
+            “(목록 4번째)”·“(목록 11번째)”로 고치는 게 정확합니다.</li>
+        <li><strong>문항 수 · 후처리 토큰</strong> — “초진 · 11개”와 “재진 · 11개”를 눌러보시면 질환별 문진이 <strong>11세트(55문항)</strong>로 쌓입니다.
+            선행 티켓 ACLP-4461(토큰 최적화)과 부딪히는 지점입니다.</li>
+        <li><strong>이 목업의 문항 수는 확정 스펙이 아닙니다</strong> — 공통 8(질환 선택 문항은 헤더로 빠졌습니다), 질환별 5로 그렸을 뿐입니다.
+            QA 지적대로 티켓 배경은 <strong>21개</strong>, 스테이징 현재는 <strong>13개</strong>로 서로 다르고,
+            <strong>기존 13개가 공통 문진과 질환별 문진으로 어떻게 나뉘는지</strong>가 미정입니다(시나리오 5-2 판정 기준).
+            문항 수·매핑이 확정되면 목업 숫자와 3-1·3-2~3-12의 Then을 함께 고쳐야 합니다.</li>
+      </ol>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── 질환 목록: 가나다 → ABC (BE 계약). row = Confluence Examples 표 행 번호
+const DX=[
+ {row:7, label:'관절연골 손상·자가관절보존술',    key:'녹음-진료유형선택-질환-관절연골손상-옵션'},
+ {row:8, label:'내반 변형 관절염·HTO',           key:'녹음-진료유형선택-질환-내반변형관절염-옵션'},
+ {row:2, label:'내측 반월상 후방 뿌리파열(MMPR)', key:'녹음-진료유형선택-질환-내측반월상후방뿌리파열-옵션'},
+ {row:10,label:'무릎 퇴행성 관절염',              key:'녹음-진료유형선택-질환-무릎퇴행성관절염-옵션'},
+ {row:3, label:'반월상 방사형 파열',              key:'녹음-진료유형선택-질환-반월상방사형파열-옵션'},
+ {row:1, label:'반월상 수평파열',                 key:'녹음-진료유형선택-질환-반월상수평파열-옵션'},
+ {row:6, label:'반월상연골 이식술(MAT)',          key:'녹음-진료유형선택-질환-반월상연골이식술-옵션'},
+ {row:9, label:'슬개골 탈구·불안정',              key:'녹음-진료유형선택-질환-슬개골탈구불안정-옵션'},
+ {row:4, label:'외측 반월상 파열',                key:'녹음-진료유형선택-질환-외측반월상파열-옵션'},
+ {row:5, label:'원판형 연골 파열',                key:'녹음-진료유형선택-질환-원판형연골파열-옵션'},
+ {row:11,label:'전방십자인대(ACL) 파열',          key:'녹음-진료유형선택-질환-전방십자인대파열-옵션'}
+];
+const idxOf=l=>DX.findIndex(d=>d.label===l);
+const inOrder=a=>[...a].sort((x,y)=>idxOf(x)-idxOf(y));
+
+const COMMON=[['주 증상','왼쪽 무릎 통증'],['발생 시점','약 3개월 전'],['외상 여부','계단에서 헛디딤'],
+ ['통증 위치','내측 관절선'],['통증 강도(NRS)','6점'],['부종','간헐적'],['잠김·걸림','있음'],['보행 가능 거리','약 500m']];
+const DXQ=['기계적 증상','정렬 상태','연골 등급','보존치료 반응','수술 이력'];
+const SOAP=[['S — Subjective','3개월 전부터 좌측 무릎 내측 통증. 계단 이용 시 악화.'],
+ ['O — Objective','내측 관절선 압통(+), McMurray(+), ROM 0-130도.'],
+ ['A — Assessment','좌측 무릎 내측 병변 의심. 영상 소견과 대조 필요.'],
+ ['P — Plan','MRI 추가 촬영 후 2주 뒤 재평가. 보존치료 병행.']];
+
+let ptState='none', visitType=null, dxSel=[], rec=null;
+let dxDlgSel=[], dxDlgBase=[];          // '질환 선택' 다이얼로그의 현재 선택 / 열었을 때의 선택
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+
+const sameSet=(a,b)=>a.length===b.length && a.every(v=>b.includes(v));
+
+// ── 질환 리스트 (한 줄 1개 · 선택 primary / 미선택 흰색). 두 다이얼로그가 같은 형태를 쓴다
+function buildDxList(container, keyPrefix, isOn, onToggle){
+  container.innerHTML='';
+  DX.forEach(d=>{
+    const key = keyPrefix==='진료유형선택' ? d.key : '녹음-질환선택-'+d.key.split('-')[3]+'-옵션';
+    const b=document.createElement('button');
+    b.className='dx-item'+(isOn(d.label)?' on':'');
+    b.setAttribute('data-testid', key);
+    b.innerHTML=d.label+'<span class="k">'+key+'</span>';
+    b.onclick=e=>{ e.stopPropagation(); onToggle(d.label); };
+    container.appendChild(b);
+  });
+}
+
+function defaults(){
+  if(ptState==='none')  return {vt:'NEW', dx:[]};
+  if(ptState==='multi') return {vt:'FOLLOW_UP', dx:['슬개골 탈구·불안정','원판형 연골 파열']};
+  if(ptState==='one')   return {vt:'FOLLOW_UP', dx:['무릎 퇴행성 관절염']};
+  return {vt:'FOLLOW_UP', dx:[]};
+}
+function openDlg(){
+  const d=defaults(); visitType=d.vt; dxSel=[...d.dx];
+  syncDlg(); $('#dim').classList.add('open');
+}
+function syncDlg(){
+  $$('.type-btn').forEach(b=>b.classList.toggle('on', b.dataset.vt===visitType));
+  buildDxList($('#dxList'), '진료유형선택',
+    l=>dxSel.includes(l),
+    l=>{ dxSel.includes(l) ? dxSel=dxSel.filter(x=>x!==l) : dxSel.push(l); syncDlg(); });
+
+  $('#dxHead').textContent='선택 '+dxSel.length+'개 · 개수 상한 없음';
+  const r=$('#dxReq');
+  r.textContent = '초진·재진 모두 선택 사항';
+  r.style.color = 'var(--mono-500)';
+  r.style.fontWeight = '400';
+
+  $('#btnOk').disabled = !visitType;
+}
+
+// ── '질환 선택' 다이얼로그 (진료 시작 후 변경)
+function openDxDialog(){
+  if(!rec) return;
+  dxDlgBase = rec.unknown ? [] : [...rec.dx];
+  dxDlgSel  = [...dxDlgBase];
+  syncDxDialog(); $('#dim2').classList.add('open');
+}
+function syncDxDialog(){
+  buildDxList($('#dxList2'), '질환선택',
+    l=>dxDlgSel.includes(l),
+    l=>{ dxDlgSel.includes(l) ? dxDlgSel=dxDlgSel.filter(x=>x!==l) : dxDlgSel.push(l); syncDxDialog(); });
+
+  $('#dxHead2').textContent='선택 '+dxDlgSel.length+'개';
+  const dirty = !sameSet(dxDlgSel, dxDlgBase);
+  $('#btnDxDone').disabled = !dirty;
+  const d=$('#dxDirty');
+  d.textContent = dirty ? '변경 있음 — ‘완료’ 활성' : '변경 없음 — ‘완료’ 비활성';
+  d.style.color = dirty ? 'var(--primary-600)' : 'var(--mono-400)';
+}
+
+function chipBar(){
+  if(!rec) return '<span class="chip chip-status">진료를 선택하거나 새로 시작해 주세요</span>';
+  let h='<span class="chip chip-visit">'+(rec.visitType==='NEW'?'초진':'재진')
+      +'<span class="k">녹음-진료기록-진료유형-칩</span></span>';
+
+  if(rec.unknown){
+    h+='<span class="chip chip-none">미지정<span class="k">녹음-진료기록-질환-칩</span></span>';
+  }else if(rec.dx.length){
+    // 공간이 부족하므로 '질환 목록 순서가 가장 앞선 1개'만 이름으로 노출하고
+    // 나머지 선택 개수를 '외 n개'로 묶는다 (주 질환 개념 없음 · 선택 순서 무관)
+    const ordered=inOrder(rec.dx);
+    h+='<span class="chip chip-dx">'+ordered[0]+'<span class="k">녹음-진료기록-질환-칩</span></span>';
+    if(ordered.length>1){
+      let list='';
+      ordered.forEach((l,i)=>{
+        list+='<span class="hb-i"><span class="hb-n">'+(i+1)+'.</span><span>'+l+'</span></span>';
+      });
+      h+='<span class="chip chip-more" tabindex="0">외 '+(ordered.length-1)+'개'
+        +'<span class="k">녹음-진료기록-질환더보기-칩</span><span class="new">NEW</span>'
+        +'<span class="hb"><span class="hb-t">선택한 질환 '+ordered.length+'개 — 질환 목록 순서</span>'
+        +list+'</span></span>';
+    }
+  }
+
+  h+='<span class="chip chip-status">작성중<span class="k">녹음-진료기록-문서상태-칩</span></span>';
+  return h;
+}
+const qRow=(n,t,a,f)=>'<div class="q"><span class="q-no">Q.'+n+'</span><span class="q-t">'+t+'</span>'
+  +'<span class="q-a'+(f?'':' empty')+'">'+(f?a:'미입력')+'</span></div>';
+
+// 카드를 나누지 않고 하나의 진료기록 카드 안에서 서브 타이틀로만 구분한다
+function sec(title, key, meta, body, isNew){
+  return '<div class="sec"><div class="sec-t"><span><span class="dot-m"></span>'+title
+    + (key?'<span class="k">'+key+'</span>':'')
+    + (isNew?'<span class="new">NEW</span>':'')
+    +'</span><span class="sec-meta">'+(meta||'')+'</span></div>'
+    +'<div>'+body+'</div></div>';
+}
+function renderRecord(){
+  $('#chipBar').innerHTML=chipBar();
+  const box=$('#record');
+  if(!rec){
+    box.innerHTML='<div class="empty-panel">진료를 시작하면 이 영역에 정리 결과가 표시됩니다.</div>';
+    $('#btnDxSelect').style.display='none';
+    return;
+  }
+
+  // 진료 시작 시점에 고른 질환만 답안이 채워진다.
+  // 녹음이 끝난 뒤 '질환 선택'으로 추가한 질환은 문항만 나오고 답안이 비어 있다 — 시나리오 3-14
+  const startedWith = l => (rec.dxAtStart ?? []).includes(l);
+  const dxMeta = l => DXQ.length+'문항 · 목록 '+(idxOf(l)+1)+'번째 (Examples '+DX[idxOf(l)].row+'행)'
+    + (startedWith(l) ? '' : ' · 녹음 종료 후 추가 — 답안 없음');
+
+  let h='', n=0;
+  if(rec.visitType==='NEW'){
+    let b='';
+    COMMON.forEach(c=>{ b+=qRow(++n, c[0], c[1], true); });
+    h+=sec('공통 문진','녹음-진료기록-공통문진-그룹', n+'문항(확정 전) · 질환 선택 문항 없음', b);
+
+    inOrder(rec.dx).forEach(l=>{
+      let b2=''; DXQ.forEach(q=>{ b2+=qRow(++n, q, '검증용 값', startedWith(l)); });
+      h+=sec(l,'녹음-진료기록-질환별문진-그룹', dxMeta(l), b2, true);
+    });
+    if(!rec.dx.length) h+='<div class="empty-panel" style="padding:3rem 1.6rem">질환을 선택하면 이 아래에 질환별 문진이 이어서 표시됩니다.</div>';
+  }else{
+    let b='';
+    SOAP.forEach(s=>{ b+='<div class="soap"><div class="soap-h">'+s[0]+'</div><div class="soap-b">'+s[1]+'</div></div>'; });
+    h+=sec('S/O/A/P','녹음-진료기록-{sectionKey}-SOAP섹션','질환을 여럿 골라도 한 벌만', b);
+
+    inOrder(rec.dx).forEach(l=>{
+      let b2=''; DXQ.forEach(q=>{ b2+=qRow(++n, q, '검증용 값', startedWith(l)); });
+      h+=sec(l,'녹음-진료기록-질환별문진-그룹', dxMeta(l), b2, true);
+    });
+    if(!rec.dx.length && !rec.unknown)
+      h+='<div class="empty-panel" style="padding:3rem 1.6rem">질환 없이 시작한 재진은 <strong>S/O/A/P만</strong> 표시됩니다 (질환별 문진 없음) — 시나리오 4-17</div>';
+    h+='<div class="note" style="margin-top:1.6rem">재진에는 <strong>공통 문진이 없습니다</strong>(시나리오 4-12). '
+      +'다만 <strong>재진도 헤더의 ‘질환 선택’ 버튼으로 질환을 바꿀 수 있습니다</strong> — '
+      +'2-14(“재진에서는 바꿀 수 없음”)는 <strong>폐기</strong>되고 4-15가 다시 필요합니다.</div>';
+  }
+  box.innerHTML=h;
+  $('#btnDxSelect').style.display='';
+}
+
+function applyView(v){
+  const two=['무릎 퇴행성 관절염','전방십자인대(ACL) 파열'], all=DX.map(d=>d.label);
+  rec = v==='idle'   ? null
+      : v==='new0'   ? {visitType:'NEW', dx:[], unknown:false}
+      : v==='new2'   ? {visitType:'NEW', dx:[...two], unknown:false}
+      : v==='new11'  ? {visitType:'NEW', dx:[...all], unknown:false}
+      : v==='fu0'    ? {visitType:'FOLLOW_UP', dx:[], unknown:false}
+      : v==='fu2'    ? {visitType:'FOLLOW_UP', dx:[...two], unknown:false}
+      : v==='fu11'   ? {visitType:'FOLLOW_UP', dx:[...all], unknown:false}
+      :                {visitType:'FOLLOW_UP', dx:[], unknown:true};
+  if(rec) rec.dxAtStart=[...rec.dx];   // 이 뷰들은 '진료 시작 시점에 고른 질환' 상태다
+  $$('#segView button').forEach(b=>b.classList.toggle('on', b.dataset.v===v));
+  renderRecord();
+}
+
+$('#swDiff').onchange=e=>document.body.classList.toggle('diffs', e.target.checked);
+$('#swKey').onchange =e=>document.body.classList.toggle('keys',  e.target.checked);
+$$('#segPt button').forEach(b=>b.onclick=()=>{
+  ptState=b.dataset.pt;
+  $$('#segPt button').forEach(x=>x.classList.remove('on')); b.classList.add('on');
+  $('#visitCount').textContent = ptState==='none'?0:3;
+});
+$$('#segView button').forEach(b=>b.onclick=()=>applyView(b.dataset.v));
+$('#btnNew').onclick=openDlg;
+$('#btnCancel').onclick=()=>$('#dim').classList.remove('open');
+$('#dim').onclick=e=>{ if(e.target.id==='dim') $('#dim').classList.remove('open'); };
+$('#dim .dlg').addEventListener('click',e=>e.stopPropagation());
+$$('.type-btn').forEach(b=>b.onclick=()=>{ visitType=b.dataset.vt; syncDlg(); });
+$('#btnOk').onclick=()=>{
+  rec={visitType, dx:[...dxSel], dxAtStart:[...dxSel], unknown:false};
+  $('#dim').classList.remove('open');
+  $$('#segView button').forEach(x=>x.classList.remove('on'));
+  renderRecord();
+};
+
+// ── '질환 선택' 다이얼로그
+$('#btnDxSelect').onclick=openDxDialog;
+$('#btnDxCancel').onclick=()=>$('#dim2').classList.remove('open');   // 아무것도 반영하지 않는다 — 2-26
+$('#dim2').onclick=e=>{ if(e.target.id==='dim2') $('#dim2').classList.remove('open'); };
+$('#dim2 .dlg').addEventListener('click',e=>e.stopPropagation());
+$('#btnDxDone').onclick=()=>{
+  // 완료를 눌러야 질환이 확정된다. 진료 시작 시점 선택(dxAtStart)은 그대로 두므로,
+  // 여기서 새로 추가된 질환은 답안이 비어 있는 상태로 표시된다 — 3-14
+  rec.dx=[...dxDlgSel]; rec.unknown=false;
+  $('#dim2').classList.remove('open');
+  renderRecord();
+};
+
+applyView('idle');
+</script>
+</body>
+</html>
