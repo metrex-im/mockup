@@ -1,0 +1,488 @@
+<title>톡톡 회원가입 동의 목업</title>
+<style>
+:root{
+  --bg:#eef3f1;
+  --surface:#ffffff;
+  --surface-sunken:#e4ece9;
+  --ink:#16211d;
+  --ink-muted:#5c6d67;
+  --border:#d7e0dc;
+  --accent:#0f8f7d;
+  --accent-strong:#0b6a5c;
+  --accent-soft:#dcf3ee;
+  --accent-ink:#ffffff;
+  --warn:#8a5a12;
+  --warn-soft:#f7ecd6;
+  --warn-border:#e3cd9a;
+  --shadow:rgba(20,32,27,0.14);
+  --removed:#a33b2e;
+  --removed-soft:#f7e4e0;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f1613;
+    --surface:#17211d;
+    --surface-sunken:#101a16;
+    --ink:#e9f2ee;
+    --ink-muted:#9ab0a7;
+    --border:#26352e;
+    --accent:#35c2a8;
+    --accent-strong:#57d6bc;
+    --accent-soft:#173731;
+    --accent-ink:#08211c;
+    --warn:#e3b45a;
+    --warn-soft:#332a13;
+    --warn-border:#4c3d1b;
+    --shadow:rgba(0,0,0,0.45);
+    --removed:#e08874;
+    --removed-soft:#3a201b;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0f1613;
+  --surface:#17211d;
+  --surface-sunken:#101a16;
+  --ink:#e9f2ee;
+  --ink-muted:#9ab0a7;
+  --border:#26352e;
+  --accent:#35c2a8;
+  --accent-strong:#57d6bc;
+  --accent-soft:#173731;
+  --accent-ink:#08211c;
+  --warn:#e3b45a;
+  --warn-soft:#332a13;
+  --warn-border:#4c3d1b;
+  --shadow:rgba(0,0,0,0.45);
+  --removed:#e08874;
+  --removed-soft:#3a201b;
+}
+
+*{box-sizing:border-box;}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:'Gothic A1','Apple SD Gothic Neo',sans-serif;
+  padding:40px 20px 80px;
+  display:flex;
+  justify-content:center;
+}
+.page{width:100%;max-width:1120px;display:flex;flex-direction:column;gap:36px;}
+
+.mono{font-family:'IBM Plex Mono',ui-monospace,monospace;}
+
+header.hero{display:flex;flex-direction:column;gap:10px;}
+.eyebrow{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:12.5px;
+  letter-spacing:0.06em;
+  color:var(--accent-strong);
+  text-transform:uppercase;
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+.eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);}
+h1{
+  font-size:clamp(26px,3.4vw,36px);
+  font-weight:800;
+  margin:0;
+  text-wrap:balance;
+  letter-spacing:-0.01em;
+}
+.lede{color:var(--ink-muted);font-size:15.5px;line-height:1.65;max-width:70ch;margin:0;}
+
+.risk-card{
+  background:var(--warn-soft);
+  border:1px solid var(--warn-border);
+  border-radius:16px;
+  padding:20px 22px;
+  display:flex;
+  gap:16px;
+  align-items:flex-start;
+}
+.risk-card .icon{
+  font-size:20px;line-height:1;flex-shrink:0;margin-top:2px;
+}
+.risk-card h2{
+  font-size:15px;margin:0 0 6px;color:var(--warn);font-weight:800;
+  letter-spacing:-0.01em;
+}
+.risk-card p{margin:0;font-size:14px;line-height:1.7;color:var(--ink);}
+.risk-card code{
+  font-family:'IBM Plex Mono',monospace;font-size:12.5px;
+  background:var(--surface);border:1px solid var(--warn-border);
+  padding:1px 6px;border-radius:6px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:340px 1fr;
+  gap:32px;
+  align-items:start;
+}
+@media (max-width:820px){ .grid{grid-template-columns:1fr;} }
+
+/* ---- phone mockup ---- */
+.phone-wrap{display:flex;flex-direction:column;align-items:center;gap:14px;}
+.phone{
+  width:320px;
+  height:660px;
+  background:var(--surface);
+  border-radius:38px;
+  border:1px solid var(--border);
+  box-shadow:0 24px 48px -20px var(--shadow), 0 2px 6px var(--shadow);
+  padding:14px;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  position:relative;
+}
+.notch{
+  width:110px;height:22px;background:var(--ink);border-radius:0 0 14px 14px;
+  position:absolute;top:0;left:50%;transform:translateX(-50%);opacity:0.85;
+}
+.screen{
+  flex:1;
+  background:var(--surface-sunken);
+  border-radius:24px;
+  margin-top:20px;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+.scr-header{
+  display:flex;align-items:center;gap:10px;
+  padding:16px 18px 12px;
+  border-bottom:1px solid var(--border);
+  background:var(--surface);
+  flex-shrink:0;
+}
+.back-btn{
+  width:28px;height:28px;border-radius:50%;border:1px solid var(--border);
+  background:var(--surface);color:var(--ink);display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:14px;flex-shrink:0;
+}
+.back-btn:disabled{opacity:0.25;cursor:default;}
+.scr-title{font-size:15.5px;font-weight:800;letter-spacing:-0.01em;}
+.scr-body{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:16px;}
+.scr-body::-webkit-scrollbar{width:6px;}
+.scr-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+
+.consent-intro h3{font-size:17px;margin:0 0 4px;font-weight:800;text-wrap:balance;}
+.consent-intro p{margin:0;font-size:12.5px;color:var(--ink-muted);line-height:1.6;}
+
+.agree-all{
+  display:flex;align-items:center;gap:10px;
+  padding:12px 14px;background:var(--surface);border:1px solid var(--border);border-radius:14px;
+  font-weight:700;font-size:13.5px;cursor:pointer;
+}
+.consent-list{display:flex;flex-direction:column;gap:8px;}
+.consent-item{
+  display:flex;align-items:center;gap:10px;
+  padding:12px 14px;background:var(--surface);border:1px solid var(--border);border-radius:14px;
+}
+.consent-item input[type=checkbox], .agree-all input[type=checkbox]{
+  width:18px;height:18px;accent-color:var(--accent);flex-shrink:0;cursor:pointer;
+}
+.consent-item .label{flex:1;font-size:13px;line-height:1.4;cursor:pointer;}
+.badge-required{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10px;font-weight:700;letter-spacing:0.02em;
+  background:var(--ink);color:var(--bg);
+  padding:2px 6px;border-radius:5px;margin-right:6px;
+  vertical-align:middle;
+}
+.view-full{
+  font-size:12px;color:var(--accent-strong);font-weight:700;flex-shrink:0;
+  background:none;border:none;cursor:pointer;padding:4px 2px;text-decoration:underline;text-underline-offset:2px;
+}
+.cta{
+  margin-top:auto;flex-shrink:0;
+  padding:16px 18px 18px;
+}
+.cta button{
+  width:100%;padding:14px;border-radius:14px;border:none;
+  background:var(--accent);color:var(--accent-ink);font-weight:800;font-size:14.5px;
+  cursor:pointer;transition:opacity .15s ease, transform .1s ease;
+}
+.cta button:disabled{opacity:0.35;cursor:not-allowed;}
+.cta button:not(:disabled):active{transform:scale(0.98);}
+.cta .hint{font-size:11.5px;color:var(--ink-muted);text-align:center;margin-top:8px;}
+
+.doc-view{display:none;flex-direction:column;gap:14px;}
+.doc-view.active{display:flex;}
+.doc-view .doc-meta{
+  font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--ink-muted);
+  display:flex;justify-content:space-between;border-bottom:1px dashed var(--border);padding-bottom:10px;
+}
+.doc-view h4{font-size:12.5px;margin:14px 0 4px;font-weight:800;color:var(--accent-strong);}
+.doc-view h4:first-of-type{margin-top:0;}
+.doc-view p, .doc-view li{font-size:12px;line-height:1.7;color:var(--ink);margin:0 0 2px;}
+.doc-view ol{margin:2px 0 0;padding-left:18px;}
+.consent-list-view{display:flex;flex-direction:column;gap:16px;}
+.consent-list-view.hidden{display:none;}
+
+/* toggle pills for the phone (which screen is showing) */
+.phone-tabs{display:flex;gap:6px;}
+.phone-tabs button{
+  font-family:'IBM Plex Mono',monospace;font-size:11px;padding:6px 10px;border-radius:999px;
+  border:1px solid var(--border);background:var(--surface);color:var(--ink-muted);cursor:pointer;
+}
+.phone-tabs button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent-strong);border-color:var(--accent);font-weight:700;}
+
+.side-note{
+  background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px 22px;
+  display:flex;flex-direction:column;gap:14px;
+}
+.side-note h2{font-size:14px;margin:0;font-weight:800;letter-spacing:-0.01em;}
+.ac-row{display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.6;}
+.ac-tag{
+  font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:700;
+  background:var(--accent-soft);color:var(--accent-strong);padding:2px 7px;border-radius:6px;flex-shrink:0;margin-top:2px;
+}
+.ac-row .txt{color:var(--ink);}
+.ac-row .txt b{font-weight:700;}
+
+/* before/after comparison */
+.compare{
+  display:grid;grid-template-columns:1fr 1fr;gap:20px;
+}
+@media (max-width:640px){.compare{grid-template-columns:1fr;}}
+.mini-phone{
+  background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:16px;
+  display:flex;flex-direction:column;gap:10px;
+}
+.mini-phone .cap{
+  font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.03em;
+  color:var(--ink-muted);text-transform:uppercase;display:flex;justify-content:space-between;align-items:center;
+}
+.step-list{display:flex;flex-direction:column;gap:6px;}
+.step{
+  display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:10px;
+  background:var(--surface-sunken);font-size:12.5px;
+}
+.step.removed{
+  background:var(--removed-soft);color:var(--removed);text-decoration:line-through;
+  border:1px dashed var(--removed);
+}
+.step .num{font-family:'IBM Plex Mono',monospace;font-size:10.5px;opacity:0.7;}
+.removed-pill{
+  font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:700;
+  background:var(--removed);color:var(--surface);padding:2px 6px;border-radius:5px;margin-left:auto;
+}
+
+footer.src{font-size:11.5px;color:var(--ink-muted);text-align:center;font-family:'IBM Plex Mono',monospace;}
+
+@media (prefers-reduced-motion: reduce){
+  .cta button{transition:none;}
+}
+</style>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@500;700;800;900&family=IBM+Plex+Mono:wght@400;500;700&display=swap">
+
+<div class="page">
+
+  <header class="hero">
+    <div class="eyebrow"><span class="dot"></span>ACLP-4719 · apps/toktok 회원가입</div>
+    <h1>회원가입 약관 전문 조회 &amp; 중복 동의 제거</h1>
+    <p class="lede">현재 코드와 대조해 축약한 AC 기준 목업입니다. 왼쪽 화면을 조작해 3건 동의 → 전문 조회 → 복귀 시 체크 유지 흐름을 확인하고, 오른쪽에서 각 화면이 어떤 AC를 만족하는지 확인하세요.</p>
+  </header>
+
+  <div class="risk-card">
+    <div class="icon">⚠️</div>
+    <div>
+      <h2>구현 순서 주의 — 화면만 지우면 동의가 사라집니다</h2>
+      <p>
+        지금 회원가입 바텀시트의 체크박스는 로컬 상태일 뿐 서버로 전송되지 않고 폐기됩니다(<code>SignUpBottomSheet.tsx</code>). 동의가 실제로 저장되는 유일한 API는 대화 온보딩이 쓰는
+        <code>TokTokSettingsUpdateReqRequest</code>이며, 회원가입 완료 API(<code>UserSignUpReqRequest</code>)에는 동의 필드가 없습니다.
+        따라서 <b>AC-5(대화 시작 동의 화면 제거)</b>를 <b>AC-4(가입 시 동의 저장)</b> 없이 먼저 배포하면, 신규 가입자는 어디에서도 동의를 남기지 못하는 상태가 됩니다.
+      </p>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="phone-wrap">
+      <div class="phone-tabs">
+        <button type="button" id="tabConsent" aria-pressed="true" onclick="showTop()">동의 화면</button>
+        <button type="button" id="tabDoc" aria-pressed="false" onclick="showDoc(currentDoc||'service')">전문 화면</button>
+      </div>
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="scr-header">
+            <button class="back-btn" id="backBtn" onclick="goBack()" disabled>‹</button>
+            <div class="scr-title" id="scrTitle">회원가입</div>
+          </div>
+          <div class="scr-body">
+
+            <div class="consent-list-view" id="consentView">
+              <div class="consent-intro">
+                <h3>서비스 이용 동의</h3>
+                <p>계속하려면 아래 약관에 모두 동의해 주세요. 항목을 눌러 전문을 확인할 수 있습니다.</p>
+              </div>
+
+              <label class="agree-all">
+                <input type="checkbox" id="agreeAll" onchange="toggleAll(this.checked)">
+                전체 동의하기
+              </label>
+
+              <div class="consent-list">
+                <div class="consent-item">
+                  <input type="checkbox" class="item-check" data-doc="service" onchange="syncAll()">
+                  <span class="label"><span class="badge-required">필수</span>서비스 이용약관 동의</span>
+                  <button class="view-full" onclick="showDoc('service')">전문보기</button>
+                </div>
+                <div class="consent-item">
+                  <input type="checkbox" class="item-check" data-doc="privacy" onchange="syncAll()">
+                  <span class="label"><span class="badge-required">필수</span>개인정보 수집·이용 동의</span>
+                  <button class="view-full" onclick="showDoc('privacy')">전문보기</button>
+                </div>
+                <div class="consent-item">
+                  <input type="checkbox" class="item-check" data-doc="sensitive" onchange="syncAll()">
+                  <span class="label"><span class="badge-required">필수</span>민감정보(건강정보) 수집·이용 동의</span>
+                  <button class="view-full" onclick="showDoc('sensitive')">전문보기</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="doc-view" id="doc-service">
+              <div class="doc-meta"><span>톡톡 서비스 이용약관</span><span>26.9.1 시행</span></div>
+              <h4>제1조 (목적)</h4>
+              <p>이 약관은 주식회사 액티메디(이하 "회사")가 카카오톡 채널 및 이에 부수하는 웹페이지를 통하여 제공하는 AI 기반 운동·웰니스 정보 제공 서비스 "액티메디 톡톡"의 이용에 관하여 회사와 이용자의 권리·의무 및 책임 사항을 규정함을 목적으로 합니다.</p>
+              <h4>제6조 (이용계약의 성립)</h4>
+              <p>① 이용계약은 서비스 이용을 희망하는 자가 채널을 추가하고, 다음 각 호의 필수 동의 항목에 모두 동의한 시점에 성립합니다.</p>
+              <ol><li>서비스 이용약관 동의</li><li>개인정보 수집·이용 동의</li><li>민감정보(건강정보) 수집·이용 동의</li></ol>
+              <h4>제9조 (서비스의 성격 및 한계)</h4>
+              <p>① 본 서비스는 AI 기반 운동·웰니스 정보 제공 서비스로서, 의학적 진단·치료·처방을 제공하지 않으며 의료행위에 해당하지 않습니다.</p>
+              <p>⑤ 본 서비스는 응급상황에 대응하지 않습니다. 응급상황 발생 시 119 또는 인근 응급의료기관에 즉시 연락하여야 합니다.</p>
+              <h4>고객문의</h4>
+              <p>info@actimedi.com · 070-4132-5529</p>
+            </div>
+
+            <div class="doc-view" id="doc-privacy">
+              <div class="doc-meta"><span>톡톡 개인정보 처리방침</span><span>26.9.1 시행</span></div>
+              <h4>1. 개인정보의 처리 목적</h4>
+              <p>가. 서비스 제공 — AI 기반 운동·웰니스 정보 제공, 이용자 식별 및 상담 연속성 유지, 고지사항 전달, 문의 응대</p>
+              <p>나. AI 맞춤형 답변 생성 — 이름·성별·나이·키·몸무게 및 수술 이력·회복 경과를 AI 상담의 입력값으로 활용</p>
+              <h4>2. 처리하는 개인정보의 항목</h4>
+              <p>이름, 성별, 나이, 키, 몸무게 / 카카오톡 채널 이용자 식별자, 휴대전화번호 / 대화 기록 / 접속 일시 등 자동 수집 정보</p>
+              <h4>5. 개인정보의 국외 이전</h4>
+              <p>AI 답변 생성을 위해 OpenAI, L.L.C. 및 Anthropic, PBC(미국)로 질문·프로필 정보(이름 제외)가 전송될 수 있습니다.</p>
+              <h4>8. 보유 및 이용 기간</h4>
+              <p>대화 기록은 마지막 대화일로부터 1년 또는 이용계약 해지 시 중 빠른 시점까지 보유합니다.</p>
+              <h4>개인정보 보호책임자</h4>
+              <p>김주현 · jh.kim@actimedi.com</p>
+            </div>
+
+            <div class="doc-view" id="doc-sensitive">
+              <div class="doc-meta"><span>민감정보(건강정보) 활용방침</span><span>26.9.1 시행</span></div>
+              <h4>2. 본 동의가 필수인 이유</h4>
+              <p>본 서비스는 무릎·관절의 재활 및 운동에 관한 상담을 본질로 하는 서비스입니다. 증상·통증·회복 경과 등 건강정보의 처리는 서비스 제공에 필요한 최소한의 처리에 해당하여 필수 동의 항목으로 운영합니다.</p>
+              <h4>3. 수집·이용하는 민감정보의 항목</h4>
+              <p>수술명·수술 부위·수술 날짜(선택 입력), 진단명·주된 증상(선택 입력), 대화 중 자발 입력한 통증·부기·재활 경과 정보</p>
+              <h4>7. 보유 및 이용 기간</h4>
+              <p>동의 철회 또는 이용계약 해지 시까지 — 본 동의는 필수 항목이므로 철회 시 이용계약이 해지됩니다.</p>
+              <h4>10. 동의 거부권 및 거부 시 불이익</h4>
+              <p>건강정보 처리가 서비스 제공에 불가피하므로, 거부 시 서비스를 이용할 수 없습니다.</p>
+            </div>
+
+          </div>
+          <div class="cta" id="ctaArea">
+            <button id="ctaBtn" disabled onclick="submitConsent()">동의하고 계속하기</button>
+            <div class="hint" id="ctaHint">3건 모두 동의해야 다음 단계로 진행할 수 있어요</div>
+          </div>
+        </div>
+      </div>
+      <div class="mono" style="font-size:11.5px;color:var(--ink-muted);">SignUpBottomSheet · AC-1 AC-2 AC-3</div>
+    </div>
+
+    <div class="side-note">
+      <h2>화면 ⇄ AC 매핑</h2>
+      <div class="ac-row"><span class="ac-tag">AC-1</span><span class="txt">동의 항목이 <b>2건 → 3건</b>으로 구성되고, 전체 동의는 3건에 함께 반영됩니다.</span></div>
+      <div class="ac-row"><span class="ac-tag">AC-2</span><span class="txt">항목마다 <b>전문보기</b>가 1:1로 연결되고, 누르면 고지 문구가 아니라 문서 <b>원문 전체</b>가 보입니다.</span></div>
+      <div class="ac-row"><span class="ac-tag">AC-3</span><span class="txt">전문을 보고 <b>‹ 뒤로</b>가면 체크 상태가 유지되고, 3건 모두 체크해야 버튼이 활성화됩니다. 직접 체크해서 확인해 보세요.</span></div>
+      <div class="ac-row"><span class="ac-tag">AC-4</span><span class="txt">가입 완료 시 동의가 서버에 남고, 이후 설정에서 재조회 가능 — 위 경고 카드처럼 <b>저장 지점 신설이 선행 조건</b>입니다.</span></div>
+    </div>
+  </div>
+
+  <div class="side-note">
+    <h2 style="margin-bottom:2px;">대화 시작 시점 — 중복 동의 제거 (AC-5·AC-6)</h2>
+    <p style="margin:0 0 4px;font-size:13px;color:var(--ink-muted);">온보딩 스텝 구성은 그대로 두고, 약관 동의 스텝 하나만 제거합니다. 문진(증상) 스텝은 그대로 유지됩니다.</p>
+    <div class="compare">
+      <div class="mini-phone">
+        <div class="cap">지금 (Before)<span>ConversationalOnboarding</span></div>
+        <div class="step-list">
+          <div class="step"><span class="num">1</span>증상 발생 시점 입력</div>
+          <div class="step"><span class="num">2</span>주요 증상 선택</div>
+          <div class="step"><span class="num">3</span>서비스·개인정보·민감정보 동의 (3건)</div>
+          <div class="step"><span class="num">4</span>온보딩 완료 → 대화 시작</div>
+        </div>
+      </div>
+      <div class="mini-phone">
+        <div class="cap">변경 후 (After)<span>AC-5</span></div>
+        <div class="step-list">
+          <div class="step"><span class="num">1</span>증상 발생 시점 입력</div>
+          <div class="step"><span class="num">2</span>주요 증상 선택</div>
+          <div class="step removed"><span class="num">✕</span>서비스·개인정보·민감정보 동의 (3건)<span class="removed-pill">제거</span></div>
+          <div class="step"><span class="num">3</span>온보딩 완료 → 대화 시작</div>
+        </div>
+      </div>
+    </div>
+    <div class="ac-row" style="margin-top:6px;"><span class="ac-tag">AC-6</span><span class="txt">이미 이 온보딩에서 동의를 마쳤던 기존 사용자는 화면 제거 이후에도 재동의 없이 대화를 계속 이용합니다 — 단, 현재의 재진입 판정(문진 완료 여부)이 바뀌지 않는 한에서입니다.</span></div>
+    <div class="ac-row"><span class="ac-tag">AC-7</span><span class="txt">비로그인 사용자는 여전히 회원가입(및 동의)을 거치지 않고는 대화 화면에 진입할 수 없고, 필수/선택 구분·부가서비스·법정대리인 동의 경로는 이 티켓에서 바꾸지 않습니다.</span></div>
+  </div>
+
+  <footer class="src">문서 출처 — 톡톡 서비스 이용약관 / 개인정보 처리방침 / 민감정보(건강정보) 활용방침 초안 (26.9.1, 법무 검토 전) · ACLP-4719</footer>
+</div>
+
+<script>
+let currentDoc = null;
+
+function syncAll(){
+  const items = document.querySelectorAll('.item-check');
+  const all = Array.from(items).every(i => i.checked);
+  document.getElementById('agreeAll').checked = all;
+  const btn = document.getElementById('ctaBtn');
+  const hint = document.getElementById('ctaHint');
+  btn.disabled = !all;
+  hint.textContent = all ? '모든 필수 항목에 동의했습니다' : '3건 모두 동의해야 다음 단계로 진행할 수 있어요';
+}
+
+function toggleAll(checked){
+  document.querySelectorAll('.item-check').forEach(i => i.checked = checked);
+  syncAll();
+}
+
+function showDoc(doc){
+  currentDoc = doc;
+  document.getElementById('consentView').classList.add('hidden');
+  document.querySelectorAll('.doc-view').forEach(v => v.classList.remove('active'));
+  document.getElementById('doc-' + doc).classList.add('active');
+  document.getElementById('backBtn').disabled = false;
+
+  const titles = {service:'서비스 이용약관', privacy:'개인정보 처리방침', sensitive:'민감정보(건강정보) 활용방침'};
+  document.getElementById('scrTitle').textContent = titles[doc];
+  document.getElementById('ctaArea').style.display = 'none';
+
+  document.getElementById('tabConsent').setAttribute('aria-pressed','false');
+  document.getElementById('tabDoc').setAttribute('aria-pressed','true');
+}
+
+function showTop(){
+  document.getElementById('consentView').classList.remove('hidden');
+  document.querySelectorAll('.doc-view').forEach(v => v.classList.remove('active'));
+  document.getElementById('backBtn').disabled = true;
+  document.getElementById('scrTitle').textContent = '회원가입';
+  document.getElementById('ctaArea').style.display = 'block';
+
+  document.getElementById('tabConsent').setAttribute('aria-pressed','true');
+  document.getElementById('tabDoc').setAttribute('aria-pressed','false');
+}
+
+function goBack(){ showTop(); }
+
+function submitConsent(){
+  const hint = document.getElementById('ctaHint');
+  hint.textContent = '다음 단계(휴대폰 번호 인증)로 이동합니다 →';
+}
+</script>
