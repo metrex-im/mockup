@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ACLP-4421 진료실 내 환자 즉시 등록 — 목업</title>
+<style>
+  :root{
+    --mono-50:#f8f9fa; --mono-100:#f1f3f5; --mono-200:#e5e8eb; --mono-300:#d1d6db;
+    --mono-400:#b0b8c1; --mono-500:#8b95a1; --mono-600:#6b7684; --mono-700:#4e5968;
+    --mono-800:#333d4b; --mono-900:#191f28;
+    --primary-50:#eef4ff; --primary-100:#dbe7ff; --primary-500:#3182f6; --primary-600:#2272eb;
+    --red-50:#fdeced; --red-500:#e5484d; --red-600:#cf2b31;
+    --yellow-50:#fff9db; --yellow-700:#8d6e00;
+    --green-500:#00b894;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Malgun Gothic",sans-serif;
+    background:var(--mono-100); color:var(--mono-900); font-size:14px; line-height:1.5;
+  }
+  button{font-family:inherit; cursor:pointer;}
+  button:disabled{cursor:not-allowed; opacity:.45;}
+  input,select{font-family:inherit; font-size:14px;}
+
+  /* ── 데모 컨트롤 바 ───────────────────────────── */
+  .demo-bar{
+    background:var(--mono-900); color:#fff; padding:10px 16px; display:flex; flex-wrap:wrap;
+    gap:8px 14px; align-items:center; font-size:12px; position:sticky; top:0; z-index:200;
+  }
+  .demo-bar strong{font-size:12px; letter-spacing:.02em; margin-right:4px;}
+  .demo-bar label{display:flex; align-items:center; gap:5px; cursor:pointer; color:var(--mono-300);}
+  .demo-bar input[type=checkbox]{accent-color:var(--primary-500); cursor:pointer;}
+  .demo-bar .sep{width:1px; height:16px; background:var(--mono-700);}
+  .demo-bar .hint{color:var(--mono-500); margin-left:auto;}
+  .scn{
+    background:var(--mono-700); color:#fff; border:0; border-radius:5px; padding:4px 9px; font-size:11.5px;
+  }
+  .scn:hover{background:var(--primary-600);}
+
+  /* ── 앱 셸 ───────────────────────────────────── */
+  .app{max-width:1240px; margin:16px auto; padding:0 16px 40px;}
+  .page{
+    background:var(--mono-100); border:1px solid var(--mono-200); border-radius:14px; overflow:hidden;
+    box-shadow:0 1px 2px rgba(0,0,0,.04);
+  }
+  .page-header{
+    background:#fff; border-bottom:1px solid var(--mono-200);
+    display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 20px;
+  }
+  .page-title{font-size:18px; font-weight:700; margin:0;}
+  .header-right{display:flex; align-items:center; gap:8px;}
+  .chrome-notice{
+    background:var(--yellow-50); color:var(--yellow-700); font-size:13px; padding:4px 10px; border-radius:4px;
+  }
+  .failed-badge{
+    background:var(--red-50); color:var(--red-600); font-size:12px; font-weight:600;
+    padding:4px 9px; border-radius:999px; border:1px solid #f6c9cb;
+  }
+  .page-body{display:flex; gap:20px; padding:20px; align-items:flex-start;}
+
+  /* ── 버튼 ────────────────────────────────────── */
+  .btn{
+    border-radius:8px; border:1px solid transparent; font-weight:600; display:inline-flex;
+    align-items:center; justify-content:center; gap:6px; white-space:nowrap;
+  }
+  .btn-fill{background:var(--primary-500); color:#fff;}
+  .btn-fill:hover:not(:disabled){background:var(--primary-600);}
+  .btn-out{background:#fff; color:var(--mono-700); border-color:var(--mono-300);}
+  .btn-out:hover:not(:disabled){background:var(--mono-50);}
+  .btn-s{height:30px; padding:0 10px; font-size:12.5px;}
+  .btn-m{height:38px; padding:0 14px; font-size:13.5px;}
+  .btn-l{height:44px; padding:0 16px; font-size:14px;}
+  .btn-full{width:100%;}
+
+  /* ── 좌측 패널 ───────────────────────────────── */
+  .side{width:280px; flex-shrink:0; display:flex; flex-direction:column; gap:16px;}
+  .card{background:#fff; border:1px solid var(--mono-200); border-radius:12px; padding:16px;}
+  .field-label{display:block; font-size:12.5px; font-weight:600; color:var(--mono-700); margin-bottom:6px;}
+  .select, .text-input{
+    width:100%; height:40px; border:1px solid var(--mono-300); border-radius:8px; padding:0 11px;
+    background:#fff; color:var(--mono-900);
+  }
+  .select:disabled,.text-input:disabled{background:var(--mono-50); color:var(--mono-400);}
+  .patient-card{min-height:260px; display:flex; flex-direction:column; gap:12px;}
+  .patient-card-head{display:flex; align-items:center; justify-content:space-between; gap:8px;}
+  .patient-card-head .t{font-size:14px; font-weight:600; color:var(--mono-800); margin:0;}
+  .patient-empty{
+    flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:10px; color:var(--mono-400); font-size:13px;
+  }
+  .patient-info{display:flex; align-items:flex-start; justify-content:space-between; gap:8px;}
+  .patient-info .nm{font-size:16px; font-weight:700; margin:0;}
+  .patient-info .meta{font-size:13px; color:var(--mono-500); margin:2px 0 0;}
+  .icon-x{
+    border:0; background:transparent; color:var(--mono-400); font-size:17px; line-height:1;
+    width:26px; height:26px; border-radius:6px;
+  }
+  .icon-x:hover{color:var(--mono-700); background:var(--mono-50);}
+  .visit-row{display:flex; align-items:stretch; gap:8px;}
+  .visit-count{
+    display:flex; align-items:center; gap:4px; white-space:nowrap; padding:0 4px;
+    color:var(--mono-600); font-size:14px;
+  }
+  .visit-count b{font-size:20px; font-weight:700; color:var(--primary-600);}
+  .live-card{background:#fff; border:1px solid var(--mono-200); border-radius:12px; padding:14px 16px 16px;}
+  .rec-state{
+    margin-top:12px; display:flex; align-items:center; gap:8px; font-size:13px; color:var(--mono-600);
+  }
+  .dot{width:8px; height:8px; border-radius:50%; background:var(--mono-300);}
+  .dot.on{background:var(--red-500); animation:pulse 1.2s infinite;}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+  .transcript{
+    margin-top:10px; min-height:64px; background:var(--mono-50); border-radius:8px; padding:10px;
+    font-size:12.5px; color:var(--mono-500); line-height:1.6;
+  }
+
+  /* ── 우측 진료기록 ───────────────────────────── */
+  .main{flex:1; min-width:0; display:flex; flex-direction:column; gap:16px;}
+  .sheet{
+    background:#fff; border:1px solid var(--mono-200); border-radius:12px; padding:18px 20px;
+    min-height:420px; display:flex; flex-direction:column;
+  }
+  .sheet-head{display:flex; align-items:center; gap:10px; margin-bottom:14px;}
+  .sheet-head h3{margin:0; font-size:15px; font-weight:700;}
+  .chip{
+    font-size:12px; font-weight:600; padding:3px 9px; border-radius:999px;
+    background:var(--mono-100); color:var(--mono-600);
+  }
+  .sheet-empty{
+    flex:1; display:flex; align-items:center; justify-content:center; color:var(--mono-400); font-size:14px;
+  }
+
+  /* ── 다이얼로그 ──────────────────────────────── */
+  .backdrop{
+    position:fixed; inset:0; background:rgba(25,31,40,.45); display:none;
+    align-items:center; justify-content:center; z-index:100; padding:20px;
+  }
+  .backdrop.open{display:flex;}
+  .backdrop.stack{z-index:110; background:rgba(25,31,40,.35);}
+  .backdrop.top{z-index:120;}
+  .dialog{background:#fff; border-radius:14px; box-shadow:0 12px 40px rgba(0,0,0,.22); display:flex; flex-direction:column; max-height:92vh;}
+  .dialog-title{padding:20px 24px 0;}
+  .dialog-title h2{margin:0; font-size:17px; font-weight:700;}
+  .dialog-title p{margin:8px 0 0; font-size:12.5px; color:var(--mono-500); line-height:1.55;}
+  .dialog-body{padding:20px 24px; display:flex; flex-direction:column; gap:16px; overflow-y:auto;}
+  .dialog-footer{display:flex; gap:8px; padding:0 24px 22px;}
+
+  /* 환자 선택 다이얼로그 */
+  .dlg-select{width:560px;}
+  .search-row{display:flex; gap:8px;}
+  .result-box{
+    border:1px solid var(--mono-200); border-radius:8px; overflow:auto; height:300px;
+  }
+  table{width:100%; border-collapse:collapse;}
+  thead th{
+    position:sticky; top:0; background:var(--mono-50); text-align:left; font-size:13px; font-weight:600;
+    color:var(--mono-600); padding:10px 16px; border-bottom:1px solid var(--mono-200);
+  }
+  tbody td{padding:12px 16px; font-size:14px; color:var(--mono-700); border-bottom:1px solid var(--mono-100);}
+  tbody tr{cursor:pointer;}
+  tbody tr:hover{background:var(--mono-50);}
+  tbody tr.selected{background:var(--primary-50);}
+  tbody tr.selected:hover{background:var(--primary-50);}
+  td.nm{font-weight:600; color:var(--mono-900);}
+  .state-cell{padding:40px 16px; text-align:center; color:var(--mono-400); font-size:14px; border-bottom:0;}
+  .empty-block{display:flex; flex-direction:column; align-items:center; gap:14px; padding:40px 16px;}
+  .empty-block .msg{color:var(--mono-400); font-size:14px;}
+
+  /* 환자 등록 다이얼로그 */
+  .dlg-signup{width:500px;}
+  .form-field{display:flex; flex-direction:column;}
+  .req{color:var(--red-500); margin-left:2px;}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:8px;}
+  .input-unit{position:relative;}
+  .input-unit .u{
+    position:absolute; right:11px; top:50%; transform:translateY(-50%);
+    color:var(--mono-400); font-size:13px; pointer-events:none;
+  }
+  .phone-row{display:flex; gap:8px;}
+  .phone-row .cc{width:104px; flex-shrink:0;}
+  .radio-group{display:grid; grid-template-columns:1fr 1fr; gap:8px;}
+  .radio-box{
+    height:38px; border:1px solid var(--mono-300); border-radius:8px; display:flex; align-items:center;
+    justify-content:center; gap:6px; font-size:13.5px; color:var(--mono-600); cursor:pointer; background:#fff;
+  }
+  .radio-box.on{border-color:var(--primary-500); background:var(--primary-50); color:var(--primary-600); font-weight:600;}
+  .field-error{color:var(--red-600); font-size:12px; margin-top:5px;}
+  .form-alert{
+    background:var(--red-50); border:1px solid #f6c9cb; color:var(--red-600);
+    border-radius:8px; padding:10px 12px; font-size:12.5px; display:none;
+  }
+  .form-alert.show{display:block;}
+
+  /* 오류 안내 다이얼로그 */
+  .dlg-alert{width:400px;}
+  .dlg-alert .dialog-body{gap:8px;}
+  .dlg-alert h2{font-size:16px;}
+  .dlg-alert .content{font-size:13.5px; color:var(--mono-600); line-height:1.6;}
+
+  /* 토스트 */
+  .toast-area{
+    position:fixed; left:50%; bottom:36px; transform:translateX(-50%); z-index:300;
+    display:flex; flex-direction:column; gap:8px; align-items:center;
+  }
+  .toast{
+    background:var(--mono-900); color:#fff; padding:11px 18px; border-radius:999px; font-size:13.5px;
+    box-shadow:0 6px 20px rgba(0,0,0,.22); animation:up .22s ease-out;
+  }
+  @keyframes up{from{opacity:0; transform:translateY(8px)}to{opacity:1; transform:none}}
+
+  /* 키 툴팁 */
+  .keyed{position:relative;}
+  body.show-keys .keyed::after{
+    content:attr(data-testid);
+    position:absolute; left:0; top:-9px; transform:translateY(-100%);
+    background:var(--mono-900); color:#7dd3fc; font-size:10px; padding:2px 5px; border-radius:3px;
+    white-space:nowrap; z-index:400; pointer-events:none; font-weight:400;
+    box-shadow:0 2px 6px rgba(0,0,0,.25);
+  }
+  body.show-keys .keyed{outline:1.5px dashed rgba(49,130,246,.5); outline-offset:1px;}
+
+  .note{
+    max-width:1240px; margin:0 auto; padding:16px; font-size:12.5px; color:var(--mono-600);
+    background:#fff; border:1px solid var(--mono-200); border-radius:12px; margin-top:16px;
+  }
+  .note h4{margin:0 0 8px; font-size:13px; color:var(--mono-900);}
+  .note ul{margin:0; padding-left:18px;}
+  .note li{margin-bottom:4px;}
+  .note code{background:var(--mono-100); padding:1px 4px; border-radius:3px; font-size:11.5px;}
+</style>
+</head>
+<body>
+
+<div class="demo-bar">
+  <strong>시나리오</strong>
+  <button class="scn" onclick="demo.reset()">초기화</button>
+  <button class="scn" onclick="demo.scn13()">1-3 헤더 진입</button>
+  <button class="scn" onclick="demo.scn12()">1-2·1-4 검색 결과 없음</button>
+  <button class="scn" onclick="demo.scn18()">1-9 녹음 중 차단</button>
+  <button class="scn" onclick="demo.scn24()">2-4 취소 후 유지</button>
+  <span class="sep"></span>
+  <label><input type="checkbox" id="cbDupPhone" onchange="demo.sync()"> 휴대폰 중복 (1-7)</label>
+  <label><input type="checkbox" id="cbDupChart" onchange="demo.sync()"> 등록번호 중복 (1-8)</label>
+  <label><input type="checkbox" id="cbFail" onchange="demo.sync()"> 등록 실패 (1-10)</label>
+  <label><input type="checkbox" id="cbKeys" onchange="demo.toggleKeys()"> 논리 ID 표시</label>
+  <span class="hint">ACLP-4421 · 허브 진료 녹음</span>
+</div>
+
+<div class="app">
+  <div class="page">
+    <!-- ── 헤더 ─────────────────────────────────────── -->
+    <div class="page-header">
+      <h1 class="page-title">진료 녹음</h1>
+      <div class="header-right">
+        <span class="chrome-notice">이 기능은 크롬에 최적화되어 있습니다.</span>
+        <span class="failed-badge">실패 0건</span>
+        <!-- [신규] 헤더 우측 끝 환자 등록 버튼 -->
+        <button class="btn btn-out btn-s keyed" id="btnHeaderSignup"
+                data-testid="녹음-헤더-환자등록-버튼" onclick="app.openSignup('header')">
+          ＋ 환자 등록
+        </button>
+      </div>
+    </div>
+
+    <!-- ── 본문 ─────────────────────────────────────── -->
+    <div class="page-body">
+      <aside class="side">
+        <!-- 진료실 선택 -->
+        <div class="card">
+          <label class="field-label">진료실 선택</label>
+          <select class="select keyed" id="roomSelect" data-testid="녹음-진료실-셀렉트">
+            <option value="1">3진료실</option>
+            <option value="2">5진료실</option>
+            <option value="3">외래 A</option>
+          </select>
+        </div>
+
+        <!-- 환자 선택 카드 -->
+        <div class="card patient-card">
+          <div class="patient-card-head">
+            <p class="t">환자 선택</p>
+            <button class="btn btn-out btn-s keyed" id="btnPatientSearch"
+                    data-testid="녹음-환자_패널-환자선택-버튼" onclick="app.openSelect()">
+              🔍 검색
+            </button>
+          </div>
+
+          <!-- 미선택 상태 -->
+          <div class="patient-empty" id="patientEmpty">
+            <span>환자를 선택해 주세요.</span>
+          </div>
+
+          <!-- 선택 상태 -->
+          <div id="patientPicked" style="display:none; flex-direction:column; gap:12px; flex:1;">
+            <div class="patient-info">
+              <div style="min-width:0">
+                <p class="nm" id="pkName">—</p>
+                <p class="meta" id="pkMeta">—</p>
+              </div>
+              <button class="icon-x keyed" id="btnUnselect"
+                      data-testid="녹음-환자_패널-환자선택해제-버튼" onclick="app.unselectPatient()">✕</button>
+            </div>
+            <div class="visit-row">
+              <div class="visit-count">진료 <b id="pkVisit">0</b>회</div>
+              <button class="btn btn-out btn-m" style="flex:1" disabled>📅 진료 선택</button>
+            </div>
+            <button class="btn btn-out btn-m btn-full" disabled>▶ 이어하기</button>
+            <button class="btn btn-fill btn-m btn-full">＋ 새 진료 시작</button>
+          </div>
+        </div>
+
+        <!-- 녹음 패널 (환자 선택 시에만 노출) -->
+        <div class="live-card" id="liveCard" style="display:none;">
+          <button class="btn btn-fill btn-m btn-full keyed" id="btnStart"
+                  data-testid="녹음-시작-버튼" onclick="app.startRecording()">🎙 녹음 시작</button>
+          <button class="btn btn-out btn-m btn-full keyed" id="btnStop" style="display:none;"
+                  data-testid="녹음-종료-버튼" onclick="app.stopRecording()">⏹ 녹음 종료</button>
+          <div class="rec-state">
+            <span class="dot" id="recDot"></span>
+            <span id="recLabel">대기 중</span>
+          </div>
+          <div class="transcript" id="recTranscript">녹음을 시작하면 실시간 인식 결과가 표시됩니다.</div>
+        </div>
+      </aside>
+
+      <div class="main">
+        <div class="sheet">
+          <div class="sheet-head">
+            <h3>문진 답안</h3>
+            <span class="chip">초기</span>
+            <span class="chip" id="visitTypeChip" style="display:none;">초진</span>
+          </div>
+          <div class="sheet-empty" id="sheetEmpty">새 진료 시작 버튼을 눌러서 진료를 시작해 주세요.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="note">
+    <h4>목업 범위</h4>
+    <ul>
+      <li>이 목업은 <code>ACLP-4421</code> GWT 시나리오 1-1 ~ 2-4를 클릭으로 재현하기 위한 것입니다. 데이터·API는 모두 목(mock)입니다.</li>
+      <li>환자 검색은 <b>이름에 "김" 또는 "홍"</b>이 포함되면 결과가 나오고, 그 외 입력은 <b>검색 결과가 없습니다</b>로 떨어집니다(시나리오 1-2 재현용).</li>
+      <li>환자 등록 다이얼로그의 필드 구성·순서·필수 여부는 <code>PatientSignupDialog.tsx</code> 구현을 그대로 옮겼습니다 — 필수는 <b>등록번호·이름·휴대폰 번호</b> 3개입니다.</li>
+      <li>중복 검사는 기존 다이얼로그와 동일하게 <b>휴대폰 번호</b>·<b>등록번호</b> 두 가지입니다(시나리오 1-7·1-8).</li>
+      <li>상단 <b>논리 ID 표시</b>를 켜면 각 요소의 <code>data-testid</code>(확정키·잠정키)가 함께 보입니다.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ── 환자 선택 다이얼로그 ─────────────────────────── -->
+<div class="backdrop" id="bdSelect">
+  <div class="dialog dlg-select">
+    <div class="dialog-title"><h2>환자 선택</h2></div>
+    <div class="dialog-body">
+      <div class="search-row">
+        <input class="text-input keyed" id="inChart" placeholder="차트번호"
+               data-testid="녹음-환자선택_다이얼로그-차트번호-입력" oninput="app.onSearchInput()">
+        <input class="text-input keyed" id="inName" placeholder="환자 이름"
+               data-testid="녹음-환자선택_다이얼로그-이름-입력" oninput="app.onSearchInput()"
+               onkeydown="if(event.key==='Enter')app.search()">
+        <button class="btn btn-fill btn-l keyed" id="btnSearch" disabled
+                data-testid="녹음-환자선택_다이얼로그-검색-버튼" onclick="app.search()">🔍 검색</button>
+      </div>
+
+      <div class="result-box">
+        <table>
+          <thead>
+            <tr><th>차트번호</th><th>이름</th><th>성별</th><th>생년월일</th></tr>
+          </thead>
+          <tbody id="resultBody">
+            <tr><td colspan="4" class="state-cell">차트번호 또는 이름으로 검색하세요.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="dialog-footer">
+      <button class="btn btn-out btn-l keyed" style="flex:1"
+              data-testid="녹음-환자선택_다이얼로그-닫기-버튼" onclick="app.closeSelect()">닫기</button>
+      <button class="btn btn-fill btn-l keyed" style="flex:1" id="btnSelectConfirm" disabled
+              data-testid="녹음-환자선택_다이얼로그-선택-버튼" onclick="app.confirmSelect()">선택</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── 환자 등록 다이얼로그 (환자 관리 페이지 재사용) ─── -->
+<div class="backdrop stack" id="bdSignup">
+  <div class="dialog dlg-signup">
+    <div class="dialog-title">
+      <h2>환자 등록</h2>
+      <p>환자 프로필을 생성하기 위해 기본 정보를 입력해주세요. * 표시가 있는 항목은 필수 입력 사항입니다.</p>
+    </div>
+    <div class="dialog-body">
+      <div class="form-alert" id="signupAlert"></div>
+
+      <div class="form-field">
+        <label class="field-label">등록번호<span class="req">*</span></label>
+        <input class="text-input keyed" id="fChart" placeholder="등록번호를 입력해주세요."
+               data-testid="환자-등록_다이얼로그-차트번호-입력" oninput="app.validateSignup()">
+      </div>
+
+      <div class="form-field">
+        <label class="field-label">이름<span class="req">*</span></label>
+        <input class="text-input keyed" id="fName" maxlength="20"
+               placeholder="한글, 영어 대/소문자, 숫자를 사용하여 20자 이내로 입력해 주세요."
+               data-testid="환자-등록_다이얼로그-이름-입력" oninput="app.validateSignup()">
+      </div>
+
+      <div class="form-field">
+        <label class="field-label">휴대폰 번호<span class="req">*</span></label>
+        <div class="phone-row">
+          <select class="select cc"><option>+82</option><option>+1</option><option>+81</option></select>
+          <input class="text-input keyed" id="fPhone" placeholder="-를 제외한 숫자만 입력해 주세요."
+                 data-testid="환자-등록_다이얼로그-휴대폰번호-입력" oninput="app.validateSignup()">
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label class="field-label">생년월일</label>
+        <input class="text-input keyed" id="fBirth" type="date"
+               data-testid="환자-등록_다이얼로그-생년월일-날짜">
+      </div>
+
+      <div class="grid2">
+        <div class="form-field">
+          <label class="field-label">키</label>
+          <div class="input-unit">
+            <input class="text-input keyed" id="fHeight" inputmode="decimal" placeholder="숫자와 .만 입력해 주세요"
+                   data-testid="환자-등록_다이얼로그-키-입력">
+            <span class="u">cm</span>
+          </div>
+        </div>
+        <div class="form-field">
+          <label class="field-label">체중</label>
+          <div class="input-unit">
+            <input class="text-input keyed" id="fWeight" inputmode="decimal" placeholder="숫자와 .만 입력해 주세요"
+                   data-testid="환자-등록_다이얼로그-몸무게-입력">
+            <span class="u">kg</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label class="field-label">성별</label>
+        <div class="radio-group keyed" data-testid="환자-등록_다이얼로그-성별-셀렉트">
+          <div class="radio-box on" id="sexMale" onclick="app.setSex('MALE')">남자</div>
+          <div class="radio-box" id="sexFemale" onclick="app.setSex('FEMALE')">여자</div>
+        </div>
+      </div>
+    </div>
+    <div class="dialog-footer">
+      <button class="btn btn-out btn-l keyed" style="flex:1"
+              data-testid="환자-등록_다이얼로그-취소-버튼" onclick="app.cancelSignup()">취소</button>
+      <button class="btn btn-fill btn-l keyed" style="flex:1" id="btnSignupConfirm" disabled
+              data-testid="환자-등록_다이얼로그-확인-버튼" onclick="app.submitSignup()">등록</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── 오류 안내 다이얼로그 ─────────────────────────── -->
+<div class="backdrop top" id="bdAlert">
+  <div class="dialog dlg-alert">
+    <div class="dialog-title"><h2 id="alertTitle">안내</h2></div>
+    <div class="dialog-body"><p class="content" id="alertContent"></p></div>
+    <div class="dialog-footer">
+      <button class="btn btn-fill btn-l btn-full" onclick="app.closeAlert()">확인</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-area" id="toastArea"></div>
+
+<script>
+(function(){
+  'use strict';
+
+  var PATIENTS = [
+    { id:101, chart:'A-10023', name:'김민수', sex:'남', birth:'1978-04-12' },
+    { id:102, chart:'A-10047', name:'김서연', sex:'여', birth:'1991-11-02' },
+    { id:103, chart:'A-10088', name:'홍길동', sex:'남', birth:'1965-07-30' }
+  ];
+
+  var state = {
+    patient: null,
+    isRecording: false,
+    signupOrigin: null,
+    prevPatient: null,
+    searched: false,
+    searchHit: [],
+    rowSelected: null,
+    sex: 'MALE'
+  };
+
+  function $(id){ return document.getElementById(id); }
+
+  function toast(msg){
+    var el = document.createElement('div');
+    el.className = 'toast';
+    el.textContent = msg;
+    $('toastArea').appendChild(el);
+    setTimeout(function(){ el.remove(); }, 2600);
+  }
+
+  function alertDialog(title, content){
+    $('alertTitle').textContent = title;
+    $('alertContent').textContent = content;
+    $('bdAlert').classList.add('open');
+  }
+
+  function render(){
+    var p = state.patient;
+    $('patientEmpty').style.display = p ? 'none' : 'flex';
+    $('patientPicked').style.display = p ? 'flex' : 'none';
+    $('liveCard').style.display = p ? 'block' : 'none';
+
+    if (p) {
+      $('pkName').textContent = p.name;
+      $('pkMeta').textContent = p.sex + ' · 차트 ' + p.chart;
+      $('pkVisit').textContent = p.visit != null ? p.visit : 0;
+    }
+
+    // 녹음 중에는 환자 등록·검색·해제가 모두 잠긴다 (C-3)
+    $('btnHeaderSignup').disabled = state.isRecording;
+    $('btnPatientSearch').disabled = state.isRecording;
+    $('btnUnselect').style.display = state.isRecording ? 'none' : 'inline-flex';
+    $('roomSelect').disabled = state.isRecording;
+
+    $('btnStart').style.display = state.isRecording ? 'none' : 'inline-flex';
+    $('btnStop').style.display  = state.isRecording ? 'inline-flex' : 'none';
+    $('recDot').className = 'dot' + (state.isRecording ? ' on' : '');
+    $('recLabel').textContent = state.isRecording ? '녹음 중 00:07' : '대기 중';
+    $('recTranscript').textContent = state.isRecording
+      ? '무릎이 계단 내려갈 때 특히 아프시다고 하셨죠…'
+      : '녹음을 시작하면 실시간 인식 결과가 표시됩니다.';
+    $('visitTypeChip').style.display = state.isRecording ? 'inline-block' : 'none';
+  }
+
+  function openSelect(){
+    if (state.isRecording) return;
+    $('inChart').value = '';
+    $('inName').value = '';
+    state.searched = false;
+    state.searchHit = [];
+    state.rowSelected = null;
+    renderResult();
+    onSearchInput();
+    $('bdSelect').classList.add('open');
+  }
+  function closeSelect(){ $('bdSelect').classList.remove('open'); }
+
+  function onSearchInput(){
+    var has = !!($('inChart').value.trim() || $('inName').value.trim());
+    $('btnSearch').disabled = !has;
+  }
+
+  function search(){
+    var name = $('inName').value.trim();
+    var chart = $('inChart').value.trim();
+    state.searched = true;
+    state.rowSelected = null;
+    state.searchHit = PATIENTS.filter(function(p){
+      var byName = name && (p.name.indexOf(name) === 0 || name.indexOf('김') === 0 || name.indexOf('홍') === 0);
+      var byChart = chart && p.chart.toUpperCase().indexOf(chart.toUpperCase()) !== -1;
+      return byName || byChart;
+    });
+    renderResult();
+  }
+
+  function renderResult(){
+    var body = $('resultBody');
+    body.innerHTML = '';
+
+    if (!state.searched) {
+      body.innerHTML = '<tr><td colspan="4" class="state-cell">차트번호 또는 이름으로 검색하세요.</td></tr>';
+      $('btnSelectConfirm').disabled = true;
+      return;
+    }
+
+    if (!state.searchHit.length) {
+      // [신규] 검색 결과 없음 문구 + 환자 등록 버튼 (시나리오 1-2)
+      var tr = document.createElement('tr');
+      var td = document.createElement('td');
+      td.colSpan = 4;
+      td.style.borderBottom = '0';
+      td.innerHTML =
+        '<div class="empty-block">' +
+          '<span class="msg keyed" data-testid="녹음-환자선택_다이얼로그-검색결과없음-텍스트">검색 결과가 없습니다.</span>' +
+          '<button class="btn btn-fill btn-m keyed" data-testid="녹음-환자선택_다이얼로그-환자등록-버튼" ' +
+                  'onclick="app.openSignup(\'select\')">＋ 환자 등록</button>' +
+        '</div>';
+      tr.appendChild(td);
+      body.appendChild(tr);
+      $('btnSelectConfirm').disabled = true;
+      return;
+    }
+
+    state.searchHit.forEach(function(p){
+      var tr = document.createElement('tr');
+      tr.setAttribute('data-testid', '녹음-환자선택_다이얼로그-' + p.id + '-행');
+      if (state.rowSelected === p.id) tr.className = 'selected';
+      tr.onclick = function(){ state.rowSelected = p.id; renderResult(); };
+      tr.innerHTML =
+        '<td>' + p.chart + '</td>' +
+        '<td class="nm">' + p.name + '</td>' +
+        '<td>' + p.sex + '</td>' +
+        '<td>' + p.birth + '</td>';
+      body.appendChild(tr);
+    });
+    $('btnSelectConfirm').disabled = !state.rowSelected;
+  }
+
+  function confirmSelect(){
+    var p = PATIENTS.filter(function(x){ return x.id === state.rowSelected; })[0];
+    if (!p) return;
+    state.patient = { name:p.name, sex:p.sex, chart:p.chart, visit:3 };
+    closeSelect();
+    render();
+  }
+
+  function unselectPatient(){
+    state.patient = null;
+    render();
+  }
+
+  function openSignup(origin){
+    // 시나리오 1-9: 녹음 중에는 열리지 않는다
+    if (state.isRecording) return;
+    state.signupOrigin = origin;
+    state.prevPatient = state.patient;
+    // 새로 열 때만 초기화 — 등록 실패 후에는 닫지 않으므로 값이 유지된다 (1-10)
+    $('fChart').value = '';
+    $('fName').value = '';
+    $('fPhone').value = '';
+    $('fBirth').value = '';
+    $('fHeight').value = '';
+    $('fWeight').value = '';
+    setSex('MALE');
+    $('signupAlert').classList.remove('show');
+    validateSignup();
+    $('bdSignup').classList.add('open');
+  }
+
+  function setSex(v){
+    state.sex = v;
+    $('sexMale').className   = 'radio-box' + (v === 'MALE' ? ' on' : '');
+    $('sexFemale').className = 'radio-box' + (v === 'FEMALE' ? ' on' : '');
+  }
+
+  function validateSignup(){
+    var ok = !!($('fChart').value.trim() && $('fName').value.trim() && $('fPhone').value.trim());
+    $('btnSignupConfirm').disabled = !ok;
+  }
+
+  function submitSignup(){
+    // 시나리오 1-7: 휴대폰 번호 중복
+    if ($('cbDupPhone').checked) {
+      alertDialog('이미 가입된 환자입니다.',
+        '이미 동일한 휴대폰 번호의 환자가 존재합니다. 환자 관리 리스트에서 확인해주세요.');
+      return;
+    }
+    // 시나리오 1-8: 등록번호 중복
+    if ($('cbDupChart').checked) {
+      alertDialog('이미 등록된 등록 번호입니다.', '새로운 등록 번호로 입력해 주세요.');
+      return;
+    }
+    // 시나리오 1-10: 등록 실패 — 다이얼로그를 닫지 않고 입력값을 유지한다
+    if ($('cbFail').checked) {
+      var a = $('signupAlert');
+      a.textContent = '환자 등록에 실패했습니다. 네트워크 상태를 확인한 후 다시 시도해 주세요.';
+      a.classList.add('show');
+      return;
+    }
+
+    // 시나리오 1-6 / 2-1 / 2-2: 등록 완료 → 그 환자가 선택된 상태로
+    var created = {
+      name: $('fName').value.trim(),
+      sex: state.sex === 'MALE' ? '남' : '여',
+      chart: $('fChart').value.trim(),
+      visit: 0
+    };
+    $('bdSignup').classList.remove('open');
+    if (state.signupOrigin === 'select') {
+      closeSelect(); // 환자 선택 다이얼로그까지 함께 닫힌다
+    }
+    state.patient = created;
+    toast('환자를 등록했습니다.');
+    render();
+  }
+
+  function cancelSignup(){
+    // 시나리오 2-4: 환자가 생성되지 않고 직전 선택 상태가 유지된다
+    $('bdSignup').classList.remove('open');
+    state.patient = state.prevPatient;
+    render();
+  }
+
+  function startRecording(){ state.isRecording = true; render(); }
+  function stopRecording(){ state.isRecording = false; render(); }
+  function closeAlert(){ $('bdAlert').classList.remove('open'); }
+
+  var demo = {
+    reset: function(){
+      state.patient = null; state.isRecording = false; state.prevPatient = null;
+      $('bdSelect').classList.remove('open');
+      $('bdSignup').classList.remove('open');
+      $('bdAlert').classList.remove('open');
+      $('cbDupPhone').checked = false;
+      $('cbDupChart').checked = false;
+      $('cbFail').checked = false;
+      render();
+    },
+    scn13: function(){ demo.reset(); openSignup('header'); },
+    scn12: function(){
+      demo.reset();
+      openSelect();
+      $('inName').value = '이수민';
+      onSearchInput();
+      search();
+    },
+    scn18: function(){
+      demo.reset();
+      state.patient = { name:'김민수', sex:'남', chart:'A-10023', visit:3 };
+      state.isRecording = true;
+      render();
+      toast('녹음 중 — 헤더 환자 등록 버튼이 비활성입니다.');
+    },
+    scn24: function(){
+      demo.reset();
+      state.patient = { name:'홍길동', sex:'남', chart:'A-10088', visit:5 };
+      render();
+      openSignup('header');
+      $('fName').value = '박';
+      validateSignup();
+      toast('입력 중 취소를 눌러 보세요 — 홍길동 선택이 유지됩니다.');
+    },
+    sync: function(){ /* 체크박스는 submit 시점에 읽는다 */ },
+    toggleKeys: function(){
+      document.body.classList.toggle('show-keys', $('cbKeys').checked);
+    }
+  };
+
+  window.app = {
+    openSelect: openSelect, closeSelect: closeSelect, search: search,
+    onSearchInput: onSearchInput, confirmSelect: confirmSelect, unselectPatient: unselectPatient,
+    openSignup: openSignup, cancelSignup: cancelSignup, submitSignup: submitSignup,
+    validateSignup: validateSignup, setSex: setSex,
+    startRecording: startRecording, stopRecording: stopRecording, closeAlert: closeAlert
+  };
+  window.demo = demo;
+
+  render();
+})();
+</script>
+</body>
+</html>
