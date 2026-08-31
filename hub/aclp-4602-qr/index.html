@@ -77,6 +77,17 @@
   .fld .box{background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px 12px;
     font-size:13.5px;color:#333;min-height:40px;display:flex;align-items:center}
   .fld .box.ph{color:#b3b9c2}
+  .fld .box.sel-box{justify-content:space-between;cursor:pointer}
+  .fld .box.sel-box::after{content:'▾';color:#9aa1ab;font-size:12px;margin-left:8px}
+  .fld .box.sel-box.open{border-color:var(--brand);box-shadow:0 0 0 2px var(--brand-weak)}
+  .selmenu{background:#fff;border:1px solid var(--brand);border-radius:8px;margin-top:4px;
+    overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,.10)}
+  .selmenu div{padding:10px 12px;font-size:13px;border-bottom:1px solid var(--line);cursor:pointer}
+  .selmenu div:last-child{border-bottom:none}
+  .selmenu div.on{background:var(--brand-weak);color:var(--brand);font-weight:700}
+  .addnote{background:#fff8e6;border:1px solid var(--tbd-line);border-radius:8px;
+    padding:10px 12px;font-size:11.5px;color:#7a5b13;line-height:1.65;margin:0 0 13px}
+  .addnote b{color:#5f470e}
   .radios{display:flex;gap:8px}
   .radios span{flex:1;text-align:center;background:#fff;border:1px solid var(--line);
     border-radius:8px;padding:9px;font-size:13px}
@@ -190,6 +201,7 @@
       <b>미확정 자리표시자</b> — 폼 세트 이름·개수는 ACLP-4412(~8/12) 확정 전 <b>현재 안</b>입니다.
       QR 이미지는 <b>스캔되지 않는 목업 패턴</b>이며 실제 QR로 교체해야 합니다.
       진입 주소의 도메인과 세트 파라미터 이름(<code>form-set</code>)도 제안값입니다.
+      <b>소속병원 드롭다운</b>은 확정 AC·GWT에 없는 <b>추가 요구</b>이며 ② 탭에만 반영되어 있습니다.
     </div>
     <nav class="tabs">
       <button class="on" data-tab="qr">① 현장 QR 인쇄물</button>
@@ -219,6 +231,14 @@
     <b>이미 구현된 화면입니다</b>(C-1). 이번 티켓의 변경은 진입 주소가 폼 세트를 함께 전달하고,
     마지막에 세트별로 다른 설문이 열리는 부분입니다. 아래에서 환자 상태와 세트를 바꿔가며 확인하세요.
   </p>
+  <div class="addnote" style="max-width:none;margin-bottom:16px">
+    <b>추가 요구 (AC·GWT 미반영)</b> — 소속병원을 <b>화면 내 드롭다운</b>에서 선택하고,
+    선택값이 등록번호와 함께 구글 폼 설문으로 넘어가 응답에 자동 기입된다.
+    이 목업에만 반영되어 있고 확정된 AC-1~6·GWT 18개에는 대응 항목이 없다.<br>
+    <b>충돌 확인 필요</b> — 확정 AC/GWT의 시나리오 1-2는 병원 식별값을
+    <b>진입 주소(<code>hospital-uuid</code>)</b>에서 읽어 없으면 화면을 렌더하지 않는 전제다.
+    화면에서 고르는 방식과 이중 소스가 되므로 어느 쪽이 정본인지 정해야 한다.
+  </div>
   <div class="split">
     <div>
       <div class="ctl" id="ctl"></div>
@@ -289,6 +309,18 @@ var SETS = [
     guide:'인공관절 수술을\n받으신 분' }
 ];
 
+/* 병원 목록 (더미) — 추가 요구: 환자가 진입 화면에서 소속병원을 직접 고른다 */
+var HOSPITALS = [
+  { id:'H1', name:'가나정형외과의원' },
+  { id:'H2', name:'다라정형외과병원' },
+  { id:'H3', name:'마바관절병원' },
+  { id:'H4', name:'사아스포츠의학센터' }
+];
+function hospitalOf(id){
+  for(var i=0;i<HOSPITALS.length;i++){ if(HOSPITALS[i].id===id) return HOSPITALS[i]; }
+  return null;
+}
+
 var STATES = {
   NEW:            { key:'NEW',   label:'미가입',        desc:'허브에 등록번호가 없는 환자' },
   NOT_AGREED:     { key:'NOT_AGREED', label:'기가입·미동의', desc:'등록되어 있으나 필수 약관 미동의' },
@@ -308,7 +340,8 @@ var K = {
   agreeAll    : '모바일진입-약관-전체동의-버튼',
   agreeOne    : '모바일진입-약관-개별동의-체크박스',
   signerType  : '모바일진입-약관-서명자유형-라디오',
-  sign        : 'TBD-모바일진입-약관-자필서명-입력'
+  sign        : 'TBD-모바일진입-약관-자필서명-입력',
+  hospital    : '모바일진입-조회-병원-셀렉트'   /* 신규 키 (기존 test-ids.json에 없음) */
 };
 
 /* 시나리오 18개 (회귀 6 · TBD 4) — AC-4·5·6·10·11 제거 후 AC-1~6 재採번 */
@@ -408,7 +441,8 @@ var SCN = [
    상태
    ============================================================ */
 var st = { set:'A', state:'AGREED', step:'lookup', chart:'2026-0417', pending:false,
-           unfilled:false, back:false, legacy:false, showKeys:false };
+           unfilled:false, back:false, legacy:false, showKeys:false,
+           hospital:'H1', selOpen:false };
 var cur = null;   // 선택된 시나리오
 var curStep = 0;  // 0 Given 1 When 2 Then
 
@@ -480,6 +514,22 @@ function fld(label,val,key,ph){
   return '<div class="fld"><label>'+label+'</label>'+
     '<div class="box k'+(ph?' ph':'')+'" data-key="'+key+'">'+val+'</div></div>';
 }
+/* 병원 선택 드롭다운 (추가 요구) */
+function hospitalField(){
+  var h=hospitalOf(st.hospital);
+  var menu='';
+  if(st.selOpen){
+    menu='<div class="selmenu">'+HOSPITALS.map(function(x){
+      return '<div class="'+(x.id===st.hospital?'on':'')+'" onclick="pickHospital(\''+x.id+'\')">'+
+             x.name+'</div>';
+    }).join('')+'</div>';
+  }
+  return '<div class="fld"><label>소속병원 <span style="color:var(--imp);font-weight:700">필수</span></label>'+
+    '<div class="box sel-box k'+(h?'':' ph')+(st.selOpen?' open':'')+'" data-key="'+K.hospital+'" '+
+      'onclick="toggleHospitalMenu()">'+(h?h.name:'병원을 선택하세요')+'</div>'+
+    menu+'</div>';
+}
+
 function screenHTML(){
   var s=setOf(st.set);
 
@@ -497,6 +547,10 @@ function screenHTML(){
       '<div style="font-size:12px;color:#6b7280">'+s.target+' 대상 설문</div>'+
       '<div class="pf">등록번호 <b>'+st.chart+'</b> 가 채워진 상태로 열림<br>'+
       '<span style="font-size:11px;color:#6b7280">← AC-6 회귀 확인 지점</span></div>'+
+      '<div class="pf" style="background:#fff8e6;border-color:#e8d59a">'+
+      '소속병원 <b style="color:#7a5b13">'+(hospitalOf(st.hospital)?hospitalOf(st.hospital).name:'(미선택)')+
+      '</b> 가 함께 채워진 상태로 열림<br>'+
+      '<span style="font-size:11px;color:#7a5b13">← 추가 요구 · 응답에 병원 값이 남는다 (AC 미반영)</span></div>'+
       '<ol>'+s.proms.map(function(p){ return '<li>'+p+' 문항 (실제 문항은 허브 탑재본 사용)</li>'; }).join('')+'</ol>'+
       '</div>'+
       (st.legacy ? '<div style="margin-top:12px;background:#fdeceb;border:1px solid #f3c9c6;'+
@@ -509,8 +563,10 @@ function screenHTML(){
 
   if(st.step==='lookup'){
     return head+
+      hospitalField()+
       fld('등록번호','등록번호를 입력하세요',K.lookupInput,true)+
-      '<button class="btn k" data-key="'+K.lookupBtn+'" onclick="doLookup()">조회</button>'+
+      '<button class="btn k" data-key="'+K.lookupBtn+'" '+(st.hospital?'':'disabled')+
+        ' onclick="doLookup()">조회</button>'+
       '<div style="margin-top:16px;font-size:11.5px;color:#9aa1ab;text-align:center;line-height:1.6">'+
       '앱 설치·회원가입·로그인 없이<br>바로 진행합니다 (AC-4)</div>';
   }
@@ -532,6 +588,11 @@ function screenHTML(){
     body += '<div style="font-size:11.5px;color:var(--ok);margin-bottom:12px">'+
       '등록번호 '+st.chart+' · 등록된 환자입니다.</div>';
   }
+
+  /* 조회 단계에서 고른 병원은 이후 단계에서 유지되며 설문으로 함께 넘어간다 */
+  body += '<div class="addnote"><b>소속병원 · '+
+    (hospitalOf(st.hospital)?hospitalOf(st.hospital).name:'(미선택)')+'</b><br>'+
+    '조회 단계에서 선택한 값이 유지되며, 설문에 등록번호와 함께 전달된다.</div>';
 
   if(st.state==='NEW' || st.state==='NOT_AGREED'){
     var on = uf ? '' : ' on', ck = uf ? '' : '✓';
@@ -562,7 +623,9 @@ function screenHTML(){
   }
   return body;
 }
-function doLookup(){ st.step='branch'; st.unfilled=false; paint(); }
+function toggleHospitalMenu(){ st.selOpen=!st.selOpen; paint(); }
+function pickHospital(id){ st.hospital=id; st.selOpen=false; renderCtl(); paint(); }
+function doLookup(){ if(!st.hospital) return; st.step='branch'; st.unfilled=false; st.selOpen=false; paint(); }
 function doNext(){
   if(st.state==='NEW' || st.state==='NOT_AGREED'){
     if(!st.pending){ st.pending=true; paint(); setTimeout(function(){ st.pending=false; st.step='survey'; paint(); },700); return; }
@@ -592,9 +655,16 @@ function renderCtl(){
   var stOpts=Object.keys(STATES).map(function(k){
     return '<button class="opt'+(st.state===k?' on':'')+'" onclick="pickState(\''+k+'\')">'+STATES[k].label+'</button>';
   }).join('');
+  var hosOpts='<button class="opt'+(st.hospital?'':' on')+'" onclick="pickHospital(\'\')">미선택</button>'+
+    HOSPITALS.map(function(h){
+      return '<button class="opt'+(st.hospital===h.id?' on':'')+'" onclick="pickHospital(\''+h.id+'\')">'+
+             h.name+'</button>';
+    }).join('');
   c.innerHTML =
     '<div class="grp"><span>QR 세트 (진입 주소)</span><div class="opts">'+setOpts+'</div></div>'+
     '<div class="grp"><span>환자 상태</span><div class="opts">'+stOpts+'</div></div>'+
+    '<div class="grp"><span>소속병원 (화면에서 선택 · 추가 요구)</span>'+
+      '<div class="opts" style="flex-wrap:wrap">'+hosOpts+'</div></div>'+
     '<div class="grp"><span>단계</span><div class="opts">'+
       '<button class="opt'+(st.step==='lookup'?' on':'')+'" onclick="pickStep(\'lookup\')">조회</button>'+
       '<button class="opt'+(st.step==='branch'?' on':'')+'" onclick="pickStep(\'branch\')">분기</button>'+
@@ -603,9 +673,9 @@ function renderCtl(){
     '<div class="toggle'+(st.showKeys?' on':'')+'" id="keytoggle1">화면 요소 키 표시</div>';
   document.getElementById('keytoggle1').onclick=toggleKeys;
 }
-function pickSet(id){ st.set=id; st.pending=false; st.unfilled=false; st.back=false; st.legacy=false; renderCtl(); paint(); }
+function pickSet(id){ st.set=id; st.selOpen=false; st.pending=false; st.unfilled=false; st.back=false; st.legacy=false; renderCtl(); paint(); }
 function pickState(k){ st.state=k; st.pending=false; st.unfilled=false; if(st.step==='survey') st.step='branch'; renderCtl(); paint(); }
-function pickStep(s){ st.step=s; st.pending=false; st.unfilled=false; st.back=false; st.legacy=false; renderCtl(); paint(); }
+function pickStep(s){ st.step=s; st.selOpen=false; st.pending=false; st.unfilled=false; st.back=false; st.legacy=false; renderCtl(); paint(); }
 function toggleKeys(){
   st.showKeys=!st.showKeys;
   document.body.classList.toggle('showkeys', st.showKeys);
@@ -621,6 +691,7 @@ function renderWhatNow(){
     rows.push(['AC-1','QR로 진입하면 등록번호 입력과 조회 버튼이 표시된다']);
     rows.push(['AC-2','같은 QR로 들어온 환자를 등록번호로 식별한다']);
     rows.push(['AC-4 (회귀)','로그인·설치 요구 없이 바로 진행된다']);
+    rows.push(['추가 (AC 미반영)','소속병원을 드롭다운에서 고를 수 있고, 미선택이면 조회 버튼이 비활성이다']);
   } else if(st.step==='branch'){
     if(st.state==='NEW') rows.push(['AC-5 (회귀)','미가입 → 등록 입력 + 약관 동의 + 자필 서명']);
     if(st.state==='NOT_AGREED') rows.push(['AC-5 (회귀)','기가입·미동의 → 약관 동의 + 자필 서명만']);
@@ -629,6 +700,9 @@ function renderWhatNow(){
   } else if(st.step==='survey'){
     rows.push(['AC-3 (변경)',s.label+' 진입 → '+s.proms.join(' + ')+' 설문이 열린다 (기존: 항상 IKDC+KOOS 고정 폼)']);
     rows.push(['AC-6 (회귀)','등록번호 '+st.chart+' 가 설문에 채워져 있다']);
+    rows.push(['추가 (AC 미반영)','선택한 병원 '+
+      (hospitalOf(st.hospital)?hospitalOf(st.hospital).name:'(미선택)')+
+      ' 이 등록번호와 함께 설문 응답에 자동 기입된다']);
   } else {
     rows.push(['AC-1','병원 식별값이 없으면 화면이 렌더되지 않는다']);
   }
@@ -728,6 +802,7 @@ function applySim(o){
   st.unfilled = !!o.unfilled;
   st.back = !!o.back;
   st.legacy = !!o.legacy;
+  st.selOpen = false;
 }
 function setStep(n){
   if(!cur) return;
