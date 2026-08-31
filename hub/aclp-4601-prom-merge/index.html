@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ACLP-4601 · PROM 응답 병합 목업 (3판)</title>
+<title>ACLP-4601 · PROM 응답 병합 목업 (4판)</title>
 <style>
   :root{
     --bg:#F5F6F8; --card:#FFFFFF; --line:#E8EAEE; --line-2:#D8DBE1;
@@ -176,6 +176,7 @@
   .ctl h4{margin:0 0 10px;font-size:11px;letter-spacing:.6px;color:#98A0AD;font-weight:800;text-transform:uppercase}
   .ctl button{display:block;width:100%;text-align:left;background:#282C34;border:1px solid #383D47;color:#E7EAEF;border-radius:8px;padding:8px 11px;font-size:13px;margin-bottom:6px}
   .ctl button:hover{background:#323742}
+.ctl button.on{background:#2F4C86;box-shadow:inset 0 0 0 1px #8CB4FF}
   .ctl button:last-child{margin-bottom:0}
   .ctl .k{color:#8CB4FF;font-weight:800;font-size:11px;margin-right:6px}
 
@@ -212,7 +213,7 @@
     <div class="sp"></div>
     <button class="btn" onclick="refreshToday(this)">⟳ 리스트 갱신</button>
   </div>
-  <div style="margin:-12px 0 16px;text-align:right"><span class="keyhint">오늘의환자-목록-새로고침-버튼</span></div>
+  <div style="margin:-12px 0 16px;text-align:right"><span class="keyhint">오늘환자-새로고침-버튼</span></div>
 
   <div class="panel search">
     <div class="search-row">
@@ -223,16 +224,21 @@
     <button class="btn dark">검색 🔍</button>
   </div>
 
-  <!-- AC-17 · 미매칭 PROM 별도 섹션 -->
+  <!-- AC-2 · 미매칭 PROM 별도 섹션 -->
   <section class="um-sec" id="umSection">
     <div class="um-h">
       <h2>매칭되지 않은 설문 응답</h2>
       <span class="cnt" id="umCount">3</span>
-      <span class="ac new">AC-17</span>
+      <span class="ac new">AC-2</span>
       <div class="sp"></div>
       <button class="btn sm" onclick="go('patients')">기록 미비 목록에서 처리 →</button>
     </div>
     <p class="um-desc">오늘 들어온 설문 응답 중 실제 진단·수술에 아직 병합되지 않은 건입니다. 아래 진료 카드에는 포함되지 않습니다.</p>
+    <div style="margin:0 0 16px;padding:11px 14px;border:1px solid var(--amber-line);background:var(--amber-bg);border-radius:9px;font-size:13px;line-height:1.7;color:var(--ink-2)">
+      <b style="color:var(--amber)">U-1 미해결 (블로커)</b> — 별도 태그를 두지 않기로 했으므로(AC-8) 서버가 이 섹션에 넣을 대상을 골라낼 수단이 아직 없습니다.
+      현재 <code>patients/today</code>에는 <code>is_draft</code>가, <code>patients/incomplete</code>에는 날짜 파라미터가 없습니다.
+      이 화면은 <b>수단이 정해졌을 때의 모습</b>이며, 그 전까지 AC-2는 착수 불가입니다.
+    </div>
 
     <div class="um-cards" id="umCards">
 
@@ -248,14 +254,14 @@
         </div>
         <div class="dx-missing">⚠ 진단 미기입</div>
         <div class="hr"></div>
-        <div class="tmp"><span class="lbl">임시</span>보존적 치료 <span class="ac reg" style="margin-left:auto">AC-12</span></div>
-        <div class="grp">↳ 환자 주관적 평가 <span class="chev">›</span> <span class="ac new">AC-7</span></div>
+        <div class="tmp"><span class="lbl">임시</span>보존적 치료 <span class="ac reg" style="margin-left:auto">AC-11</span></div>
+        <div class="grp">↳ 환자 주관적 평가 <span class="chev">›</span> <span class="ac new">AC-1</span></div>
         <div class="chips">
           <span class="chip">IKDC Score <span class="ck">✓</span></span>
           <span class="chip">KOOS <span class="ck">✓</span></span>
         </div>
         <div class="respon">2026.08.13 08:41 응답 · 구글 폼</div>
-        <span class="keyhint">환자관리-기록미비-설문응답-표시</span>
+        <span class="keyhint">오늘환자-미매칭설문-1042-아이템</span>
       </div>
 
       <div class="pc um">
@@ -299,18 +305,18 @@
       </div>
 
     </div>
-    <span class="keyhint" style="margin-top:12px">오늘의환자-미매칭설문-목록-섹션</span>
+    <span class="keyhint" style="margin-top:12px">오늘환자-미매칭설문-섹션</span>
   </section>
 
-  <!-- 0건 상태 (AC-17 시나리오 17-2) -->
+  <!-- 0건 상태 (AC-2 시나리오 2-2) -->
   <section class="panel" id="umEmpty" style="display:none;padding:18px 22px;margin-bottom:24px">
-    <span style="font-size:13.5px;color:var(--ink-3)">매칭되지 않은 설문 응답이 없어 섹션이 표시되지 않는 상태입니다. <span class="ac new">AC-17 · 17-2</span></span>
+    <span style="font-size:13.5px;color:var(--ink-3)">매칭되지 않은 설문 응답이 없어 섹션이 표시되지 않는 상태입니다. <span class="ac new">AC-2 · 2-2</span></span>
   </section>
 
-  <!-- 정식 진료 카드 (AC-18) -->
+  <!-- 정식 진료 카드 (AC-10) -->
   <div class="sec-title">
     <h2>진료 카드</h2>
-    <span class="ac reg">AC-18 회귀</span>
+    <span class="ac reg">AC-10 회귀</span>
     <span class="note">임시(미병합) 진단·수술은 이 카드 목록에 섞이지 않습니다.</span>
   </div>
 
@@ -409,9 +415,11 @@
   </div>
 
   <div class="footnote">
-    <b>AC-18 확인 지점</b> — 김민수 · 박서연 · 정하늘은 위 「매칭되지 않은 설문 응답」 섹션에만 있고 <b>진료 카드 목록에는 나타나지 않습니다.</b>
+    <b>AC-10 확인 지점</b> — 김민수 · 박서연 · 정하늘은 위 「매칭되지 않은 설문 응답」 섹션에만 있고 <b>진료 카드 목록에는 나타나지 않습니다.</b>
     임시 진단만 있는 레코드를 정식 진료 기록으로 취급하지 않기 때문입니다.
     <br><b>AC-8 확인 지점</b> — 별도의 'PROM 미매칭' 태그는 두지 않습니다. 응답한 설문(IKDC·KOOS)과 응답일이 그 자리를 대신합니다.
+    <br><b>AC-10 · 시나리오 10-4</b> — 임시 레코드 제외가 <b>서버 페이지 결과를 받은 뒤 클라이언트에서</b> 이뤄지고 총 건수는 서버 값을 그대로 씁니다.
+    PROM 유입으로 임시 레코드가 늘면 <b>총 건수와 실제 표시 행 수가 어긋나고 페이지 끝이 빕니다.</b> 이번 판에서 새로 넣은 확인 항목입니다.
   </div>
 </main>
 
@@ -421,24 +429,24 @@
 
   <div class="summary">
     <div class="sum"><div class="t">총 환자</div><div class="v">24<small>명</small></div></div>
-    <div class="sum"><div class="t">기록 완료</div><div class="v">21<small>명</small></div></div>
+    <div class="sum"><div class="t">기록 완료 환자</div><div class="v">21<small>명</small></div></div>
     <div class="sum hi">
-      <div class="t">기록 미비 <span class="ac reg">AC-8</span></div>
+      <div class="t">기록 미비 환자 <span class="ac reg">AC-8</span></div>
       <div class="v" id="incompleteCount">3<small>명</small></div>
-      <span class="keyhint">환자관리-요약-기록미비수-카드</span>
+      <span class="keyhint">환자-요약-기록미비-카드</span>
     </div>
     <div class="sum">
-      <div class="t">완성률 <span class="ac reg">AC-3</span></div>
+      <div class="t">기록 완료율 <span class="ac reg">AC-9</span></div>
       <div class="v">87.5<small>%</small></div>
-      <span class="keyhint">환자관리-요약-완성률-카드</span>
+      <span class="keyhint">환자-요약-기록완료율-카드</span>
     </div>
   </div>
 
   <div class="tabs">
-    <button>전체 환자 <span class="c">24</span></button>
-    <button class="on">기록 미비 <span class="c" id="tabCount">3</span></button>
+    <button>모든 환자 <span class="c">24</span></button>
+    <button class="on">기록 미비 환자 <span class="c" id="tabCount">3</span></button>
   </div>
-  <div style="margin:-10px 0 16px"><span class="keyhint">환자관리-기록미비-탭</span></div>
+  <div style="margin:-10px 0 16px"><span class="keyhint">환자-기록-전체-탭 · 환자-기록-미비-탭</span></div>
 
   <div class="panel search" style="margin-bottom:22px">
     <div class="search-row">
@@ -467,13 +475,13 @@
       <div class="tmp" style="display:flex;align-items:center;gap:8px;font-size:15px;font-weight:600;background:var(--amber-bg);border:1px solid var(--amber-line);border-radius:9px;padding:9px 13px;margin-bottom:10px">
         <span class="lbl" style="font-size:11.5px;font-weight:800;color:var(--amber);background:#fff;border:1px solid var(--amber-line);border-radius:5px;padding:1px 6px">임시</span>보존적 치료
       </div>
-      <div class="grp">↳ 환자 주관적 평가 <span class="chev">›</span> <span class="ac new">AC-7</span></div>
+      <div class="grp">↳ 환자 주관적 평가 <span class="chev">›</span> <span class="ac new">AC-1</span></div>
       <div class="chips">
         <span class="chip" style="border-color:var(--amber-tag);color:var(--amber-tag)">IKDC Score <span class="ck">✓</span></span>
         <span class="chip" style="border-color:var(--amber-tag);color:var(--amber-tag)">KOOS <span class="ck">✓</span></span>
       </div>
       <div class="respon">2026.08.13 08:41 응답 · 구글 폼</div>
-      <span class="keyhint">환자관리-기록미비-1042-기록입력-버튼 · 환자관리-기록미비-설문응답-표시</span>
+      <span class="keyhint">환자-미비_카드-1042-기록입력-버튼 · 환자-미비_카드-1042-설문응답-섹션</span>
     </div>
 
     <div class="pc">
@@ -519,7 +527,7 @@
   </div>
 
   <div class="footnote">
-    <b>AC-7이 필수인 이유</b> — 'PROM 미매칭' 태그가 없으므로, 담당자가 <b>PROM 때문에 미비인 환자</b>(김민수·박서연)와
+    <b>AC-1이 필수인 이유</b> — 'PROM 미매칭' 태그가 없으므로, 담당자가 <b>PROM 때문에 미비인 환자</b>(김민수·박서연)와
     <b>다른 이유로 미비인 환자</b>(이준호)를 구분하는 단서는 「응답한 설문」 영역의 유무뿐입니다.
   </div>
 </main>
@@ -529,7 +537,7 @@
   <div class="dlg">
     <div class="dlg-h">
       <h2 id="mgName">김민수</h2>
-      <span class="ac new">AC-1 · AC-13 · AC-19</span>
+      <span class="ac new">AC-5 · AC-13 · AC-4</span>
       <span class="sub" id="mgNo">등록번호 test1</span>
     </div>
     <div class="dlg-b">
@@ -543,7 +551,7 @@
       </div>
 
       <div class="fld">
-        <div class="fld-h">진단 병합 <span class="ac new">AC-1</span></div>
+        <div class="fld-h">진단 병합 <span class="ac new">AC-5</span></div>
         <div class="src">
           <span class="lbl">임시</span>
           <span>무릎 (우측) · <b>보존적 치료</b></span>
@@ -556,7 +564,7 @@
           <span class="sp"></span>
           <button class="btn sm" onclick="toggleDx()">진단 추가</button>
         </div>
-        <span class="keyhint">기록병합-다이얼로그-진단추가-버튼</span>
+        <span class="keyhint">환자-미비기록매칭_다이얼로그-진단추가-버튼</span>
         <div class="cands" id="dxCands" style="display:none">
           <div class="cands-h">같은 관절(무릎 우측)의 실제 진단만 후보로 표시됩니다 <span class="ac reg">AC-13</span></div>
           <div class="cand">
@@ -566,6 +574,7 @@
             </div>
             <span class="sp"></span>
             <button class="btn blue sm" onclick="pickDx('ALL rupture / LCL rupture')">선택 진단에 기록</button>
+            <span class="keyhint" style="display:block;margin-top:6px">환자-진단선택_다이얼로그-선택진단기록-버튼</span>
           </div>
           <div class="cand" style="opacity:.42">
             <div>
@@ -575,13 +584,30 @@
           </div>
           <div style="padding:10px 14px;background:#FAFBFC;border-top:1px solid var(--line)">
             <button class="btn sm">＋ 새 진단 생성</button>
-            <span class="keyhint" style="display:inline-block;margin-left:8px">기록병합-진단선택-신규생성-버튼</span>
+            <span class="keyhint" style="display:inline-block;margin-left:8px">환자-진단선택_다이얼로그-새진단-버튼</span>
+            <div style="margin-top:6px;font-size:12.5px;color:var(--ink-3)">후보가 1건 이상일 때만 이 선택 다이얼로그가 열립니다 <span class="ac reg">AC-14 · 14-4</span></div>
+          </div>
+        </div>
+
+        <!-- 후보 0건 경로 : 선택 다이얼로그를 건너뛰고 생성 다이얼로그가 바로 열린다 (AC-14 · 14-2) -->
+        <div class="cands" id="dxCreate" style="display:none">
+          <div class="cands-h">같은 관절의 실제 진단이 없어 <b>진단 생성</b>이 바로 열렸습니다 <span class="ac reg">AC-14 · 14-2</span></div>
+          <div style="padding:14px">
+            <div class="grid3" style="margin-bottom:10px">
+              <input class="inp" value="무릎 / 우측" disabled style="background:#F3F4F6;color:var(--ink-2)">
+              <input class="inp" placeholder="진단명">
+              <input class="inp" placeholder="진단일">
+            </div>
+            <div style="font-size:12.5px;color:var(--ink-3)">관절 부위는 임시 진단의 관절로 고정됩니다. <b>후보 0건 화면은 존재하지 않습니다.</b></div>
+          </div>
+          <div style="padding:10px 14px;background:#FAFBFC;border-top:1px solid var(--line)">
+            <button class="btn blue sm" onclick="pickDx('무릎 내측 반월상연골 파열 (신규)')">진단 생성</button>
           </div>
         </div>
       </div>
 
       <div class="fld">
-        <div class="fld-h">수술 · 치료 병합 <span class="ac new">AC-1</span></div>
+        <div class="fld-h">수술 · 치료 병합 <span class="ac new">AC-5</span></div>
         <div class="src"><span class="lbl">임시</span><span>보존적 치료 (임시 부여)</span></div>
         <div class="arrow">↓</div>
         <div class="tgt" id="txTarget">
@@ -589,7 +615,7 @@
           <span class="sp"></span>
           <button class="btn sm" disabled>수술 추가</button>
         </div>
-        <span class="keyhint">기록병합-다이얼로그-수술추가-버튼</span>
+        <span class="keyhint">환자-미비기록매칭_다이얼로그-수술추가-버튼</span>
         <div class="cands" id="txCands" style="display:none">
           <div class="cands-h">선택한 진단 아래의 실제 수술 · 치료 <span class="ac reg">AC-13</span></div>
           <div class="cand">
@@ -599,16 +625,24 @@
             </div>
             <span class="sp"></span>
             <button class="btn blue sm" onclick="pickTx('Arthroplasty','수술 후')">선택 치료에 기록</button>
+            <span class="keyhint" style="display:block;margin-top:6px">환자-치료선택_다이얼로그-선택치료기록-버튼</span>
           </div>
           <div style="padding:10px 14px;background:#FAFBFC;border-top:1px solid var(--line)">
             <button class="btn sm">＋ 새 보존적 치료 생성</button>
-            <span class="keyhint" style="display:inline-block;margin-left:8px">기록병합-치료선택-신규생성-버튼</span>
+            <span class="keyhint" style="display:inline-block;margin-left:8px">환자-치료선택_다이얼로그-새치료-버튼</span>
+            <div style="margin-top:6px;font-size:12.5px;color:var(--ink-3)">
+              대상 진단에 해당 성격의 치료가 <b>하나도 없으면</b> 이 선택 다이얼로그를 건너뛰고 치료 생성 다이얼로그가 바로 열립니다 <span class="ac reg">AC-14 · 14-3</span>
+            </div>
           </div>
+        </div>
+        <div style="margin-top:10px;padding:11px 14px;border:1px dashed var(--line-2);border-radius:9px;font-size:12.5px;line-height:1.7;color:var(--ink-2)">
+          <b>AC-4 · 시나리오 4-3</b> — 병합은 <b>임시 수술 한 개만</b> 옮깁니다. 임시 수술이 2개 이상이면 나머지는 기록 미비에 그대로 남습니다.
+          한 번에 여러 개가 필요한지는 <b>U-3</b>(구글 폼 응답의 임시 수술 생성 단위)에 달려 있습니다.
         </div>
       </div>
 
       <div class="fld" id="preview" style="display:none;margin-bottom:0">
-        <div class="fld-h">저장하면 이렇게 바뀝니다 <span class="ac new">AC-1</span></div>
+        <div class="fld-h">저장하면 이렇게 바뀝니다 <span class="ac new">AC-5</span></div>
         <div class="src" style="border-color:var(--blue-line);background:var(--blue-weak);color:var(--ink)">
           <span class="lbl" style="color:var(--blue);border-color:var(--blue-line)">치환</span>
           <span>치료 단계 <b style="color:var(--amber)">보존적 치료</b> → <b style="color:var(--blue)" id="pvStage">수술 후</b></span>
@@ -618,9 +652,12 @@
       </div>
     </div>
     <div class="dlg-f">
-      <span class="hint" id="mgHint">진단·수술을 선택해야 저장할 수 있습니다 <span class="ac new">AC-1 · 1-2</span></span>
+      <span class="hint" id="mgHint">진단·수술을 선택해야 저장할 수 있습니다 <span class="ac new">AC-5 · 5-2</span></span>
       <button class="btn" onclick="closeMerge()">취소</button>
       <button class="btn blue" id="saveBtn" disabled onclick="doSave()">저장</button>
+    </div>
+    <div style="padding:0 26px 16px;text-align:right">
+      <span class="keyhint">환자-미비기록매칭_다이얼로그-취소-버튼 · 환자-미비기록매칭_다이얼로그-저장-버튼</span>
     </div>
   </div>
 </div>
@@ -633,7 +670,7 @@
       <p id="errBody"></p>
     </div>
     <div class="dlg-f" style="justify-content:center"><button class="btn blue" onclick="closeErr()">확인</button></div>
-    <div style="padding:0 26px 16px;text-align:center"><span class="keyhint">기록병합-오류-안내-팝업</span></div>
+    <div style="padding:0 26px 16px;text-align:center"><span class="keyhint">공통-오류안내-다이얼로그 · 공통-오류안내-확인-버튼</span></div>
   </div>
 </div>
 
@@ -650,11 +687,12 @@
 
 <div class="ctl">
   <h4>시나리오 확인</h4>
-  <button onclick="go('today')"><span class="k">2</span>오늘의 환자 · 별도 섹션</button>
-  <button onclick="go('patients')"><span class="k">1</span>환자 관리 · 기록 미비</button>
-  <button onclick="toggleEmpty()"><span class="k">17-2</span>미매칭 0건 상태</button>
-  <button onclick="showErr('dup')"><span class="k">10-2</span>이미 병합됨 안내</button>
-  <button onclick="showErr('partial')"><span class="k">15-1</span>부분 적용 실패 안내</button>
+  <button onclick="go('today')"><span class="k">2-1</span>오늘의 환자 · 별도 섹션</button>
+  <button onclick="toggleEmpty()"><span class="k">2-2</span>미매칭 0건 상태</button>
+  <button onclick="go('patients')"><span class="k">1-1</span>기록 미비 · 설문 응답 표시</button>
+  <button id="noCandBtn" onclick="toggleNoCandidate()"><span class="k">14-2</span>진단 후보 0건 경로</button>
+  <button onclick="showErr('dup')"><span class="k">7-2</span>이미 병합됨 안내</button>
+  <button onclick="showErr('partial')"><span class="k">6-1</span>부분 적용 실패 안내</button>
   <button onclick="document.body.classList.toggle('hide-ac')"><span class="k">＊</span>AC 배지 · 키 표시 전환</button>
 </div>
 
@@ -685,17 +723,33 @@
     tx.classList.remove('sel');
     tx.innerHTML = '<span>진단을 먼저 선택하세요</span><span class="sp"></span><button class="btn sm" disabled>수술 추가</button>';
     document.getElementById('dxCands').style.display='none';
+    document.getElementById('dxCreate').style.display='none';
     document.getElementById('txCands').style.display='none';
     document.getElementById('preview').style.display='none';
     document.getElementById('saveBtn').disabled = true;
-    document.getElementById('mgHint').innerHTML = '진단·수술을 선택해야 저장할 수 있습니다 <span class="ac new">AC-1 · 1-2</span>';
+    document.getElementById('mgHint').innerHTML = '진단·수술을 선택해야 저장할 수 있습니다 <span class="ac new">AC-5 · 5-2</span>';
   }
-  function toggleDx(){ var e=document.getElementById('dxCands'); e.style.display = e.style.display==='none'?'block':'none' }
+  // 후보 0건이면 선택 다이얼로그를 건너뛰고 생성 다이얼로그를 바로 연다. (AC-14 · 14-2)
+  var noCandidate=false;
+  function toggleNoCandidate(){
+    noCandidate=!noCandidate;
+    document.getElementById('dxCands').style.display='none';
+    document.getElementById('dxCreate').style.display='none';
+    var b=document.getElementById('noCandBtn');
+    if(b) b.classList.toggle('on', noCandidate);
+  }
+  function toggleDx(){
+    var e=document.getElementById(noCandidate?'dxCreate':'dxCands');
+    var other=document.getElementById(noCandidate?'dxCands':'dxCreate');
+    other.style.display='none';
+    e.style.display = e.style.display==='none'?'block':'none';
+  }
   function toggleTx(){ var e=document.getElementById('txCands'); e.style.display = e.style.display==='none'?'block':'none' }
   function pickDx(label){
     var dx=document.getElementById('dxTarget'); dx.classList.add('sel');
     dx.innerHTML='<span class="ok">선택됨</span><span>'+label+'</span><span class="sp"></span><button class="btn sm" onclick="resetMerge()">변경</button>';
     document.getElementById('dxCands').style.display='none';
+    document.getElementById('dxCreate').style.display='none';
     document.getElementById('txTarget').innerHTML='<span>병합할 실제 수술 · 치료를 선택하세요</span><span class="sp"></span><button class="btn sm" onclick="toggleTx()">수술 추가</button>';
   }
   function pickTx(label,stage){
@@ -728,11 +782,11 @@
     if(kind==='dup'){
       document.getElementById('errIco').textContent='⚠️';
       document.getElementById('errTitle').textContent='이미 병합된 기록입니다';
-      document.getElementById('errBody').innerHTML='다른 담당자가 먼저 이 기록을 병합했습니다.<br>목록을 최신 상태로 갱신합니다. <span class="ac new">AC-10 · 10-2</span>';
+      document.getElementById('errBody').innerHTML='다른 담당자가 먼저 이 기록을 병합했습니다.<br>목록을 최신 상태로 갱신합니다. <span class="ac new">AC-7 · 7-2</span>';
     }else{
       document.getElementById('errIco').textContent='⛔';
       document.getElementById('errTitle').textContent='병합에 실패했습니다';
-      document.getElementById('errBody').innerHTML='수술 · 치료 병합 중 통신이 실패해<br><b>변경 사항이 저장되지 않았습니다.</b><br>진단은 병합 전 상태 그대로입니다. <span class="ac new">AC-15 · 15-1</span>';
+      document.getElementById('errBody').innerHTML='수술 · 치료 병합 중 통신이 실패해<br><b>변경 사항이 저장되지 않았습니다.</b><br>진단은 병합 전 상태 그대로입니다. <span class="ac new">AC-6 · 6-1</span>';
     }
     document.getElementById('errDim').classList.add('on');
   }
