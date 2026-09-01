@@ -1,0 +1,731 @@
+<title>PROM 세트 접수 프로토타입</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+  :root{
+    --bg:#EDF0F4; --surface:#FFFFFF; --line:#DFE4EB; --line-strong:#C7CFDA;
+    --ink:#1A2433; --sub:#5B6779; --faint:#8B95A5;
+    --brand:#2457E6; --brand-ink:#173FAE; --brand-soft:#EBF0FE;
+    --navy:#152C55;
+    --gp:#673AB7; --gp-soft:#F5F1FB; --gp-line:#DCD0F0;
+    --err:#E5484D; --err-soft:#FDEEEF;
+    --warn:#E8720C; --warn-soft:#FFF2E5;
+    --ok:#188A4C; --ok-soft:#E9F6EF;
+    --radius:12px;
+    font-family:'Noto Sans KR',-apple-system,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-size:14px;line-height:1.55;padding-bottom:60px}
+  button{font-family:inherit;cursor:pointer}
+  input,select{font-family:inherit}
+  .mono{font-family:'IBM Plex Mono','Noto Sans KR',monospace}
+
+  /* ── page header ─────────────────────────── */
+  .page-head{max-width:1180px;margin:0 auto;padding:30px 24px 6px}
+  .eyebrow{font-size:11.5px;font-weight:700;letter-spacing:.08em;color:var(--brand);text-transform:uppercase}
+  .page-head h1{font-size:22px;font-weight:700;letter-spacing:-.01em;margin-top:4px;text-wrap:balance}
+  .page-head p{color:var(--sub);margin-top:6px;max-width:66ch}
+  .page-head p b{color:var(--ink);font-weight:600}
+
+  .app{max-width:1180px;margin:18px auto 0;padding:0 24px;display:grid;grid-template-columns:350px minmax(0,1fr);gap:26px;align-items:start}
+  @media(max-width:980px){.app{grid-template-columns:1fr}}
+
+  /* ── control panel ───────────────────────── */
+  .panel{display:flex;flex-direction:column;gap:14px}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px}
+  .card h2{font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--faint);text-transform:uppercase;margin-bottom:10px}
+  .entry-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .entry-btn{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:10px 11px;text-align:left;transition:border-color .12s, background .12s}
+  .entry-btn:hover{border-color:var(--brand)}
+  .entry-btn.active{border-color:var(--brand);background:var(--brand-soft);box-shadow:inset 0 0 0 1px var(--brand)}
+  .entry-btn .t{display:block;font-weight:700;font-size:13px}
+  .entry-btn .d{display:block;font-size:11.5px;color:var(--sub);margin-top:2px}
+  .entry-btn.danger .t{color:var(--err)}
+
+  table.seed{width:100%;border-collapse:collapse;font-size:12.5px}
+  table.seed th{font-weight:600;color:var(--faint);text-align:left;padding:3px 6px 5px;border-bottom:1px solid var(--line);font-size:11.5px}
+  table.seed td{padding:6px;border-bottom:1px solid var(--line);vertical-align:top}
+  table.seed tr:last-child td{border-bottom:0}
+  table.seed .rn{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:500}
+  .seed-note{font-size:12px;color:var(--sub);margin-top:8px}
+
+  .toggle-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .toggle-row .lbl b{font-size:13.5px}
+  .toggle-row .lbl span{display:block;font-size:12px;color:var(--sub)}
+  .switch{position:relative;width:40px;height:22px;flex:none}
+  .switch input{position:absolute;opacity:0;inset:0;cursor:pointer}
+  .switch .tr{position:absolute;inset:0;background:var(--line-strong);border-radius:99px;transition:background .15s}
+  .switch .tr::after{content:'';position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left .15s}
+  .switch input:checked + .tr{background:var(--brand)}
+  .switch input:checked + .tr::after{left:21px}
+  .switch input:focus-visible + .tr{outline:2px solid var(--brand);outline-offset:2px}
+
+  details.gwt{border-top:1px solid var(--line)}
+  details.gwt:first-of-type{border-top:0}
+  details.gwt summary{list-style:none;display:flex;justify-content:space-between;align-items:center;padding:9px 2px;font-weight:600;font-size:13px;cursor:pointer}
+  details.gwt summary::after{content:'+';color:var(--faint);font-weight:400}
+  details.gwt[open] summary::after{content:'–'}
+  details.gwt ul{list-style:none;padding:0 2px 10px}
+  details.gwt li{font-size:12.5px;color:var(--sub);padding:4px 0;display:flex;gap:8px}
+  details.gwt li .sc{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:500;color:var(--brand-ink);background:var(--brand-soft);border-radius:5px;padding:1px 6px;height:fit-content;white-space:nowrap;margin-top:1px}
+  .note-strip{font-size:12px;color:var(--sub);background:var(--warn-soft);border:1px solid #F4D9BC;border-radius:10px;padding:10px 12px}
+  .note-strip b{color:var(--warn)}
+
+  /* ── phone ───────────────────────────────── */
+  .stage{display:flex;flex-direction:column;align-items:center;gap:12px}
+  .phone{width:392px;max-width:100%;height:800px;background:var(--surface);border:1px solid var(--line-strong);border-radius:30px;box-shadow:0 18px 44px rgba(21,44,85,.13);display:flex;flex-direction:column;overflow:hidden;position:relative}
+  .statusbar{flex:none;display:flex;justify-content:space-between;align-items:center;padding:10px 22px 6px;font-size:12px;font-weight:600;color:var(--sub)}
+  .urlbar{flex:none;margin:4px 14px 8px;background:#F1F3F7;border-radius:9px;padding:6px 12px;font-size:11.5px;color:var(--faint);font-family:'IBM Plex Mono',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .viewport{flex:1;overflow-y:auto;overscroll-behavior:contain}
+
+  .screen{display:none;padding:20px 20px 40px}
+  .screen.on{display:block}
+
+  /* ── intro (시안 동일) ───────────────────── */
+  .scr-title{font-size:19px;font-weight:700;letter-spacing:-.01em;text-wrap:balance}
+  .intro-copy{margin-top:14px;display:flex;flex-direction:column;gap:12px;font-size:13px;color:#3A4353}
+  .intro-copy b{font-weight:700;color:var(--ink)}
+  .intro-copy ul{padding-left:18px;display:flex;flex-direction:column;gap:6px}
+  .guide-red{margin-top:20px;font-size:12.5px;color:var(--err);font-weight:500;white-space:pre-line}
+
+  .field{margin-top:14px;position:relative}
+  .field>label{display:block;font-size:12.5px;font-weight:600;margin-bottom:6px}
+  .field>label .req{color:var(--err)}
+  .field input[type=text],.field input[type=tel],.field select{width:100%;border:1px solid var(--line-strong);border-radius:9px;padding:11px 12px;font-size:14px;background:#fff;color:var(--ink)}
+  .field input::placeholder{color:#AEB6C2}
+  .field input:focus,.field select:focus{outline:2px solid var(--brand);outline-offset:-1px;border-color:var(--brand)}
+  .field input[readonly],.field select.locked{background:#F7F9FC;pointer-events:none}
+  .field .f-err{display:none;font-size:12px;color:var(--err);margin-top:5px}
+  .field.invalid input{border-color:var(--err)}
+  .field.invalid .f-err{display:block}
+  .phone-row{display:flex;gap:8px}
+  .phone-row select{width:84px;flex:none}
+  .gender-row{display:flex;gap:8px}
+  .gender-pill{flex:1;position:relative}
+  .gender-pill input{position:absolute;opacity:0;inset:0;cursor:pointer}
+  .gender-pill span{display:flex;align-items:center;justify-content:center;gap:7px;border:1px solid var(--line-strong);border-radius:9px;padding:10px;font-size:13.5px;color:var(--sub)}
+  .gender-pill span::before{content:'';width:14px;height:14px;border-radius:50%;border:1.5px solid var(--line-strong);flex:none}
+  .gender-pill input:checked+span{border-color:var(--brand);color:var(--brand-ink)}
+  .gender-pill input:checked+span::before{border:4.5px solid var(--brand)}
+  .gender-pill input:focus-visible+span{outline:2px solid var(--brand);outline-offset:2px}
+
+  .search-btn-wrap{margin-top:14px;position:relative}
+  .search-btn{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;background:#fff;border:1px solid var(--line-strong);border-radius:9px;padding:11px;font-size:14px;font-weight:600;color:var(--ink)}
+  .search-btn svg{width:14px;height:14px}
+
+  .btn{display:block;width:100%;border:none;border-radius:10px;padding:13px;font-size:15px;font-weight:700;text-align:center}
+  .btn.primary{background:var(--brand);color:#fff}
+  .btn.primary:disabled{background:#E4E9F1;color:#A6AFBE;cursor:not-allowed}
+  .btn.ghost{background:#fff;border:1px solid var(--line-strong);color:var(--ink);font-weight:600}
+  .btn-row{margin-top:24px;position:relative}
+
+  /* 서비스 이용 약관 (시안 동일) */
+  .terms-sec{margin-top:26px}
+  .terms-sec h4{font-size:16.5px;font-weight:700}
+  .agree-all{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;margin-top:12px;background:#fff;border:1px solid var(--line-strong);border-radius:9px;padding:11px;font-size:14px;font-weight:600;color:var(--sub)}
+  .agree-all.on{border-color:var(--brand);color:var(--brand-ink);background:var(--brand-soft)}
+  .terms-label{margin-top:14px;font-size:12.5px;font-weight:600;color:var(--sub)}
+  .term-row{display:flex;align-items:center;gap:9px;padding:9px 2px;position:relative}
+  .term-row input[type=checkbox]{width:17px;height:17px;accent-color:var(--brand);flex:none}
+  .term-row .tx{font-size:13px;color:#3A4353}
+  .term-row .tx .tag{font-weight:600}
+  .term-row .go{margin-left:auto;flex:none;background:none;border:none;color:var(--faint);font-size:15px;padding:2px 4px}
+
+  .sign-panel{margin-top:10px;background:#EAF1FE;border-radius:12px;padding:15px 15px 13px}
+  .sign-panel .desc{font-size:12.5px;font-weight:600;color:var(--brand-ink);line-height:1.5}
+  .signer-rows{margin-top:12px;display:flex;flex-direction:column;gap:2px;position:relative}
+  .signer-row{display:flex;align-items:center;gap:8px;padding:7px 0;font-size:13.5px;color:#3A4353}
+  .signer-row input[type=radio]{width:16px;height:16px;accent-color:var(--brand);flex:none}
+  .chip-btn{display:inline-flex;align-items:center;gap:4px;background:#fff;border:1px solid var(--line-strong);border-radius:7px;padding:5px 10px;font-size:12px;font-weight:600;color:var(--sub)}
+  .chip-btn.done{border-color:var(--brand);color:var(--brand-ink)}
+  .chip-btn:disabled{opacity:.45;cursor:not-allowed}
+  .signer-row .chips{margin-left:auto;display:flex;gap:6px}
+  .sign-footer{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid #D5E2F7;position:relative}
+  .sign-footer .dt{font-size:13px;color:var(--faint);font-family:'IBM Plex Mono','Noto Sans KR',monospace}
+  .sign-footer .dt.set{color:var(--ink)}
+  .sign-footer .chips{display:flex;gap:6px}
+  .chip-input{display:none;margin-top:8px}
+  .chip-input.on{display:block}
+  .chip-input input{width:100%;border:1px solid var(--line-strong);border-radius:8px;padding:9px 11px;font-size:13px;background:#fff}
+  .sig-thumb{height:26px;vertical-align:middle}
+
+  /* 이용약관 상세 (시안 동일) */
+  .terms-head{display:flex;align-items:center;gap:8px;font-size:16px;font-weight:700;margin-bottom:14px}
+  .terms-head button{background:none;border:none;font-size:19px;color:var(--ink);padding:2px 6px 2px 0}
+  .terms-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px}
+  .terms-tab{border:1px solid var(--line-strong);background:#fff;border-radius:9px;padding:9px 8px;font-size:11.5px;line-height:1.4;color:var(--sub);text-align:center}
+  .terms-tab b{display:block;font-size:11px}
+  .terms-tab.on{background:var(--navy);border-color:var(--navy);color:#fff}
+  .terms-body{font-size:13px;color:#3A4353;display:flex;flex-direction:column;gap:12px}
+  .terms-body h4{font-size:15.5px;font-weight:700;color:var(--ink)}
+  .terms-body ol{padding-left:20px;display:flex;flex-direction:column;gap:8px}
+  .terms-body .sect{font-weight:700;color:var(--ink)}
+
+  /* 전자서명 모달 (시안 동일) */
+  .sig-modal{display:none;position:absolute;inset:0;background:rgba(10,16,28,.62);z-index:30;align-items:center;justify-content:center;padding:20px}
+  .sig-modal.on{display:flex}
+  .sig-sheet{background:#fff;border-radius:16px;width:100%;padding:18px 16px 16px}
+  .sig-sheet h4{font-size:15px;font-weight:700}
+  .sig-canvas-wrap{position:relative;margin-top:12px}
+  canvas.sig{width:100%;height:150px;border:1px solid var(--line-strong);border-radius:10px;background:#F7F9FC;touch-action:none;display:block}
+  .sig-ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--faint);font-size:13px;pointer-events:none}
+  .sig-redo{display:flex;justify-content:center;margin-top:10px}
+  .sig-redo button{display:inline-flex;align-items:center;gap:5px;background:#fff;border:1px solid var(--line-strong);border-radius:8px;padding:6px 14px;font-size:12.5px;font-weight:600;color:var(--sub)}
+  .sig-actions{display:flex;gap:8px;margin-top:14px}
+  .sig-actions button{flex:1;border-radius:9px;padding:11px;font-size:14px;font-weight:700;border:none}
+  .sig-actions .cancel{background:#fff;border:1px solid var(--line-strong);color:var(--ink)}
+  .sig-actions .save{background:var(--brand);color:#fff}
+
+  /* google form styling */
+  .gform{background:var(--gp-soft);margin:-20px -20px -40px;padding:16px 14px 46px;min-height:100%}
+  .gcard{background:#fff;border:1px solid var(--gp-line);border-radius:10px;padding:16px 18px;margin-bottom:12px;position:relative}
+  .gcard.head{border-top:9px solid var(--gp)}
+  .gcard.head h3{font-size:20px;font-weight:500;letter-spacing:-.01em}
+  .gcard.head p{font-size:12.5px;color:var(--sub);margin-top:8px}
+  .gcard.head .gmeta{margin-top:10px;padding-top:10px;border-top:1px solid var(--gp-line);font-size:12px;color:var(--err)}
+  .gsec{background:var(--gp);color:#fff;border-radius:8px;padding:9px 14px;font-size:13px;font-weight:600;margin:16px 0 10px;display:flex;justify-content:space-between;align-items:baseline}
+  .gsec small{font-weight:400;opacity:.85;font-size:11.5px}
+  .gq{font-size:13.5px;font-weight:500}
+  .gq .req{color:var(--err)}
+  .gopts{margin-top:10px;display:flex;flex-direction:column;gap:2px}
+  .gopt{display:flex;align-items:center;gap:10px;padding:6px 2px;font-size:13px;color:#333}
+  .gopt input{width:17px;height:17px;accent-color:var(--gp);flex:none}
+  .gcard input[type=text]{width:100%;border:none;border-bottom:1px solid var(--line-strong);padding:7px 2px;font-size:13.5px;margin-top:8px;background:transparent;color:var(--ink)}
+  .gcard input[type=text]:focus{outline:none;border-bottom:2px solid var(--gp)}
+  .gcard .auto-chip{position:absolute;top:14px;right:14px;font-size:10.5px;font-weight:700;color:var(--gp);background:var(--gp-soft);border:1px solid var(--gp-line);border-radius:5px;padding:2px 7px}
+  .gcard.q-error{border-color:var(--err);box-shadow:0 0 0 1px var(--err)}
+  .gcard .q-msg{display:none;margin-top:9px;font-size:12px;color:var(--err)}
+  .gcard.q-error .q-msg{display:flex;gap:6px;align-items:center}
+  .gmock{font-size:11.5px;color:var(--faint);text-align:center;padding:2px 0 10px}
+  .gsubmit{display:flex;justify-content:space-between;align-items:center;margin-top:4px}
+  .gsubmit button{background:var(--gp);color:#fff;border:none;border-radius:6px;padding:9px 22px;font-size:13.5px;font-weight:600}
+  .gsubmit span{font-size:12px;color:var(--gp);text-decoration:underline}
+
+  /* error screen */
+  .err-wrap{text-align:center;padding-top:70px}
+  .err-wrap .ic{width:56px;height:56px;border-radius:50%;background:var(--err-soft);color:var(--err);font-size:26px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+  .err-wrap h3{font-size:18px;font-weight:700}
+  .err-wrap p{color:var(--sub);font-size:13px;margin-top:8px}
+
+  /* key overlay */
+  .show-keys [data-key]{outline:1.5px dashed var(--navy);outline-offset:2px;border-radius:4px}
+  .show-keys [data-key]::before{content:attr(data-key);position:absolute;top:-9px;left:8px;z-index:6;font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:500;line-height:1;background:var(--navy);color:#fff;padding:3px 6px;border-radius:4px;white-space:nowrap}
+  .show-keys [data-key][data-keynew]::before{content:attr(data-key) ' · 신규';background:var(--warn)}
+  [data-key]{position:relative}
+
+  .caption{font-size:12px;color:var(--faint)}
+  .hidden{display:none !important}
+</style>
+
+<header class="page-head">
+  <div class="eyebrow">ACLP-4415 · 인터랙티브 목업</div>
+  <h1>환자 유형·질환별 PROM 접수 플로우</h1>
+  <p>Confluence의 AC-1~13과 GWT 시나리오를 화면으로 옮긴 클릭 가능 프로토타입입니다. 인트로는 기존 디자인 시안과 동일한 단일 스크롤 페이지로, 조회 결과에 따라 <b>신규 등록 / 기존(동의 O) / 기존(동의 X)</b> 상태로 확장됩니다.</p>
+</header>
+
+<div class="app">
+  <!-- ═══════════ control panel ═══════════ -->
+  <aside class="panel">
+    <div class="card">
+      <h2>진입 링크</h2>
+      <div class="entry-grid">
+        <button class="entry-btn active" id="eb-a" onclick="startFlow('A','intro',this)"><span class="t">Set A 인트로</span><span class="d">KOOS · 42문항</span></button>
+        <button class="entry-btn" id="eb-b" onclick="startFlow('B','intro',this)"><span class="t">Set B 인트로</span><span class="d">KOOS+IKDC+Lysholm · 69문항</span></button>
+        <button class="entry-btn danger" id="eb-e" onclick="startFlow('A','nouuid',this)"><span class="t">uuid 누락 링크</span><span class="d">오류 · 시나리오 10-13</span></button>
+        <button class="entry-btn" id="eb-d" onclick="startFlow('A','direct',this)"><span class="t">구글폼 직접 진입</span><span class="d">자동 입력 없음 · 11-5</span></button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>테스트 환자 데이터</h2>
+      <table class="seed">
+        <tr><th>병원</th><th>등록번호</th><th>비고</th></tr>
+        <tr><td>명지병원</td><td class="rn">A12345</td><td>기존 환자 · 약관 동의 O</td></tr>
+        <tr><td>명지병원</td><td class="rn">B67890</td><td>변경 전 등록(병원 갈음)<br>· 약관 동의 X (시연용)</td></tr>
+      </table>
+      <p class="seed-note">이 외의 병원·등록번호 조합은 모두 <b>신규 환자</b>로 판정됩니다. (AC-7 병원+등록번호 복합 조회)</p>
+    </div>
+
+    <div class="card">
+      <div class="toggle-row">
+        <div class="lbl"><b>요소 키 보기</b><span>GWT가 지칭하는 논리 ID 오버레이</span></div>
+        <label class="switch"><input type="checkbox" id="keyToggle" onchange="document.body.classList.toggle('show-keys',this.checked)"><span class="tr"></span></label>
+      </div>
+      <p class="caption" style="margin-top:8px">GWT에 키가 없는 요소 2건은 신규 제안으로 표기했습니다: <span class="mono" style="font-size:11px">모바일접수-조회-병원-선택</span>, <span class="mono" style="font-size:11px">PROM설문-폼-등록번호-입력</span></p>
+    </div>
+
+    <div class="card">
+      <h2>GWT 재현 가이드</h2>
+      <details class="gwt" open>
+        <summary>조회·분기 (AC-7·8·13)</summary>
+        <ul>
+          <li><span class="sc">7-1</span>A12345 + 명지병원 → 기존 환자, 다음 활성</li>
+          <li><span class="sc">7-2</span>A12345 + 다른병원 → 신규 등록 항목 표시</li>
+          <li><span class="sc">7-3</span>위 상태에서 신규 입력란 전부 비어 있음</li>
+          <li><span class="sc">13-1</span>B67890 + 명지병원 → 기존 환자(약관 재동의)</li>
+          <li><span class="sc">13-3</span>B67890 + 다른병원 → 신규로 판정</li>
+        </ul>
+      </details>
+      <details class="gwt">
+        <summary>신규 등록·동의 (AC-10)</summary>
+        <ul>
+          <li><span class="sc">10-2~4</span>이름·필수동의·서명 중 하나만 비워도 다음 비활성</li>
+          <li><span class="sc">10-8</span>생년월일 1905.12.31 입력 → 허용 범위 안내</li>
+          <li><span class="sc">10-11</span>서명 주체 '법정대리인' + 성명·서명으로 진행 가능</li>
+          <li><span class="sc">10-12</span>마케팅(선택) 동의 없이도 진행 가능</li>
+        </ul>
+      </details>
+      <details class="gwt">
+        <summary>폼 자동 입력·제출 (AC-5·9·11)</summary>
+        <ul>
+          <li><span class="sc">9-1</span>폼 진입 시 병원 자동 입력 확인</li>
+          <li><span class="sc">11-1</span>등록번호 자동 입력 확인</li>
+          <li><span class="sc">11-5</span>'구글폼 직접 진입' → 등록번호·병원 비어 있음</li>
+          <li><span class="sc">5-2</span>문항 하나 비우고 제출 → 필수 경고</li>
+          <li><span class="sc">9-3</span>직접 진입에서 병원 미선택 제출 → 제출 차단<br>(객관식은 한번 선택하면 해제 불가 — 9-3 원문과 다름)</li>
+          <li><span class="sc">9-2</span>자동 선택된 병원을 다른 값으로 변경 가능 — 잔여 리스크</li>
+        </ul>
+      </details>
+    </div>
+
+    <div class="note-strip"><b>주의</b> · 구글폼 화면과 약관 본문 일부는 시뮬레이션입니다. 문항 수·문구 동일성 검증(AC-4, 폼검수 태그)은 실제 배포 폼에서 확인해야 합니다.</div>
+  </aside>
+
+  <!-- ═══════════ phone ═══════════ -->
+  <div class="stage">
+    <div class="phone">
+      <div class="statusbar"><span>9:41</span><span>LTE ▮▮▮</span></div>
+      <div class="urlbar" id="urlbar">hub.rise-k.com/mobile-intake?set=A&hospital-uuid=1f3a…</div>
+      <div class="viewport" id="viewport">
+
+        <!-- 오류: uuid 누락 -->
+        <section class="screen" id="scr-error">
+          <div class="err-wrap">
+            <div class="ic">!</div>
+            <h3>접속 링크가 올바르지 않아요</h3>
+            <p>병원 정보가 확인되지 않는 링크입니다.<br>병원에서 안내받은 QR 코드나 링크로<br>다시 접속해 주세요.</p>
+            <p class="caption" style="margin-top:18px">오류 코드: MISSING_HOSPITAL_UUID</p>
+          </div>
+        </section>
+
+        <!-- 인트로 (시안 동일 · 단일 스크롤) -->
+        <section class="screen" id="scr-intro">
+          <h3 class="scr-title">환자 주관적 평가</h3>
+          <div class="intro-copy">
+            <p>안녕하세요.<br>진료를 위해 내원해 주셔서 감사합니다.</p>
+            <p>본 설문은 환자분의 현재 무릎 상태를 더 정확하게 파악하고, 교수님의 보다 세밀하고 맞춤화된 진료를 돕기 위해 진행됩니다.</p>
+            <p>X-ray나 MRI 같은 영상 검사 결과도 중요하지만, 무엇보다 환자분이 일상생활에서 직접 느끼시는 통증과 불편함의 정도가 향후 치료 방향을 결정하는 데 가장 중요한 기준이 됩니다. 대기하시는 동안 본인의 상태를 가장 잘 나타내는 항목을 편하게 선택해 주세요.</p>
+            <ul>
+              <li><b>소요 시간:</b> 약 3~5분 내외</li>
+              <li><b>자료 활용:</b> 작성해 주신 소중한 답변은 환자분의 진료 및 치료 계획 수립에 최우선으로 사용되며, 추후 더 나은 치료법 개발을 위한 의학 연구 자료로 안전하게(익명화되어) 활용될 수 있습니다.</li>
+            </ul>
+            <p>환자분의 솔직한 답변이 더 좋은 치료 결과로 이어집니다. 감사합니다.</p>
+          </div>
+
+          <p class="guide-red" id="guideMsg">가입 여부 조회를 위해 등록번호를 입력해 주세요</p>
+
+          <div class="field" data-key="모바일접수-조회-차트번호-입력">
+            <label>등록번호 <span class="req">*</span></label>
+            <input type="text" id="in-regno" placeholder="영어 대문자, 숫자 포함 20자 이내" autocomplete="off">
+          </div>
+          <div class="field" data-key="모바일접수-조회-병원-선택" data-keynew="1">
+            <label>병원 <span class="req">*</span></label>
+            <select id="in-hospital">
+              <option value="">병원 선택</option>
+              <option>명지병원</option>
+              <option>다른병원</option>
+            </select>
+          </div>
+          <div class="search-btn-wrap" id="lookupWrap" data-key="모바일접수-조회-실행-버튼">
+            <button class="search-btn" onclick="doLookup()"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="4.6"/><path d="M10.5 10.5 14 14"/></svg>조회</button>
+          </div>
+
+          <!-- 신규 환자 추가 정보 -->
+          <div id="newFields" class="hidden">
+            <div class="field" data-key="모바일접수-신규등록-이름-입력">
+              <label>이름 <span class="req">*</span></label>
+              <input type="text" id="nr-name" placeholder="한글, 영어 대/소문자 포함 20자 이내" autocomplete="off">
+            </div>
+            <div class="field" id="f-phone" data-key="모바일접수-신규등록-휴대폰번호-입력">
+              <label>휴대폰 번호 <span class="req">*</span></label>
+              <div class="phone-row">
+                <select aria-label="국가번호"><option>+82</option></select>
+                <input type="tel" id="nr-phone" placeholder="- 제외한 숫자" inputmode="numeric" autocomplete="off" style="flex:1">
+              </div>
+              <p class="f-err">휴대폰 번호 형식을 확인해 주세요.</p>
+            </div>
+            <div class="field" id="f-birth" data-key="모바일접수-신규등록-생년월일-입력">
+              <label>생년월일</label>
+              <input type="text" id="nr-birth" placeholder="YYYY.MM.DD" inputmode="numeric" autocomplete="off">
+              <p class="f-err">1906.01.01 이후, 오늘 이전 날짜만 입력할 수 있어요.</p>
+            </div>
+            <div class="field">
+              <label>성별</label>
+              <div class="gender-row">
+                <label class="gender-pill"><input type="radio" name="gender" value="m" checked><span>남성</span></label>
+                <label class="gender-pill"><input type="radio" name="gender" value="f"><span>여성</span></label>
+              </div>
+            </div>
+          </div>
+
+          <!-- 서비스 이용 약관 -->
+          <div id="termsSec" class="terms-sec hidden">
+            <h4>서비스 이용 약관</h4>
+            <button class="agree-all" id="agAll" onclick="agreeAll()"><span>✓</span> 모두 동의합니다</button>
+            <div class="terms-label">허브 약관 동의</div>
+            <div class="term-row" data-key="모바일접수-약관-연구목적-체크박스">
+              <input type="checkbox" id="ag-research" onchange="syncAll();gate()" aria-label="필수 약관 동의">
+              <span class="tx"><span class="tag">(필수)</span> 연구목적 개인정보 및 민감정보 수집·이용 동의</span>
+              <button class="go" onclick="openTerms(0)" aria-label="약관 보기">›</button>
+            </div>
+            <div class="term-row" data-key="모바일접수-약관-마케팅-체크박스">
+              <input type="checkbox" id="ag-mkt" onchange="syncAll();gate()" aria-label="선택 약관 동의">
+              <span class="tx"><span class="tag">(선택)</span> 마케팅/광고성 정보 수신 동의</span>
+              <button class="go" onclick="openTerms(1)" aria-label="약관 보기">›</button>
+            </div>
+
+            <div class="sign-panel">
+              <p class="desc">위 체크(동의)한 항목별 약관 및 동의서 내용을 모두 확인하였으며, 이에 통합 서명합니다.</p>
+              <div class="signer-rows" data-key="모바일접수-약관-서명주체-라디오">
+                <label class="signer-row"><input type="radio" name="signer" value="self" checked onchange="signerChange()"><span>환자</span></label>
+                <div class="signer-row">
+                  <label style="display:flex;align-items:center;gap:8px"><input type="radio" name="signer" value="guardian" onchange="signerChange()"><span>법정대리인</span></label>
+                  <div class="chips"><button class="chip-btn" id="chipRel" disabled onclick="toggleChipInput('rel')">✎ 관계</button></div>
+                </div>
+              </div>
+              <div class="chip-input" id="ci-rel"><input type="text" id="nr-rel" placeholder="환자와의 관계 (예: 자녀)" oninput="gate()"></div>
+              <div class="sign-footer">
+                <span class="dt" id="sigDate">YYYY.MM.DD</span>
+                <div class="chips">
+                  <button class="chip-btn" id="chipName" disabled onclick="toggleChipInput('name')">✎ 성명</button>
+                  <span data-key="모바일접수-약관-서명-버튼" style="display:inline-flex"><button class="chip-btn" id="chipSig" onclick="openSigModal()">✎ 서명</button></span>
+                </div>
+              </div>
+              <div class="chip-input" id="ci-name"><input type="text" id="nr-guardian" placeholder="법정대리인 성명" oninput="gate()"></div>
+            </div>
+          </div>
+
+          <div class="btn-row" data-key="모바일접수-다음-버튼">
+            <button class="btn primary" id="btnNext" disabled onclick="goForm()">다음 &nbsp;›</button>
+          </div>
+        </section>
+
+        <!-- 이용약관 상세 (시안 동일) -->
+        <section class="screen" id="scr-terms">
+          <div class="terms-head"><button onclick="goScreen('scr-intro')" aria-label="뒤로">‹</button> 이용약관</div>
+          <div class="terms-tabs">
+            <button class="terms-tab on" id="ttab0" onclick="termsTab(0)"><b>(필수)</b>연구목적 개인정보 및 민감정보 수집·이용 동의</button>
+            <button class="terms-tab" id="ttab1" onclick="termsTab(1)"><b>(선택)</b>마케팅/광고성 정보 수신 동의</button>
+          </div>
+          <div class="terms-body" id="tbody0">
+            <h4>액티메디 허브 목적</h4>
+            <p>액티메디 허브는 시스템을 활용하여 환자의 건강 데이터를 수집 및 분석하고, 이를 통해 AI 기반 의사진단보조장치 개발을 위한 기초 데이터를 확보하는 것을 목표로 합니다. 수집된 데이터는 AI 기술을 이용한 질병 예측, 운동 분석 및 건강 개선 솔루션 개발에 활용됩니다.</p>
+            <p class="sect">[개인정보 수집 및 동의서]</p>
+            <ol>
+              <li><b>수집 항목</b><br>성명, 생년월일, 병원등록번호, 성별, 연락처 등 개인식별정보</li>
+              <li><b>수집 목적</b><br>질환 관련 진단, 치료, 수술 및 재활 정보의 체계적 기록<br>액티메디 허브 시스템 등록을 통한 치료 경과 관리 및 연구 활용 목적 포함<br>다기관 공동 연구 및 분석에 활용 가능</li>
+              <li><b>수집 방법</b><br>본 동의서는 「전자서명법」 제2조 및 제3조에 따라 전자서명 기반 전자동의서 시스템을 통해 수집됩니다.</li>
+            </ol>
+          </div>
+          <div class="terms-body hidden" id="tbody1">
+            <h4>마케팅/광고성 정보 수신 동의</h4>
+            <p>서비스 관련 소식, 건강 관리 정보, 이벤트 안내 등을 문자·알림톡으로 받아보실 수 있습니다. 동의하지 않아도 설문 참여에는 제한이 없습니다. (목업 본문)</p>
+          </div>
+        </section>
+
+        <!-- 구글폼 -->
+        <section class="screen" id="scr-form">
+          <div class="gform" id="gformBody"><!-- JS 렌더 --></div>
+        </section>
+
+      </div>
+
+      <!-- 전자서명 모달 -->
+      <div class="sig-modal" id="sigModal">
+        <div class="sig-sheet">
+          <h4>전자서명</h4>
+          <div class="sig-canvas-wrap">
+            <canvas class="sig" id="sigPad" width="640" height="300"></canvas>
+            <div class="sig-ph" id="sigPh">이 영역에 손가락으로 서명해 주세요</div>
+          </div>
+          <div class="sig-redo"><button onclick="clearPad()">↺ 다시 그리기</button></div>
+          <div class="sig-actions">
+            <button class="cancel" onclick="closeSigModal(false)">취소</button>
+            <button class="save" onclick="closeSigModal(true)">저장</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="caption">화면 크기 390×844 기준 · 서명은 마우스/터치로 그릴 수 있어요</p>
+  </div>
+</div>
+
+<script>
+/* ── 데이터 ─────────────────────────────── */
+const PATIENTS = [
+  {hospital:'명지병원', regno:'A12345', name:'홍길동', consented:true},
+  {hospital:'명지병원', regno:'B67890', name:'김철수', consented:false}
+];
+const HOSPITALS = ['명지병원','다른병원'];
+const SETS = {
+  A:{label:'Set A', surveys:['KOOS'], total:42, time:'약 8분'},
+  B:{label:'Set B', surveys:['KOOS','IKDC','Lysholm'], total:69, time:'약 15분'}
+};
+const SURVEYS = {
+  KOOS:{total:42, qs:[
+    {q:'지난 일주일 동안, 무릎이 부어 있었습니까?', o:['전혀 없음','드물게','가끔','자주','항상']},
+    {q:'지난 일주일 동안, 무릎 통증을 얼마나 자주 느끼셨습니까?', o:['전혀 없음','매달','매주','매일','항상']},
+    {q:'계단을 내려갈 때 어려움이 어느 정도였습니까?', o:['없음','약간','중간','심함','매우 심함']}
+  ]},
+  IKDC:{total:19, qs:[
+    {q:'무릎 통증 없이 할 수 있는 가장 높은 수준의 활동은 무엇입니까?', o:['매우 격렬한 활동','격렬한 활동','보통 활동','가벼운 활동','위 활동 모두 불가능']},
+    {q:'지난 4주 동안 무릎이 붓지 않은 상태에서 할 수 있는 가장 높은 수준의 활동은?', o:['매우 격렬한 활동','격렬한 활동','보통 활동','가벼운 활동','위 활동 모두 불가능']}
+  ]},
+  Lysholm:{total:8, qs:[
+    {q:'절뚝거림이 있습니까?', o:['없음','가끔 또는 경미함','심하고 지속적임']},
+    {q:'계단 오르기는 어떻습니까?', o:['문제 없음','약간 불편함','한 계단씩 오름','불가능']}
+  ]}
+};
+
+/* ── 상태 ──────────────────────────────── */
+let S = {};
+let hasSig = false, sigData = null;
+const $ = id => document.getElementById(id);
+const screens = ['scr-error','scr-intro','scr-terms','scr-form'];
+
+function goScreen(id){
+  screens.forEach(s=>$(s).classList.toggle('on', s===id));
+  $('viewport').scrollTop = 0;
+}
+
+function startFlow(set, entry, btn){
+  document.querySelectorAll('.entry-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  S = {set, entry, stage:'pre', introHospital:null, introRegno:null};
+  if(entry==='nouuid'){
+    $('urlbar').textContent = 'hub.rise-k.com/mobile-intake?set='+set;
+    goScreen('scr-error'); return;
+  }
+  if(entry==='direct'){
+    $('urlbar').textContent = 'docs.google.com/forms/d/e/…(Set '+set+')';
+    renderForm(); goScreen('scr-form'); return;
+  }
+  $('urlbar').textContent = 'hub.rise-k.com/mobile-intake?set='+set+'&hospital-uuid=1f3a…';
+  resetIntro();
+  goScreen('scr-intro');
+}
+
+function resetIntro(){
+  $('guideMsg').textContent = '가입 여부 조회를 위해 등록번호를 입력해 주세요';
+  $('in-regno').value=''; $('in-regno').readOnly=false;
+  $('in-hospital').value=''; $('in-hospital').classList.remove('locked');
+  $('lookupWrap').classList.remove('hidden');
+  $('newFields').classList.add('hidden');
+  $('termsSec').classList.add('hidden');
+  $('nr-name').value=''; $('nr-phone').value=''; $('nr-birth').value='';
+  $('f-birth').classList.remove('invalid'); $('f-phone').classList.remove('invalid');
+  document.querySelector('input[name=gender][value=m]').checked = true;
+  resetConsent();
+  gate();
+}
+
+/* ── 조회 (AC-7: 병원+등록번호 복합 조건) ── */
+function doLookup(){
+  const regno = $('in-regno').value.trim().toUpperCase();
+  const hosp = $('in-hospital').value;
+  if(!regno || !hosp){
+    $('guideMsg').textContent = '등록번호와 병원을 모두 입력해 주세요';
+    return;
+  }
+  S.introRegno = regno; S.introHospital = hosp;
+  $('in-regno').value = regno;
+  $('in-regno').readOnly = true; $('in-hospital').classList.add('locked');
+  $('lookupWrap').classList.add('hidden');
+  const p = PATIENTS.find(x=>x.hospital===hosp && x.regno===regno);
+  if(p && p.consented){                 /* 기존 환자 · 약관 동의 O */
+    S.stage = 'existing-ok';
+    $('guideMsg').textContent = "가입 이력이 확인되었습니다.\n'다음' 버튼을 눌러 설문을 진행해 주세요";
+    $('newFields').classList.add('hidden');
+    $('termsSec').classList.add('hidden');
+  }else if(p){                          /* 기존 환자 · 약관 동의 X */
+    S.stage = 'existing-consent';
+    $('guideMsg').textContent = "가입 이력이 확인되었습니다.\n약관 동의 후 '다음' 버튼을 눌러 설문을 진행해 주세요";
+    $('newFields').classList.add('hidden');
+    resetConsent();
+    $('termsSec').classList.remove('hidden');
+  }else{                                /* 신규 환자 (AC-7-3: 입력란 빈 상태) */
+    S.stage = 'new';
+    $('guideMsg').textContent = '* 표시된 필수 항목을 모두 입력해 주세요';
+    $('nr-name').value=''; $('nr-phone').value=''; $('nr-birth').value='';
+    resetConsent();
+    $('newFields').classList.remove('hidden');
+    $('termsSec').classList.remove('hidden');
+  }
+  gate();
+}
+
+/* ── 입력 검증 (AC-10-2, 10-8) ── */
+function validBirth(v){
+  const m = v.trim().match(/^(\d{4})[.\-\/]?(\d{2})[.\-\/]?(\d{2})$/);
+  if(!m) return false;
+  const d = new Date(+m[1], +m[2]-1, +m[3]);
+  if(d.getFullYear()!=+m[1] || d.getMonth()!=+m[2]-1 || d.getDate()!=+m[3]) return false;
+  return d >= new Date(1906,0,1) && d <= new Date();
+}
+function validPhone(v){ return /^\d{9,11}$/.test(v.replace(/\D/g,'')) && v.trim()!==''; }
+['nr-name','nr-phone','nr-birth'].forEach(id=>$(id).addEventListener('input', gate));
+
+/* ── 약관·서명 (AC-10-3, 10-4, 10-11, 10-12) ── */
+function resetConsent(){
+  $('ag-research').checked=false; $('ag-mkt').checked=false;
+  $('agAll').classList.remove('on');
+  document.querySelector('input[name=signer][value=self]').checked = true;
+  $('nr-guardian').value=''; $('nr-rel').value='';
+  $('ci-name').classList.remove('on'); $('ci-rel').classList.remove('on');
+  hasSig=false; sigData=null;
+  $('sigDate').textContent='YYYY.MM.DD'; $('sigDate').classList.remove('set');
+  $('chipSig').innerHTML='✎ 서명'; $('chipSig').classList.remove('done');
+  $('chipName').classList.remove('done'); $('chipRel').classList.remove('done');
+  signerChange();
+}
+function agreeAll(){
+  const on = !($('ag-research').checked && $('ag-mkt').checked);
+  $('ag-research').checked = on; $('ag-mkt').checked = on;
+  syncAll(); gate();
+}
+function syncAll(){
+  $('agAll').classList.toggle('on', $('ag-research').checked && $('ag-mkt').checked);
+}
+function signerChange(){
+  const g = document.querySelector('input[name=signer]:checked').value==='guardian';
+  $('chipRel').disabled = !g; $('chipName').disabled = !g;
+  if(!g){ $('ci-rel').classList.remove('on'); $('ci-name').classList.remove('on'); }
+  gate();
+}
+function toggleChipInput(which){
+  const box = $(which==='rel'?'ci-rel':'ci-name');
+  box.classList.toggle('on');
+  if(box.classList.contains('on')) box.querySelector('input').focus();
+}
+$('nr-guardian').addEventListener('input', ()=>{ $('chipName').classList.toggle('done', $('nr-guardian').value.trim()!==''); });
+$('nr-rel').addEventListener('input', ()=>{ $('chipRel').classList.toggle('done', $('nr-rel').value.trim()!==''); });
+
+/* ── 다음 버튼 게이트 ── */
+function gate(){
+  let ok = false;
+  const consentOk = ()=>{
+    const g = document.querySelector('input[name=signer]:checked').value==='guardian';
+    const gOk = !g || $('nr-guardian').value.trim().length>0;   /* 10-11: 법정대리인 성명 필요 */
+    return $('ag-research').checked && hasSig && gOk;           /* 10-12: 선택 약관 무관 */
+  };
+  if(S.stage==='existing-ok') ok = true;
+  else if(S.stage==='existing-consent') ok = consentOk();
+  else if(S.stage==='new'){
+    const bv = $('nr-birth').value.trim();
+    const birthOk = bv==='' || validBirth(bv);                  /* 10-8: 범위 밖이면 차단 */
+    $('f-birth').classList.toggle('invalid', bv.length>=8 && !validBirth(bv));
+    const pv = $('nr-phone').value.trim();
+    $('f-phone').classList.toggle('invalid', pv.length>=10 && !validPhone(pv));
+    ok = $('nr-name').value.trim().length>0 && validPhone(pv) && birthOk && consentOk();
+  }
+  $('btnNext').disabled = !ok;
+}
+
+/* ── 전자서명 모달 ── */
+const pad = $('sigPad'), ctx = pad.getContext('2d');
+ctx.lineWidth=3.4; ctx.lineCap='round'; ctx.strokeStyle='#1A2433';
+let drawing=false, padDirty=false;
+function pos(e){
+  const r = pad.getBoundingClientRect();
+  return [(e.clientX-r.left)*pad.width/r.width, (e.clientY-r.top)*pad.height/r.height];
+}
+pad.addEventListener('pointerdown', e=>{
+  drawing=true; pad.setPointerCapture(e.pointerId);
+  const [x,y]=pos(e); ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x+.1,y+.1); ctx.stroke();
+  padDirty=true; $('sigPh').style.display='none';
+});
+pad.addEventListener('pointermove', e=>{
+  if(!drawing) return;
+  const [x,y]=pos(e); ctx.lineTo(x,y); ctx.stroke();
+});
+['pointerup','pointercancel'].forEach(ev=>pad.addEventListener(ev, ()=>drawing=false));
+function clearPad(){
+  ctx.clearRect(0,0,pad.width,pad.height);
+  padDirty=false; $('sigPh').style.display='flex';
+}
+function openSigModal(){ clearPad(); $('sigModal').classList.add('on'); }
+function closeSigModal(save){
+  if(save && padDirty){
+    hasSig = true; sigData = pad.toDataURL();
+    const now = new Date();
+    $('sigDate').textContent = now.getFullYear()+'.'+String(now.getMonth()+1).padStart(2,'0')+'.'+String(now.getDate()).padStart(2,'0');
+    $('sigDate').classList.add('set');
+    $('chipSig').classList.add('done');
+    $('chipSig').innerHTML = '<img class="sig-thumb" src="'+sigData+'" alt="서명">';
+  }
+  $('sigModal').classList.remove('on');
+  gate();
+}
+
+/* ── 이용약관 상세 ── */
+function openTerms(tab){ termsTab(tab); goScreen('scr-terms'); }
+function termsTab(t){
+  $('ttab0').classList.toggle('on', t===0); $('ttab1').classList.toggle('on', t===1);
+  $('tbody0').classList.toggle('hidden', t!==0); $('tbody1').classList.toggle('hidden', t!==1);
+}
+
+/* ── 구글폼 (AC-1·2·5·9·11) ── */
+function goForm(){
+  $('urlbar').textContent = 'docs.google.com/forms/d/e/…(Set '+S.set+')';
+  renderForm(); goScreen('scr-form');
+}
+function renderForm(){
+  const info = SETS[S.set];
+  const auto = S.entry==='intro';
+  let h = '';
+  h += '<div class="gcard head"><h3>환자 주관적 평가 — '+info.label+'</h3>'
+     + '<p>'+info.surveys.join(' · ')+' 설문에 응답해 주세요. 모든 문항은 필수입니다.</p>'
+     + '<div class="gmeta">* 필수 질문임</div></div>';
+  h += '<div class="gcard" data-key="PROM설문-폼-등록번호-입력" data-keynew="1">'+(auto?'<span class="auto-chip">자동 입력</span>':'')
+     + '<div class="gq">등록번호(차트번호) <span class="req">*</span></div>'
+     + '<input type="text" id="gf-regno" value="'+(auto?esc(S.introRegno):'')+'" placeholder="내 답변">'
+     + '<div class="q-msg">⚠ 필수 질문입니다.</div></div>';
+  h += '<div class="gcard q" data-name="gf-hosp" data-key="PROM설문-폼-병원선택-입력">'+(auto?'<span class="auto-chip">자동 입력</span>':'')
+     + '<div class="gq">병원 <span class="req">*</span></div><div class="gopts">';
+  HOSPITALS.forEach(o=>{
+    h += '<label class="gopt"><input type="radio" name="gf-hosp"'+(auto && o===S.introHospital?' checked':'')+'><span>'+esc(o)+'</span></label>';
+  });
+  h += '</div><div class="q-msg">⚠ 필수 질문입니다.</div></div>';
+  info.surveys.forEach(sv=>{
+    const d = SURVEYS[sv];
+    h += '<div class="gsec"><span>'+sv+'</span><small>'+d.total+'문항 중 '+d.qs.length+'문항 표시(목업)</small></div>';
+    d.qs.forEach((qq,i)=>{
+      const name = 'q-'+sv+'-'+i;
+      h += '<div class="gcard q" data-name="'+name+'"><div class="gq">'+(i+1)+'. '+qq.q+' <span class="req">*</span></div><div class="gopts">';
+      qq.o.forEach(o=>{ h += '<label class="gopt"><input type="radio" name="'+name+'"><span>'+o+'</span></label>'; });
+      h += '</div><div class="q-msg">⚠ 필수 질문입니다.</div></div>';
+    });
+  });
+  h += '<div class="gmock">— 이후 문항 생략 (목업) —</div>';
+  h += '<div class="gsubmit" data-key="PROM설문-폼-제출-버튼"><button onclick="submitForm()">제출</button><span>양식 지우기</span></div>';
+  $('gformBody').innerHTML = h;
+}
+function esc(s){ return String(s??'').replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+function submitForm(){
+  let firstErr = null;
+  document.querySelectorAll('#gformBody .gcard').forEach(c=>c.classList.remove('q-error'));
+  const regEl = $('gf-regno');
+  if(!regEl.value.trim()){ const card = regEl.closest('.gcard'); card.classList.add('q-error'); firstErr = firstErr||card; }
+  document.querySelectorAll('#gformBody .gcard.q').forEach(card=>{
+    const name = card.dataset.name;
+    if(!document.querySelector('input[name="'+name+'"]:checked')){ card.classList.add('q-error'); firstErr = firstErr||card; }
+  });
+  if(firstErr){ firstErr.scrollIntoView({behavior:'smooth',block:'center'}); return; }
+  /* 제출 성공: 완료 페이지 없음 — 목업은 여기서 종료 */
+  const sub = document.querySelector('#gformBody .gsubmit');
+  sub.innerHTML = '<span style="text-decoration:none;color:var(--ok);font-weight:600">✓ 제출됨 — 목업 종료 지점 (실제 완료 화면은 Google Forms 기본 화면)</span>';
+}
+
+/* 초기 진입 */
+startFlow('A','intro',$('eb-a'));
+</script>
