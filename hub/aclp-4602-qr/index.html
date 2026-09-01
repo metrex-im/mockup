@@ -198,7 +198,7 @@
 <header class="top">
   <div class="wrap">
     <h1>ACLP-4602 · 환자 유형·질환별 PROM 폼 현장 QR 제공</h1>
-    <div class="sub">AC-1·2·3·5·6 / GWT 14개 시나리오 (회귀 3 · 수동 3 · 미확정 0) 기반 목업 · 허브(rise-k) · 스프린트 #30</div>
+    <div class="sub">AC-1·2·3·5·6·7 / GWT 18개 시나리오 (회귀 4 · 수동 4 · 미확정 0) 기반 목업 · 허브(rise-k) · 스프린트 #30</div>
     <div class="banner">
       <b>폼 세트 2개(A·B) 확정</b> — ACLP-4415의 매핑표를 그대로 반영했습니다.
       QR 이미지는 <b>스캔되지 않는 목업 패턴</b>이며 실제 QR로 교체해야 합니다.
@@ -238,9 +238,8 @@
     <b>남은 결정 ①</b> — 진입 주소에 여전히 <code>hospital-uuid</code>가 있다(기존 구현값).
     병원을 화면에서 고르게 되어 정본이 두 개이므로, 주소에서 뺄지 / 기본값으로만 쓸지 정해야 한다.
     시나리오 2-2(주소에 환자를 가리키는 값이 없다)의 확인 절차도 여기에 걸린다.<br>
-    <b>남은 결정 ②</b> — 확정 AC 어디에도 <b>설문에 등록번호·병원이 채워져 열린다</b>를 확인하는 항목이 없다.
-    아래 설문 화면의 파란·노란 박스가 그것인데, 대응하는 Then이 없어 지금은 검증되지 않는다
-    (ACLP-4463이 이 값에 의존한다).
+    <b>선행 필요</b> — AC-7(7-1·7-3)은 각 구글 폼에 <b>등록번호·소속병원 항목이 실제로 만들어져 있어야</b> 통과한다.
+    ACLP-4415(폼 제작)에 아직 그 문장이 없다.
   </div>
   <div class="split">
     <div>
@@ -417,6 +416,25 @@ var SCN = [
       w:'각 폼의 응답 제한 설정을 확인하면',
       th:'모든 폼 세트에서 재제출이 허용되어 있고, 응답 1회 제한이 걸린 폼이 없다',
       how:"① 각 구글 폼 설정 > 응답 항목을 연다 ② '응답 횟수 1회로 제한'이 꺼져 있는지 확인한다 (켜면 구글 로그인을 요구해 무설치·무로그인 진입도 함께 깨진다)" }
+  ]},
+  { ac:'AC-7', mk:'new', cat:'응답 연결값', items:[
+    { id:'7-1', t:'설문이 등록번호·병원이 채워진 상태로 열림', sim:{set:'A',state:'AGREED',step:'branch'}, simThen:{step:'survey'},
+      g:'동의가 완료된 기가입 환자가 폼 세트 A용 QR로 진입해 등록번호를 조회하고 병원을 선택한 상태에서',
+      w:"'다음' 버튼(키: "+K.nextBtn+")을 눌러 설문이 열리면",
+      th:'설문의 등록번호 항목에 조회한 등록번호가, 소속병원 항목에 선택한 병원이 채워져 있다' },
+    { id:'7-2', t:'모든 폼 세트에서 전달이 유지됨', reg:true, sim:{set:'B',state:'AGREED',step:'branch'}, simThen:{step:'survey'},
+      g:'같은 환자가 폼 세트 A·B용 QR로 각각 진입해 같은 등록번호를 조회하고 같은 병원을 선택한 상태에서',
+      w:'각 세트에서 설문을 열어 등록번호·소속병원 항목을 확인하면',
+      th:'모든 세트에서 같은 값이 채워져 있고, 빈 항목으로 열리는 세트가 없다' },
+    { id:'7-3', t:'제출된 응답 데이터에 값이 남음', manual:true,
+      g:'환자가 폼 세트 A의 설문을 제출한 상태에서',
+      w:'해당 폼의 응답 데이터를 확인하면',
+      th:'그 응답에 등록번호와 소속병원이 값으로 남아 있다',
+      how:'① 구글 폼 응답 시트를 연다 ② 해당 행의 등록번호·소속병원 열이 비어 있지 않은지 확인한다 (각 폼에 두 항목이 실제로 만들어져 있어야 한다 — ACLP-4415)' },
+    { id:'7-4', t:'병원을 고르지 않으면 설문까지 도달할 수 없음 (경계)', sim:{set:'A',state:'AGREED',step:'lookup',noHospital:true}, simThen:{step:'lookup',noHospital:true},
+      g:'환자가 폼 세트 A용 QR로 진입해 병원을 선택하지 않은 상태에서',
+      w:"등록번호를 입력하고 '조회' 버튼(키: "+K.lookupBtn+")으로 진행을 시도하면",
+      th:'조회 버튼이 비활성이라 진행되지 않아, 병원 값이 빈 채로 응답이 만들어지지 않는다' }
   ]}
 ];
 
@@ -529,11 +547,11 @@ function screenHTML(){
       '<h4>'+s.proms.join(' + ')+'</h4>'+
       '<div style="font-size:12px;color:#6b7280">'+s.target+' 대상 설문</div>'+
       '<div class="pf">등록번호 <b>'+st.chart+'</b> 가 채워진 상태로 열림<br>'+
-      '<span style="font-size:11px;color:#6b7280">← 응답에 환자 연결값이 남는다</span></div>'+
+      '<span style="font-size:11px;color:#6b7280">← AC-7 · 어느 환자의 응답인지 식별할 수 있는 값</span></div>'+
       '<div class="pf" style="background:#fff8e6;border-color:#e8d59a">'+
       '소속병원 <b style="color:#7a5b13">'+(hospitalOf(st.hospital)?hospitalOf(st.hospital).name:'(미선택)')+
       '</b> 가 함께 채워진 상태로 열림<br>'+
-      '<span style="font-size:11px;color:#7a5b13">← AC-2 · 어느 병원의 응답인지 식별할 수 있는 값</span></div>'+
+      '<span style="font-size:11px;color:#7a5b13">← AC-7 · 어느 병원의 응답인지 식별할 수 있는 값</span></div>'+
       '<ol>'+s.proms.map(function(p){ return '<li>'+p+' 문항 (실제 문항은 허브 탑재본 사용)</li>'; }).join('')+'</ol>'+
       '</div>'+
       (st.resubmit ? '<div class="addnote" style="margin-top:12px;margin-bottom:0">'+
@@ -685,8 +703,8 @@ function renderWhatNow(){
   if(st.step==='lookup'){
     rows.push(['AC-1','QR로 진입하면 등록번호 입력과 조회 버튼이 표시된다']);
     rows.push(['AC-2','같은 QR로 들어온 환자를 등록번호로 식별한다']);
-    rows.push(['AC-1','소속병원을 드롭다운에서 고를 수 있고, 미선택이면 조회 버튼이 비활성이다']);
     rows.push(['AC-2','등록번호와 병원 확인으로 환자를 식별한다']);
+    rows.push(['AC-7 (경계)','병원 미선택이면 조회 버튼이 비활성이라, 병원 값이 빈 채로 응답이 만들어지지 않는다']);
   } else if(st.step==='branch'){
     if(st.state==='NEW') rows.push(['AC-5 (회귀)','미가입 → 등록 입력 + 약관 동의 + 자필 서명']);
     if(st.state==='NOT_AGREED') rows.push(['AC-5 (회귀)','기가입·미동의 → 약관 동의 + 자필 서명만']);
@@ -694,9 +712,9 @@ function renderWhatNow(){
     if(st.state!=='AGREED') rows.push(['AC-5 (예외)','필수 미완 시 다음 버튼 비활성 (진행 차단)']);
   } else if(st.step==='survey'){
     rows.push(['AC-3 (변경)',s.label+' 진입 → '+s.proms.join(' + ')+' 설문이 열린다 (기존: 항상 IKDC+KOOS 고정 폼)']);
-    rows.push(['AC-2','등록번호 '+st.chart+' 와 선택한 병원 '+
+    rows.push(['AC-7','등록번호 '+st.chart+' 와 선택한 병원 '+
       (hospitalOf(st.hospital)?hospitalOf(st.hospital).name:'(미선택)')+
-      ' 이 설문 응답에 자동 기입된다']);
+      ' 이 설문에 채워진 상태로 열린다 (제출 후 응답 데이터에 남는지는 7-3 수동 확인)']);
   }
   el.innerHTML='<table><thead><tr><th>AC</th><th>확인 내용</th></tr></thead><tbody>'+
     rows.map(function(r){ return '<tr><td style="white-space:nowrap;font-weight:700">'+r[0]+'</td><td>'+r[1]+'</td></tr>'; }).join('')+
@@ -795,6 +813,9 @@ function applySim(o){
   st.back = !!o.back;
   st.legacy = !!o.legacy;
   st.resubmit = !!o.resubmit;
+  /* 7-4는 병원 미선택 상태를 Given으로 요구한다. 나머지 시나리오는 선택된 병원을 되돌린다 */
+  if(o.noHospital) st.hospital='';
+  else if(!st.hospital) st.hospital='H1';
   st.selOpen = false;
 }
 function setStep(n){
