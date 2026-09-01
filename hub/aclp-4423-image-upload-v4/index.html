@@ -1,0 +1,460 @@
+<title>진료 중 키 이미지 등록</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+  :root{
+    --bg:#F1F4F8; --surface:#FFFFFF; --surface-2:#F8FAFC; --surface-3:#F2F5F9;
+    --border:#E6EAF0; --border-strong:#D5DBE4;
+    --text:#1B2431; --text-2:#5B6675; --text-3:#98A2B3;
+    --primary:#2F6BF6; --primary-press:#245BDB; --primary-weak:#E9F0FE; --primary-weak-2:#DDE9FF;
+    --danger:#E5484D; --danger-weak:#FDECEC; --danger-border:#F3B9BB;
+    --warn:#DD6B20;
+    --radius:12px; --radius-sm:8px;
+    --shadow-sm:0 1px 2px rgba(16,24,40,.05);
+    --shadow-md:0 8px 28px rgba(16,24,40,.14);
+    --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+    --sans:"Noto Sans KR","Pretendard","Apple SD Gothic Neo",system-ui,-apple-system,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);
+    font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  button{font-family:inherit;cursor:pointer}
+  h1,h2,h3,p{margin:0}
+
+  /* ---------- demo control strip ---------- */
+  .demobar{position:sticky;top:0;z-index:60;display:flex;flex-wrap:wrap;align-items:center;gap:10px;
+    padding:9px 18px;background:#141B27;color:#E7ECF3;font-size:12.5px}
+  .demobar b{font-weight:700;letter-spacing:.02em;margin-right:4px}
+  .demobar .sep{width:1px;height:18px;background:#33404F;margin:0 2px}
+  .seg{display:inline-flex;background:#222C3A;border-radius:8px;padding:2px}
+  .seg button{border:0;background:transparent;color:#AEB9C7;padding:5px 11px;border-radius:6px;font-size:12px;font-weight:500}
+  .seg button.on{background:#2F6BF6;color:#fff}
+  .demobar .btn{border:1px solid #33404F;background:#1E2836;color:#D7DEE7;padding:5px 11px;border-radius:7px;font-size:12px;font-weight:500}
+  .demobar .btn:hover{background:#27333F}
+  .demobar .switch{display:inline-flex;align-items:center;gap:7px;color:#AEB9C7;font-size:12px;user-select:none}
+  .demobar .switch input{appearance:none;width:34px;height:19px;background:#33404F;border-radius:20px;position:relative;transition:.15s;cursor:pointer}
+  .demobar .switch input:checked{background:#2F6BF6}
+  .demobar .switch input::after{content:"";position:absolute;top:2px;left:2px;width:15px;height:15px;background:#fff;border-radius:50%;transition:.15s}
+  .demobar .switch input:checked::after{left:17px}
+  .demobar .grow{flex:1}
+  .demobar .ref{color:#7E8A99;font-size:11.5px}
+  .demobar .ref a{color:#9DB6EE;text-decoration:none}
+
+  /* ---------- top nav ---------- */
+  .nav{display:flex;align-items:center;gap:26px;height:60px;padding:0 26px;background:var(--surface);border-bottom:1px solid var(--border)}
+  .brand{display:flex;align-items:center;gap:9px;font-weight:700;font-size:17px;letter-spacing:-.01em}
+  .brand .mark{width:26px;height:26px;border-radius:7px;background:linear-gradient(135deg,#2F6BF6,#6A8BFF);
+    color:#fff;display:grid;place-items:center;font-size:13px;font-weight:700;box-shadow:0 2px 6px rgba(47,107,246,.35)}
+  .nav .divider{width:1px;height:22px;background:var(--border-strong)}
+  .nav .links{display:flex;gap:24px}
+  .nav .links a{color:var(--text-2);text-decoration:none;font-size:14.5px;font-weight:500;padding:4px 0;position:relative}
+  .nav .links a.active{color:var(--primary);font-weight:700}
+  .nav .right{margin-left:auto;display:flex;align-items:center;gap:14px;font-size:13.5px;color:var(--text-2)}
+  .nav .acct{display:flex;align-items:center;gap:7px;border:1px solid var(--border-strong);border-radius:9px;padding:7px 12px;font-weight:500;color:var(--text)}
+  .nav .acct .dot{width:15px;height:15px;border-radius:50%;border:1.6px solid var(--warn);display:grid;place-items:center;color:var(--warn);font-size:10px}
+
+  /* ---------- page ---------- */
+  .pagehead{padding:22px 26px 6px}
+  .pagehead h1{font-size:21px;font-weight:700;letter-spacing:-.01em}
+  .layout{display:grid;grid-template-columns:308px minmax(0,1fr);gap:20px;padding:14px 26px 40px;align-items:start}
+
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm)}
+  .side{display:flex;flex-direction:column;gap:16px;position:sticky;top:74px}
+  .side .card{padding:16px}
+  .lbl{font-size:12.5px;font-weight:700;color:var(--text-2);margin-bottom:9px}
+  .select{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--border-strong);
+    border-radius:9px;padding:11px 13px;font-weight:500;color:var(--text)}
+  .select .chev{color:var(--text-3)}
+
+  .side .patient .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+  .search{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--border-strong);border-radius:8px;padding:5px 10px;font-size:12px;color:var(--text-2)}
+  .pname{display:flex;align-items:center;justify-content:space-between}
+  .pname .n{font-size:17px;font-weight:700}
+  .pname .x{color:var(--text-3);font-size:16px;background:none;border:0}
+  .pmeta{color:var(--text-2);font-size:12.5px;margin-top:2px}
+  .prow{display:flex;align-items:center;gap:10px;margin-top:14px}
+  .prow .cnt{font-size:13px;color:var(--text-2)}
+  .prow .cnt b{color:var(--primary);font-size:15px}
+  .btn{border:1px solid var(--border-strong);background:var(--surface);color:var(--text);border-radius:9px;
+    padding:9px 12px;font-size:13px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+  .btn.block{width:100%}
+  .btn.ghost{color:var(--text-2)}
+  .btn[disabled]{opacity:.5;cursor:not-allowed}
+  .btn.primary{background:var(--primary);border-color:var(--primary);color:#fff}
+  .btn.primary:hover{background:var(--primary-press)}
+  .btn.primary.rec{background:var(--primary)}
+  .btn.danger-solid{background:var(--danger);border-color:var(--danger);color:#fff}
+  .stt{margin-top:2px}
+  .stt .cap{font-size:12.5px;font-weight:700;color:var(--text-2);margin:14px 0 8px}
+  .stt .box{border:1px solid var(--border);background:var(--surface-2);border-radius:9px;min-height:120px;padding:12px;color:var(--text-3);font-size:12.5px}
+  .stt .box.live{color:var(--text);background:#fff}
+  .stt .box .wave{color:var(--primary);font-weight:600}
+
+  /* ---------- main content ---------- */
+  .main{display:flex;flex-direction:column;gap:16px;min-height:640px}
+  .rechead{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .rechead .chips{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .chip{font-size:12px;font-weight:600;padding:5px 10px;border-radius:20px;background:var(--surface-3);color:var(--text-2)}
+  .chip.type{background:var(--primary-weak);color:var(--primary)}
+  .chip.dx{background:#EAF7F0;color:#1F8A56;display:inline-flex;align-items:center;gap:6px}
+  .chip.more{background:var(--surface-3);color:var(--text-2)}
+  .rechead .btn.sm{padding:6px 11px;font-size:12px}
+  .rechead .date{color:var(--text-3);font-size:12.5px;font-variant-numeric:tabular-nums}
+
+  /* image component */
+  .imgcard{padding:18px 18px 16px}
+  .imgcard .hd{display:flex;align-items:baseline;gap:10px;margin-bottom:4px}
+  .imgcard .hd h2{font-size:15.5px;font-weight:700;letter-spacing:-.01em}
+  .badge{font-size:12px;font-weight:700;color:var(--primary);background:var(--primary-weak);border-radius:20px;padding:2px 9px;font-variant-numeric:tabular-nums}
+  .imgcard .desc{color:var(--text-2);font-size:12.5px;line-height:1.55;margin-bottom:14px;max-width:78ch}
+  .imgcard .desc .en{color:var(--text-3)}
+
+  .filelist{display:flex;flex-direction:column;gap:12px;margin-top:14px}
+  .fileitem{background:#F7F8FA;border:1px solid var(--border);border-radius:11px;padding:14px 16px}
+  .fi-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:13px}
+  .fi-name{display:flex;align-items:center;gap:9px;font-weight:600;font-size:14px;min-width:0;overflow:hidden}
+  .fi-name .fic{color:var(--text-3);flex:none}
+  .fi-name .t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .fi-actions{display:flex;align-items:center;gap:8px;flex:none}
+  .fi-size{color:var(--text-3);font-size:12px;font-variant-numeric:tabular-nums;margin-right:2px}
+  .obtn{border:1px solid var(--border-strong);background:#fff;border-radius:8px;padding:7px 11px;font-size:12.5px;font-weight:600;color:var(--text-2);display:inline-flex;align-items:center;gap:5px}
+  .obtn:hover{background:var(--surface-2)}
+  .obtn.del:hover{color:var(--danger);border-color:var(--danger-border);background:var(--danger-weak)}
+  .fi-body{display:grid;grid-template-columns:118px 1fr;gap:14px;align-items:start}
+  .thumb2{position:relative;width:118px;height:118px;border-radius:9px;border:1px solid var(--border);
+    background:linear-gradient(135deg,#e0e6ef 0%,#c6d0de 55%,#aeb9c9 100%);overflow:hidden}
+  .thumb2 .expand{position:absolute;right:7px;bottom:7px;width:30px;height:30px;border-radius:8px;background:#fff;
+    display:grid;place-items:center;color:var(--text-2);box-shadow:var(--shadow-sm)}
+  .fi-fields{display:flex;flex-direction:column;gap:10px;min-width:0}
+  .modbar{display:grid;grid-template-columns:repeat(4,1fr);background:#EAEEF4;border-radius:9px;padding:4px;gap:4px}
+  .modbar button{border:0;background:transparent;color:var(--text-2);font-weight:700;font-size:13px;padding:12px 0;border-radius:7px;letter-spacing:.03em}
+  .modbar button.on{background:var(--primary);color:#fff;box-shadow:0 1px 3px rgba(47,107,246,.4)}
+  .note2{width:100%;min-height:70px;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:inherit;font-size:13px;resize:vertical;background:#fff;color:var(--text);line-height:1.5}
+  .note2::placeholder{color:var(--text-3)}
+
+  .dropzone{border:1.6px dashed var(--border-strong);border-radius:11px;background:var(--surface-2);
+    padding:26px 16px;text-align:center;transition:.15s;cursor:pointer}
+  .dropzone:hover{border-color:var(--primary);background:var(--primary-weak)}
+  .dropzone .cloud{color:var(--text-3);margin-bottom:8px}
+  .dropzone:hover .cloud{color:var(--primary)}
+  .dropzone .prompt{color:var(--primary);font-weight:700;font-size:13.5px}
+  .dropzone .fmt{color:var(--text-3);font-size:11.5px;margin-top:6px;line-height:1.6}
+
+  /* 문진 */
+  .qcard{padding:18px}
+  .qhead{display:flex;align-items:center;gap:9px;margin-bottom:16px}
+  .qhead h2{font-size:15.5px;font-weight:700}
+  .q{border-bottom:1px solid var(--border);padding:14px 2px}
+  .q:last-child{border-bottom:0;padding-bottom:2px}
+  .q .qq{display:flex;gap:8px;font-weight:600;font-size:13.5px;margin-bottom:11px}
+  .q .qq .no{color:var(--primary);font-weight:700}
+  .opts{display:flex;gap:8px;flex-wrap:wrap}
+  .opt{border:1px solid var(--border-strong);background:var(--surface);border-radius:9px;padding:8px 13px;font-size:12.5px;color:var(--text-2);font-weight:500}
+
+  .actionbar{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:2px}
+  .actionbar .btn{padding:15px;font-size:14px;border-radius:11px}
+  .actionbar .send{background:var(--surface-3);color:var(--text-3);border-color:var(--border)}
+  .actionbar .review{background:var(--surface);color:var(--text)}
+  .hint{grid-column:1/-1;text-align:center;color:var(--text-3);font-size:12px;margin-top:2px}
+
+  /* empty state */
+  .empty{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    min-height:560px;display:grid;place-items:center;text-align:center;color:var(--text-3)}
+  .empty .ic{color:var(--border-strong);margin-bottom:14px}
+  .empty p{font-size:14px;color:var(--text-2)}
+
+  /* ---------- modal ---------- */
+  .scrim{position:fixed;inset:0;background:rgba(20,27,39,.42);display:none;place-items:center;z-index:80;padding:24px}
+  .scrim.open{display:grid}
+  .modal{background:#fff;border-radius:16px;width:min(520px,100%);max-height:82vh;display:flex;flex-direction:column;
+    box-shadow:var(--shadow-md);overflow:hidden}
+  .modal .mh{padding:24px 26px 6px}
+  .modal .mh h3{font-size:18px;font-weight:700}
+  .modal .mh p{color:var(--text-2);font-size:13.5px;margin-top:10px}
+  .modal .mb{padding:14px 26px 4px;overflow:auto;display:flex;flex-direction:column;gap:14px}
+  .failrow .box{border:1px solid var(--danger-border);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:10px;color:var(--text)}
+  .failrow .box .fi{color:var(--text-3)}
+  .failrow .reason{display:flex;align-items:center;gap:6px;color:var(--danger);font-size:12.5px;font-weight:600;margin-top:7px;padding-left:2px}
+  .modal .mf{padding:16px 26px 24px}
+  .modal .mf .btn{width:100%;padding:14px;font-size:15px;border-radius:10px}
+
+  /* ---------- key overlay ---------- */
+  [data-key]{position:relative}
+  body.show-keys [data-key]{outline:1.3px dashed rgba(47,107,246,.5);outline-offset:1px;border-radius:4px}
+  body.show-keys [data-key]::after{content:attr(data-key);position:absolute;top:-9px;left:0;z-index:40;
+    font-family:var(--mono);font-size:9.5px;line-height:1.3;color:#fff;background:#2F6BF6;
+    padding:1px 5px;border-radius:4px;white-space:nowrap;pointer-events:none;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+  body.show-keys [data-key].k4420::after{background:#8250DF}
+  body.show-keys [data-key].k4420{outline-color:rgba(130,80,223,.5)}
+
+  .legend{display:none;gap:16px;flex-wrap:wrap;align-items:center;padding:10px 26px;background:#fff;border-bottom:1px solid var(--border);font-size:12px;color:var(--text-2)}
+  body.show-keys .legend{display:flex}
+  .legend .k{display:inline-flex;align-items:center;gap:6px}
+  .legend .sw{width:11px;height:11px;border-radius:3px}
+  .legend .sw.a{background:#2F6BF6}.legend .sw.b{background:#8250DF}
+
+  @media (max-width:920px){.layout{grid-template-columns:1fr}.side{position:static}}
+</style>
+
+<!-- ======== DEMO CONTROL STRIP (프로토타입 전용, 실제 화면 아님) ======== -->
+<div class="demobar">
+  <b>목업 데모</b>
+  <div class="seg" id="segState">
+    <button data-state="open" class="on">진료 건 열림</button>
+    <button data-state="closed">생성 전(미노출)</button>
+  </div>
+  <span class="sep"></span>
+  <button class="btn" onclick="addSample()">이미지 추가</button>
+  <button class="btn" onclick="fillTo20()">20개 채우기</button>
+  <button class="btn" onclick="tryBulk25()">개수 초과(25개 시도)</button>
+  <button class="btn" onclick="tryPdf()">형식 오류(PDF)</button>
+  <button class="btn" onclick="resetFiles()">비우기</button>
+  <span class="grow"></span>
+  <label class="switch"><input type="checkbox" id="keyToggle" onchange="document.body.classList.toggle('show-keys',this.checked)"> 논리 ID 보기</label>
+  <span class="ref">ACLP-4423 · AC/GWT 기준</span>
+</div>
+
+<div class="legend">
+  <span class="k"><span class="sw a"></span> 4423 이미지 등록 키</span>
+  <span class="k"><span class="sw b"></span> 4420 진료 유형·질환 키(참조)</span>
+  <span style="color:var(--text-3)">요소 위 파란/보라 라벨이 셀렉터 논리 ID입니다</span>
+</div>
+
+<!-- ======== APP ======== -->
+<div class="nav">
+  <div class="brand"><span class="mark">R</span>RISE-K</div>
+  <div class="divider"></div>
+  <div class="links">
+    <a href="#">환자 관리</a>
+    <a href="#">오늘의 환자</a>
+    <a href="#" class="active">진료 녹음</a>
+    <a href="#">논문 관리</a>
+  </div>
+  <div class="right">
+    <span>시연용병원</span>
+    <span class="acct"><span class="dot">!</span>시연용공용계정님 ⌄</span>
+  </div>
+</div>
+
+<div class="pagehead"><h1>진료 녹음</h1></div>
+
+<div class="layout">
+  <!-- LEFT SIDEBAR -->
+  <aside class="side">
+    <div class="card">
+      <div class="lbl">진료실 선택</div>
+      <div class="select">진료실1 <span class="chev">⌄</span></div>
+    </div>
+
+    <div class="card patient">
+      <div class="top">
+        <div class="lbl" style="margin:0">환자 선택</div>
+        <button class="search">🔍 검색</button>
+      </div>
+      <div class="pname"><span class="n">김지환</span><button class="x">✕</button></div>
+      <div class="pmeta">여성 · 차트 SY8185</div>
+      <div class="prow">
+        <span class="cnt">진료 <b>7</b> 회</span>
+        <button class="btn" style="flex:1" data-key="녹음-진료선택-달력-버튼">📅 진료 선택</button>
+      </div>
+      <button class="btn block ghost" style="margin-top:10px" disabled>▷ 진료 이어하기</button>
+      <button class="btn block primary" style="margin-top:10px" data-key="녹음-진료선택-새진료시작-버튼">＋ 새 진료 시작</button>
+    </div>
+
+    <div class="card">
+      <button class="btn block primary rec" id="recBtn" onclick="toggleRec()" data-key="녹음-제어-시작-버튼">🎙 녹음 시작</button>
+      <div class="stt">
+        <div class="cap">실시간 STT</div>
+        <div class="box" id="sttBox">녹음을 시작하면 STT 결과가 여기에 표시됩니다.</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main" id="mainOpen">
+    <!-- 진료기록 헤더 (진료 유형/질환 — 4420 연동 영역) -->
+    <div class="rechead">
+      <div class="chips">
+        <span class="chip type" data-key="녹음-진료기록-진료유형-칩" >초진</span>
+        <span class="chip dx k4420" data-key="녹음-진료기록-질환-칩">● 무릎 퇴행성 관절염</span>
+        <span class="chip more k4420" data-key="녹음-진료기록-질환더보기-칩">외 1개</span>
+        <button class="btn sm k4420" data-key="녹음-진료기록-질환선택-버튼">질환 선택</button>
+      </div>
+      <span class="date">2026.09.01 13:23</span>
+    </div>
+
+    <!-- ★ 신규: 의료 이미지 등록 컴포넌트 -->
+    <section class="card imgcard">
+      <div class="hd">
+        <h2>Upload Medical Images</h2>
+        <span class="badge" id="countBadge" data-key="의료이미지-업로드-개수-배지">2</span>
+      </div>
+      <p class="desc">You can upload up to 20 images in total across all imaging modalities (X-ray, MRI, CT, Ultrasound, etc.). Ensure the images are clearly labeled (e.g., "X-ray_Lateral_View", "MRI_T2_Sagittal"). Accepted file formats: JPEG, PNG.</p>
+
+      <div class="dropzone" id="dropzone" onclick="addSample()" data-key="의료이미지-업로드-파일선택-버튼">
+        <div class="cloud">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V8m0 0-3.5 3.5M12 8l3.5 3.5"/><path d="M20 16.5A4 4 0 0 0 17.5 9a6 6 0 0 0-11.6 1.5A3.5 3.5 0 0 0 6 17"/></svg>
+        </div>
+        <div class="prompt">클릭 또는 파일을 이곳에 드롭하세요.</div>
+        <div class="fmt">허용되는 형식: JPEG, PNG, GIF, WEBP, SVG, TIFF<br>최대 용량: 100MB(개당), 최대 20개</div>
+      </div>
+
+      <div class="filelist" id="fileList"><!-- rendered --></div>
+    </section>
+
+    <!-- 문진 답안 -->
+    <section class="card qcard">
+      <div class="qhead"><h2>문진 답안</h2><span class="badge" style="background:var(--surface-3);color:var(--text-2)">0 / 13</span></div>
+      <div class="q">
+        <div class="qq"><span class="no">Q.1</span> 언제쯤 다치셨나요?</div>
+        <div class="opts"><span class="opt">1주 전</span><span class="opt">1–6주 전</span><span class="opt">6주–3개월 전</span><span class="opt">3개월–1년 전</span><span class="opt">1년 이상</span></div>
+      </div>
+      <div class="q">
+        <div class="qq"><span class="no">Q.2</span> 어떤 동작에서 다치셨나요?</div>
+        <div class="opts"><span class="opt">방향 전환 중 (비접촉)</span><span class="opt">무릎이 뒤로 꺾임 (과신전)</span><span class="opt">상대와 부딪힘 (접촉·충돌)</span><span class="opt">잘 모르겠음</span></div>
+      </div>
+      <div class="q">
+        <div class="qq"><span class="no">Q.3</span> 수상 당시 신호를 모두 선택해주세요.</div>
+        <div class="opts"><span class="opt">"뚝/펑" 소리 (Pop)</span><span class="opt">수 시간 내 부종 (혈관절증)</span><span class="opt">해당 없음</span></div>
+      </div>
+    </section>
+
+    <div class="actionbar">
+      <button class="btn send" disabled>🕊 진료 내용 발송</button>
+      <button class="btn review">🗒 진료기록 검토</button>
+      <div class="hint">진료기록 검토를 완료해야 발송할 수 있습니다.</div>
+    </div>
+  </main>
+
+  <!-- MAIN (진료 건 생성 전) -->
+  <main class="main" id="mainClosed" hidden>
+    <div class="empty">
+      <div>
+        <div class="ic">
+          <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M8 2v4M16 2v4M3 9h18"/><path d="m14.5 12.5-3 3-1.5-1.5"/></svg>
+        </div>
+        <p>새 진료 시작 버튼을 눌러서 진료를 시작해 주세요.</p>
+        <p style="font-size:12px;color:var(--text-3);margin-top:8px">진료 건이 생성되기 전에는 이미지 등록 폼이 노출되지 않습니다. <span style="color:#8250DF">(AC-2 · 시나리오 2-4)</span></p>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ======== 첨부 실패 팝업 ======== -->
+<div class="scrim" id="scrim" onclick="if(event.target===this)closeFail()">
+  <div class="modal" data-key="의료이미지-첨부실패-안내-팝업">
+    <div class="mh">
+      <h3>첨부 실패 파일 안내</h3>
+      <p id="failLead">1개의 파일이 다음 사유로 인해 첨부되지 않았습니다.</p>
+    </div>
+    <div class="mb" id="failBody"><!-- rendered --></div>
+    <div class="mf"><button class="btn primary" onclick="closeFail()" data-key="의료이미지-첨부실패-확인-버튼">확인</button></div>
+  </div>
+</div>
+
+<script>
+  const MAX = 20;
+  const MODS = ["X-RAY","MRI","CT","OTHER"];
+  let files = [
+    {id:1, name:"resized_20260820_133056.jpeg", size:"2.7MB", mod:"X-RAY", note:""},
+    {id:2, name:"MRI_T2_Sagittal.jpg",          size:"8.1MB", mod:"MRI",  note:""},
+  ];
+  let seq = 100;
+
+  const fileIcon = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M5 3h9l5 5v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/></svg>';
+  const dlIcon  = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4"/><path d="M5 21h14"/></svg>';
+  const delIcon = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2m2 0-1 13a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1L6 7"/></svg>';
+  const expandIcon = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m0 8v3a2 2 0 0 0 2 2h3m8-18h3a2 2 0 0 1 2 2v3m0 8v3a2 2 0 0 1-2 2h-3"/></svg>';
+
+  function esc(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+  function render(){
+    const list = document.getElementById('fileList');
+    list.innerHTML = files.map(f=>`
+      <div class="fileitem" data-key="의료이미지-목록-파일-항목">
+        <div class="fi-head">
+          <div class="fi-name"><span class="fic">${fileIcon}</span><span class="t">${esc(f.name)}</span></div>
+          <div class="fi-actions">
+            <span class="fi-size">${f.size}</span>
+            <button class="obtn" data-key="의료이미지-목록-다운로드-버튼">${dlIcon} 다운로드</button>
+            <button class="obtn del" onclick="removeFile(${f.id})" data-key="의료이미지-목록-삭제-버튼">${delIcon} 삭제</button>
+          </div>
+        </div>
+        <div class="fi-body">
+          <div class="thumb2" data-key="의료이미지-목록-미리보기-썸네일"><div class="expand">${expandIcon}</div></div>
+          <div class="fi-fields">
+            <div class="modbar" data-key="의료이미지-목록-모달리티-탭">
+              ${MODS.map(m=>`<button class="${m===f.mod?'on':''}" onclick="setMod(${f.id},'${m}')">${m}</button>`).join('')}
+            </div>
+            <textarea class="note2" data-key="의료이미지-목록-노트-입력" placeholder="Note (Optional)">${esc(f.note)}</textarea>
+          </div>
+        </div>
+      </div>`).join('');
+    document.getElementById('countBadge').textContent = files.length;
+    document.getElementById('fileList').style.display = files.length ? 'flex' : 'none';
+  }
+
+  function setMod(id,m){const f=files.find(x=>x.id===id);if(f){f.mod=m;render();}}
+  function removeFile(id){files=files.filter(x=>x.id!==id);render();} // 즉시 삭제, 확인 다이얼로그 없음 (AC-6 / 6-1)
+
+  function addSample(){
+    if(files.length>=MAX){ openFail([{name:`IMG_${String(seq).padStart(4,'0')}.png`, reason:"개수 초과"}]); return; }
+    seq++;
+    files.push({id:seq, name:`IMG_${String(seq).padStart(4,'0')}.png`, size:(Math.random()*9+0.8).toFixed(1)+"MB", mod:"OTHER", note:""});
+    render();
+  }
+  function fillTo20(){
+    while(files.length<MAX){ seq++; files.push({id:seq, name:`IMG_${String(seq).padStart(4,'0')}.png`, size:(Math.random()*9+0.8).toFixed(1)+"MB", mod:"OTHER", note:""}); }
+    render();
+  }
+  function resetFiles(){files=[];render();}
+
+  // 한 번에 25개 시도 → 20까지만 첨부, 5개 개수 초과 (AC-4 / 4-3)
+  function tryBulk25(){
+    files=[]; let rejected=[];
+    for(let i=1;i<=25;i++){
+      const nm = ["12312","12312312","123123","32132134","32132135","IMG_A","IMG_B","IMG_C","IMG_D","IMG_E","IMG_F","IMG_G","IMG_H","IMG_I","IMG_J","IMG_K","IMG_L","IMG_M","IMG_N","IMG_O","32140","32141","32142","32143","32144"][i-1]+".png";
+      if(files.length<MAX){seq++;files.push({id:seq,name:nm,size:(Math.random()*9+0.8).toFixed(1)+"MB",mod:"OTHER",note:""});}
+      else rejected.push({name:nm, reason:"개수 초과"});
+    }
+    render();
+    openFail(rejected);
+  }
+  // PDF 드래그&드롭 → 형식 오류 (AC-5 / 5-2)
+  function tryPdf(){ openFail([{name:"a4_-_108.pdf", reason:"지원하지 않는 파일 형식"}]); }
+
+  function openFail(rows){
+    document.getElementById('failLead').textContent = `${rows.length}개의 파일이 다음 사유로 인해 첨부되지 않았습니다.`;
+    document.getElementById('failBody').innerHTML = rows.map(r=>`
+      <div class="failrow">
+        <div class="box"><span class="fi">${fileIcon}</span><span>${esc(r.name)}</span></div>
+        <div class="reason">⚠ ${r.reason}</div>
+      </div>`).join('');
+    document.getElementById('scrim').classList.add('open');
+  }
+  function closeFail(){document.getElementById('scrim').classList.remove('open');}
+
+  // 진료 건 열림 / 생성 전
+  document.getElementById('segState').addEventListener('click',e=>{
+    const b=e.target.closest('button'); if(!b)return;
+    document.querySelectorAll('#segState button').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');
+    const open = b.dataset.state==='open';
+    document.getElementById('mainOpen').hidden = !open;
+    document.getElementById('mainClosed').hidden = open;
+  });
+
+  // 녹음 시작/종료 (진료 건 열림 동안 이미지 등록은 녹음 상태와 무관하게 가능 — AC-2)
+  let rec=false;
+  function toggleRec(){
+    rec=!rec;
+    const btn=document.getElementById('recBtn'), box=document.getElementById('sttBox');
+    if(rec){btn.textContent='⏸ 녹음 종료';btn.classList.remove('primary');btn.classList.add('danger-solid');
+      box.classList.add('live');box.innerHTML='<span class="wave">● 녹음 중</span> — 환자분 무릎 안쪽으로 통증이 …';}
+    else{btn.textContent='🎙 녹음 시작';btn.classList.add('primary');btn.classList.remove('danger-solid');
+      box.classList.remove('live');box.textContent='녹음을 시작하면 STT 결과가 여기에 표시됩니다.';}
+  }
+
+  render();
+</script>
