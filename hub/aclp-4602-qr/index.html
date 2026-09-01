@@ -198,7 +198,7 @@
 <header class="top">
   <div class="wrap">
     <h1>ACLP-4602 · 환자 유형·질환별 PROM 폼 현장 QR 제공</h1>
-    <div class="sub">AC-1·2·3·5 / GWT 14개 시나리오 (회귀 3 · 수동 1 · 미확정 4) 기반 목업 · 허브(rise-k) · 스프린트 #30</div>
+    <div class="sub">AC-1·2·3·5·6 / GWT 14개 시나리오 (회귀 3 · 수동 3 · 미확정 0) 기반 목업 · 허브(rise-k) · 스프린트 #30</div>
     <div class="banner">
       <b>폼 세트 2개(A·B) 확정</b> — ACLP-4415의 매핑표를 그대로 반영했습니다.
       QR 이미지는 <b>스캔되지 않는 목업 패턴</b>이며 실제 QR로 교체해야 합니다.
@@ -235,10 +235,12 @@
     마지막에 세트별로 다른 설문이 열리는 부분입니다. 아래에서 환자 상태와 세트를 바꿔가며 확인하세요.
   </p>
   <div class="addnote" style="max-width:none;margin-bottom:16px">
-    <b>소속병원 드롭다운은 AC 반영 완료</b> — AC-2·AC-5 검증문과 시나리오 1-1에 "병원 확인 / 병원 선택"이 들어갔고,
-    URL 기반 병원 식별을 전제했던 시나리오 1-2는 문서에서 삭제되었다.<br>
-    <b>남은 결정</b> — 진입 주소에 여전히 <code>hospital-uuid</code>가 있다(기존 구현값).
-    병원을 화면에서 고르면 정본이 두 개가 되므로, 주소에서 뺄지 / 기본값으로만 쓸지 정해야 한다.
+    <b>남은 결정 ①</b> — 진입 주소에 여전히 <code>hospital-uuid</code>가 있다(기존 구현값).
+    병원을 화면에서 고르게 되어 정본이 두 개이므로, 주소에서 뺄지 / 기본값으로만 쓸지 정해야 한다.
+    시나리오 2-2(주소에 환자를 가리키는 값이 없다)의 확인 절차도 여기에 걸린다.<br>
+    <b>남은 결정 ②</b> — 확정 AC 어디에도 <b>설문에 등록번호·병원이 채워져 열린다</b>를 확인하는 항목이 없다.
+    아래 설문 화면의 파란·노란 박스가 그것인데, 대응하는 Then이 없어 지금은 검증되지 않는다
+    (ACLP-4463이 이 값에 의존한다).
   </div>
   <div class="split">
     <div>
@@ -260,8 +262,8 @@
   <h2 class="sec">GWT 따라가기</h2>
   <p class="lead">
     시나리오를 클릭하면 Given 상태가 화면에 세팅됩니다. <b>Given → When → Then</b> 버튼으로 한 단계씩 진행하세요.
-    현장·운영 확인만 가능한 시나리오는 <span class="mk man">수동</span>,
-    처리 방침이 아직 없는 예외는 <span class="mk tbd">미확정</span> 으로 표시되고 화면 대신 확인 절차·결정 지점을 보여줍니다.
+    현장·운영 확인만 가능한 시나리오는 <span class="mk man">수동</span>으로 표시되고
+    화면 대신 확인 절차를 보여줍니다. <b>미확정(TBD) 시나리오는 없습니다.</b>
   </p>
   <div class="split">
     <div>
@@ -352,11 +354,6 @@ var SCN = [
       g:'환자가 사전 발송 문자를 받지 않은 상태로 진료 대기 중이고, 현장에 폼 세트 A용 QR 인쇄물이 놓여 있을 때',
       w:'환자가 휴대폰 카메라로 폼 세트 A용 QR을 스캔해 열리는 주소로 진입하면',
       th:"등록번호 입력(키: "+K.lookupInput+")과 병원 선택(키: "+K.hospital+") 및 '조회' 버튼(키: "+K.lookupBtn+")이 있는 진입 화면이 표시된다" },
-    { id:'1-3', t:'폼 세트 값이 없거나 알 수 없는 QR로 진입 (예외)', tbd:true,
-      g:'구버전 인쇄물이나 잘못 만들어진 QR처럼, 주소에 폼 세트 값이 없거나 존재하지 않는 폼 세트를 가리키는 상태에서',
-      w:'환자가 그 QR을 스캔해 진입하면',
-      th:'[TBD] 처리 방침 미확정',
-      decision:'폼 세트를 찾을 수 없을 때 (a) 안내 화면 / (b) 렌더 차단 / (c) 기본 폼 중 무엇으로 할지 미정. 종이 인쇄물 특성상 구버전이 현장에 남기 쉬워 실제로 밟히는 축. QR 재발행 절차(티켓 C-2)와 함께 결정.' }
   ]},
   { ac:'AC-2', mk:'new', cat:'환자 식별', items:[
     { id:'2-1', t:'같은 QR로 서로 다른 환자가 각각 식별됨', sim:{set:'A',state:'NEW',step:'lookup'}, simThen:{step:'branch',unfilled:true},
@@ -368,11 +365,6 @@ var SCN = [
       w:'QR을 스캔해 열린 주소를 확인하면',
       th:'주소에 환자 이름·등록번호·전화번호 등 특정 환자를 가리키는 값이 포함되어 있지 않다',
       how:'① QR 인쇄물 탭의 주소 표기를 확인한다 ② 주소에 세트 값만 있는지 육안 확인한다 (병원은 화면에서 선택하므로 주소에 없어야 하는지 결정 필요)' },
-    { id:'2-3', t:'등록번호 조회가 통신 실패로 완료되지 않음 (예외)', tbd:true,
-      g:'환자가 폼 세트 A용 QR로 진입해 등록번호를 입력한 상태에서',
-      w:"'조회' 버튼(키: "+K.lookupBtn+")을 눌렀으나 조회 요청이 네트워크·서버 오류로 실패하면",
-      th:'[TBD] 실패 안내·재시도 동작 미확정',
-      decision:'조회 실패 시 어떤 안내를 보이고 재시도를 어떻게 제공할지 미정. 기존 발송 경로(사전 발송 링크)에 동일 동작이 있으면 그 정책을 회귀로 승계.' }
   ]},
   { ac:'AC-3', mk:'chg', cat:'폼 세트 분기', legacy:'진입 경로와 무관하게 동일한 단일 폼이 열린다', items:[
     { id:'3-1', t:'폼 세트 A QR로 진입하면 A 설문이 열림', sim:{set:'A',state:'AGREED',step:'branch'}, simThen:{step:'survey'},
@@ -387,11 +379,6 @@ var SCN = [
       g:'동의가 완료된 기가입 환자가 폼 세트 A용 QR로 진입해 등록번호 조회를 마친 상태에서',
       w:"'다음' 버튼(키: "+K.nextBtn+")을 눌러 열린 설문의 문항 구성을 확인하면",
       th:'기존 IKDC + KOOS 고정 폼이 아니라 폼 세트 A에 배정된 설문만 표시된다' },
-    { id:'3-4', t:'삭제·교체된 폼 세트를 가리키는 QR로 진입 (예외)', tbd:true,
-      g:'폼 세트가 재구성되어 특정 QR이 더는 존재하지 않는 폼 세트를 가리키는 상태에서',
-      w:'그 QR로 진입해 조회·다음까지 진행하면',
-      th:'[TBD] 처리 방침 미확정 (시나리오 1-3과 같은 무효 폼 세트 축)',
-      decision:'1-3과 동일한 무효·구버전 폼 세트 처리 정책. 폼 세트 재구성 시 QR 재발행 절차(티켓 C-2)와 함께 정해져야 함.' }
   ]},
   { ac:'AC-5', mk:'imp', cat:'확인·동의 단계 유지', items:[
     { id:'5-1', t:'미가입 환자', reg:true, sim:{set:'A',state:'NEW',step:'lookup'}, simThen:{step:'branch',unfilled:true},
@@ -410,11 +397,26 @@ var SCN = [
       g:'미가입 또는 미동의 환자가 진입해 필수 입력·필수 약관·자필 서명 중 일부가 비어 있는 상태에서',
       w:"'다음' 버튼(키: "+K.nextBtn+")으로 진행을 시도하면",
       th:'버튼이 비활성이라 진행되지 않고, 미완 항목을 모두 채우기 전에는 설문으로 넘어가지 않는다' },
-    { id:'5-5', t:'환자 등록·동의 저장이 통신 실패로 완료되지 않음 (예외)', tbd:true,
-      g:'미가입 환자가 등록 입력과 약관 동의·서명을 모두 채운 상태에서',
-      w:"'다음' 버튼(키: "+K.nextBtn+")을 눌러 환자 등록·동의 저장을 시도했으나 요청이 실패하면",
-      th:'[TBD] 실패 안내·재시도 동작 미확정',
-      decision:'저장 실패 시 안내와 재시도 방법 미정. 재시도 시 같은 환자·동의 기록이 중복 생성되지 않아야 하는지도 함께 결정(이번 정리에서 제외한 중복 제출 방지 축이 저장-재시도 경로에서 다시 문제가 될 수 있음).' }
+  ]},
+  { ac:'AC-6', mk:'imp', cat:'재제출 허용', items:[
+    { id:'6-1', t:'같은 폼 세트에 다시 응답 진입', sim:{set:'A',state:'AGREED',step:'lookup',resubmit:true}, simThen:{step:'survey',resubmit:true},
+      g:'동의가 완료된 기가입 환자가 폼 세트 A용 QR로 이미 한 번 설문에 응답한 상태에서',
+      w:"같은 폼 세트 A용 QR로 다시 진입해 등록번호를 조회하고 병원을 선택(키: "+K.hospital+") 후 '다음' 버튼(키: "+K.nextBtn+")을 누르면",
+      th:'이미 응답했다는 이유로 차단되지 않고 폼 세트 A의 설문이 다시 열린다' },
+    { id:'6-2', t:'재응답이 별도 건으로 쌓임', manual:true,
+      g:'같은 환자가 같은 폼 세트 A에 두 번 응답을 제출한 상태에서',
+      w:'해당 폼의 응답 데이터를 확인하면',
+      th:'두 응답이 각각 별도 건으로 남아 있고, 앞선 응답이 뒤 응답으로 덮어써지지 않는다',
+      how:'① 구글 폼 응답 시트를 연다 ② 같은 등록번호의 행이 2건으로 남아 있는지 확인한다 (덮어쓰기면 1건만 보인다)' },
+    { id:'6-3', t:'다른 폼 세트에는 응답 이력이 영향을 주지 않음', sim:{set:'B',state:'AGREED',step:'branch',resubmit:true}, simThen:{step:'survey',resubmit:true},
+      g:'같은 환자가 폼 세트 A에 이미 응답한 상태에서',
+      w:"폼 세트 B용 QR로 진입해 등록번호 조회와 병원 선택을 마치고 '다음' 버튼(키: "+K.nextBtn+")을 누르면",
+      th:'폼 세트 A의 응답 이력과 무관하게 폼 세트 B의 설문이 열린다' },
+    { id:'6-4', t:'발행된 모든 폼에 재제출이 허용됨', manual:true,
+      g:'폼 세트 A·B용 폼이 모두 발행된 상태에서',
+      w:'각 폼의 응답 제한 설정을 확인하면',
+      th:'모든 폼 세트에서 재제출이 허용되어 있고, 응답 1회 제한이 걸린 폼이 없다',
+      how:"① 각 구글 폼 설정 > 응답 항목을 연다 ② '응답 횟수 1회로 제한'이 꺼져 있는지 확인한다 (켜면 구글 로그인을 요구해 무설치·무로그인 진입도 함께 깨진다)" }
   ]}
 ];
 
@@ -423,7 +425,7 @@ var SCN = [
    ============================================================ */
 var st = { set:'A', state:'AGREED', step:'lookup', chart:'2026-0417', pending:false,
            unfilled:false, back:false, legacy:false, showKeys:false,
-           hospital:'H1', selOpen:false };
+           hospital:'H1', selOpen:false, resubmit:false };
 var cur = null;   // 선택된 시나리오
 var curStep = 0;  // 0 Given 1 When 2 Then
 
@@ -511,6 +513,13 @@ function hospitalField(){
     menu+'</div>';
 }
 
+/* 재제출(AC-6) 상태 안내 — 이미 응답 이력이 있는 환자 */
+function resubmitNote(){
+  if(!st.resubmit) return '';
+  return '<div class="addnote"><b>이 폼 세트에 응답 이력이 있는 환자</b><br>'+
+    '이미 응답했다는 이유로 차단되지 않고 그대로 진행된다 (AC-6).</div>';
+}
+
 function screenHTML(){
   var s=setOf(st.set);
 
@@ -527,6 +536,10 @@ function screenHTML(){
       '<span style="font-size:11px;color:#7a5b13">← AC-2 · 어느 병원의 응답인지 식별할 수 있는 값</span></div>'+
       '<ol>'+s.proms.map(function(p){ return '<li>'+p+' 문항 (실제 문항은 허브 탑재본 사용)</li>'; }).join('')+'</ol>'+
       '</div>'+
+      (st.resubmit ? '<div class="addnote" style="margin-top:12px;margin-bottom:0">'+
+        '<b>재제출 — AC-6</b><br>'+
+        '이 환자는 이 폼 세트에 이미 응답한 이력이 있지만 차단 없이 설문이 다시 열렸다. '+
+        '제출하면 앞선 응답을 덮어쓰지 않고 별도 건으로 쌓인다 (시나리오 6-2는 응답 시트에서 수동 확인).</div>' : '')+
       (st.legacy ? '<div style="margin-top:12px;background:#fdeceb;border:1px solid #f3c9c6;'+
         'border-radius:8px;padding:10px;font-size:11.5px;color:#8f2620;line-height:1.6">'+
         '기존 <b>IKDC + KOOS 고정 폼</b>이 열리지 않는다<br>'+
@@ -537,6 +550,7 @@ function screenHTML(){
 
   if(st.step==='lookup'){
     return head+
+      resubmitNote()+
       hospitalField()+
       fld('등록번호','등록번호를 입력하세요',K.lookupInput,true)+
       '<button class="btn k" data-key="'+K.lookupBtn+'" '+(st.hospital?'':'disabled')+
@@ -547,7 +561,7 @@ function screenHTML(){
   }
 
   /* branch / pending */
-  var body=head, able=true;
+  var body=head+resubmitNote(), able=true;
 
   var uf = st.unfilled;
   if(st.state==='NEW'){
@@ -600,6 +614,7 @@ function screenHTML(){
 }
 function toggleHospitalMenu(){ st.selOpen=!st.selOpen; paint(); }
 function pickHospital(id){ st.hospital=id; st.selOpen=false; renderCtl(); paint(); }
+function pickResubmit(v){ st.resubmit=v; st.selOpen=false; renderCtl(); paint(); }
 function doLookup(){ if(!st.hospital) return; st.step='branch'; st.unfilled=false; st.selOpen=false; paint(); }
 function doNext(){
   if(st.state==='NEW' || st.state==='NOT_AGREED'){
@@ -645,6 +660,10 @@ function renderCtl(){
       '<button class="opt'+(st.step==='branch'?' on':'')+'" onclick="pickStep(\'branch\')">분기</button>'+
       '<button class="opt'+(st.step==='survey'?' on':'')+'" onclick="pickStep(\'survey\')">설문</button>'+
     '</div></div>'+
+    '<div class="grp"><span>응답 이력 (AC-6)</span><div class="opts">'+
+      '<button class="opt'+(st.resubmit?'':' on')+'" onclick="pickResubmit(false)">첫 응답</button>'+
+      '<button class="opt'+(st.resubmit?' on':'')+'" onclick="pickResubmit(true)">재응답</button>'+
+    '</div></div>'+
     '<div class="toggle'+(st.showKeys?' on':'')+'" id="keytoggle1">화면 요소 키 표시</div>';
   document.getElementById('keytoggle1').onclick=toggleKeys;
 }
@@ -662,6 +681,7 @@ function toggleKeys(){
 function renderWhatNow(){
   var el=document.getElementById('whatnow'); if(!el) return;
   var s=setOf(st.set), rows=[];
+  if(st.resubmit) rows.push(['AC-6','응답 이력이 있어도 차단되지 않고 다시 진행된다 (재제출 허용)']);
   if(st.step==='lookup'){
     rows.push(['AC-1','QR로 진입하면 등록번호 입력과 조회 버튼이 표시된다']);
     rows.push(['AC-2','같은 QR로 들어온 환자를 등록번호로 식별한다']);
@@ -774,6 +794,7 @@ function applySim(o){
   st.unfilled = !!o.unfilled;
   st.back = !!o.back;
   st.legacy = !!o.legacy;
+  st.resubmit = !!o.resubmit;
   st.selOpen = false;
 }
 function setStep(n){
