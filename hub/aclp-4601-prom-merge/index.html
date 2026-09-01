@@ -162,25 +162,75 @@
   .sec-title .cntx{font-size:13px;font-weight:800;color:var(--ink-2);background:#EDEFF3;border-radius:20px;padding:2px 10px}
 
   /* ---------- 환자 상세 ---------- */
-  .det{display:grid;grid-template-columns:1.15fr .85fr;gap:20px;align-items:start}
-  .block{background:#fff;border:1px solid var(--line);border-radius:12px;padding:20px 22px;margin-bottom:20px}
-  .block h3{margin:0 0 14px;font-size:16px;font-weight:800;letter-spacing:-.3px;display:flex;align-items:center;gap:8px}
-  .rec{border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:12px}
-  .rec:last-child{margin-bottom:0}
-  .rec.incomplete{border-color:var(--warn-soft);background:var(--warn-bg);border-style:dashed}
-  .rec-h{display:flex;align-items:center;gap:9px;margin-bottom:8px}
-  .rec-h .nm{font-size:15.5px;font-weight:700}
-  .rec-h .sp{flex:1}
-  .rec-meta{font-size:13px;color:var(--ink-3)}
+  .det{display:grid;grid-template-columns:300px 1fr;gap:26px;align-items:start}
+  .coltitle{font-size:17px;font-weight:800;letter-spacing:-.4px;margin:0 0 14px;display:flex;align-items:center}
+  .coltitle .sp{flex:1}
+
+  .card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:20px 22px;margin-bottom:14px}
+  .card:last-child{margin-bottom:0}
+  .card-h{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+  .card-h .nm{font-size:19px;font-weight:800;letter-spacing:-.4px}
+  .card-h .sp{flex:1}
+
+  .dl{display:flex;flex-direction:column;gap:11px;margin-bottom:18px}
+  .dl .r{display:flex;align-items:baseline;gap:12px;font-size:14px}
+  .dl .r .k{color:var(--ink-3);font-weight:500;flex:0 0 128px}
+  .dl .r .v{color:var(--ink);font-weight:500}
+  .dl .r .v.need{color:var(--warn);font-weight:700}
+  .fullbtn{display:block;width:100%;border:0;border-radius:9px;padding:11px;font-size:14px;font-weight:700;background:var(--blue);color:#fff}
+  .fullbtn:hover{background:#1D57D6}
+
+  .signed{display:flex;align-items:center;justify-content:center;gap:7px;font-size:14.5px;font-weight:700;color:var(--blue)}
+  .memo-empty{font-size:13.5px;color:var(--ink-3)}
+
+  /* 진료 기록 트리 */
+  .dxcard{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:16px}
+  .dxcard:last-child{margin-bottom:0}
+  .dxcard.incomplete{border-color:var(--warn-soft)}
+  .dxbanner{background:var(--warn-bg);border-radius:8px;padding:11px 14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+  .dxbanner .msg{font-size:13.5px;color:#3C4149;display:flex;align-items:center;gap:7px}
+  .dxbanner .msg .ico{color:var(--warn)}
+  .dxbanner .sp{flex:1}
+  .dxbanner .tags{display:flex;gap:6px;flex-wrap:wrap}
+
+  .dxhead{display:flex;align-items:center;gap:8px}
+  .dxhead .nm{font-size:16.5px;font-weight:600;letter-spacing:-.2px}
+  .dxhead .nm.empty{color:var(--ink-4);font-weight:500}
+  .dxhead .sp{flex:1}
+  .dxhead .d{font-size:13.5px;color:var(--ink-3)}
+  .dxhead .kebab{border:0;background:none;color:var(--ink-3);font-size:16px;padding:0 4px;line-height:1}
+  .dxlabel{font-size:13px;color:var(--ink-3);font-weight:500;margin-right:2px}
+
+  .dxdiv{height:1px;background:var(--line);margin:16px 0}
+
+  .sxrow{display:flex;align-items:center;gap:9px;padding:2px 0}
+  .sxrow .chev{color:var(--ink-2);font-size:13px;width:14px;text-align:center;cursor:pointer;user-select:none}
+  .sxrow .nm{font-size:15.5px;font-weight:500}
+  .sxrow .nm.empty{color:var(--ink-4)}
+  .sxrow .sp{flex:1}
+  .sxrow .d{font-size:13.5px;color:var(--ink-3)}
+  .sxrow .kebab{border:0;background:none;color:var(--ink-3);font-size:16px;padding:0 4px;line-height:1}
+
+  .sxbody{margin:10px 0 0 23px}
+  .leaf{border:1px solid var(--line);border-radius:9px;padding:12px 15px;display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:14px}
+  .leaf:last-child{margin-bottom:0}
+  .leaf .dot{color:var(--ink-4)}
+  .leaf .sp{flex:1}
+  .leaf .d{font-size:13px;color:var(--ink-3)}
+  .pill{font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:5px;background:#F1F2F5;color:var(--ink-2);white-space:nowrap}
+  .pill.preset{background:#F1F2F5;color:var(--ink-2)}
+  .pill.today{background:var(--warn-bg);color:var(--warn)}
+  .leaf .src{font-size:12.5px;color:var(--ink-3)}
+
+  .addlinks{display:flex;gap:18px;margin-top:12px;padding-left:23px}
+  .addlink{border:0;background:none;padding:0;font-size:13.5px;font-weight:500;color:var(--ink-3)}
+  .addlink:hover{color:var(--blue)}
+  .addrow{margin-top:14px}
+  .addrow .addlink{padding-left:0;font-size:14px}
+  .bigadd{display:block;width:100%;border:1px solid var(--line-2);background:#fff;border-radius:9px;padding:12px;font-size:14.5px;font-weight:600;color:#3C4149}
+  .bigadd:hover{background:#FAFBFC}
+
   .stage{font-size:12px;font-weight:700;padding:3px 9px;border-radius:5px;background:#F1F3F7;color:var(--ink-2)}
-  .evt{display:flex;align-items:flex-start;gap:12px;padding:13px 15px;border:1px solid var(--line);border-radius:10px;margin-bottom:10px}
-  .evt:last-child{margin-bottom:0}
-  .evt .badge{font-size:11.5px;font-weight:800;padding:3px 8px;border-radius:5px;white-space:nowrap;margin-top:1px}
-  .evt .badge.preset{background:#F1F3F7;color:var(--ink-2);border:1px solid var(--line-2)}
-  .evt .badge.today{background:var(--warn-bg);color:var(--warn);border:1px solid var(--warn-soft)}
-  .evt .b{flex:1}
-  .evt .b .ttl{font-size:14.5px;font-weight:700;margin-bottom:3px}
-  .evt .b .sub{font-size:12.5px;color:var(--ink-3)}
 
   /* ---------- 다이얼로그 ---------- */
   .dim{position:fixed;inset:0;background:rgba(233,235,238,.74);backdrop-filter:blur(1.5px);
@@ -699,56 +749,182 @@
 <!-- ==================== 환자 상세 ==================== -->
 <main class="wrap view" id="view-detail">
   <div class="crumb"><a onclick="go('patients')">환자 관리</a> › 기록 미비 환자 › 김민수</div>
-  <div class="page-h">
-    <h1>김민수 <span style="font-size:15px;font-weight:600;color:var(--ink-3);margin-left:8px">차트번호 test1 · 무릎 우측</span></h1>
-    <div class="sp"></div>
-    <button class="btn dark" onclick="openMerge('김민수','test1','2026.08.12',true,'none')">＋ 기록 입력</button>
-  </div>
 
   <div class="det">
+
+    <!-- 좌측 : 환자 정보 -->
     <div>
-      <div class="block">
-        <h3>진단 · 치료 기록</h3>
+      <h2 class="coltitle">환자 정보</h2>
 
-        <div class="rec">
-          <div class="rec-h">
-            <span class="nm">ALL rupture / LCL rupture</span>
-            <span class="stage">수술 후</span>
-            <span class="sp"></span>
-            <span class="rec-meta">진단일 2026.08.01</span>
-          </div>
-          <div class="rec-meta">Arthroplasty · 수술일 2026.08.04</div>
+      <div class="card">
+        <div class="card-h">
+          <span class="nm">김민수</span>
+          <span class="sp"></span>
+          <button class="btn xs">✎ 수정</button>
         </div>
+        <div class="dl">
+          <div class="r"><span class="k">차트번호</span><span class="v">test1</span></div>
+          <div class="r"><span class="k">생년월일 (만 나이)</span><span class="v need">입력 필요</span></div>
+          <div class="r"><span class="k">성별</span><span class="v">남성</span></div>
+          <div class="r"><span class="k">키 / 몸무게 (BMI)</span><span class="v need">입력 필요</span></div>
+          <div class="r"><span class="k">연락처</span><span class="v">010-9999-0001</span></div>
+        </div>
+        <button class="fullbtn">🗒 검사 리포트</button>
+      </div>
 
-        <div class="rec incomplete">
-          <div class="rec-h">
-            <span class="jt tmp">임시</span>
-            <span class="nm" style="font-size:14.5px;color:var(--ink-2)">미기입 진단</span>
-            <span class="sp"></span>
-            <span class="rec-meta">구글 폼 응답으로 생성</span>
-          </div>
-          <div class="rec-meta">보존적 치료 (임시 부여) · 진단명 · 수술명 미기입</div>
+      <div class="card" style="padding:16px 22px">
+        <div class="signed">✓ 이용약관 서명완료</div>
+      </div>
+
+      <div class="card">
+        <div class="card-h" style="margin-bottom:12px">
+          <span class="nm" style="font-size:16px">메모</span>
+          <span class="sp"></span>
+          <button class="btn xs">✎ 수정</button>
         </div>
+        <div class="memo-empty">입력된 메모가 없습니다.</div>
       </div>
     </div>
 
+    <!-- 우측 : 진료 기록 -->
     <div>
-      <div class="block">
-        <h3>평가 기록</h3>
+      <h2 class="coltitle">
+        진료 기록
+        <span class="sp"></span>
+        <button class="btn">＋ 진단 추가</button>
+      </h2>
 
-        <div class="evt">
-          <span class="badge preset">프리셋</span>
-          <div class="b"><div class="ttl">IKDC Score</div><div class="sub">2026.08.12 17:20 생성 · 전날 준비 · 미응답</div></div>
+      <!-- 구글 폼 응답으로 생긴 임시 진단 -->
+      <div class="dxcard incomplete">
+        <div class="dxbanner">
+          <span class="msg"><span class="ico">⚠</span>'기록 입력' 버튼을 눌러 필요한 정보를 입력해 주세요.</span>
+          <span class="sp"></span>
+          <span class="tags">
+            <span class="misstag">생년월일</span>
+            <span class="misstag">키</span>
+            <span class="misstag">체중</span>
+            <span class="misstag">진단 기록</span>
+            <span class="misstag">수술 기록</span>
+          </span>
         </div>
-        <div class="evt">
-          <span class="badge today">당일 응답</span>
-          <div class="b"><div class="ttl">IKDC Score</div><div class="sub">2026.08.13 08:41 응답 · 구글 폼</div></div>
+
+        <div class="dxhead">
+          <span class="dxlabel">진단</span>
+          <span class="jt knee">무릎</span><span class="jt side">우측</span><span class="jt tmp">임시</span>
         </div>
-        <div class="evt">
-          <span class="badge today">당일 응답</span>
-          <div class="b"><div class="ttl">KOOS</div><div class="sub">2026.08.13 08:41 응답 · 구글 폼</div></div>
+        <div class="dxhead" style="margin-top:6px">
+          <span class="nm empty">진단명 미기입</span>
+          <span class="sp"></span>
+          <span class="d">—</span>
+          <button class="kebab">⋮</button>
         </div>
+
+        <div class="dxdiv"></div>
+
+        <div class="sxrow">
+          <span class="chev">⌄</span>
+          <span class="nm empty">보존적 치료 (임시 부여)</span>
+          <span class="jt tmp">임시</span>
+          <span class="sp"></span>
+          <span class="d">—</span>
+          <button class="kebab">⋮</button>
+        </div>
+        <div class="sxbody">
+          <div class="leaf">
+            <span class="dot">·</span>
+            <span>IKDC Score</span>
+            <span class="pill today">당일 응답</span>
+            <span class="sp"></span>
+            <span class="src">구글 폼</span>
+            <span class="d">2026.08.13 08:41</span>
+          </div>
+          <div class="leaf">
+            <span class="dot">·</span>
+            <span>KOOS</span>
+            <span class="pill today">당일 응답</span>
+            <span class="sp"></span>
+            <span class="src">구글 폼</span>
+            <span class="d">2026.08.13 08:41</span>
+          </div>
+        </div>
+
+        <div class="dxdiv"></div>
+
+        <button class="bigadd" onclick="openMerge('김민수','test1','2026.08.12',true,'none')">＋ 기록 입력</button>
       </div>
+
+      <!-- 실제 진단 -->
+      <div class="dxcard">
+        <div class="dxhead">
+          <span class="jt knee">무릎</span><span class="jt side">우측</span>
+          <span class="nm">ALL rupture / LCL rupture</span>
+          <span class="sp"></span>
+          <span class="d">2026.08.01</span>
+          <button class="kebab">⋮</button>
+        </div>
+
+        <div class="dxdiv"></div>
+
+        <div class="sxrow">
+          <span class="chev">⌄</span>
+          <span class="nm">Arthroplasty</span>
+          <span class="sp"></span>
+          <span class="d">2026.08.04</span>
+          <button class="kebab">⋮</button>
+        </div>
+        <div class="sxbody">
+          <div class="leaf">
+            <span class="dot">·</span>
+            <span>수술 후 추적관리 : 0주차</span>
+            <span class="sp"></span>
+            <span class="d">2026.08.12</span>
+          </div>
+          <div class="leaf">
+            <span class="dot">·</span>
+            <span>IKDC Score</span>
+            <span class="pill preset">프리셋</span>
+            <span class="sp"></span>
+            <span class="src">전날 준비 · 미응답</span>
+            <span class="d">2026.08.12 17:20</span>
+          </div>
+        </div>
+        <div class="addlinks">
+          <button class="addlink">＋ 수술 전 평가</button>
+          <button class="addlink">＋ 수술 후 추적관리</button>
+        </div>
+
+        <div class="dxdiv"></div>
+
+        <div class="addrow"><button class="addlink">＋ 기록 추가</button></div>
+      </div>
+
+      <div class="dxcard">
+        <div class="dxhead">
+          <span class="jt knee">무릎</span><span class="jt side">좌측</span>
+          <span class="nm">Medial Meniscus Tear</span>
+          <span class="sp"></span>
+          <span class="d">2026.05.20</span>
+          <button class="kebab">⋮</button>
+        </div>
+
+        <div class="dxdiv"></div>
+
+        <div class="sxrow">
+          <span class="chev">›</span>
+          <span class="nm">Knee Conservative</span>
+          <span class="sp"></span>
+          <span class="d">2026.05.22</span>
+          <button class="kebab">⋮</button>
+        </div>
+        <div class="addlinks">
+          <button class="addlink">＋ 보존적 평가</button>
+        </div>
+
+        <div class="dxdiv"></div>
+
+        <div class="addrow"><button class="addlink">＋ 기록 추가</button></div>
+      </div>
+
     </div>
   </div>
 </main>
