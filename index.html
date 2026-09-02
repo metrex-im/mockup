@@ -28,6 +28,8 @@ li .desc { font-size:13px; color:#555B68; font-weight:400; flex:1; }
 
 <h2>Hub</h2>
 <ul id="hub">
+<li><a href="hub/aclp-4424-review-send-current/"><span>진료기록 검토·발송 흐름 (현재)</span><span class="desc">현재 구조 — 「진료 내용 발송」·「진료기록 검토」 형제 버튼, 검토 완료 시 발송 활성 · 검토 모달(응답/미응답·판정 보류) (ACLP-4424)</span><span class="meta">2026.09.02</span></a></li>
+<li><a href="hub/aclp-4424-review-send-proposed/"><span>진료기록 검토·발송 흐름 (제안)</span><span class="desc">개편안 — 단일 「진료기록 검토」 주버튼 → ①문진 답안 검토 → ②환자 리포트 미리보기 → 그 자리 발송 · 검토 저장 시 읽기전용·다시 녹음 해제 (ACLP-4424)</span><span class="meta">2026.09.02</span></a></li>
 <li><a href="hub/aclp-4466-report-view/"><span>진료 리포트 수신·열람</span><span class="desc">카톡 알림톡/문자 대체발송 링크로 여는 진료 리포트 열람 페이지 · 로딩·정상 본문·로딩실패+재시도·링크오류 상태 + 문자(LMS) 가안 · 화면 요소 키 매핑 (ACLP-4466)</span><span class="meta">2026.09.01</span></a></li>
 <li><a href="hub/aclp-4423-image-upload-v4/"><span>진료 중 키 이미지 등록</span><span class="desc">진료 건 생성 후에만 이미지 등록 폼 노출 · 최대 20개·형식 제한 · 모달리티 탭(X-RAY/MRI/CT/OTHER)·노트 · 개수 초과/형식 오류 첨부 실패 안내 팝업 · 논리 ID 오버레이 (ACLP-4423)</span><span class="meta">2026.09.01</span></a></li>
 <li><a href="hub/aclp-4415-prom-intake-v1/"><span>환자 유형·질환별 PROM 접수 플로우</span><span class="desc">모바일 접수 인트로 조회 분기(신규 등록·기존 동의 O·재동의) · 약관 통합 서명(법정대리인 포함) · 구글폼 병원/등록번호 자동 입력·필수 검증 · uuid 누락 오류 (ACLP-4415)</span><span class="meta">2026.09.01</span></a></li>
@@ -39,8 +41,8 @@ li .desc { font-size:13px; color:#555B68; font-weight:400; flex:1; }
 <li><a href="hub/aclp-4451-report-v1/"><span>리포트 확인·발송·출력</span><span class="desc">시연용 리포트 화면을 전 병원 노출 · 검사 종합 탭에 출력(인쇄) 추가, 검사일만 선택 가능한 날짜 이동, 발송 확인 팝업에 대상 번호 (ACLP-4451)</span><span class="meta">2026.08.19</span></a></li>
 <li><a href="hub/aclp-4220-recording-v1/"><span>진료 녹음 · 무릎 수술군 확장</span><span class="desc">'진료 유형 선택' 다이얼로그에 질환 축(무릎 11개 노드) 추가 · 초진(H&amp;P)/재진(SOAP) 분기 (ACLP-4220)</span><span class="meta">2026.08.14</span></a></li>
 <li><a href="hub/aclp-4601-prom-merge/"><span>PROM 응답 병합 · 치료 단계 치환</span><span class="desc">구글 폼 PROM 응답의 미매칭 노출(오늘의 환자 별도 영역·기록 미비) → 실제 진단·수술 병합 · 환자 상세 임시 구분 · 보존적 치료 집계 분리 (ACLP-4601, 5판 · AC-1~11)</span><span class="meta">2026.08.31</span></a></li>
-<li><a href="hub/aclp-4424-patient-report-v1/"><span>환자 리포트 보기·발송</span><span class="desc">녹음 기반 환자용 리포트 생성 → 보기·수정(수정 완료 저장) → 미리보기(잠금) → 발송 (ACLP-4424)</span><span class="meta">2026.08.12</span></a></li>
 <li><a href="hub/aclp-4602-qr/"><span>현장 QR PROM 수집</span><span class="desc">환자 유형·질환별 PROM 폼 현장 QR 제공 · 폼 세트 분기·무설치 진입 (ACLP-4602)</span><span class="meta">2026.08.12</span></a></li>
+<li><a href="hub/aclp-4424-patient-report-v1/"><span>환자 리포트 보기·발송</span><span class="desc">녹음 기반 환자용 리포트 생성 → 보기·수정(수정 완료 저장) → 미리보기(잠금) → 발송 (ACLP-4424)</span><span class="meta">2026.08.12</span></a></li>
 <li><a href="hub/hub-recording-live/"><span>진료 녹음 (개편)</span><span class="desc">진료 녹음 화면 개편 · 초진(H&amp;P)/재진(SOAP) 실시간 문진 → 환자 발송 (ACLP-4303)</span><span class="meta">2026.07.08</span></a></li>
 <li><a href="hub/visit-summary/"><span>환자용 진료내용 안내</span><span class="desc">환자용 진료내용 public 페이지 · 톡톡 연계, 만료/오류 상태 지원 (ACLP-4303)</span><span class="meta">2026.07.08</span></a></li>
 <li><a href="hub/weekly-trends/"><span>학회 주간 동향</span><span class="desc">주간 학회/논문 동향 리포트 (최신본)</span><span class="meta">2026.06.29</span></a></li>
