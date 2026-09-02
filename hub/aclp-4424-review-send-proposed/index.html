@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>진료 검토·발송 흐름 (제안)</title>
+<style>
+  :root{
+    --blue:#2F5CF0; --blue-d:#2247d0; --blue-soft:#EAF0FE; --blue-line:#C7D6FF;
+    --bg:#F4F5F7; --card:#FFFFFF; --line:#E7E9EE; --line-2:#EDEFF3;
+    --ink:#1E2430; --ink-2:#5A6474; --muted:#9AA2B1;
+    --gsel-bg:#EAF7EF; --gsel-line:#A6E0BE; --gsel-tx:#1E8E4E;
+    --gpill-bg:#E3F6EA; --gpill-tx:#12A150;
+    --green:#12A971; --green-soft:#E7F7EF;
+    --red:#D4483B; --red-soft:#FCEEEC; --red-line:#F3C7C1;
+    --amber:#E98C15;
+    --radius:12px; --shadow:0 1px 2px rgba(16,24,40,.04),0 8px 24px rgba(16,24,40,.06);
+    --font:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",system-ui,-apple-system,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);
+    -webkit-font-smoothing:antialiased;font-size:14px;line-height:1.5}
+  .wrap{max-width:1180px;margin:0 auto;padding:22px 20px 80px}
+
+  .phead{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:6px}
+  .phead h1{font-size:19px;margin:0 0 4px;letter-spacing:-.2px}
+  .phead p{margin:0;color:var(--ink-2);font-size:13px;max-width:660px}
+  .verbadge{display:inline-flex;align-items:center;background:var(--green-soft);color:var(--green);border:1px solid #B6E6CE;
+    border-radius:999px;padding:4px 14px;font-size:13px;font-weight:700;flex:none}
+
+  .lead{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:14px 16px;margin:14px 0 18px;box-shadow:var(--shadow);font-size:13px;color:var(--ink-2)}
+  .lead b{color:var(--ink)}
+  .lead .tagg{display:inline-block;border-radius:999px;padding:1px 8px;font-size:11px;font-weight:700;margin-right:6px;background:var(--green-soft);color:var(--green);border:1px solid #B6E6CE}
+
+  .app{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:var(--shadow)}
+  .topbar{display:flex;align-items:center;gap:16px;padding:12px 18px;border-bottom:1px solid var(--line-2)}
+  .brand{display:flex;align-items:center;gap:8px;font-weight:800;color:var(--ink);letter-spacing:-.4px;font-size:15px}
+  .brand .mk{width:20px;height:20px;border-radius:6px;background:linear-gradient(135deg,#3B6BFF,#7AA0FF);display:inline-block}
+  .divider{width:1px;height:18px;background:var(--line)}
+  .nav{display:flex;gap:18px;color:var(--ink-2);font-size:13px}
+  .nav .cur{color:var(--blue);font-weight:700}
+  .acc{margin-left:auto;display:flex;align-items:center;gap:12px}
+  .acc .hosp{color:var(--muted);font-size:12px}
+  .acc .pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:9px;padding:6px 10px;font-size:12px;color:var(--ink)}
+  .acc .pill .i{width:14px;height:14px;border-radius:50%;background:var(--amber);color:#fff;font-size:10px;display:flex;align-items:center;justify-content:center;font-weight:800}
+
+  .body{display:grid;grid-template-columns:250px 1fr;min-height:560px}
+  .rail{border-right:1px solid var(--line-2);padding:16px;background:#FCFCFD;display:flex;flex-direction:column;gap:14px}
+  .rc{border:1px solid var(--line);border-radius:12px;padding:12px;background:#fff}
+  .rc .lab{font-size:11px;color:var(--muted);margin:0 0 6px}
+  .selbox{border:1px solid var(--line);border-radius:9px;padding:9px 11px;font-size:13px;display:flex;align-items:center;justify-content:space-between;background:#fff}
+  .rc .top{display:flex;align-items:center;justify-content:space-between}
+  .rc .top b{font-size:13px}
+  .rc .srch{border:1px solid var(--line);background:#fff;border-radius:7px;padding:4px 9px;font-size:11px;color:var(--ink-2);cursor:pointer}
+  .pnm{font-weight:700;margin-top:8px;display:flex;align-items:center;justify-content:space-between}
+  .pnm .x{color:var(--muted);cursor:pointer}
+  .psub{color:var(--muted);font-size:11px;margin-top:2px}
+  .prow{display:flex;align-items:center;justify-content:space-between;margin-top:10px;font-size:12px;color:var(--ink-2)}
+  .prow b{color:var(--blue)}
+  .chip-btn{border:1px solid var(--line);background:#fff;border-radius:7px;padding:5px 9px;font-size:11px;color:var(--ink-2);cursor:pointer}
+  .fbtn{width:100%;border-radius:9px;font:inherit;font-weight:700;font-size:13px;padding:10px;margin-top:9px;cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--muted)}
+  .fbtn.blue{background:var(--blue);color:#fff;border-color:var(--blue)}
+  .fbtn.blue:hover{background:var(--blue-d)}
+  .stt h4{font-size:12px;margin:2px 0 8px;color:var(--ink)}
+  .clip{margin-top:9px}
+  .clip .t{font-size:12px;font-weight:700}
+  .clip .s{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.45}
+
+  .main{padding:16px 18px;display:flex;flex-direction:column;min-width:0}
+  .mhead{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+  .mhead h3{margin:0;font-size:15px}
+  .cnt{background:#EEF1F6;color:#5A6474;border-radius:6px;padding:1px 7px;font-size:12px;font-weight:700}
+  .bd{border-radius:999px;padding:2px 9px;font-size:11px;font-weight:700}
+  .bd-chogin{background:var(--blue-soft);color:var(--blue)}
+  .bd-draft{background:var(--blue);color:#fff}
+  .bd-lock{background:#EEF1F6;color:#5A6474;border:1px solid var(--line)}
+  .lock-note{display:none;margin-top:12px;font-size:12.5px;color:var(--ink-2);background:#F4F6F9;border:1px solid var(--line);border-radius:9px;padding:10px 12px;line-height:1.5}
+  .lock-note b{color:var(--ink)}
+  .main.locked .lock-note{display:block}
+  .main.locked .qlist{opacity:.92}
+  .mhead .date{margin-left:auto;color:var(--muted);font-size:12px}
+
+  .qlist{display:flex;flex-direction:column;gap:10px;overflow:auto;max-height:560px;padding-right:2px}
+  .q{border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+  .q.ans{border-color:var(--gsel-line);background:#FCFEFD}
+  .qh{display:flex;align-items:center;gap:8px}
+  .qn{background:#EEF1F6;color:#5A6474;border-radius:6px;padding:1px 7px;font-size:11px;font-weight:700}
+  .qt{font-weight:700;font-size:13.5px}
+  .ai{display:flex;align-items:center;gap:8px;margin:8px 0 2px;flex-wrap:wrap}
+  .ai-pill{background:var(--gpill-bg);color:var(--gpill-tx);border-radius:6px;padding:2px 8px;font-size:11px;font-weight:800}
+  .ai-x{border:0;background:#F1F3F5;color:var(--muted);width:18px;height:18px;border-radius:5px;font-size:11px;cursor:pointer;line-height:1}
+  .ai-src{background:#F2F4F7;color:#6B7280;border-radius:6px;padding:2px 8px;font-size:11.5px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  .chip{border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 12px;font-size:12.5px;color:#3C4453}
+  .chip.sel{background:var(--gsel-bg);border-color:var(--gsel-line);color:var(--gsel-tx);font-weight:700}
+
+  .spacer{flex:1;min-height:8px}
+
+  .bar{border-top:1px solid var(--line-2);padding:14px 2px 2px;display:flex;flex-direction:column;gap:8px}
+  .barrow{display:flex;gap:12px;align-items:center}
+  .btn{border:0;border-radius:10px;font:inherit;font-weight:700;cursor:pointer;padding:12px 18px;font-size:14px;
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:.12s;white-space:nowrap}
+  .btn:active{transform:translateY(1px)}
+  .btn-primary{background:var(--blue);color:#fff}
+  .btn-primary:hover{background:var(--blue-d)}
+  .btn-ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+  .btn-ghost:hover{background:#F7F8FA}
+  .hint{font-size:12px;color:var(--muted)}
+  .grow{flex:1}
+
+  .notes{margin-top:14px;display:grid;gap:8px}
+  .note{display:flex;gap:10px;align-items:flex-start;border-radius:10px;padding:10px 12px;font-size:12.5px;line-height:1.5}
+  .note.good{background:var(--green-soft);border:1px solid #B6E6CE;color:#0B5E40}
+  .note .no{font-weight:800;flex:none}
+
+  .scrim{position:fixed;inset:0;background:rgba(20,24,33,.42);display:none;align-items:center;justify-content:center;padding:24px;z-index:40}
+  .scrim.open{display:flex}
+  .modal{background:#fff;width:min(720px,100%);max-height:88vh;border-radius:16px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 64px rgba(16,24,40,.28)}
+  .mtop{padding:16px 20px;border-bottom:1px solid var(--line-2);display:flex;align-items:center;gap:10px}
+  .mtop h4{margin:0;font-size:16px}
+  .mtop .x{margin-left:auto;border:0;background:#F2F4F7;width:30px;height:30px;border-radius:8px;cursor:pointer;color:var(--ink-2);font-size:16px}
+  .mbody{padding:16px 20px;overflow:auto}
+  .mfoot{padding:14px 20px;border-top:1px solid var(--line-2);display:flex;align-items:center;gap:10px;background:#FCFCFD}
+
+  .rev{display:flex;flex-direction:column;gap:10px}
+  .rev .item{border:1px solid var(--line);border-radius:11px;padding:12px 14px}
+  .rev .ih{display:flex;align-items:center;gap:8px}
+  .rev .ih .edit{margin-left:auto;color:var(--ink-2);font-size:12px;cursor:pointer;border:1px solid var(--line);border-radius:7px;padding:3px 10px;background:#fff}
+  .rev .av{margin-top:7px;font-size:13px}
+  .rev .av.on{color:var(--ink);font-weight:600}
+  .rev .av.off{color:var(--muted)}
+  .rev .lack{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--line);border-radius:11px;padding:12px 14px;background:#F7F8FA;color:var(--ink-2);font-size:13px}
+
+  .steps{display:flex;align-items:center;gap:8px;padding:14px 20px;border-bottom:1px solid var(--line-2);background:#FBFCFE}
+  .step{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:13px;font-weight:600}
+  .step .dot{width:22px;height:22px;border-radius:50%;background:#E4E7EE;color:#8B93A1;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800}
+  .step.on{color:var(--ink)}
+  .step.on .dot{background:var(--blue);color:#fff}
+  .step.done{color:var(--green)}
+  .step.done .dot{background:var(--green);color:#fff}
+  .step-line{flex:1;height:1px;background:var(--line);min-width:16px}
+
+  .doc-label{font-size:11px;font-weight:800;letter-spacing:.3px;padding:2px 8px;border-radius:6px;display:inline-block;margin-bottom:10px}
+  .doc-patient{background:var(--blue-soft);color:var(--blue-d);border:1px solid var(--blue-line)}
+  .report{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .report .rtop{background:linear-gradient(180deg,#F7F9FF,#fff);padding:16px 18px;border-bottom:1px solid var(--line-2)}
+  .report .rtop .h{font-size:16px;font-weight:800}
+  .report .rtop .s{color:var(--ink-2);font-size:12.5px;margin-top:3px}
+  .report .rbody{padding:16px 18px}
+  .report h6{margin:14px 0 5px;font-size:13px;color:var(--blue-d)}
+  .report h6:first-child{margin-top:0}
+  .report p{margin:0 0 8px;font-size:13.5px;color:var(--ink);line-height:1.6}
+  .report .chan{margin-top:14px;padding-top:12px;border-top:1px dashed var(--line);color:var(--ink-2);font-size:12px;display:flex;gap:8px;align-items:center}
+
+  .toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%) translateY(20px);background:#111826;color:#fff;padding:12px 18px;border-radius:10px;font-size:13px;font-weight:600;opacity:0;pointer-events:none;transition:.25s;z-index:60;display:flex;gap:10px;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .legend{font-size:11px;color:var(--muted);margin-top:10px;text-align:right}
+  @media(max-width:760px){.body{grid-template-columns:1fr}.rail{display:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="phead">
+    <div>
+      <h1>진료 녹음 — 진료기록 검토·발송 흐름 (제안)</h1>
+      <p>하단은 「진료기록 검토」 하나(주 버튼). 누르면 ①문진 답안 검토 → ②환자 리포트 미리보기 → 발송으로 이어지고, 발송은 환자 리포트를 본 직후 그 자리에서 실행됩니다.</p>
+    </div>
+    <span class="verbadge">제안</span>
+  </div>
+
+  <div class="lead" id="lead"></div>
+
+  <div class="app">
+    <div class="topbar">
+      <div class="brand"><span class="mk"></span>RISE-K</div>
+      <div class="divider"></div>
+      <div class="nav"><span>환자 관리</span><span>오늘의 환자</span><span class="cur">진료 녹음</span><span>논문 관리</span></div>
+      <div class="acc">
+        <span class="hosp">시연용병원</span>
+        <span class="pill"><span class="i">i</span> 시연용공용계정님 ▾</span>
+      </div>
+    </div>
+
+    <div class="body">
+      <div class="rail">
+        <div class="rc">
+          <p class="lab">진료실 선택</p>
+          <div class="selbox">진료실1 <span style="color:var(--muted)">▾</span></div>
+        </div>
+        <div class="rc">
+          <div class="top"><b>환자 선택</b><span class="srch">🔍 검색</span></div>
+          <div class="pnm">김지환 <span class="x">✕</span></div>
+          <div class="psub">여성 · 차트 SY8185</div>
+          <div class="prow"><span>진료 <b>14</b> 회</span><span class="chip-btn">📅 진료 선택</span></div>
+          <button class="fbtn">▶ 진료 이어하기</button>
+          <button class="fbtn blue">+ 새 진료 시작</button>
+        </div>
+        <div class="rc">
+          <button class="fbtn blue" style="margin-top:0">🎤 녹음 시작</button>
+          <div class="stt" style="margin-top:12px">
+            <h4>실시간 STT</h4>
+            <div class="clip"><div class="t">녹음 1</div><div class="s">환자: 일주일 전에 다쳤어요 반월상 연골 손상이라고 하더라고요</div></div>
+            <div class="clip"><div class="t">녹음 2</div><div class="s">환자: 그리고 두 종이 생기더라고요 이번에 처음 다 잡아 가지고 너무 무서웠어요</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="main">
+        <div class="mhead">
+          <h3>문진 답안</h3><span class="cnt">3/13</span>
+          <span class="bd bd-chogin">초진</span>
+          <span class="bd bd-draft">작성중</span>
+          <span class="bd bd-lock" id="lockBadge" hidden>🔒 읽기전용</span>
+          <span class="date">2026.09.02 08:29</span>
+        </div>
+        <div class="qlist" id="qlist"></div>
+        <div class="lock-note" id="lockNote">🔒 저장됨 · 이 진료는 읽기전용입니다. 좌측 <b>[다시 녹음]</b>을 누르면 기존 답안을 유지한 채 이어서 녹음할 수 있어요.</div>
+        <div class="spacer"></div>
+        <div class="bar" id="bar"></div>
+        <div class="notes" id="notes"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="legend">※ 시연용 가상 환자 데이터입니다.</div>
+</div>
+
+<!-- 제안: 검토 → 환자 리포트 → 발송 -->
+<div class="scrim" id="m-new">
+  <div class="modal">
+    <div class="mtop"><h4>진료기록 검토 및 발송</h4><button class="x" onclick="closeModal('m-new')">✕</button></div>
+    <div class="steps">
+      <div class="step on" id="s1"><span class="dot">1</span> 문진 답안 검토</div>
+      <div class="step-line"></div>
+      <div class="step" id="s2"><span class="dot">2</span> 환자 리포트 미리보기</div>
+    </div>
+    <div class="mbody">
+      <div id="pane1"><div class="rev" id="rev-new"></div></div>
+      <div id="pane2" hidden>
+        <span class="doc-label doc-patient">환자용 · 실제 발송되는 문서입니다</span>
+        <div class="report">
+          <div class="rtop">
+            <div class="h">김지환 님, 오늘 진료 결과를 안내드려요</div>
+            <div class="s">2026.09.02 · 시연용병원 정형외과</div>
+          </div>
+          <div class="rbody">
+            <h6>오늘 진료 요약</h6>
+            <p>무릎을 다치신 지 약 1주가 지났고, 문진과 진료 내용을 종합할 때 반월상 연골 손상이 의심됩니다.</p>
+            <h6>다음 단계</h6>
+            <p>손상 범위를 정확히 확인하기 위해 정밀검사(MRI)를 진행할 예정입니다. 검사 결과에 따라 치료 방향을 함께 결정하겠습니다.</p>
+            <h6>생활 안내</h6>
+            <p>검사 전까지 무릎에 무리가 가는 활동은 피해 주시고, 붓기나 통증이 심해지면 알려주세요.</p>
+            <div class="chan">📷 사진 리포트 &nbsp;·&nbsp; 💬 카카오 알림톡으로 발송</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="mfoot" id="foot-new"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span>✓</span><span id="toast-t"></span></div>
+
+<script>
+  var QMAIN = [
+    {n:'Q.1',q:'언제쯤 다치셨나요?',ai:'100%',src:'일주일 전에 다쳤어요',opts:['1주 전','1–6주 전','6주–3개월 전','3개월–1년 전','1년 이상'],sel:0},
+    {n:'Q.2',q:'어떤 동작에서 다치셨나요?',opts:['방향 전환 중 (비접촉)','무릎이 뒤로 꺾임 (과신전)','상대와 부딪힘 (접촉·충돌)','잘 모르겠음'],sel:-1},
+    {n:'Q.3',q:'수상 당시 신호를 모두 선택해주세요.',opts:['"뚝/펑" 소리 (Pop)','수 시간 내 부종 (혈관절증)','해당 없음'],sel:-1},
+    {n:'Q.4',q:'이전 ACL 또는 같은 쪽 무릎 손상/수술 이력이 있나요?',ai:'90%',src:'이번에 처음 다 잡아 가지고',opts:['없음 (초발)','ACL 진단만 (수술 안 함)','ACL 재건술 이력 (Revision)'],sel:0},
+    {n:'Q.5',q:'동반 손상이 있나요? 해당 항목을 모두 선택해주세요.',ai:'100%',src:'반월상 연골 손상이라고 하더라고요',opts:['반월상연골 손상','연골 손상','다중 인대 손상 (PCL·MCL·LCL·PLC)','없음'],sel:0},
+    {n:'Q.6',q:'평소 활동 수준은 어느 정도인가요?',opts:['Level I — 선수/피벗 주2회↑','Level II — 방향전환 레저','Level III — 직선 운동','Level IV — 일상생활 위주'],sel:-1}
+  ];
+  document.getElementById('qlist').innerHTML = QMAIN.map(function(q){
+    var ai = q.ai ? '<div class="ai"><span class="ai-pill">AI 제안 · '+q.ai+'</span><button class="ai-x">✕</button><span class="ai-src">근거: '+q.src+'</span></div>' : '';
+    var chips = q.opts.map(function(o,i){ return '<span class="chip'+(i===q.sel?' sel':'')+'">'+o+'</span>'; }).join('');
+    return '<div class="q'+(q.sel>=0?' ans':'')+'"><div class="qh"><span class="qn">'+q.n+'</span><span class="qt">'+q.q+'</span></div>'+ai+'<div class="chips">'+chips+'</div></div>';
+  }).join('');
+
+  var QREV = [
+    ['Q.1','언제쯤 다치셨나요?','1주 전'],
+    ['Q.2','어떤 동작에서 다치셨나요?',''],
+    ['Q.3','수상 당시 신호를 모두 선택해주세요.',''],
+    ['Q.4','이전 ACL 또는 같은 쪽 무릎 손상/수술 이력이 있나요?','없음 (초발)'],
+    ['Q.5','동반 손상이 있나요? 해당 항목을 모두 선택해주세요.','반월상연골 손상'],
+    ['Q.6','평소 활동 수준은 어느 정도인가요?',''],
+    ['Q.7','환자의 연령대는 어디에 해당하나요?','']
+  ];
+  document.getElementById('rev-new').innerHTML = QREV.map(function(r){
+    var a = r[2] ? '<div class="av on">'+r[2]+'</div>' : '<div class="av off">답변 없음</div>';
+    return '<div class="item"><div class="ih"><span class="qn">'+r[0]+'</span><span class="qt">'+r[1]+'</span><span class="edit">수정</span></div>'+a+'</div>';
+  }).join('') + '<div class="lack">수술 경로 · 판정 보류 (핵심 입력 부족) <span style="color:var(--muted)">▾</span></div>';
+
+  document.getElementById('lead').innerHTML = '<span class="tagg">제안</span> 하단은 <b>「진료기록 검토」 하나</b>(주 버튼). 누르면 <b>①문진 답안 검토 → ②환자 리포트 미리보기 → 발송</b> 순서로 이어지고, <b>발송은 환자 리포트를 본 직후 그 자리에서</b> 실행됩니다. 어느 경로로 들어와도 항상 ①검토부터 열립니다.';
+  document.getElementById('notes').innerHTML =
+    '<div class="note good"><span class="no">✓</span><div><b>검토가 주 버튼.</b> 지금 할 일(검토)이 하단의 유일한 파란 버튼. 발송은 검토 흐름 끝으로.</div></div>'+
+    '<div class="note good"><span class="no">✓</span><div><b>본 것 = 보내는 것.</b> ②단계에서 실제 환자 리포트를 미리 본 직후, 같은 화면에서 발송합니다.</div></div>'+
+    '<div class="note good"><span class="no">✓</span><div><b>언제 들어와도 문진 답안부터.</b> 늘 보던 포맷으로 먼저 검토 → 환자 리포트. 낯선 화면에 먼저 떨어지지 않습니다.</div></div>';
+
+  var newState = 'draft'; // 'draft' | 'locked'
+  function lockMain(){ document.querySelector('.main').classList.add('locked'); document.getElementById('lockBadge').hidden=false; }
+  function unlockMain(){ document.querySelector('.main').classList.remove('locked'); document.getElementById('lockBadge').hidden=true; }
+
+  function renderBar(){
+    if(newState==='locked'){
+      document.getElementById('bar').innerHTML =
+        '<div class="barrow"><button class="btn btn-ghost" onclick="reRecordFromLock()">🎤 다시 녹음</button>'+
+        '<span class="hint" style="margin-left:10px">저장됨 · 읽기전용</span>'+
+        '<span class="grow"></span>'+
+        '<button class="btn btn-primary" onclick="openReview()">📋 진료기록 검토</button></div>';
+    } else {
+      document.getElementById('bar').innerHTML =
+        '<div class="barrow"><button class="btn btn-primary" onclick="openReview()">📋 진료기록 검토</button>'+
+        '<span class="hint" style="margin-left:10px">검토를 마치면 환자 리포트 확인 후 발송까지 이어집니다</span></div>';
+    }
+  }
+
+  function openModal(id){ document.getElementById(id).classList.add('open'); }
+  function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+
+  function openReview(){ gotoStep(1); openModal('m-new'); }
+  function gotoStep(n){
+    document.getElementById('pane1').hidden = (n!==1);
+    document.getElementById('pane2').hidden = (n!==2);
+    document.getElementById('s1').className = 'step ' + (n===1?'on':'done');
+    document.getElementById('s2').className = 'step ' + (n===2?'on':'');
+    renderFoot(n);
+  }
+  function renderFoot(n){
+    var f = document.getElementById('foot-new');
+    if(n===1){
+      f.innerHTML =
+        '<span class="hint">저장하면 병원 기록으로 남고, 화면은 읽기전용이 됩니다.</span><span class="grow"></span>'+
+        '<button class="btn btn-ghost" onclick="saveAndClose()">저장하고 닫기</button>'+
+        '<button class="btn btn-primary" onclick="gotoStep(2)">검토 완료 · 환자 리포트 확인 →</button>';
+    }else{
+      f.innerHTML =
+        '<span class="hint">환자에게 카카오 알림톡으로 전송됩니다.</span><span class="grow"></span>'+
+        '<button class="btn btn-ghost" onclick="gotoStep(1)">← 문진 답안</button>'+
+        '<button class="btn btn-primary" onclick="sendReport()">환자에게 발송</button>';
+    }
+  }
+  function saveAndClose(){ newState='locked'; closeModal('m-new'); lockMain(); renderBar(); toast('검토 내용을 저장했습니다 · 읽기전용으로 전환 (발송 안 함)'); }
+  function reRecordFromLock(){ newState='draft'; unlockMain(); renderBar(); toast('다시 녹음 — 기존 답안은 유지됩니다'); }
+  function sendReport(){ newState='locked'; closeModal('m-new'); lockMain(); renderBar(); toast('환자에게 리포트를 발송했습니다'); }
+
+  var toastTimer;
+  function toast(msg){
+    var t=document.getElementById('toast');
+    document.getElementById('toast-t').textContent = msg;
+    t.classList.add('show'); clearTimeout(toastTimer);
+    toastTimer=setTimeout(function(){t.classList.remove('show')}, 2600);
+  }
+  renderBar();
+</script>
+</body>
+</html>
