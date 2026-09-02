@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>RISE-K · PROM 응답 병합</title>
+<title>RISE-K · PROM 응답 병합 (확정 AC 반영판)</title>
 <style>
   :root{
     --bg:#F4F5F7; --line:#E7E9ED; --line-2:#D9DCE2;
@@ -129,6 +129,7 @@
   .tempbox .cat{font-size:13px;color:var(--ink-2);margin-top:9px}
   .tempbox .form{font-size:14px;color:var(--ink);margin-top:3px}
   .tempbox .hintline{font-size:12.5px;color:var(--warn);margin-top:8px}
+  .hintline{font-size:12.5px;color:var(--warn)}
 
   /* ---------- 환자 상세 ---------- */
   .det{display:grid;grid-template-columns:300px 1fr;gap:26px;align-items:start}
@@ -214,6 +215,7 @@
   .selwrap .sp{flex:1}
   .selwrap .cv{color:var(--ink-3)}
   .hint2{display:flex;align-items:flex-start;gap:6px;font-size:12.5px;color:var(--ink-3);margin-top:9px;max-width:340px}
+  .field-err{display:none;color:#DC3545;font-size:12.5px;font-weight:600;margin-top:8px}
 
   .mdlg-div{height:1px;background:var(--line);margin:22px 0}
 
@@ -236,7 +238,7 @@
   .pvbox .sp{flex:1}
   .pvbox .meta{font-size:12.5px;color:var(--ink-2)}
 
-  /* 진단 추가 · 수술 추가 다이얼로그 */
+  /* 진단 추가 · 치료 추가 다이얼로그 */
   .frow{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:20px}
   .radios{display:grid;grid-template-columns:1fr 1fr;gap:18px}
   .rad{display:flex;align-items:center;gap:9px;font-size:14px;cursor:pointer}
@@ -257,10 +259,11 @@
   .sdlg-h h3{margin:0;font-size:18px;font-weight:800;letter-spacing:-.3px}
   .sdlg-h .sp{flex:1}
   .sdlg-h .x{border:0;background:none;font-size:18px;color:var(--ink-3);padding:2px 6px}
-  .sdlg-b{padding:20px 26px 6px;overflow:auto}
+  .sdlg-b{padding:20px 26px 22px;overflow:auto}
   .candnote{font-size:13px;color:var(--ink-3);margin:0 0 12px}
-  .cand{border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:10px}
+  .cand{border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:10px;cursor:pointer}
   .cand:last-child{margin-bottom:0}
+  .cand:hover{border-color:var(--blue-line)}
   .cand.sel{border-color:var(--blue);background:var(--blue-weak)}
   .cand .b .t{font-size:15px;font-weight:700;margin-bottom:3px}
   .cand .b .m{font-size:12.5px;color:var(--ink-3)}
@@ -313,7 +316,7 @@
     </div>
     <div class="sum">
       <div class="t">기록 완료 환자 <span class="note">수술 기록 제외</span></div>
-      <div class="v">18명</div>
+      <div class="v" id="completeCount">18명</div>
     </div>
     <div class="sum">
       <div class="t">기록 미비 환자 <span class="note">정보 및 의료 기록 미입력</span></div>
@@ -321,7 +324,7 @@
     </div>
     <div class="sum">
       <div class="t">기록 완료율 <span class="note">데이터 입력률</span></div>
-      <div class="v">75.0%</div>
+      <div class="v" id="completeRate">75.0%</div>
     </div>
   </div>
 
@@ -356,7 +359,7 @@
   <div class="plist" id="incompleteList">
 
     <!-- ① 구글 폼 PROM · 진단·수술 없음 · 평가 그룹 미지정 -->
-    <div class="prow" data-prom="1">
+    <div class="prow" data-name="김민수">
       <div class="prow-h">
         <span class="nm">김민수</span>
         <span class="no">ywleeprd-1042</span>
@@ -383,7 +386,7 @@
       <div class="newlabel">↳ 새로 추가된 평가<span class="d">2026.08.13</span></div>
       <div class="tempbox">
         <span class="temppill">임시 데이터</span>
-        <div class="grp none">평가 그룹 미지정<span class="d">2026.08.13 08:41</span></div>
+        <div class="grp none">평가 그룹 미지정<span class="d">응답일 2026.08.13 08:41</span></div>
         <div class="cat">↳ 환자 주관적 평가</div>
         <div class="form">IKDC Score</div>
         <div class="form">KOOS</div>
@@ -392,7 +395,7 @@
     </div>
 
     <!-- ② 구글 폼 PROM · 진단 없음 -->
-    <div class="prow" data-prom="1">
+    <div class="prow" data-name="박서연">
       <div class="prow-h">
         <span class="nm">박서연</span>
         <span class="no">ywleeprd-1043</span>
@@ -418,7 +421,7 @@
       <div class="newlabel">↳ 새로 추가된 평가<span class="d">2026.08.13</span></div>
       <div class="tempbox">
         <span class="temppill">임시 데이터</span>
-        <div class="grp none">평가 그룹 미지정<span class="d">2026.08.13 09:02</span></div>
+        <div class="grp none">평가 그룹 미지정<span class="d">응답일 2026.08.13 09:02</span></div>
         <div class="cat">↳ 환자 주관적 평가</div>
         <div class="form">IKDC Score</div>
         <div class="hintline">구글 폼 응답 · 담당자가 기록 입력에서 위치를 지정해야 합니다</div>
@@ -426,7 +429,7 @@
     </div>
 
     <!-- ③ 구글 폼 PROM · 진단은 있고 수술만 없음 -->
-    <div class="prow" data-prom="1">
+    <div class="prow" data-name="정하늘">
       <div class="prow-h">
         <span class="nm">정하늘</span>
         <span class="no">ywleeprd-1044</span>
@@ -455,7 +458,7 @@
       <div class="newlabel">↳ 새로 추가된 평가<span class="d">2026.08.13</span></div>
       <div class="tempbox">
         <span class="temppill">임시 데이터</span>
-        <div class="grp none">평가 그룹 미지정<span class="d">2026.08.13 09:15</span></div>
+        <div class="grp none">평가 그룹 미지정<span class="d">응답일 2026.08.13 09:15</span></div>
         <div class="cat">↳ 환자 주관적 평가</div>
         <div class="form">KOOS</div>
         <div class="hintline">구글 폼 응답 · 담당자가 기록 입력에서 위치를 지정해야 합니다</div>
@@ -463,7 +466,7 @@
     </div>
 
     <!-- ④ 기존 경로(접수 시트·프리셋) · 평가 그룹이 이미 지정돼 있음 -->
-    <div class="prow" data-prom="0">
+    <div class="prow" data-name="서동주테스트">
       <div class="prow-h">
         <span class="nm">서동주테스트</span>
         <span class="no">ywleeprd-0002</span>
@@ -494,7 +497,7 @@
     </div>
 
     <!-- ⑤ 기존 미비 환자 · 신체 정보만 미비 -->
-    <div class="prow" data-prom="0">
+    <div class="prow" data-name="백주연">
       <div class="prow-h">
         <span class="nm">백주연</span>
         <span class="no">test1</span>
@@ -527,7 +530,7 @@
     </div>
 
     <!-- ⑥ 기존 미비 환자 · 수술 기록만 미비 -->
-    <div class="prow" data-prom="0">
+    <div class="prow" data-name="이준호">
       <div class="prow-h">
         <span class="nm">이준호</span>
         <span class="no">A-2291</span>
@@ -615,7 +618,7 @@
         <div class="newlabel" style="margin-top:0">↳ 새로 추가된 평가<span class="d">2026.08.13</span></div>
         <div class="tempbox">
           <span class="temppill">임시 데이터</span>
-          <div class="grp none">평가 그룹 미지정<span class="d">2026.08.13 08:41</span></div>
+          <div class="grp none">평가 그룹 미지정<span class="d">응답일 2026.08.13 08:41</span></div>
           <div class="cat">↳ 환자 주관적 평가</div>
           <div class="form">IKDC Score</div>
           <div class="form">KOOS</div>
@@ -713,7 +716,7 @@
         <div class="fields">
           <div class="f">
             <label>생년월일 <i>*</i></label>
-            <div class="inpwrap"><input placeholder="YYYY.MM.DD"><button class="inbtn">날짜 선택</button></div>
+            <div class="inpwrap"><input id="birthInput" placeholder="YYYY.MM.DD"><button class="inbtn">날짜 선택</button></div>
           </div>
           <div class="f">
             <label>키</label>
@@ -725,6 +728,7 @@
           </div>
         </div>
         <div class="hint2"><span>ⓘ</span> 1906.01.01 ~ 2026.08.31 이내로 입력해주세요.</div>
+        <div class="field-err" id="birthErr">생년월일은 필수입니다. 입력해야 병합을 확정할 수 있습니다.</div>
         <div class="mdlg-div"></div>
       </div>
 
@@ -733,14 +737,9 @@
 
       <div id="tempArea"></div>
 
-      <div id="preview" style="display:none">
-        <div class="pvbox">
-          <span class="lbl">치환</span>
-          <span>치료 단계 <b style="color:var(--warn)">미지정</b> → <b style="color:var(--blue)" id="pvStage">수술 후 추적관리</b></span>
-          <span class="sp"></span>
-          <span class="meta" id="pvSets">설문 응답 2건 함께 이동</span>
-        </div>
-      </div>
+      <div id="grpArea" style="margin-top:14px"></div>
+
+      <div id="preview" style="display:none"></div>
     </div>
 
     <div class="mdlg-f">
@@ -750,7 +749,31 @@
   </div>
 </div>
 
-<!-- ==================== 진단 추가 다이얼로그 ==================== -->
+<!-- ==================== 진단 선택 다이얼로그 (후보 = 실제 진단 전체) ==================== -->
+<div class="dim lv2" id="dxSelDim">
+  <div class="mdlg narrow">
+    <div class="sdlg-h"><h3>진단 선택</h3><span class="sp"></span><button class="x" onclick="closeDxSel()">✕</button></div>
+    <div class="sdlg-b">
+      <p class="candnote">임시 데이터에는 관절·환측 정보가 없어, 이 환자의 실제 진단 <b>전체</b>가 후보로 표시됩니다. 응답 내용을 확인하고 올바른 진단을 선택해 주세요.</p>
+      <div id="dxCands"></div>
+      <button class="addbtn" style="margin-top:12px;margin-bottom:0" onclick="openDxCreateFromSel()">＋ 신규 진단 추가</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 수술 선택 다이얼로그 ==================== -->
+<div class="dim lv2" id="txSelDim">
+  <div class="mdlg narrow">
+    <div class="sdlg-h"><h3>수술 선택</h3><span class="sp"></span><button class="x" onclick="closeTxSel()">✕</button></div>
+    <div class="sdlg-b">
+      <p class="candnote">선택한 진단 아래의 실제 수술·치료가 후보로 표시됩니다.</p>
+      <div id="txCands"></div>
+      <button class="addbtn" style="margin-top:12px;margin-bottom:0" onclick="openTxCreateFromSel()">＋ 신규 치료 추가</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 진단 추가(생성) 다이얼로그 ==================== -->
 <div class="dim lv2" id="dxDim">
   <div class="mdlg">
     <div class="sdlg-h"><h3>진단 추가</h3></div>
@@ -769,8 +792,8 @@
       <div class="f" style="margin-bottom:22px">
         <label>환측 <i>*</i></label>
         <div class="radios">
-          <label class="rad"><input type="radio" name="side"> 좌측</label>
-          <label class="rad"><input type="radio" name="side"> 우측</label>
+          <label class="rad"><input type="radio" name="side" value="좌측"> 좌측</label>
+          <label class="rad"><input type="radio" name="side" value="우측" checked> 우측</label>
         </div>
       </div>
 
@@ -781,7 +804,7 @@
           <label class="cb"><input type="checkbox"> ALL rupture</label>
           <label class="cb"><input type="checkbox"> Cartilage Damage</label>
           <label class="cb"><input type="checkbox"> Discoid Meniscus</label>
-          <label class="cb"><input type="checkbox"> LCL rupture</label>
+          <label class="cb"><input type="checkbox" checked> LCL rupture</label>
           <label class="cb"><input type="checkbox"> Lateral Meniscus Tear</label>
           <label class="cb"><input type="checkbox"> MCL rupture</label>
           <label class="cb"><input type="checkbox"> MPFL Lesion</label>
@@ -799,34 +822,35 @@
           <label class="cb"><input type="checkbox"> Other</label>
         </div>
       </div>
-
-      <div class="mdlg-div"></div>
-
-      <div class="toggrow">
-        수술 기록
-        <button class="tog" id="sxTog" onclick="this.classList.toggle('on')"></button>
-      </div>
     </div>
     <div class="mdlg-f">
       <button class="bigbtn" onclick="closeDx()">취소</button>
-      <button class="bigbtn primary" onclick="pickDx('LCL rupture','2026.09.11')">확인</button>
+      <button class="bigbtn primary" onclick="confirmDxCreate()">확인</button>
     </div>
   </div>
 </div>
 
-<!-- ==================== 수술 추가 다이얼로그 ==================== -->
+<!-- ==================== 치료 추가(생성) 다이얼로그 ==================== -->
 <div class="dim lv2" id="txDim">
   <div class="mdlg narrow">
     <div class="sdlg-b" style="padding:24px 26px 6px">
-      <div class="dlgbar">수술 추가</div>
+      <div class="dlgbar">치료 추가</div>
 
       <div class="f" style="margin-bottom:22px">
-        <label>수술 날짜 <i>*</i></label>
+        <label>치료 유형 <i>*</i></label>
+        <div class="radios">
+          <label class="rad"><input type="radio" name="txcat" value="수술" checked onchange="syncTxCat()"> 수술</label>
+          <label class="rad"><input type="radio" name="txcat" value="보존적 치료" onchange="syncTxCat()"> 보존적 치료</label>
+        </div>
+      </div>
+
+      <div class="f" style="margin-bottom:22px">
+        <label>치료 날짜 <i>*</i></label>
         <div class="inpwrap"><input placeholder="YYYY.MM.DD"><button class="inbtn">날짜 선택</button></div>
       </div>
 
       <div class="f">
-        <label>수술명 <i>*</i></label>
+        <label>치료명 <i>*</i></label>
         <div class="cbgrid two" id="sxNames">
           <label class="cb"><input type="checkbox" value="Arthroplasty"> Arthroplasty</label>
           <label class="cb"><input type="checkbox" value="Cartilage Surgery"> Cartilage Surgery</label>
@@ -835,6 +859,10 @@
           <label class="cb"><input type="checkbox" value="Meniscus Surgery"> Meniscus Surgery</label>
           <label class="cb"><input type="checkbox" value="Osteotomy"> Osteotomy</label>
           <label class="cb"><input type="checkbox" value="Pellofemoral Surgery"> Pellofemoral Surgery</label>
+          <label class="cb"><input type="checkbox" value="Other"> Other</label>
+        </div>
+        <div class="cbgrid two" id="csNames" style="display:none">
+          <label class="cb"><input type="checkbox" value="Knee Conservative"> Knee Conservative</label>
           <label class="cb"><input type="checkbox" value="Other"> Other</label>
         </div>
       </div>
@@ -846,9 +874,28 @@
   </div>
 </div>
 
+<!-- ==================== 확정 전 확인 (되돌릴 수 없음) ==================== -->
+<div class="dim lv2" id="confirmDim">
+  <div class="mdlg narrow" style="max-width:460px">
+    <div class="mdlg-b" style="text-align:center;padding:32px 28px 20px">
+      <div style="font-size:32px;margin-bottom:12px">⚠️</div>
+      <h3 style="margin:0 0 9px;font-size:17px;font-weight:800">병합은 되돌릴 수 없습니다</h3>
+      <p style="margin:0;color:var(--ink-2);font-size:14px;line-height:1.65">
+        저장하면 설문 응답이 선택한 진단·수술의 평가 그룹으로 이동하고<br>
+        임시 진단·수술은 정리됩니다. 이 작업은 되돌릴 수 없습니다.<br>
+        계속하시겠습니까?
+      </p>
+    </div>
+    <div class="mdlg-f">
+      <button class="bigbtn" onclick="closeConfirm()">취소</button>
+      <button class="bigbtn primary" onclick="confirmSave()">확인 후 저장</button>
+    </div>
+  </div>
+</div>
+
 <!-- ==================== 완료 안내 ==================== -->
 <div class="dim lv2" id="okDim">
-  <div class="mdlg narrow" style="max-width:440px">
+  <div class="mdlg narrow" style="max-width:460px">
     <div class="mdlg-b" style="text-align:center;padding:32px 28px 20px">
       <div style="font-size:32px;margin-bottom:12px">✅</div>
       <h3 style="margin:0 0 9px;font-size:17px;font-weight:800">기록이 저장되었습니다</h3>
@@ -870,7 +917,18 @@
     b.addEventListener('click', function(){ go(b.dataset.view) });
   });
 
-  var st = { dx:null, tx:null, kind:'prom-none' };
+  var st = { kind:'prom-none', dx:null, tx:null, grp:null };
+
+  // 데모용: 이 환자의 실제(정식) 진단·수술·평가 그룹. 임시 레코드에는 환측 값이 없으므로
+  // 진단 후보는 환측으로 거르지 않고 전체를 보여준다. (AC-8)
+  var DXS = [
+    { n:'ALL rupture / LCL rupture', side:'우측', d:'2026.08.01',
+      txs:[{ n:'Arthroplasty', d:'2026.08.04',
+             groups:[{ n:'수술 후 추적관리', meta:'0주차 · IKDC Score 1건 (2026.08.12)', forms:['IKDC Score'] }] }] },
+    { n:'Medial Meniscus Tear', side:'좌측', d:'2026.05.20',
+      txs:[{ n:'Knee Conservative', d:'2026.05.22',
+             groups:[{ n:'보존적 평가', meta:'KOOS 1건 (2026.06.01)', forms:['KOOS'] }] }] }
+  ];
 
   var TEMP = {
     'prom-none': { group:null, cat:'환자 주관적 평가', forms:['IKDC Score','KOOS'], at:'2026.08.13 08:41' },
@@ -883,15 +941,17 @@
   function openMerge(name, reg, kind){
     document.getElementById('mgName').textContent = name;
     document.getElementById('mgReg').textContent = '환자 등록일 ' + reg;
-    st.kind = kind; st.dx = null; st.tx = null;
+    st.kind = kind; st.dx = null; st.tx = null; st.grp = null;
+    document.getElementById('birthErr').style.display = 'none';
+    document.getElementById('birthInput').value = '';
 
     // 신체 정보는 미입력일 때만 노출 — 서동주테스트처럼 이미 채워진 환자에게는 나오지 않는다
     document.getElementById('bioWrap').style.display = (kind === 'legacy') ? 'none' : 'block';
 
-    if(kind === 'prom-dx') st.dx = {n:'MPFL Lesion', d:'2026.08.08'};
-    if(kind === 'dx')      st.dx = {n:'Medial Meniscus Tear', d:'2026.07.18'};
-    if(kind === 'both'){   st.dx = {n:'Medial Meniscus Tear', d:'2026.07.18'};
-                           st.tx = {n:'Knee Conservative', d:'2026.07.26', s:'보존적 평가'}; }
+    if(kind === 'prom-dx') st.dx = { n:'MPFL Lesion', side:'우측', d:'2026.08.08', txs:[] };
+    if(kind === 'dx')      st.dx = { n:'Medial Meniscus Tear', side:'좌측', d:'2026.07.18', txs:[] };
+    if(kind === 'both'){   st.dx = { n:'Medial Meniscus Tear', side:'우측', d:'2026.07.18', txs:[] };
+                           st.tx = { n:'Knee Conservative', d:'2026.07.26', groups:[] }; }
 
     render();
     document.getElementById('mergeDim').classList.add('on');
@@ -901,113 +961,245 @@
   function tempHtml(t){
     if(!t) return '';
     var head = t.group
-      ? '<div class="grp">' + t.group + '<span class="d">' + t.at + '</span></div>'
-      : '<div class="grp none">평가 그룹 미지정<span class="d">' + t.at + '</span></div>';
+      ? '<div class="grp">' + t.group + '<span class="d">응답일 ' + t.at + '</span></div>'
+      : '<div class="grp none">평가 그룹 미지정<span class="d">응답일 ' + t.at + '</span></div>';
     var forms = t.forms.map(function(f){ return '<div class="form">' + f + '</div>' }).join('');
     var hint = t.group ? ''
-      : '<div class="hintline">구글 폼 응답이라 평가 그룹이 정해져 있지 않습니다</div>';
+      : '<div class="hintline">구글 폼 응답이라 평가 그룹이 정해져 있지 않습니다 — 아래에서 응답이 들어갈 그룹을 지정해 주세요</div>';
     return '<div class="tempbox" style="margin-top:4px">' +
              '<span class="temppill">임시 데이터</span>' + head +
              '<div class="cat">↳ ' + t.cat + '</div>' + forms + hint +
            '</div>';
   }
 
+  function grpLabel(){
+    if(!st.grp) return '';
+    return st.grp.mode === 'EXIST' ? st.grp.g.n + ' (기존 그룹)' : st.grp.type + ' (새 그룹)';
+  }
+  function dupForms(t){
+    if(!t || !st.grp || st.grp.mode !== 'EXIST') return [];
+    return t.forms.filter(function(f){ return st.grp.g.forms.indexOf(f) >= 0 });
+  }
+
   function render(){
+    var t = TEMP[st.kind];
     var dxArea = document.getElementById('dxArea');
     var txArea = document.getElementById('txArea');
-    var t = TEMP[st.kind];
+    var grpArea = document.getElementById('grpArea');
 
     if(st.dx){
       dxArea.innerHTML =
         '<div class="picked">' +
-          '<div class="reclabel">진단 <span class="jt knee">무릎</span><span class="jt side">우측</span></div>' +
+          '<div class="reclabel">진단 <span class="jt knee">무릎</span><span class="jt side">' + (st.dx.side || '-') + '</span></div>' +
           '<div class="recline">' + st.dx.n + '<span class="d">' + st.dx.d + '</span></div>' +
         '</div>';
     }else{
-      dxArea.innerHTML = '<button class="addbtn" onclick="openDx()">진단 추가</button>';
+      dxArea.innerHTML = '<button class="addbtn" onclick="openDxSel()">진단 추가</button>';
     }
 
     if(st.tx){
       txArea.innerHTML =
         '<div class="picked">' +
-          '<div class="reclabel">수술</div>' +
+          '<div class="reclabel">수술 · 치료</div>' +
           '<div class="recline">' + st.tx.n + '<span class="d">' + st.tx.d + '</span></div>' +
         '</div>';
     }else if(st.dx){
-      txArea.innerHTML = '<button class="addbtn" onclick="openTx()">수술 추가</button>';
+      txArea.innerHTML = '<button class="addbtn" onclick="openTxAdd()">수술 추가</button>';
     }else{
       txArea.innerHTML = '<button class="addbtn" disabled>수술 추가</button>';
     }
 
     document.getElementById('tempArea').innerHTML = tempHtml(t);
 
-    var ready = !!(st.dx && st.tx);
+    // 평가 그룹 지정 — PROM 임시 데이터가 있고 수술까지 정해진 뒤에만 노출 (AC-4·7)
+    if(t && st.tx){
+      var html = '<div class="reclabel">평가 그룹 지정 — 응답이 들어갈 그룹을 선택해 주세요</div>';
+      (st.tx.groups || []).forEach(function(g, i){
+        var sel = st.grp && st.grp.mode === 'EXIST' && st.grp.g === g;
+        html += '<div class="cand' + (sel ? ' sel' : '') + '" onclick="pickGrpExist(' + i + ')">' +
+                  '<div class="b"><div class="t">' + g.n + ' <span style="font-size:11.5px;color:var(--ink-3);font-weight:500">기존 그룹</span></div>' +
+                  '<div class="m">' + g.meta + ' · 이 그룹 안에 응답이 추가됩니다</div></div><span class="sp"></span>' +
+                '</div>';
+      });
+      ['수술 전 평가','수술 후 추적관리','보존적 평가'].forEach(function(ty){
+        var sel = st.grp && st.grp.mode === 'NEW' && st.grp.type === ty;
+        html += '<div class="cand' + (sel ? ' sel' : '') + '" onclick="pickGrpNew(\'' + ty + '\')">' +
+                  '<div class="b"><div class="t">＋ 새 그룹 · ' + ty + '</div>' +
+                  '<div class="m">' + ty + ' 그룹을 새로 만들어 응답을 넣습니다 · 기존 그룹은 변경되지 않습니다</div></div><span class="sp"></span>' +
+                '</div>';
+      });
+      grpArea.innerHTML = html;
+    }else{
+      grpArea.innerHTML = '';
+    }
+
+    var ready = t ? !!(st.dx && st.tx && st.grp) : !!(st.dx && st.tx);
     document.getElementById('saveBtn').disabled = !ready;
 
-    // 임시 그룹이 없는 응답만 치환 대상 — 이미 그룹이 있으면 바뀌는 값이 없다
-    var willReplace = ready && t && !t.group && st.tx.s;
-    document.getElementById('preview').style.display = willReplace ? 'block' : 'none';
-    if(willReplace){
-      document.getElementById('pvStage').textContent = st.tx.s;
-      document.getElementById('pvSets').textContent = '설문 응답 ' + t.forms.length + '건 함께 이동';
+    // 이동 미리보기 (치환 아님 — 그룹 지정·이동)
+    var pv = document.getElementById('preview');
+    if(t && ready){
+      var dup = dupForms(t);
+      var from = t.group ? t.group : '미지정';
+      pv.style.display = 'block';
+      pv.innerHTML =
+        '<div class="pvbox">' +
+          '<span class="lbl">이동</span>' +
+          '<span>평가 그룹 <b style="color:var(--warn)">' + from + '</b> → <b style="color:var(--blue)">' + grpLabel() + '</b></span>' +
+          '<span class="sp"></span>' +
+          '<span class="meta">설문 응답 ' + t.forms.length + '건 함께 이동</span>' +
+        '</div>' +
+        (dup.length ? '<div class="hintline" style="margin-top:8px">기존 그룹의 ' + dup.join(', ') + ' 응답은 최신 응답으로 대체됩니다</div>' : '');
+    }else{
+      pv.style.display = 'none';
+      pv.innerHTML = '';
     }
   }
 
+  function pickGrpExist(i){ st.grp = { mode:'EXIST', g: st.tx.groups[i] }; render(); }
+  function pickGrpNew(ty){ st.grp = { mode:'NEW', type: ty }; render(); }
+
+  // ---- 진단 선택: 후보 = 이 환자의 실제 진단 전체 (환측으로 거르지 않음 · AC-8) ----
+  function openDxSel(){
+    var html = '';
+    DXS.forEach(function(dx, i){
+      html += '<div class="cand" onclick="pickDxCand(' + i + ')">' +
+                '<div class="b"><div class="t"><span class="jt knee">무릎</span> <span class="jt side">' + dx.side + '</span> ' + dx.n + '</div>' +
+                '<div class="m">진단일 ' + dx.d + '</div></div><span class="sp"></span>' +
+              '</div>';
+    });
+    document.getElementById('dxCands').innerHTML = html;
+    document.getElementById('dxSelDim').classList.add('on');
+  }
+  function closeDxSel(){ document.getElementById('dxSelDim').classList.remove('on') }
+  function pickDxCand(i){
+    st.dx = DXS[i]; st.tx = null; st.grp = null;
+    closeDxSel(); render();
+  }
+  function openDxCreateFromSel(){ closeDxSel(); openDx(); }
+
   function openDx(){ document.getElementById('dxDim').classList.add('on') }
   function closeDx(){ document.getElementById('dxDim').classList.remove('on') }
-  function pickDx(n,d){ st.dx = {n:n, d:d}; closeDx(); render(); }
+  // 새 진단 생성: 환측은 생성 다이얼로그에서 입력받는다 (AC-8)
+  function confirmDxCreate(){
+    var side = document.querySelector('#dxDim input[name="side"]:checked');
+    st.dx = { n:'LCL rupture', side: side ? side.value : '우측', d:'2026.09.11', txs:[] };
+    st.tx = null; st.grp = null;
+    closeDx(); render();
+  }
 
-  // 수술 추가 — 후보가 없으면 선택 다이얼로그를 거치지 않고 생성 폼이 바로 열린다
+  // ---- 수술 선택/추가 ----
+  function openTxAdd(){
+    if(st.dx && st.dx.txs && st.dx.txs.length > 0){ openTxSel(); return; }
+    openTx();
+  }
+  function openTxSel(){
+    var html = '';
+    st.dx.txs.forEach(function(tx, i){
+      html += '<div class="cand" onclick="pickTxCand(' + i + ')">' +
+                '<div class="b"><div class="t">' + tx.n + '</div><div class="m">치료일 ' + tx.d + '</div></div><span class="sp"></span>' +
+              '</div>';
+    });
+    document.getElementById('txCands').innerHTML = html;
+    document.getElementById('txSelDim').classList.add('on');
+  }
+  function closeTxSel(){ document.getElementById('txSelDim').classList.remove('on') }
+  function pickTxCand(i){
+    st.tx = st.dx.txs[i]; st.grp = null;
+    closeTxSel(); render();
+  }
+  function openTxCreateFromSel(){ closeTxSel(); openTx(); }
+
   function openTx(){
-    document.querySelectorAll('#sxNames input').forEach(function(c){ c.checked = false });
-    syncSxBtn();
+    document.querySelectorAll('#sxNames input, #csNames input').forEach(function(c){ c.checked = false });
+    var surgRadio = document.querySelector('#txDim input[name="txcat"][value="수술"]');
+    if(surgRadio) surgRadio.checked = true;
+    syncTxCat();
     document.getElementById('txDim').classList.add('on');
   }
   function closeTx(){ document.getElementById('txDim').classList.remove('on') }
+  function txCat(){
+    var r = document.querySelector('#txDim input[name="txcat"]:checked');
+    return r ? r.value : '수술';
+  }
+  // 치료 유형 스위칭: 수술 ↔ 보존적 치료 (Q-3 답변 반영)
+  function syncTxCat(){
+    var isSurgery = txCat() === '수술';
+    document.getElementById('sxNames').style.display = isSurgery ? 'grid' : 'none';
+    document.getElementById('csNames').style.display = isSurgery ? 'none' : 'grid';
+    syncSxBtn();
+  }
   function checkedSx(){
-    return Array.prototype.slice.call(document.querySelectorAll('#sxNames input:checked'))
-      .map(function(c){ return c.value });
+    var sel = txCat() === '수술' ? '#sxNames input:checked' : '#csNames input:checked';
+    return Array.prototype.slice.call(document.querySelectorAll(sel)).map(function(c){ return c.value });
   }
   function syncSxBtn(){
     document.getElementById('sxAddBtn').disabled = checkedSx().length === 0;
   }
-  document.querySelectorAll('#sxNames input').forEach(function(c){
+  document.querySelectorAll('#sxNames input, #csNames input').forEach(function(c){
     c.addEventListener('change', syncSxBtn);
   });
   function addTx(){
     var names = checkedSx();
     closeTx();
-    // 수술 추가 다이얼로그에는 보존적 치료를 만드는 선택지가 없다 — 만들 수 있는 것은 수술뿐
-    st.tx = { n:names.join(' / '), d:'2026.09.08', s:'수술 후 추적관리' };
+    // 새로 만든 치료에는 아직 평가 그룹이 없다 — 그룹은 '평가 그룹 지정'에서 새로 만든다
+    st.tx = { n: names.join(' / '), d:'2026.09.08', groups:[] };
+    st.grp = null;
     render();
   }
 
+  // ---- 저장: 필수값 검증(AC-15) → 되돌릴 수 없음 확인(AC-6) → 확정 ----
   function doSave(){
+    var bioVisible = document.getElementById('bioWrap').style.display !== 'none';
+    var birth = document.getElementById('birthInput');
+    if(bioVisible && !birth.value){
+      document.getElementById('birthErr').style.display = 'block';
+      birth.focus();
+      return;
+    }
+    document.getElementById('birthErr').style.display = 'none';
+    document.getElementById('confirmDim').classList.add('on');
+  }
+  function closeConfirm(){ document.getElementById('confirmDim').classList.remove('on') }
+  function confirmSave(){
+    closeConfirm();
     var b = document.getElementById('saveBtn');
     b.disabled = true; b.textContent = '저장 중…';
     var t = TEMP[st.kind];
+    var name = document.getElementById('mgName').textContent;
+    var dup = dupForms(t);
+    var label = grpLabel();
+    var isNewGrp = st.grp && st.grp.mode === 'NEW';
+    var txName = st.tx ? st.tx.n : '';
+    var formCount = t ? t.forms.length : 0;
 
     setTimeout(function(){
       b.textContent = '저장';
       closeMerge();
 
-      // 완료 안내는 실제로 바뀐 것만 말한다
+      // 완료 안내는 실제로 일어난 일만 말한다 (치환 문구 제거)
       var lines = [];
       if(t){
-        if(!t.group && st.tx && st.tx.s) lines.push('치료 단계가 <b>' + st.tx.s + '</b>로 지정되고');
-        lines.push('설문 응답 ' + t.forms.length + '건이 선택한 기록으로 이동했습니다.');
+        lines.push('설문 응답 ' + formCount + '건이 <b>' + txName + ' · ' + label + '</b>(으)로 이동했습니다.');
+        if(isNewGrp) lines.push('새 그룹이 만들어졌고, 기존 그룹은 변경되지 않았습니다.');
+        if(dup.length) lines.push('기존 그룹의 ' + dup.join(', ') + ' 응답은 최신 응답으로 대체되었습니다.');
+        lines.push('병합에 사용된 임시 진단·수술은 정리되었습니다.');
       }else{
         lines.push('선택한 진단·수술이 저장되었습니다.');
       }
       document.getElementById('okBody').innerHTML = lines.join('<br>');
       document.getElementById('okDim').classList.add('on');
 
-      var n = Math.max(parseInt(document.getElementById('incompleteCount').textContent,10) - 1, 0);
-      document.getElementById('incompleteCount').textContent = n + '명';
-      document.getElementById('resCount').textContent = n;
+      // 집계 갱신 — 미비 −1 · 완료 +1 · 완료율 재계산 (총 24명 기준 · AC-10·11)
+      var inc = Math.max(parseInt(document.getElementById('incompleteCount').textContent, 10) - 1, 0);
+      document.getElementById('incompleteCount').textContent = inc + '명';
+      document.getElementById('resCount').textContent = inc;
+      var done = parseInt(document.getElementById('completeCount').textContent, 10) + 1;
+      document.getElementById('completeCount').textContent = done + '명';
+      document.getElementById('completeRate').textContent = (done / 24 * 100).toFixed(1) + '%';
 
-      var first = document.querySelector('#incompleteList .prow[data-prom="1"]');
-      if(first) first.remove();
+      var row = document.querySelector('#incompleteList .prow[data-name="' + name + '"]');
+      if(row) row.remove();
     }, 900);
   }
   function closeOk(){ document.getElementById('okDim').classList.remove('on') }
