@@ -274,12 +274,15 @@
   .pvbox .sp{flex:1}
   .pvbox .meta{font-size:12.5px;color:var(--ink-2)}
 
-  /* 진단 추가 다이얼로그 */
+  /* 진단 추가 · 수술 추가 다이얼로그 */
   .frow{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:20px}
   .radios{display:grid;grid-template-columns:1fr 1fr;gap:18px}
   .rad{display:flex;align-items:center;gap:9px;font-size:14px;cursor:pointer}
   .rad input{width:16px;height:16px;accent-color:var(--blue)}
   .cbgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px 18px;margin-top:4px}
+  .cbgrid.two{grid-template-columns:repeat(2,1fr);gap:18px 24px}
+  .dlgbar{display:block;width:100%;background:var(--navy);color:#fff;border:0;border-radius:9px;
+          padding:13px;font-size:15px;font-weight:700;text-align:center;margin-bottom:22px}
   .cb{display:flex;align-items:flex-start;gap:9px;font-size:14px;cursor:pointer;line-height:1.45}
   .cb input{width:16px;height:16px;margin-top:1px;accent-color:var(--blue);flex:0 0 auto}
   .toggrow{display:flex;align-items:center;gap:12px;font-size:14px;font-weight:600}
@@ -1026,23 +1029,31 @@
 <!-- ==================== 수술 추가 다이얼로그 ==================== -->
 <div class="dim lv2" id="txDim">
   <div class="mdlg narrow">
-    <div class="sdlg-h"><h3>수술 추가</h3></div>
-    <div class="sdlg-b">
-      <p class="candnote">선택한 진단 아래의 실제 수술 · 치료입니다.</p>
-      <div class="cand sel">
-        <div class="b"><div class="t">Extensor Mechanism Surgery</div><div class="m">수술일 2026.09.08</div></div>
-        <span class="sp"></span>
-        <span class="stage">수술 후</span>
+    <div class="sdlg-b" style="padding:24px 26px 6px">
+      <div class="dlgbar">수술 추가</div>
+
+      <div class="f" style="margin-bottom:22px">
+        <label>수술 날짜 <i>*</i></label>
+        <div class="inpwrap"><input placeholder="YYYY.MM.DD"><button class="inbtn">날짜 선택</button></div>
       </div>
-      <div class="cand">
-        <div class="b"><div class="t">Knee Conservative</div><div class="m">보존적 치료일 2026.08.30</div></div>
-        <span class="sp"></span>
-        <span class="stage">보존적</span>
+
+      <div class="f">
+        <label>수술명 <i>*</i></label>
+        <div class="cbgrid two" id="sxNames">
+          <label class="cb"><input type="checkbox" value="Arthroplasty"> Arthroplasty</label>
+          <label class="cb"><input type="checkbox" value="Cartilage Surgery"> Cartilage Surgery</label>
+          <label class="cb"><input type="checkbox" value="Extensor Mechanism Surgery"> Extensor Mechanism Surgery</label>
+          <label class="cb"><input type="checkbox" value="Ligament Surgery"> Ligament Surgery</label>
+          <label class="cb"><input type="checkbox" value="Meniscus Surgery"> Meniscus Surgery</label>
+          <label class="cb"><input type="checkbox" value="Osteotomy"> Osteotomy</label>
+          <label class="cb"><input type="checkbox" value="Pellofemoral Surgery"> Pellofemoral Surgery</label>
+          <label class="cb"><input type="checkbox" value="Other"> Other</label>
+        </div>
       </div>
     </div>
     <div class="mdlg-f">
-      <button class="bigbtn" onclick="createTx()">＋ 새 치료</button>
-      <button class="bigbtn primary" onclick="pickTx('Extensor Mechanism Surgery','2026.09.08','수술 후 추적관리')">확인</button>
+      <button class="bigbtn" onclick="closeTx()">취소</button>
+      <button class="bigbtn primary" id="sxAddBtn" disabled onclick="addTx()">추가</button>
     </div>
   </div>
 </div>
@@ -1158,10 +1169,30 @@
   function closeDx(){ document.getElementById('dxDim').classList.remove('on') }
   function pickDx(n,d){ st.dx = {n:n, d:d}; closeDx(); render(); }
 
-  function openTx(){ document.getElementById('txDim').classList.add('on') }
+  // 수술 추가 — 후보가 없으면 선택 다이얼로그를 거치지 않고 생성 폼이 바로 열린다
+  function openTx(){
+    document.querySelectorAll('#sxNames input').forEach(function(c){ c.checked = false });
+    syncSxBtn();
+    document.getElementById('txDim').classList.add('on');
+  }
   function closeTx(){ document.getElementById('txDim').classList.remove('on') }
-  function pickTx(n,d,s){ st.tx = {n:n, d:d, s:s}; closeTx(); render(); }
-  function createTx(){ closeTx(); st.tx = {n:'Knee Conservative (신규 생성)', d:'2026.08.13', s:'보존적 평가'}; render(); }
+  function checkedSx(){
+    return Array.prototype.slice.call(document.querySelectorAll('#sxNames input:checked'))
+      .map(function(c){ return c.value });
+  }
+  function syncSxBtn(){
+    document.getElementById('sxAddBtn').disabled = checkedSx().length === 0;
+  }
+  document.querySelectorAll('#sxNames input').forEach(function(c){
+    c.addEventListener('change', syncSxBtn);
+  });
+  function addTx(){
+    var names = checkedSx();
+    closeTx();
+    // 수술 추가 다이얼로그에는 보존적 치료를 만드는 선택지가 없다 — 만들 수 있는 것은 수술뿐
+    st.tx = { n:names.join(' / '), d:'2026.09.08', s:'수술 후 추적관리' };
+    render();
+  }
 
   function doSave(){
     var b = document.getElementById('saveBtn');
