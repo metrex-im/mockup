@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RISE-K · PROM 응답 병합</title>
+<style>
+  :root{
+    --bg:#F4F5F7; --line:#E7E9ED; --line-2:#D9DCE2;
+    --ink:#16181D; --ink-2:#5A6070; --ink-3:#9AA0AD; --ink-4:#B6BBC5;
+    --blue:#1B6EF3; --blue-weak:#EEF3FF; --blue-line:#C3D5FF;
+    --navy:#152A47;
+    --warn:#E8763A; --warn-bg:#FDEFE5; --warn-soft:#FBE3D2;
+    --knee-bg:#FDEBDD; --knee:#D2691E;
+    --dark:#22252B;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    font-size:14px; line-height:1.5; -webkit-font-smoothing:antialiased;
+  }
+  button{font-family:inherit;cursor:pointer}
+  input{font-family:inherit}
+
+  /* ---------- GNB ---------- */
+  .gnb{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:50}
+  .gnb-in{max-width:1400px;margin:0 auto;padding:0 28px;height:60px;display:flex;align-items:center;gap:6px}
+  .brand{display:flex;align-items:center;gap:9px;font-weight:800;font-size:19px;letter-spacing:-.5px;margin-right:6px;color:var(--blue)}
+  .brand .logo{width:24px;height:24px;border-radius:6px;background:var(--blue);display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:900}
+  .divider{width:1px;height:16px;background:var(--line-2);margin:0 16px}
+  .gnb-menu{display:flex;gap:2px;flex:1}
+  .gnb-menu button{background:none;border:0;padding:9px 14px;border-radius:8px;font-size:15px;font-weight:600;color:var(--ink-2);letter-spacing:-.2px}
+  .gnb-menu button:hover{background:#F3F4F7}
+  .gnb-menu button.on{color:var(--blue);font-weight:700}
+  .gnb-right{display:flex;align-items:center;gap:14px}
+  .hosp{font-size:14px;color:var(--ink-2)}
+  .userchip{display:flex;align-items:center;gap:7px;border:1px solid var(--line-2);border-radius:22px;padding:6px 13px;font-size:14px;font-weight:600}
+  .userchip .i{width:15px;height:15px;border-radius:50%;border:1.5px solid var(--warn);color:var(--warn);font-size:9px;display:flex;align-items:center;justify-content:center;font-weight:800}
+
+  /* ---------- Layout ---------- */
+  .wrap{max-width:1400px;margin:0 auto;padding:24px 28px 80px}
+  .page-h{display:flex;align-items:center;margin-bottom:18px}
+  .page-h h1{margin:0;font-size:22px;font-weight:800;letter-spacing:-.5px}
+  .page-h .sp{flex:1}
+  .page-h .acts{display:flex;gap:9px}
+  .panel{background:#fff;border:1px solid var(--line);border-radius:12px}
+  .crumb{font-size:13px;color:var(--ink-3);margin-bottom:8px}
+  .crumb a{color:var(--blue);text-decoration:none;cursor:pointer;font-weight:600}
+
+  /* ---------- 버튼 ---------- */
+  .btn{border:1px solid var(--line-2);background:#fff;border-radius:8px;padding:8px 15px;font-size:14px;font-weight:600;color:#3C4149}
+  .btn:hover{background:#FAFBFC}
+  .btn.dark{background:#1B1E24;border-color:#1B1E24;color:#fff;font-weight:700}
+  .btn.dark:hover{background:#2E323A}
+  .btn.blue{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:700}
+  .btn.blue:hover{background:#1560DC}
+  .btn.sm{padding:6px 12px;font-size:13px;border-radius:7px}
+  .btn.xs{padding:5px 10px;font-size:12.5px;border-radius:6px}
+
+  /* ---------- 요약 카드 ---------- */
+  .summary{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+  .sum{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px 20px}
+  .sum.active{background:#DDE3EC;border-color:#CBD4E0}
+  .sum .t{font-size:14px;color:var(--ink-2);margin-bottom:10px;font-weight:600;display:flex;align-items:center;gap:7px}
+  .sum .t .note{font-size:11.5px;font-weight:500;color:var(--ink-3);background:#F1F2F5;border-radius:4px;padding:2px 7px;white-space:nowrap}
+  .sum.active .t .note{background:#EDF1F6}
+  .sum .v{font-size:26px;font-weight:800;letter-spacing:-.7px}
+
+  /* ---------- 세그먼트 탭 ---------- */
+  .seg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+  .seg button{border:0;border-radius:9px;padding:14px;font-size:15px;font-weight:700;background:#EDEFF2;color:var(--ink-2)}
+  .seg button:hover{background:#E6E9ED}
+  .seg button.on{background:var(--navy);color:#fff}
+  .seg button.on:hover{background:var(--navy)}
+
+  /* ---------- Search ---------- */
+  .search{padding:20px 22px;margin-bottom:20px}
+  .sfields{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+  .sf label{display:block;font-size:13px;font-weight:600;color:#3C4149;margin-bottom:7px}
+  .sf .inpwrap{width:230px}
+  .searchacts{display:flex;align-items:center;gap:14px}
+  .resetlink{background:none;border:0;font-size:14px;font-weight:600;color:var(--ink-2);padding:0}
+
+  /* ---------- 기록 미비 환자 목록 ---------- */
+  .reshead{font-size:14px;color:var(--ink-2);margin:0 0 12px;font-weight:600}
+  .reshead b{color:var(--ink);font-weight:800;margin-left:6px;font-size:15px}
+
+  .plist{display:flex;flex-direction:column;gap:14px}
+  .prow{background:#fff;border:1px solid var(--line);border-radius:12px;padding:20px 24px}
+
+  .prow-h{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+  .prow-h .nm{font-size:19px;font-weight:800;letter-spacing:-.5px}
+  .prow-h .no{font-size:12.5px;font-weight:600;color:var(--ink-2);background:#F1F2F5;border-radius:5px;padding:3px 9px}
+  .prow-h .sp{flex:1}
+  .prow-h .reg{font-size:13px;color:var(--ink-3);margin-right:4px}
+  .prow-h .acts{display:flex;gap:8px}
+
+  .missbar{background:var(--warn-bg);border-radius:9px;padding:12px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .missbar .msg{font-size:14px;color:#3C4149;display:flex;align-items:center;gap:7px}
+  .missbar .msg .ico{color:var(--warn);font-size:14px}
+  .missbar .sp{flex:1}
+  .missbar .tags{display:flex;gap:6px;flex-wrap:wrap}
+  .misstag{background:var(--warn);color:#fff;font-size:12px;font-weight:700;border-radius:5px;padding:3px 9px;white-space:nowrap}
+
+  .recblk{margin-top:16px}
+  .reclabel{font-size:13px;color:var(--ink-3);font-weight:600;display:flex;align-items:center;gap:7px;margin-bottom:5px}
+  .jt{font-size:12px;font-weight:700;padding:2px 8px;border-radius:5px}
+  .jt.knee{background:var(--knee-bg);color:var(--knee)}
+  .jt.side{background:var(--blue-weak);color:var(--blue)}
+  .recline{display:flex;align-items:baseline;gap:12px;font-size:16px;font-weight:500;letter-spacing:-.2px}
+  .recline .d{margin-left:auto;font-size:13.5px;color:var(--ink-3)}
+  .recline.empty{color:var(--ink-4)}
+  .recsub{margin-top:12px}
+  .recsub .reclabel{margin-bottom:4px}
+  .recsub .recline{padding-left:18px;font-size:15px}
+
+  /* ---------- 임시 데이터 블록 ---------- */
+  .newlabel{display:flex;align-items:baseline;gap:10px;font-size:13.5px;color:var(--ink-2);font-weight:600;margin:16px 0 8px}
+  .newlabel .d{margin-left:auto;font-size:13.5px;color:var(--ink-3);font-weight:500}
+  .tempbox{border:1px solid var(--line);border-radius:10px;padding:14px 16px;background:#fff}
+  .tempbox + .tempbox{margin-top:10px}
+  .temppill{display:inline-block;font-size:12px;font-weight:700;color:var(--blue);border:1px solid var(--blue);
+            border-radius:5px;padding:2px 8px;margin-bottom:10px}
+  .tempbox .grp{display:flex;align-items:baseline;gap:12px;font-size:15.5px;font-weight:700;letter-spacing:-.2px}
+  .tempbox .grp .d{margin-left:auto;font-size:13px;color:var(--ink-3);font-weight:500}
+  .tempbox .grp.none{color:var(--warn)}
+  .tempbox .cat{font-size:13px;color:var(--ink-2);margin-top:9px}
+  .tempbox .form{font-size:14px;color:var(--ink);margin-top:3px}
+  .tempbox .hintline{font-size:12.5px;color:var(--warn);margin-top:8px}
+
+  /* ---------- 오늘의 환자 카드 ---------- */
+  .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;align-items:start}
+  .pc{background:#fff;border:1px solid var(--line);border-radius:12px;padding:20px 22px}
+  .pc-h{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+  .pc-name{font-size:19px;font-weight:800;letter-spacing:-.5px;display:flex;align-items:center;gap:6px;cursor:pointer}
+  .pc-name .chev{color:var(--ink-3);font-weight:400;font-size:16px}
+  .pc-h .sp{flex:1}
+  .pc-acts{display:flex;gap:7px}
+  .tagrow{display:flex;align-items:center;gap:6px;margin-bottom:6px}
+  .tagrow .date{margin-left:auto;font-size:13.5px;color:var(--ink-3)}
+  .dx{font-size:17px;font-weight:500;letter-spacing:-.2px;margin-bottom:14px}
+  .hr{height:1px;background:var(--line);margin:0 0 14px}
+  .rowline{display:flex;align-items:baseline;gap:10px;margin-bottom:8px}
+  .rowline .l{font-size:16px;font-weight:500;letter-spacing:-.2px}
+  .rowline .r{margin-left:auto;font-size:13.5px;color:var(--ink-3)}
+  .rowline.sub .l{font-size:15px;font-weight:500;color:var(--ink)}
+  .grp2{margin:14px 0 8px;font-size:14px;color:var(--ink-2);font-weight:500;display:flex;align-items:center;gap:6px}
+  .grp2 .chev{color:var(--ink-3)}
+  .pc.um{border-color:var(--warn-soft)}
+  .pc.um .dxmiss{font-size:13.5px;font-weight:700;color:var(--warn);background:var(--warn-bg);border-radius:8px;padding:9px 13px;margin-bottom:12px;display:flex;align-items:center;gap:7px}
+
+  .fchips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px}
+  .fchip{border:1.5px solid var(--blue);color:var(--blue);background:#fff;border-radius:8px;
+         padding:7px 12px;font-size:13.5px;font-weight:700;display:inline-flex;align-items:center;gap:6px}
+  .fchip.todo{border:1px solid var(--line-2);color:var(--ink-2);font-weight:500}
+
+  .um-sec{background:var(--warn-bg);border:1px solid var(--warn-soft);border-radius:14px;padding:20px 22px;margin-bottom:26px}
+  .um-h{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+  .um-h h2{margin:0;font-size:18px;font-weight:800;letter-spacing:-.4px;color:#B4541E}
+  .um-h .cnt{background:var(--warn);color:#fff;border-radius:20px;padding:1px 10px;font-size:13px;font-weight:800}
+  .um-h .sp{flex:1}
+  .um-desc{font-size:13.5px;color:#8A6634;margin:0 0 16px}
+  .um-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;align-items:start}
+
+  .sec-title{display:flex;align-items:center;gap:9px;margin:0 0 14px}
+  .sec-title h2{margin:0;font-size:17px;font-weight:800;letter-spacing:-.3px}
+  .sec-title .cntx{font-size:13px;font-weight:800;color:var(--ink-2);background:#EDEFF3;border-radius:20px;padding:2px 10px}
+
+  /* ---------- 환자 상세 ---------- */
+  .det{display:grid;grid-template-columns:300px 1fr;gap:26px;align-items:start}
+  .coltitle{font-size:17px;font-weight:800;letter-spacing:-.4px;margin:0 0 14px;display:flex;align-items:center}
+  .coltitle .sp{flex:1}
+  .card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:20px 22px;margin-bottom:14px}
+  .card:last-child{margin-bottom:0}
+  .card-h{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+  .card-h .nm{font-size:19px;font-weight:800;letter-spacing:-.4px}
+  .card-h .sp{flex:1}
+  .dl{display:flex;flex-direction:column;gap:11px;margin-bottom:18px}
+  .dl .r{display:flex;align-items:baseline;gap:12px;font-size:14px}
+  .dl .r .k{color:var(--ink-3);font-weight:500;flex:0 0 128px}
+  .dl .r .v{color:var(--ink);font-weight:500}
+  .dl .r .v.need{color:var(--warn);font-weight:700}
+  .fullbtn{display:block;width:100%;border:0;border-radius:9px;padding:11px;font-size:14px;font-weight:700;background:var(--blue);color:#fff}
+  .fullbtn:hover{background:#1560DC}
+  .signed{display:flex;align-items:center;justify-content:center;gap:7px;font-size:14.5px;font-weight:700;color:var(--blue)}
+  .memo-empty{font-size:13.5px;color:var(--ink-3)}
+
+  .dxcard{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:16px}
+  .dxcard:last-child{margin-bottom:0}
+  .dxcard.incomplete{border-color:var(--warn-soft)}
+  .dxbanner{background:var(--warn-bg);border-radius:8px;padding:11px 14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+  .dxbanner .msg{font-size:13.5px;color:#3C4149;display:flex;align-items:center;gap:7px}
+  .dxbanner .msg .ico{color:var(--warn)}
+  .dxbanner .sp{flex:1}
+  .dxbanner .tags{display:flex;gap:6px;flex-wrap:wrap}
+  .dxhead{display:flex;align-items:center;gap:8px}
+  .dxhead .nm{font-size:16.5px;font-weight:600;letter-spacing:-.2px}
+  .dxhead .nm.empty{color:var(--ink-4);font-weight:500}
+  .dxhead .sp{flex:1}
+  .dxhead .d{font-size:13.5px;color:var(--ink-3)}
+  .dxhead .kebab{border:0;background:none;color:var(--ink-3);font-size:16px;padding:0 4px;line-height:1}
+  .dxlabel{font-size:13px;color:var(--ink-3);font-weight:500;margin-right:2px}
+  .dxdiv{height:1px;background:var(--line);margin:16px 0}
+  .sxrow{display:flex;align-items:center;gap:9px;padding:2px 0}
+  .sxrow .chev{color:var(--ink-2);font-size:13px;width:14px;text-align:center;cursor:pointer;user-select:none}
+  .sxrow .nm{font-size:15.5px;font-weight:500}
+  .sxrow .nm.empty{color:var(--ink-4)}
+  .sxrow .sp{flex:1}
+  .sxrow .d{font-size:13.5px;color:var(--ink-3)}
+  .sxrow .kebab{border:0;background:none;color:var(--ink-3);font-size:16px;padding:0 4px;line-height:1}
+  .sxbody{margin:10px 0 0 23px}
+  .leaf{border:1px solid var(--line);border-radius:9px;padding:12px 15px;display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:14px}
+  .leaf:last-child{margin-bottom:0}
+  .leaf .dot{color:var(--ink-4)}
+  .leaf .sp{flex:1}
+  .leaf .d{font-size:13px;color:var(--ink-3)}
+  .leaf .src{font-size:12.5px;color:var(--ink-3)}
+  .addlinks{display:flex;gap:18px;margin-top:12px;padding-left:23px}
+  .addlink{border:0;background:none;padding:0;font-size:13.5px;font-weight:500;color:var(--ink-3)}
+  .addlink:hover{color:var(--blue)}
+  .addrow{margin-top:14px}
+  .bigadd{display:block;width:100%;border:1px solid var(--line-2);background:#fff;border-radius:9px;padding:12px;font-size:14.5px;font-weight:600;color:#3C4149}
+  .bigadd:hover{background:#FAFBFC}
+  .stage{font-size:12px;font-weight:700;padding:3px 9px;border-radius:5px;background:#F1F3F7;color:var(--ink-2)}
+
+  /* ---------- 다이얼로그 ---------- */
+  .dim{position:fixed;inset:0;background:rgba(233,235,238,.74);backdrop-filter:blur(1.5px);
+       z-index:100;display:none;align-items:center;justify-content:center;padding:28px}
+  .dim.on{display:flex}
+  .dim.lv2{z-index:120;background:rgba(90,95,105,.28)}
+
+  .mdlg{background:#fff;border-radius:14px;width:100%;max-width:880px;max-height:88vh;
+        display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(20,24,35,.18);overflow:hidden}
+  .mdlg.narrow{max-width:620px}
+  .mdlg-b{padding:26px 30px 10px;overflow:auto;flex:1}
+  .mdlg-h{display:flex;align-items:baseline;gap:10px;margin-bottom:20px}
+  .mdlg-h .nm{font-size:19px;font-weight:800;letter-spacing:-.4px}
+  .mdlg-h .sp{flex:1}
+  .mdlg-h .reg{font-size:13px;color:var(--ink-3)}
+
+  .fields{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  .f label{display:block;font-size:13.5px;font-weight:600;color:#3C4149;margin-bottom:8px}
+  .f label i{color:#DC3545;font-style:normal;margin-left:2px}
+  .inpwrap{display:flex;align-items:center;border:1px solid var(--line-2);border-radius:8px;background:#fff;padding:0 12px;height:42px}
+  .inpwrap input{flex:1;border:0;outline:0;font-size:14px;background:transparent;min-width:0;color:var(--ink)}
+  .inpwrap input::placeholder{color:var(--ink-4)}
+  .inpwrap .unit{font-size:13.5px;color:var(--ink-2);margin-left:8px}
+  .inpwrap .inbtn{border:1px solid var(--line-2);background:#fff;border-radius:6px;padding:5px 10px;font-size:12.5px;font-weight:600;color:#3C4149;margin-left:8px}
+  .selwrap{display:flex;align-items:center;border:1px solid var(--line-2);border-radius:8px;background:#fff;padding:0 12px;height:42px;font-size:14px;color:var(--ink-4)}
+  .selwrap .sp{flex:1}
+  .selwrap .cv{color:var(--ink-3)}
+  .hint2{display:flex;align-items:flex-start;gap:6px;font-size:12.5px;color:var(--ink-3);margin-top:9px;max-width:340px}
+
+  .mdlg-div{height:1px;background:var(--line);margin:22px 0}
+
+  .addbtn{display:block;width:100%;border:1px solid var(--line-2);background:#fff;border-radius:9px;
+          padding:14px;font-size:14.5px;font-weight:600;color:#3C4149;margin-bottom:12px}
+  .addbtn:hover{background:#FAFBFC}
+  .addbtn:disabled{background:#fff;border-color:var(--line);color:var(--ink-4);cursor:not-allowed}
+  .picked{margin-bottom:16px}
+  .picked .reclabel{margin-bottom:6px}
+
+  .mdlg-f{display:flex;gap:12px;padding:16px 30px 22px}
+  .bigbtn{flex:1;border:0;border-radius:9px;padding:14px;font-size:15px;font-weight:700;background:#F1F2F5;color:#3C4149}
+  .bigbtn:hover{background:#EAECF0}
+  .bigbtn.primary{background:var(--blue);color:#fff}
+  .bigbtn.primary:hover{background:#1560DC}
+  .bigbtn.primary:disabled{background:#E9EAEC;color:var(--ink-4);cursor:not-allowed}
+
+  .pvbox{background:var(--blue-weak);border:1px solid var(--blue-line);border-radius:9px;padding:12px 15px;display:flex;align-items:center;gap:10px;font-size:13.5px;margin-top:14px}
+  .pvbox .lbl{font-size:11.5px;font-weight:800;color:var(--blue);background:#fff;border:1px solid var(--blue-line);border-radius:5px;padding:2px 7px}
+  .pvbox .sp{flex:1}
+  .pvbox .meta{font-size:12.5px;color:var(--ink-2)}
+
+  /* 진단 추가 · 수술 추가 다이얼로그 */
+  .frow{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:20px}
+  .radios{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .rad{display:flex;align-items:center;gap:9px;font-size:14px;cursor:pointer}
+  .rad input{width:16px;height:16px;accent-color:var(--blue)}
+  .cbgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px 18px;margin-top:4px}
+  .cbgrid.two{grid-template-columns:repeat(2,1fr);gap:18px 24px}
+  .dlgbar{display:block;width:100%;background:var(--navy);color:#fff;border:0;border-radius:9px;
+          padding:13px;font-size:15px;font-weight:700;text-align:center;margin-bottom:22px}
+  .cb{display:flex;align-items:flex-start;gap:9px;font-size:14px;cursor:pointer;line-height:1.45}
+  .cb input{width:16px;height:16px;margin-top:1px;accent-color:var(--blue);flex:0 0 auto}
+  .toggrow{display:flex;align-items:center;gap:12px;font-size:14px;font-weight:600}
+  .tog{width:42px;height:24px;border-radius:14px;background:#D5D8DE;position:relative;border:0;padding:0}
+  .tog:after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:left .15s}
+  .tog.on{background:var(--blue)}
+  .tog.on:after{left:21px}
+
+  .sdlg-h{display:flex;align-items:center;gap:10px;padding:22px 26px 0}
+  .sdlg-h h3{margin:0;font-size:18px;font-weight:800;letter-spacing:-.3px}
+  .sdlg-h .sp{flex:1}
+  .sdlg-h .x{border:0;background:none;font-size:18px;color:var(--ink-3);padding:2px 6px}
+  .sdlg-b{padding:20px 26px 6px;overflow:auto}
+  .candnote{font-size:13px;color:var(--ink-3);margin:0 0 12px}
+  .cand{border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:10px}
+  .cand:last-child{margin-bottom:0}
+  .cand.sel{border-color:var(--blue);background:var(--blue-weak)}
+  .cand .b .t{font-size:15px;font-weight:700;margin-bottom:3px}
+  .cand .b .m{font-size:12.5px;color:var(--ink-3)}
+  .cand .sp{flex:1}
+
+  .view{display:none}
+  .view.on{display:block}
+
+  @media(max-width:1280px){
+    .cards,.um-cards{grid-template-columns:repeat(2,1fr)}
+    .summary{grid-template-columns:repeat(2,1fr)}
+    .det{grid-template-columns:1fr}
+    .fields,.frow{grid-template-columns:1fr}
+    .cbgrid{grid-template-columns:repeat(2,1fr)}
+  }
+</style>
+</head>
+<body>
+
+<header class="gnb">
+  <div class="gnb-in">
+    <div class="brand"><span class="logo">R</span>RISE-K</div>
+    <span class="divider"></span>
+    <nav class="gnb-menu">
+      <button class="on" data-view="patients">환자 관리</button>
+      <button data-view="today">오늘의 환자</button>
+      <button>진료 녹음</button>
+      <button>논문 관리</button>
+    </nav>
+    <div class="gnb-right">
+      <span class="hosp">액티메디 병원</span>
+      <span class="userchip"><span class="i">!</span>이영우님 <span style="color:var(--ink-3);font-weight:400">⌄</span></span>
+    </div>
+  </div>
+</header>
+
+<!-- ==================== 환자 관리 ==================== -->
+<main class="wrap view on" id="view-patients">
+  <div class="page-h">
+    <h1>환자 관리</h1>
+    <div class="sp"></div>
+    <div class="acts">
+      <button class="btn">＋ 환자 등록</button>
+      <button class="btn blue">＋ 입력 간소화</button>
+    </div>
+  </div>
+
+  <div class="summary">
+    <div class="sum active">
+      <div class="t">총 환자</div>
+      <div class="v">24명</div>
+    </div>
+    <div class="sum">
+      <div class="t">기록 완료 환자 <span class="note">수술 기록 제외</span></div>
+      <div class="v">18명</div>
+    </div>
+    <div class="sum">
+      <div class="t">기록 미비 환자 <span class="note">정보 및 의료 기록 미입력</span></div>
+      <div class="v" id="incompleteCount">6명</div>
+    </div>
+    <div class="sum">
+      <div class="t">기록 완료율 <span class="note">데이터 입력률</span></div>
+      <div class="v">75.0%</div>
+    </div>
+  </div>
+
+  <div class="seg">
+    <button>모든 환자</button>
+    <button class="on">기록 미비 환자</button>
+  </div>
+
+  <div class="panel search">
+    <div class="sfields">
+      <div class="sf">
+        <label>등록번호</label>
+        <div class="inpwrap"><input placeholder="등록번호"></div>
+      </div>
+      <div class="sf">
+        <label>이름</label>
+        <div class="inpwrap"><input placeholder="이름"></div>
+      </div>
+      <div class="sf">
+        <label>휴대폰 번호</label>
+        <div class="inpwrap"><input placeholder="휴대폰 번호"></div>
+      </div>
+    </div>
+    <div class="searchacts">
+      <button class="btn dark">검색 🔍</button>
+      <button class="resetlink">초기화 ⟳</button>
+    </div>
+  </div>
+
+  <div class="reshead">검색 결과 <b id="resCount">6</b>건</div>
+
+  <div class="plist" id="incompleteList">
+
+    <!-- ① 구글 폼 PROM · 진단·수술 없음 · 평가 그룹 미지정 -->
+    <div class="prow" data-prom="1">
+      <div class="prow-h">
+        <span class="nm">김민수</span>
+        <span class="no">ywleeprd-1042</span>
+        <span class="sp"></span>
+        <span class="reg">환자 등록일 2026.08.13</span>
+        <span class="acts">
+          <button class="btn" onclick="go('detail')">환자 상세</button>
+          <button class="btn" onclick="openMerge('김민수','2026.08.13','prom-none')">＋ 기록 입력</button>
+        </span>
+      </div>
+
+      <div class="missbar">
+        <span class="msg"><span class="ico">⚠</span>'기록 입력' 버튼을 눌러 필요한 정보를 입력해 주세요.</span>
+        <span class="sp"></span>
+        <span class="tags">
+          <span class="misstag">생년월일</span>
+          <span class="misstag">키</span>
+          <span class="misstag">체중</span>
+          <span class="misstag">진단 기록</span>
+          <span class="misstag">수술 기록</span>
+        </span>
+      </div>
+
+      <div class="newlabel">↳ 새로 추가된 평가<span class="d">2026.08.13</span></div>
+      <div class="tempbox">
+        <span class="temppill">임시 데이터</span>
+        <div class="grp none">평가 그룹 미지정<span class="d">2026.08.13 08:41</span></div>
+        <div class="cat">↳ 환자 주관적 평가</div>
+        <div class="form">IKDC Score</div>
+        <div class="form">KOOS</div>
+        <div class="hintline">구글 폼 응답 · 담당자가 기록 입력에서 위치를 지정해야 합니다</div>
+      </div>
+    </div>
+
+    <!-- ② 구글 폼 PROM · 진단 없음 -->
+    <div class="prow" data-prom="1">
+      <div class="prow-h">
+        <span class="nm">박서연</span>
+        <span class="no">ywleeprd-1043</span>
+        <span class="sp"></span>
+        <span class="reg">환자 등록일 2026.08.13</span>
+        <span class="acts">
+          <button class="btn" onclick="go('detail')">환자 상세</button>
+          <button class="btn" onclick="openMerge('박서연','2026.08.13','prom-none')">＋ 기록 입력</button>
+        </span>
+      </div>
+
+      <div class="missbar">
+        <span class="msg"><span class="ico">⚠</span>'기록 입력' 버튼을 눌러 필요한 정보를 입력해 주세요.</span>
+        <span class="sp"></span>
+        <span class="tags">
+          <span class="misstag">생년월일</span>
+          <span class="misstag">키</span>
+          <span class="misstag">체중</span>
+          <span class="misstag">진단 기록</span>
+        </span>
+      </div>
+
+      <div class="newlabel">↳ 새로 추가된 평가<span class="d">2026.08.13</span></div>
+      <div class="tempbox">
+        <span class="temppill">임시 데이터</span>
+        <div class="grp none">평가 그룹 미지정<span class="d">2026.08.13 09:02</span></div>
+        <div class="cat">↳ 환자 주관적 평가</div>
+        <div class="form">IKDC Score</div>
+        <div class="hintline">구글 폼 응답 · 담당자가 기록 입력에서 위치를 지정해야 합니다</div>
+      </div>
+    </div>
+
+    <!-- ③ 구글 폼 PROM · 진단은 있고 수술만 없음 -->
+    <div class="prow" data-prom="1">
+      <div class="prow-h">
+        <span class="nm">정하늘</span>
+        <span class="no">ywleeprd-1044</span>
+        <span class="sp"></span>
+        <span class="reg">환자 등록일 2026.08.13</span>
+        <span class="acts">
+          <button class="btn" onclick="go('detail')">환자 상세</button>
+          <button class="btn" onclick="openMerge('정하늘','2026.08.13','prom-dx')">＋ 기록 입력</button>
+        </span>
+      </div>
+
+      <div class="missbar">
+        <span class="msg"><span class="ico">⚠</span>'기록 입력' 버튼을 눌러 필요한 정보를 입력해 주세요.</span>
+        <span class="sp"></span>
+        <span class="tags">
+          <span class="misstag">생년월일</span>
+          <span class="misstag">수술 기록</span>
+        </span>
+      </div>
+
+      <div class="recblk">
+        <div class="reclabel">진단 <span class="jt knee">무릎</span><span class="jt side">우측</span></div>
+        <div class="recline">MPFL Lesion<span class="d">2026.08.08</span></div>
+      </div>
+
+      <div class="newlabel">↳ 새로 추가된 평가<span class="d">2026.08.13</span></div>
+      <div class="tempbox">
+        <span class="temppill">임시 데이터</span>
+        <div class="grp none">평가 그룹 미지정<span class="d">2026.08.13 09:15</span></div>
+        <div class="cat">↳ 환자 주관적 평가</div>
+        <div class="form">KOOS</div>
+        <div class="hintline">구글 폼 응답 · 담당자가 기록 입력에서 위치를 지정해야 합니다</div>
+      </div>
+    </div>
+
+    <!-- ④ 기존 경로(접수 시트·프리셋) · 평가 그룹이 이미 지정돼 있음 -->
+    <div class="prow" data-prom="0">
+      <div class="prow-h">
+        <span class="nm">서동주테스트</span>
+        <span class="no">ywleeprd-0002</span>
+        <span class="sp"></span>
+        <span class="reg">환자 등록일 2026.08.12</span>
+        <span class="acts">
+          <button class="btn" onclick="go('detail')">환자 상세</button>
+          <button class="btn" onclick="openMerge('서동주테스트','2026.08.12','legacy')">＋ 기록 입력</button>
+        </span>
+      </div>
+
+      <div class="missbar">
+        <span class="msg"><span class="ico">⚠</span>'기록 입력' 버튼을 눌러 필요한 정보를 입력해 주세요.</span>
+        <span class="sp"></span>
+        <span class="tags">
+          <span class="misstag">진단 기록</span>
+          <span class="misstag">수술 기록</span>
+        </span>
+      </div>
+
+      <div class="newlabel">↳ 새로 추가된 평가<span class="d">2026.09.02</span></div>
+      <div class="tempbox">
+        <span class="temppill">임시 데이터</span>
+        <div class="grp">수술 전 평가<span class="d">2026.09.02</span></div>
+        <div class="cat">↳ 환자 주관적 평가</div>
+        <div class="form">100mm VAS (Visual Analogue Score)</div>
+      </div>
+    </div>
+
+    <!-- ⑤ 기존 미비 환자 · 신체 정보만 미비 -->
+    <div class="prow" data-prom="0">
+      <div class="prow-h">
+        <span class="nm">백주연</span>
+        <span class="no">test1</span>
+        <span class="sp"></span>
+        <span class="reg">환자 등록일 2026.07.15</span>
+        <span class="acts">
+          <button class="btn" onclick="go('detail')">환자 상세</button>
+          <button class="btn" onclick="openMerge('백주연','2026.07.15','both')">＋ 기록 입력</button>
+        </span>
+      </div>
+
+      <div class="missbar">
+        <span class="msg"><span class="ico">⚠</span>'기록 입력' 버튼을 눌러 필요한 정보를 입력해 주세요.</span>
+        <span class="sp"></span>
+        <span class="tags">
+          <span class="misstag">생년월일</span>
+          <span class="misstag">키</span>
+          <span class="misstag">체중</span>
+        </span>
+      </div>
+
+      <div class="recblk">
+        <div class="reclabel">진단 <span class="jt knee">무릎</span><span class="jt side">우측</span></div>
+        <div class="recline">Medial Meniscus Tear<span class="d">2026.07.18</span></div>
+        <div class="recsub">
+          <div class="reclabel">↳ 수술</div>
+          <div class="recline">Knee Conservative<span class="d">2026.07.26</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ⑥ 기존 미비 환자 · 수술 기록만 미비 -->
+    <div class="prow" data-prom="0">
+      <div class="prow-h">
+        <span class="nm">이준호</span>
+        <span class="no">A-2291</span>
+        <span class="sp"></span>
+        <span class="reg">환자 등록일 2026.07.15</span>
+        <span class="acts">
+          <button class="btn" onclick="go('detail')">환자 상세</button>
+          <button class="btn" onclick="openMerge('이준호','2026.07.15','dx')">＋ 기록 입력</button>
+        </span>
+      </div>
+
+      <div class="missbar">
+        <span class="msg"><span class="ico">⚠</span>'기록 입력' 버튼을 눌러 필요한 정보를 입력해 주세요.</span>
+        <span class="sp"></span>
+        <span class="tags"><span class="misstag">수술 기록</span></span>
+      </div>
+
+      <div class="recblk">
+        <div class="reclabel">진단 <span class="jt knee">무릎</span><span class="jt side">좌측</span></div>
+        <div class="recline">Medial Meniscus Tear<span class="d">2026.07.18</span></div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- ==================== 오늘의 환자 ==================== -->
+<main class="wrap view" id="view-today">
+  <div class="page-h">
+    <h1>오늘의 환자</h1>
+    <div class="sp"></div>
+    <button class="btn" onclick="refreshToday(this)">⟳ 리스트 갱신</button>
+  </div>
+
+  <div class="panel search">
+    <div class="sfields">
+      <div class="sf">
+        <label>이름</label>
+        <div class="inpwrap"><input placeholder="이름"></div>
+      </div>
+      <div class="sf">
+        <label>기록 날짜</label>
+        <div class="inpwrap"><input value="2026.08.13"><button class="inbtn">날짜 선택</button></div>
+      </div>
+    </div>
+    <button class="btn dark">검색 🔍</button>
+  </div>
+
+  <section class="um-sec" id="umSection">
+    <div class="um-h">
+      <h2>매칭되지 않은 설문 응답</h2>
+      <span class="cnt" id="umCount">3</span>
+      <div class="sp"></div>
+      <button class="btn sm" onclick="go('patients')">기록 미비 목록에서 처리 →</button>
+    </div>
+    <p class="um-desc">오늘 들어온 설문 응답 중 실제 진단·수술에 아직 병합되지 않은 건입니다. 아래 진료 카드에는 포함되지 않습니다.</p>
+
+    <div class="um-cards" id="umCards">
+
+      <div class="pc um">
+        <div class="pc-h">
+          <div class="pc-name" onclick="go('detail')">김민수 <span class="chev">›</span></div>
+          <div class="sp"></div>
+          <div class="pc-acts">
+            <button class="btn xs">✎ 정보 수정</button>
+            <button class="btn blue xs" onclick="openMerge('김민수','2026.08.13','prom-none')">＋ 기록 입력</button>
+          </div>
+        </div>
+        <div class="tagrow"><span class="date">2026.08.13</span></div>
+        <div class="dxmiss">⚠ 진단 미기입 · 수술 미기입</div>
+        <div class="tempbox">
+          <span class="temppill">임시 데이터</span>
+          <div class="grp none">평가 그룹 미지정<span class="d">08:41</span></div>
+          <div class="cat">↳ 환자 주관적 평가</div>
+          <div class="form">IKDC Score</div>
+          <div class="form">KOOS</div>
+        </div>
+      </div>
+
+      <div class="pc um">
+        <div class="pc-h">
+          <div class="pc-name" onclick="go('detail')">박서연 <span class="chev">›</span></div>
+          <div class="sp"></div>
+          <div class="pc-acts">
+            <button class="btn xs">✎ 정보 수정</button>
+            <button class="btn blue xs" onclick="openMerge('박서연','2026.08.13','prom-none')">＋ 기록 입력</button>
+          </div>
+        </div>
+        <div class="tagrow"><span class="date">2026.08.13</span></div>
+        <div class="dxmiss">⚠ 진단 미기입</div>
+        <div class="tempbox">
+          <span class="temppill">임시 데이터</span>
+          <div class="grp none">평가 그룹 미지정<span class="d">09:02</span></div>
+          <div class="cat">↳ 환자 주관적 평가</div>
+          <div class="form">IKDC Score</div>
+        </div>
+      </div>
+
+      <div class="pc um">
+        <div class="pc-h">
+          <div class="pc-name" onclick="go('detail')">정하늘 <span class="chev">›</span></div>
+          <div class="sp"></div>
+          <div class="pc-acts">
+            <button class="btn xs">✎ 정보 수정</button>
+            <button class="btn blue xs" onclick="openMerge('정하늘','2026.08.13','prom-dx')">＋ 기록 입력</button>
+          </div>
+        </div>
+        <div class="tagrow"><span class="jt knee">무릎</span><span class="jt side">우측</span><span class="date">2026.08.13</span></div>
+        <div class="dxmiss">⚠ 수술 미기입</div>
+        <div class="dx">MPFL Lesion</div>
+        <div class="hr"></div>
+        <div class="tempbox">
+          <span class="temppill">임시 데이터</span>
+          <div class="grp none">평가 그룹 미지정<span class="d">09:15</span></div>
+          <div class="cat">↳ 환자 주관적 평가</div>
+          <div class="form">KOOS</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="sec-title">
+    <h2>진료 카드</h2>
+    <span class="cntx">총 <b id="listTotal">3</b>건</span>
+  </div>
+
+  <div class="cards">
+
+    <div class="pc">
+      <div class="pc-h">
+        <div class="pc-name">김지환 <span class="chev">›</span></div>
+        <div class="sp"></div>
+        <div class="pc-acts"><button class="btn xs">✎ 정보 수정</button><button class="btn blue xs">🗒 검사 리포트</button></div>
+      </div>
+      <div class="tagrow"><span class="jt knee">무릎</span><span class="jt side">좌측</span><span class="date">2024.07.21</span></div>
+      <div class="dx">ACL rupture</div>
+      <div class="hr"></div>
+      <div class="rowline"><span class="l">ACL Reconstruction</span><span class="r">2024.07.21</span></div>
+      <div class="rowline sub"><span class="l">수술 후 추적관리 : 104주차</span><span class="r">2026.08.13</span></div>
+      <div class="grp2">↳ 환자 주관적 평가 <span class="chev">›</span></div>
+      <div class="fchips">
+        <span class="fchip">ACL-RSI ✓</span>
+        <span class="fchip">IKDC Score ✓</span>
+        <span class="fchip">KOOS ✓</span>
+        <span class="fchip">Lysholm Knee Score Scale ✓</span>
+        <span class="fchip">Tegner Activity Score ✓</span>
+        <span class="fchip todo">WOMAC ⤒</span>
+      </div>
+      <div class="grp2">↳ 기능 검사 <span class="chev">›</span></div>
+      <div class="fchips">
+        <span class="fchip todo">관절 가동 범위 ›</span>
+        <span class="fchip">동적 균형 검사 (Y-balance) ✓</span>
+        <span class="fchip">등속성 검사 ✓</span>
+        <span class="fchip">등척성 검사 ✓</span>
+        <span class="fchip">족저압 검사 ✓</span>
+        <span class="fchip">체성분 검사 ✓</span>
+        <span class="fchip todo">표면 근전도 검사 - Standard ⤒</span>
+      </div>
+    </div>
+
+    <div class="pc">
+      <div class="pc-h">
+        <div class="pc-name">문경선 <span class="chev">›</span></div>
+        <div class="sp"></div>
+        <div class="pc-acts"><button class="btn xs">✎ 정보 수정</button><button class="btn blue xs">🗒 검사 리포트</button></div>
+      </div>
+      <div class="tagrow"><span class="jt knee">무릎</span><span class="jt side">좌측</span><span class="date">2026.06.02</span></div>
+      <div class="dx">Cartilage Damage / Medial Meniscus Tear</div>
+      <div class="hr"></div>
+      <div class="rowline"><span class="l">Knee Conservative</span><span class="r">2026.08.13</span></div>
+      <div class="rowline sub"><span class="l">보존적 평가</span><span class="r">2026.08.13</span></div>
+    </div>
+
+    <div class="pc">
+      <div class="pc-h">
+        <div class="pc-name">최효식 <span class="chev">›</span></div>
+        <div class="sp"></div>
+        <div class="pc-acts"><button class="btn xs">✎ 정보 수정</button><button class="btn blue xs">🗒 검사 리포트</button></div>
+      </div>
+      <div class="tagrow"><span class="jt knee">무릎</span><span class="jt side">좌측</span><span class="date">2026.07.14</span></div>
+      <div class="dx">ACL rupture</div>
+      <div class="hr"></div>
+      <div class="rowline"><span class="l">Meniscus Surgery</span><span class="r">2026.08.12</span></div>
+      <div class="rowline sub"><span class="l">수술 전 평가 : 0주차</span><span class="r">2026.08.13</span></div>
+      <div class="grp2">↳ 수술 기록 <span class="chev">›</span></div>
+      <div class="fchips"><span class="fchip todo">Meniscus Surgery ›</span></div>
+      <div class="grp2">↳ 환자 주관적 평가 <span class="chev">›</span></div>
+      <div class="fchips">
+        <span class="fchip">ACL-RSI ✓</span>
+        <span class="fchip">IKDC Score ✓</span>
+        <span class="fchip">KOOS ✓</span>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- ==================== 환자 상세 ==================== -->
+<main class="wrap view" id="view-detail">
+  <div class="crumb"><a onclick="go('patients')">환자 관리</a> › 기록 미비 환자 › 김민수</div>
+
+  <div class="det">
+    <div>
+      <h2 class="coltitle">환자 정보</h2>
+
+      <div class="card">
+        <div class="card-h">
+          <span class="nm">김민수</span>
+          <span class="sp"></span>
+          <button class="btn xs">✎ 수정</button>
+        </div>
+        <div class="dl">
+          <div class="r"><span class="k">등록번호</span><span class="v">ywleeprd-1042</span></div>
+          <div class="r"><span class="k">생년월일 (만 나이)</span><span class="v need">입력 필요</span></div>
+          <div class="r"><span class="k">성별</span><span class="v">남성</span></div>
+          <div class="r"><span class="k">키 / 몸무게 (BMI)</span><span class="v need">입력 필요</span></div>
+          <div class="r"><span class="k">연락처</span><span class="v">010-9999-1042</span></div>
+        </div>
+        <button class="fullbtn">🗒 검사 리포트</button>
+      </div>
+
+      <div class="card" style="padding:16px 22px">
+        <div class="signed">✓ 이용약관 서명완료</div>
+      </div>
+
+      <div class="card">
+        <div class="card-h" style="margin-bottom:12px">
+          <span class="nm" style="font-size:16px">메모</span>
+          <span class="sp"></span>
+          <button class="btn xs">✎ 수정</button>
+        </div>
+        <div class="memo-empty">입력된 메모가 없습니다.</div>
+      </div>
+    </div>
+
+    <div>
+      <h2 class="coltitle">
+        진료 기록
+        <span class="sp"></span>
+        <button class="btn">＋ 진단 추가</button>
+      </h2>
+
+      <div class="dxcard incomplete">
+        <div class="dxbanner">
+          <span class="msg"><span class="ico">⚠</span>'기록 입력' 버튼을 눌러 필요한 정보를 입력해 주세요.</span>
+          <span class="sp"></span>
+          <span class="tags">
+            <span class="misstag">생년월일</span>
+            <span class="misstag">키</span>
+            <span class="misstag">체중</span>
+            <span class="misstag">진단 기록</span>
+            <span class="misstag">수술 기록</span>
+          </span>
+        </div>
+
+        <div class="newlabel" style="margin-top:0">↳ 새로 추가된 평가<span class="d">2026.08.13</span></div>
+        <div class="tempbox">
+          <span class="temppill">임시 데이터</span>
+          <div class="grp none">평가 그룹 미지정<span class="d">2026.08.13 08:41</span></div>
+          <div class="cat">↳ 환자 주관적 평가</div>
+          <div class="form">IKDC Score</div>
+          <div class="form">KOOS</div>
+          <div class="hintline">구글 폼 응답 · 담당자가 기록 입력에서 위치를 지정해야 합니다</div>
+        </div>
+
+        <div class="dxdiv"></div>
+
+        <button class="bigadd" onclick="openMerge('김민수','2026.08.13','prom-none')">＋ 기록 입력</button>
+      </div>
+
+      <div class="dxcard">
+        <div class="dxhead">
+          <span class="jt knee">무릎</span><span class="jt side">우측</span>
+          <span class="nm">ALL rupture / LCL rupture</span>
+          <span class="sp"></span>
+          <span class="d">2026.08.01</span>
+          <button class="kebab">⋮</button>
+        </div>
+
+        <div class="dxdiv"></div>
+
+        <div class="sxrow">
+          <span class="chev">⌄</span>
+          <span class="nm">Arthroplasty</span>
+          <span class="sp"></span>
+          <span class="d">2026.08.04</span>
+          <button class="kebab">⋮</button>
+        </div>
+        <div class="sxbody">
+          <div class="leaf">
+            <span class="dot">·</span>
+            <span>수술 후 추적관리 : 0주차</span>
+            <span class="sp"></span>
+            <span class="d">2026.08.12</span>
+          </div>
+          <div class="leaf">
+            <span class="dot">·</span>
+            <span>IKDC Score</span>
+            <span class="sp"></span>
+            <span class="src">전날 프리셋 · 미응답</span>
+            <span class="d">2026.08.12 17:20</span>
+          </div>
+        </div>
+        <div class="addlinks">
+          <button class="addlink">＋ 수술 전 평가</button>
+          <button class="addlink">＋ 수술 후 추적관리</button>
+        </div>
+
+        <div class="dxdiv"></div>
+
+        <div class="addrow"><button class="addlink">＋ 기록 추가</button></div>
+      </div>
+
+      <div class="dxcard">
+        <div class="dxhead">
+          <span class="jt knee">무릎</span><span class="jt side">좌측</span>
+          <span class="nm">Medial Meniscus Tear</span>
+          <span class="sp"></span>
+          <span class="d">2026.05.20</span>
+          <button class="kebab">⋮</button>
+        </div>
+
+        <div class="dxdiv"></div>
+
+        <div class="sxrow">
+          <span class="chev">›</span>
+          <span class="nm">Knee Conservative</span>
+          <span class="sp"></span>
+          <span class="d">2026.05.22</span>
+          <button class="kebab">⋮</button>
+        </div>
+        <div class="addlinks"><button class="addlink">＋ 보존적 평가</button></div>
+
+        <div class="dxdiv"></div>
+
+        <div class="addrow"><button class="addlink">＋ 기록 추가</button></div>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<!-- ==================== 기록 입력 다이얼로그 ==================== -->
+<div class="dim" id="mergeDim">
+  <div class="mdlg">
+    <div class="mdlg-b">
+      <div class="mdlg-h">
+        <span class="nm" id="mgName">김민수</span>
+        <span class="sp"></span>
+        <span class="reg" id="mgReg">환자 등록일 2026.08.13</span>
+      </div>
+
+      <div id="bioWrap">
+        <div class="fields">
+          <div class="f">
+            <label>생년월일 <i>*</i></label>
+            <div class="inpwrap"><input placeholder="YYYY.MM.DD"><button class="inbtn">날짜 선택</button></div>
+          </div>
+          <div class="f">
+            <label>키</label>
+            <div class="inpwrap"><input placeholder="숫자와 .만 입력해 주세요"><span class="unit">cm</span></div>
+          </div>
+          <div class="f">
+            <label>체중</label>
+            <div class="inpwrap"><input placeholder="숫자와 .만 입력해 주세요"><span class="unit">kg</span></div>
+          </div>
+        </div>
+        <div class="hint2"><span>ⓘ</span> 1906.01.01 ~ 2026.08.31 이내로 입력해주세요.</div>
+        <div class="mdlg-div"></div>
+      </div>
+
+      <div id="dxArea"></div>
+      <div id="txArea"></div>
+
+      <div id="tempArea"></div>
+
+      <div id="preview" style="display:none">
+        <div class="pvbox">
+          <span class="lbl">치환</span>
+          <span>치료 단계 <b style="color:var(--warn)">미지정</b> → <b style="color:var(--blue)" id="pvStage">수술 후 추적관리</b></span>
+          <span class="sp"></span>
+          <span class="meta" id="pvSets">설문 응답 2건 함께 이동</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="mdlg-f">
+      <button class="bigbtn" onclick="closeMerge()">취소</button>
+      <button class="bigbtn primary" id="saveBtn" disabled onclick="doSave()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 진단 추가 다이얼로그 ==================== -->
+<div class="dim lv2" id="dxDim">
+  <div class="mdlg">
+    <div class="sdlg-h"><h3>진단 추가</h3></div>
+    <div class="sdlg-b">
+      <div class="frow">
+        <div class="f">
+          <label>진단 날짜 <i>*</i></label>
+          <div class="inpwrap"><input placeholder="YYYY.MM.DD"><button class="inbtn">날짜 선택</button></div>
+        </div>
+        <div class="f">
+          <label>관절 <i>*</i></label>
+          <div class="selwrap">무릎<span class="sp"></span><span class="cv">⌄</span></div>
+        </div>
+      </div>
+
+      <div class="f" style="margin-bottom:22px">
+        <label>환측 <i>*</i></label>
+        <div class="radios">
+          <label class="rad"><input type="radio" name="side"> 좌측</label>
+          <label class="rad"><input type="radio" name="side"> 우측</label>
+        </div>
+      </div>
+
+      <div class="f">
+        <label>진단명 <i>*</i></label>
+        <div class="cbgrid">
+          <label class="cb"><input type="checkbox"> ACL rupture</label>
+          <label class="cb"><input type="checkbox"> ALL rupture</label>
+          <label class="cb"><input type="checkbox"> Cartilage Damage</label>
+          <label class="cb"><input type="checkbox"> Discoid Meniscus</label>
+          <label class="cb"><input type="checkbox"> LCL rupture</label>
+          <label class="cb"><input type="checkbox"> Lateral Meniscus Tear</label>
+          <label class="cb"><input type="checkbox"> MCL rupture</label>
+          <label class="cb"><input type="checkbox"> MPFL Lesion</label>
+          <label class="cb"><input type="checkbox"> Medial Meniscus Tear</label>
+          <label class="cb"><input type="checkbox"> Meniscus Deficient Knee (over subtotal meniscectomy)</label>
+          <label class="cb"><input type="checkbox"> OCD Lesion</label>
+          <label class="cb"><input type="checkbox"> Osteoarthritis</label>
+          <label class="cb"><input type="checkbox"> Osteonecrosis</label>
+          <label class="cb"><input type="checkbox"> PCL rupture</label>
+          <label class="cb"><input type="checkbox"> PLRI</label>
+          <label class="cb"><input type="checkbox"> Valgus Deformity</label>
+          <label class="cb"><input type="checkbox"> Varus Deformity</label>
+          <label class="cb"><input type="checkbox"> SONK</label>
+          <label class="cb"><input type="checkbox"> SIF</label>
+          <label class="cb"><input type="checkbox"> Other</label>
+        </div>
+      </div>
+
+      <div class="mdlg-div"></div>
+
+      <div class="toggrow">
+        수술 기록
+        <button class="tog" id="sxTog" onclick="this.classList.toggle('on')"></button>
+      </div>
+    </div>
+    <div class="mdlg-f">
+      <button class="bigbtn" onclick="closeDx()">취소</button>
+      <button class="bigbtn primary" onclick="pickDx('LCL rupture','2026.09.11')">확인</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 수술 추가 다이얼로그 ==================== -->
+<div class="dim lv2" id="txDim">
+  <div class="mdlg narrow">
+    <div class="sdlg-b" style="padding:24px 26px 6px">
+      <div class="dlgbar">수술 추가</div>
+
+      <div class="f" style="margin-bottom:22px">
+        <label>수술 날짜 <i>*</i></label>
+        <div class="inpwrap"><input placeholder="YYYY.MM.DD"><button class="inbtn">날짜 선택</button></div>
+      </div>
+
+      <div class="f">
+        <label>수술명 <i>*</i></label>
+        <div class="cbgrid two" id="sxNames">
+          <label class="cb"><input type="checkbox" value="Arthroplasty"> Arthroplasty</label>
+          <label class="cb"><input type="checkbox" value="Cartilage Surgery"> Cartilage Surgery</label>
+          <label class="cb"><input type="checkbox" value="Extensor Mechanism Surgery"> Extensor Mechanism Surgery</label>
+          <label class="cb"><input type="checkbox" value="Ligament Surgery"> Ligament Surgery</label>
+          <label class="cb"><input type="checkbox" value="Meniscus Surgery"> Meniscus Surgery</label>
+          <label class="cb"><input type="checkbox" value="Osteotomy"> Osteotomy</label>
+          <label class="cb"><input type="checkbox" value="Pellofemoral Surgery"> Pellofemoral Surgery</label>
+          <label class="cb"><input type="checkbox" value="Other"> Other</label>
+        </div>
+      </div>
+    </div>
+    <div class="mdlg-f">
+      <button class="bigbtn" onclick="closeTx()">취소</button>
+      <button class="bigbtn primary" id="sxAddBtn" disabled onclick="addTx()">추가</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 완료 안내 ==================== -->
+<div class="dim lv2" id="okDim">
+  <div class="mdlg narrow" style="max-width:440px">
+    <div class="mdlg-b" style="text-align:center;padding:32px 28px 20px">
+      <div style="font-size:32px;margin-bottom:12px">✅</div>
+      <h3 style="margin:0 0 9px;font-size:17px;font-weight:800">기록이 저장되었습니다</h3>
+      <p style="margin:0;color:var(--ink-2);font-size:14px;line-height:1.65" id="okBody"></p>
+    </div>
+    <div class="mdlg-f"><button class="bigbtn primary" onclick="closeOk()">확인</button></div>
+  </div>
+</div>
+
+<script>
+  function go(v){
+    document.querySelectorAll('.view').forEach(function(e){e.classList.toggle('on', e.id==='view-'+v)});
+    document.querySelectorAll('.gnb-menu button').forEach(function(b){
+      b.classList.toggle('on', b.dataset.view===v || (v==='detail' && b.dataset.view==='patients'));
+    });
+    window.scrollTo(0,0);
+  }
+  document.querySelectorAll('.gnb-menu button[data-view]').forEach(function(b){
+    b.addEventListener('click', function(){ go(b.dataset.view) });
+  });
+
+  var st = { dx:null, tx:null, kind:'prom-none' };
+
+  var TEMP = {
+    'prom-none': { group:null, cat:'환자 주관적 평가', forms:['IKDC Score','KOOS'], at:'2026.08.13 08:41' },
+    'prom-dx':   { group:null, cat:'환자 주관적 평가', forms:['KOOS'],              at:'2026.08.13 09:15' },
+    'legacy':    { group:'수술 전 평가', cat:'환자 주관적 평가', forms:['100mm VAS (Visual Analogue Score)'], at:'2026.09.02' },
+    'dx':        null,
+    'both':      null
+  };
+
+  function openMerge(name, reg, kind){
+    document.getElementById('mgName').textContent = name;
+    document.getElementById('mgReg').textContent = '환자 등록일 ' + reg;
+    st.kind = kind; st.dx = null; st.tx = null;
+
+    // 신체 정보는 미입력일 때만 노출 — 서동주테스트처럼 이미 채워진 환자에게는 나오지 않는다
+    document.getElementById('bioWrap').style.display = (kind === 'legacy') ? 'none' : 'block';
+
+    if(kind === 'prom-dx') st.dx = {n:'MPFL Lesion', d:'2026.08.08'};
+    if(kind === 'dx')      st.dx = {n:'Medial Meniscus Tear', d:'2026.07.18'};
+    if(kind === 'both'){   st.dx = {n:'Medial Meniscus Tear', d:'2026.07.18'};
+                           st.tx = {n:'Knee Conservative', d:'2026.07.26', s:'보존적 평가'}; }
+
+    render();
+    document.getElementById('mergeDim').classList.add('on');
+  }
+  function closeMerge(){ document.getElementById('mergeDim').classList.remove('on') }
+
+  function tempHtml(t){
+    if(!t) return '';
+    var head = t.group
+      ? '<div class="grp">' + t.group + '<span class="d">' + t.at + '</span></div>'
+      : '<div class="grp none">평가 그룹 미지정<span class="d">' + t.at + '</span></div>';
+    var forms = t.forms.map(function(f){ return '<div class="form">' + f + '</div>' }).join('');
+    var hint = t.group ? ''
+      : '<div class="hintline">구글 폼 응답이라 평가 그룹이 정해져 있지 않습니다</div>';
+    return '<div class="tempbox" style="margin-top:4px">' +
+             '<span class="temppill">임시 데이터</span>' + head +
+             '<div class="cat">↳ ' + t.cat + '</div>' + forms + hint +
+           '</div>';
+  }
+
+  function render(){
+    var dxArea = document.getElementById('dxArea');
+    var txArea = document.getElementById('txArea');
+    var t = TEMP[st.kind];
+
+    if(st.dx){
+      dxArea.innerHTML =
+        '<div class="picked">' +
+          '<div class="reclabel">진단 <span class="jt knee">무릎</span><span class="jt side">우측</span></div>' +
+          '<div class="recline">' + st.dx.n + '<span class="d">' + st.dx.d + '</span></div>' +
+        '</div>';
+    }else{
+      dxArea.innerHTML = '<button class="addbtn" onclick="openDx()">진단 추가</button>';
+    }
+
+    if(st.tx){
+      txArea.innerHTML =
+        '<div class="picked">' +
+          '<div class="reclabel">수술</div>' +
+          '<div class="recline">' + st.tx.n + '<span class="d">' + st.tx.d + '</span></div>' +
+        '</div>';
+    }else if(st.dx){
+      txArea.innerHTML = '<button class="addbtn" onclick="openTx()">수술 추가</button>';
+    }else{
+      txArea.innerHTML = '<button class="addbtn" disabled>수술 추가</button>';
+    }
+
+    document.getElementById('tempArea').innerHTML = tempHtml(t);
+
+    var ready = !!(st.dx && st.tx);
+    document.getElementById('saveBtn').disabled = !ready;
+
+    // 임시 그룹이 없는 응답만 치환 대상 — 이미 그룹이 있으면 바뀌는 값이 없다
+    var willReplace = ready && t && !t.group && st.tx.s;
+    document.getElementById('preview').style.display = willReplace ? 'block' : 'none';
+    if(willReplace){
+      document.getElementById('pvStage').textContent = st.tx.s;
+      document.getElementById('pvSets').textContent = '설문 응답 ' + t.forms.length + '건 함께 이동';
+    }
+  }
+
+  function openDx(){ document.getElementById('dxDim').classList.add('on') }
+  function closeDx(){ document.getElementById('dxDim').classList.remove('on') }
+  function pickDx(n,d){ st.dx = {n:n, d:d}; closeDx(); render(); }
+
+  // 수술 추가 — 후보가 없으면 선택 다이얼로그를 거치지 않고 생성 폼이 바로 열린다
+  function openTx(){
+    document.querySelectorAll('#sxNames input').forEach(function(c){ c.checked = false });
+    syncSxBtn();
+    document.getElementById('txDim').classList.add('on');
+  }
+  function closeTx(){ document.getElementById('txDim').classList.remove('on') }
+  function checkedSx(){
+    return Array.prototype.slice.call(document.querySelectorAll('#sxNames input:checked'))
+      .map(function(c){ return c.value });
+  }
+  function syncSxBtn(){
+    document.getElementById('sxAddBtn').disabled = checkedSx().length === 0;
+  }
+  document.querySelectorAll('#sxNames input').forEach(function(c){
+    c.addEventListener('change', syncSxBtn);
+  });
+  function addTx(){
+    var names = checkedSx();
+    closeTx();
+    // 수술 추가 다이얼로그에는 보존적 치료를 만드는 선택지가 없다 — 만들 수 있는 것은 수술뿐
+    st.tx = { n:names.join(' / '), d:'2026.09.08', s:'수술 후 추적관리' };
+    render();
+  }
+
+  function doSave(){
+    var b = document.getElementById('saveBtn');
+    b.disabled = true; b.textContent = '저장 중…';
+    var t = TEMP[st.kind];
+
+    setTimeout(function(){
+      b.textContent = '저장';
+      closeMerge();
+
+      // 완료 안내는 실제로 바뀐 것만 말한다
+      var lines = [];
+      if(t){
+        if(!t.group && st.tx && st.tx.s) lines.push('치료 단계가 <b>' + st.tx.s + '</b>로 지정되고');
+        lines.push('설문 응답 ' + t.forms.length + '건이 선택한 기록으로 이동했습니다.');
+      }else{
+        lines.push('선택한 진단·수술이 저장되었습니다.');
+      }
+      document.getElementById('okBody').innerHTML = lines.join('<br>');
+      document.getElementById('okDim').classList.add('on');
+
+      var n = Math.max(parseInt(document.getElementById('incompleteCount').textContent,10) - 1, 0);
+      document.getElementById('incompleteCount').textContent = n + '명';
+      document.getElementById('resCount').textContent = n;
+
+      var first = document.querySelector('#incompleteList .prow[data-prom="1"]');
+      if(first) first.remove();
+
+      var um = Math.max(parseInt(document.getElementById('umCount').textContent,10) - 1, 0);
+      document.getElementById('umCount').textContent = um;
+      if(um === 0) document.getElementById('umSection').style.display = 'none';
+      var c = document.querySelector('#umCards .pc');
+      if(c) c.remove();
+    }, 900);
+  }
+  function closeOk(){ document.getElementById('okDim').classList.remove('on') }
+
+  function refreshToday(b){
+    var t = b.textContent; b.textContent = '⟳ 갱신 중…';
+    setTimeout(function(){ b.textContent = t }, 600);
+  }
+</script>
+</body>
+</html>
