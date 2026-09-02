@@ -130,44 +130,6 @@
   .tempbox .form{font-size:14px;color:var(--ink);margin-top:3px}
   .tempbox .hintline{font-size:12.5px;color:var(--warn);margin-top:8px}
 
-  /* ---------- 오늘의 환자 카드 ---------- */
-  .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;align-items:start}
-  .pc{background:#fff;border:1px solid var(--line);border-radius:12px;padding:20px 22px}
-  .pc-h{display:flex;align-items:center;gap:10px;margin-bottom:12px}
-  .pc-name{font-size:19px;font-weight:800;letter-spacing:-.5px;display:flex;align-items:center;gap:6px;cursor:pointer}
-  .pc-name .chev{color:var(--ink-3);font-weight:400;font-size:16px}
-  .pc-h .sp{flex:1}
-  .pc-acts{display:flex;gap:7px}
-  .tagrow{display:flex;align-items:center;gap:6px;margin-bottom:6px}
-  .tagrow .date{margin-left:auto;font-size:13.5px;color:var(--ink-3)}
-  .dx{font-size:17px;font-weight:500;letter-spacing:-.2px;margin-bottom:14px}
-  .hr{height:1px;background:var(--line);margin:0 0 14px}
-  .rowline{display:flex;align-items:baseline;gap:10px;margin-bottom:8px}
-  .rowline .l{font-size:16px;font-weight:500;letter-spacing:-.2px}
-  .rowline .r{margin-left:auto;font-size:13.5px;color:var(--ink-3)}
-  .rowline.sub .l{font-size:15px;font-weight:500;color:var(--ink)}
-  .grp2{margin:14px 0 8px;font-size:14px;color:var(--ink-2);font-weight:500;display:flex;align-items:center;gap:6px}
-  .grp2 .chev{color:var(--ink-3)}
-  .pc.um{border-color:var(--warn-soft)}
-  .pc.um .dxmiss{font-size:13.5px;font-weight:700;color:var(--warn);background:var(--warn-bg);border-radius:8px;padding:9px 13px;margin-bottom:12px;display:flex;align-items:center;gap:7px}
-
-  .fchips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px}
-  .fchip{border:1.5px solid var(--blue);color:var(--blue);background:#fff;border-radius:8px;
-         padding:7px 12px;font-size:13.5px;font-weight:700;display:inline-flex;align-items:center;gap:6px}
-  .fchip.todo{border:1px solid var(--line-2);color:var(--ink-2);font-weight:500}
-
-  .um-sec{background:var(--warn-bg);border:1px solid var(--warn-soft);border-radius:14px;padding:20px 22px;margin-bottom:26px}
-  .um-h{display:flex;align-items:center;gap:10px;margin-bottom:4px}
-  .um-h h2{margin:0;font-size:18px;font-weight:800;letter-spacing:-.4px;color:#B4541E}
-  .um-h .cnt{background:var(--warn);color:#fff;border-radius:20px;padding:1px 10px;font-size:13px;font-weight:800}
-  .um-h .sp{flex:1}
-  .um-desc{font-size:13.5px;color:#8A6634;margin:0 0 16px}
-  .um-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;align-items:start}
-
-  .sec-title{display:flex;align-items:center;gap:9px;margin:0 0 14px}
-  .sec-title h2{margin:0;font-size:17px;font-weight:800;letter-spacing:-.3px}
-  .sec-title .cntx{font-size:13px;font-weight:800;color:var(--ink-2);background:#EDEFF3;border-radius:20px;padding:2px 10px}
-
   /* ---------- 환자 상세 ---------- */
   .det{display:grid;grid-template-columns:300px 1fr;gap:26px;align-items:start}
   .coltitle{font-size:17px;font-weight:800;letter-spacing:-.4px;margin:0 0 14px;display:flex;align-items:center}
@@ -308,7 +270,6 @@
   .view.on{display:block}
 
   @media(max-width:1280px){
-    .cards,.um-cards{grid-template-columns:repeat(2,1fr)}
     .summary{grid-template-columns:repeat(2,1fr)}
     .det{grid-template-columns:1fr}
     .fields,.frow{grid-template-columns:1fr}
@@ -324,7 +285,6 @@
     <span class="divider"></span>
     <nav class="gnb-menu">
       <button class="on" data-view="patients">환자 관리</button>
-      <button data-view="today">오늘의 환자</button>
       <button>진료 녹음</button>
       <button>논문 관리</button>
     </nav>
@@ -588,178 +548,6 @@
       <div class="recblk">
         <div class="reclabel">진단 <span class="jt knee">무릎</span><span class="jt side">좌측</span></div>
         <div class="recline">Medial Meniscus Tear<span class="d">2026.07.18</span></div>
-      </div>
-    </div>
-
-  </div>
-</main>
-
-<!-- ==================== 오늘의 환자 ==================== -->
-<main class="wrap view" id="view-today">
-  <div class="page-h">
-    <h1>오늘의 환자</h1>
-    <div class="sp"></div>
-    <button class="btn" onclick="refreshToday(this)">⟳ 리스트 갱신</button>
-  </div>
-
-  <div class="panel search">
-    <div class="sfields">
-      <div class="sf">
-        <label>이름</label>
-        <div class="inpwrap"><input placeholder="이름"></div>
-      </div>
-      <div class="sf">
-        <label>기록 날짜</label>
-        <div class="inpwrap"><input value="2026.08.13"><button class="inbtn">날짜 선택</button></div>
-      </div>
-    </div>
-    <button class="btn dark">검색 🔍</button>
-  </div>
-
-  <section class="um-sec" id="umSection">
-    <div class="um-h">
-      <h2>매칭되지 않은 설문 응답</h2>
-      <span class="cnt" id="umCount">3</span>
-      <div class="sp"></div>
-      <button class="btn sm" onclick="go('patients')">기록 미비 목록에서 처리 →</button>
-    </div>
-    <p class="um-desc">오늘 들어온 설문 응답 중 실제 진단·수술에 아직 병합되지 않은 건입니다. 아래 진료 카드에는 포함되지 않습니다.</p>
-
-    <div class="um-cards" id="umCards">
-
-      <div class="pc um">
-        <div class="pc-h">
-          <div class="pc-name" onclick="go('detail')">김민수 <span class="chev">›</span></div>
-          <div class="sp"></div>
-          <div class="pc-acts">
-            <button class="btn xs">✎ 정보 수정</button>
-            <button class="btn blue xs" onclick="openMerge('김민수','2026.08.13','prom-none')">＋ 기록 입력</button>
-          </div>
-        </div>
-        <div class="tagrow"><span class="date">2026.08.13</span></div>
-        <div class="dxmiss">⚠ 진단 미기입 · 수술 미기입</div>
-        <div class="tempbox">
-          <span class="temppill">임시 데이터</span>
-          <div class="grp none">평가 그룹 미지정<span class="d">08:41</span></div>
-          <div class="cat">↳ 환자 주관적 평가</div>
-          <div class="form">IKDC Score</div>
-          <div class="form">KOOS</div>
-        </div>
-      </div>
-
-      <div class="pc um">
-        <div class="pc-h">
-          <div class="pc-name" onclick="go('detail')">박서연 <span class="chev">›</span></div>
-          <div class="sp"></div>
-          <div class="pc-acts">
-            <button class="btn xs">✎ 정보 수정</button>
-            <button class="btn blue xs" onclick="openMerge('박서연','2026.08.13','prom-none')">＋ 기록 입력</button>
-          </div>
-        </div>
-        <div class="tagrow"><span class="date">2026.08.13</span></div>
-        <div class="dxmiss">⚠ 진단 미기입</div>
-        <div class="tempbox">
-          <span class="temppill">임시 데이터</span>
-          <div class="grp none">평가 그룹 미지정<span class="d">09:02</span></div>
-          <div class="cat">↳ 환자 주관적 평가</div>
-          <div class="form">IKDC Score</div>
-        </div>
-      </div>
-
-      <div class="pc um">
-        <div class="pc-h">
-          <div class="pc-name" onclick="go('detail')">정하늘 <span class="chev">›</span></div>
-          <div class="sp"></div>
-          <div class="pc-acts">
-            <button class="btn xs">✎ 정보 수정</button>
-            <button class="btn blue xs" onclick="openMerge('정하늘','2026.08.13','prom-dx')">＋ 기록 입력</button>
-          </div>
-        </div>
-        <div class="tagrow"><span class="jt knee">무릎</span><span class="jt side">우측</span><span class="date">2026.08.13</span></div>
-        <div class="dxmiss">⚠ 수술 미기입</div>
-        <div class="dx">MPFL Lesion</div>
-        <div class="hr"></div>
-        <div class="tempbox">
-          <span class="temppill">임시 데이터</span>
-          <div class="grp none">평가 그룹 미지정<span class="d">09:15</span></div>
-          <div class="cat">↳ 환자 주관적 평가</div>
-          <div class="form">KOOS</div>
-        </div>
-      </div>
-
-    </div>
-  </section>
-
-  <div class="sec-title">
-    <h2>진료 카드</h2>
-    <span class="cntx">총 <b id="listTotal">3</b>건</span>
-  </div>
-
-  <div class="cards">
-
-    <div class="pc">
-      <div class="pc-h">
-        <div class="pc-name">김지환 <span class="chev">›</span></div>
-        <div class="sp"></div>
-        <div class="pc-acts"><button class="btn xs">✎ 정보 수정</button><button class="btn blue xs">🗒 검사 리포트</button></div>
-      </div>
-      <div class="tagrow"><span class="jt knee">무릎</span><span class="jt side">좌측</span><span class="date">2024.07.21</span></div>
-      <div class="dx">ACL rupture</div>
-      <div class="hr"></div>
-      <div class="rowline"><span class="l">ACL Reconstruction</span><span class="r">2024.07.21</span></div>
-      <div class="rowline sub"><span class="l">수술 후 추적관리 : 104주차</span><span class="r">2026.08.13</span></div>
-      <div class="grp2">↳ 환자 주관적 평가 <span class="chev">›</span></div>
-      <div class="fchips">
-        <span class="fchip">ACL-RSI ✓</span>
-        <span class="fchip">IKDC Score ✓</span>
-        <span class="fchip">KOOS ✓</span>
-        <span class="fchip">Lysholm Knee Score Scale ✓</span>
-        <span class="fchip">Tegner Activity Score ✓</span>
-        <span class="fchip todo">WOMAC ⤒</span>
-      </div>
-      <div class="grp2">↳ 기능 검사 <span class="chev">›</span></div>
-      <div class="fchips">
-        <span class="fchip todo">관절 가동 범위 ›</span>
-        <span class="fchip">동적 균형 검사 (Y-balance) ✓</span>
-        <span class="fchip">등속성 검사 ✓</span>
-        <span class="fchip">등척성 검사 ✓</span>
-        <span class="fchip">족저압 검사 ✓</span>
-        <span class="fchip">체성분 검사 ✓</span>
-        <span class="fchip todo">표면 근전도 검사 - Standard ⤒</span>
-      </div>
-    </div>
-
-    <div class="pc">
-      <div class="pc-h">
-        <div class="pc-name">문경선 <span class="chev">›</span></div>
-        <div class="sp"></div>
-        <div class="pc-acts"><button class="btn xs">✎ 정보 수정</button><button class="btn blue xs">🗒 검사 리포트</button></div>
-      </div>
-      <div class="tagrow"><span class="jt knee">무릎</span><span class="jt side">좌측</span><span class="date">2026.06.02</span></div>
-      <div class="dx">Cartilage Damage / Medial Meniscus Tear</div>
-      <div class="hr"></div>
-      <div class="rowline"><span class="l">Knee Conservative</span><span class="r">2026.08.13</span></div>
-      <div class="rowline sub"><span class="l">보존적 평가</span><span class="r">2026.08.13</span></div>
-    </div>
-
-    <div class="pc">
-      <div class="pc-h">
-        <div class="pc-name">최효식 <span class="chev">›</span></div>
-        <div class="sp"></div>
-        <div class="pc-acts"><button class="btn xs">✎ 정보 수정</button><button class="btn blue xs">🗒 검사 리포트</button></div>
-      </div>
-      <div class="tagrow"><span class="jt knee">무릎</span><span class="jt side">좌측</span><span class="date">2026.07.14</span></div>
-      <div class="dx">ACL rupture</div>
-      <div class="hr"></div>
-      <div class="rowline"><span class="l">Meniscus Surgery</span><span class="r">2026.08.12</span></div>
-      <div class="rowline sub"><span class="l">수술 전 평가 : 0주차</span><span class="r">2026.08.13</span></div>
-      <div class="grp2">↳ 수술 기록 <span class="chev">›</span></div>
-      <div class="fchips"><span class="fchip todo">Meniscus Surgery ›</span></div>
-      <div class="grp2">↳ 환자 주관적 평가 <span class="chev">›</span></div>
-      <div class="fchips">
-        <span class="fchip">ACL-RSI ✓</span>
-        <span class="fchip">IKDC Score ✓</span>
-        <span class="fchip">KOOS ✓</span>
       </div>
     </div>
 
@@ -1220,20 +1008,9 @@
 
       var first = document.querySelector('#incompleteList .prow[data-prom="1"]');
       if(first) first.remove();
-
-      var um = Math.max(parseInt(document.getElementById('umCount').textContent,10) - 1, 0);
-      document.getElementById('umCount').textContent = um;
-      if(um === 0) document.getElementById('umSection').style.display = 'none';
-      var c = document.querySelector('#umCards .pc');
-      if(c) c.remove();
     }, 900);
   }
   function closeOk(){ document.getElementById('okDim').classList.remove('on') }
-
-  function refreshToday(b){
-    var t = b.textContent; b.textContent = '⟳ 갱신 중…';
-    setTimeout(function(){ b.textContent = t }, 600);
-  }
 </script>
 </body>
 </html>
