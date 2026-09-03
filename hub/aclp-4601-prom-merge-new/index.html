@@ -126,6 +126,7 @@
   .tempbox .grp{display:flex;align-items:baseline;gap:12px;font-size:15.5px;font-weight:700;letter-spacing:-.2px}
   .tempbox .grp .d{margin-left:auto;font-size:13px;color:var(--ink-3);font-weight:500}
   .tempbox .grp.none{color:var(--warn)}
+  .tempbox .grp .tmpnote{font-size:11px;font-weight:700;color:var(--warn);background:var(--warn-bg);border-radius:4px;padding:1px 6px;margin-left:2px;vertical-align:middle}
   .tempbox .cat{font-size:13px;color:var(--ink-2);margin-top:9px}
   .tempbox .form{font-size:14px;color:var(--ink);margin-top:3px}
   .tempbox .hintline{font-size:12.5px;color:var(--warn);margin-top:8px}
@@ -267,6 +268,10 @@
   .cand:last-child{margin-bottom:0}
   .cand:hover{border-color:var(--blue-line)}
   .cand.sel{border-color:var(--blue);background:var(--blue-weak)}
+.cand.dis{cursor:not-allowed;background:var(--bg);border-color:var(--line)}
+.cand.dis:hover{border-color:var(--line)}
+.cand.dis .b .t{color:var(--ink-3)}
+.cand.dis .b .m{color:var(--ink-4)}
   .cand .b .t{font-size:15px;font-weight:700;margin-bottom:3px}
   .cand .b .m{font-size:12.5px;color:var(--ink-3)}
   .cand .sp{flex:1}
@@ -360,7 +365,7 @@
 
   <div class="plist" id="incompleteList">
 
-    <!-- ① 구글 폼 PROM · 진단·수술 없음 · 평가 그룹 미지정 · 2건 -->
+    <!-- ① 구글 폼 PROM · 진단·수술 없음 · 임시 보존적 평가 · 2건 -->
     <div class="prow" data-name="김민수">
       <div class="prow-h">
         <span class="nm">김민수</span>
@@ -388,7 +393,7 @@
       <div class="newlabel">↳ 새로 추가된 평가<span class="d">2026.08.13</span></div>
       <div class="tempbox">
         <span class="temppill">임시 데이터</span>
-        <div class="grp none">평가 그룹 미지정<span class="d">응답일 2026.08.13 08:41</span></div>
+        <div class="grp">보존적 평가 <span class="tmpnote">임시</span><span class="d">응답일 2026.08.13 08:41</span></div>
         <div class="cat">↳ 환자 주관적 평가</div>
         <div class="form">IKDC Score</div>
         <div class="form">KOOS</div>
@@ -422,7 +427,7 @@
       <div class="newlabel">↳ 새로 추가된 평가<span class="d">2026.08.13</span></div>
       <div class="tempbox">
         <span class="temppill">임시 데이터</span>
-        <div class="grp none">평가 그룹 미지정<span class="d">응답일 2026.08.13 09:02</span></div>
+        <div class="grp">보존적 평가 <span class="tmpnote">임시</span><span class="d">응답일 2026.08.13 09:02</span></div>
         <div class="cat">↳ 환자 주관적 평가 · Set B 응답</div>
         <div class="form">KOOS</div>
         <div class="form">IKDC Score</div>
@@ -460,7 +465,7 @@
       <div class="newlabel">↳ 새로 추가된 평가<span class="d">2026.08.13</span></div>
       <div class="tempbox">
         <span class="temppill">임시 데이터</span>
-        <div class="grp none">평가 그룹 미지정<span class="d">응답일 2026.08.13 09:15</span></div>
+        <div class="grp">보존적 평가 <span class="tmpnote">임시</span><span class="d">응답일 2026.08.13 09:15</span></div>
         <div class="cat">↳ 환자 주관적 평가</div>
         <div class="form">KOOS</div>
       </div>
@@ -621,7 +626,7 @@
         <div class="newlabel" style="margin-top:0">↳ 새로 추가된 평가<span class="d">2026.08.13</span></div>
         <div class="tempbox">
           <span class="temppill">임시 데이터</span>
-          <div class="grp none">평가 그룹 미지정<span class="d">응답일 2026.08.13 08:41</span></div>
+          <div class="grp">보존적 평가 <span class="tmpnote">임시</span><span class="d">응답일 2026.08.13 08:41</span></div>
           <div class="cat">↳ 환자 주관적 평가</div>
           <div class="form">IKDC Score</div>
           <div class="form">KOOS</div>
@@ -757,7 +762,7 @@
   <div class="mdlg narrow">
     <div class="sdlg-h"><h3>진단 선택</h3><span class="sp"></span><button class="x" onclick="closeDxSel()">✕</button></div>
     <div class="sdlg-b">
-      <p class="candnote">임시 데이터에는 관절·환측 정보가 없어, 이 환자의 실제 진단 <b>전체</b>가 후보로 표시됩니다. 응답 내용을 확인하고 올바른 진단을 선택해 주세요.</p>
+      <p class="candnote">임시 데이터와 같은 관절(무릎)의 실제 진단이 후보로 표시됩니다. 환측(좌/우)으로는 거르지 않습니다. 응답 내용을 확인하고 올바른 진단을 선택해 주세요.</p>
       <div id="dxCands"></div>
       <button class="addbtn" style="margin-top:12px;margin-bottom:0" onclick="openDxCreateFromSel()">＋ 신규 진단 추가</button>
     </div>
@@ -886,7 +891,9 @@
       <h3 style="margin:0 0 9px;font-size:17px;font-weight:800">병합은 되돌릴 수 없습니다</h3>
       <p style="margin:0;color:var(--ink-2);font-size:14px;line-height:1.65">
         저장하면 설문 응답이 선택한 진단·수술의 평가 그룹으로 이동하고<br>
-        임시 진단·수술은 정리됩니다. 이 작업은 되돌릴 수 없습니다.<br>
+        임시 진단·수술은 정리됩니다.<br>
+        <span id="confirmDup" style="display:none;color:var(--warn);font-weight:700"></span>
+        이 작업은 되돌릴 수 없습니다.<br>
         계속하시겠습니까?
       </p>
     </div>
@@ -923,8 +930,8 @@
 
   var st = { kind:'prom-none', dx:null, tx:null, grp:null };
 
-  // 데모용: 이 환자의 실제(정식) 진단·수술·평가 그룹. 임시 레코드에는 환측 값이 없으므로
-  // 진단 후보는 환측으로 거르지 않고 전체를 보여준다. (AC-8)
+  // 데모용: 이 환자의 실제(정식) 진단·수술·평가 그룹. 진단 후보는 임시 진단과 같은 관절만,
+  // 환측(좌/우)으로는 거르지 않는다. (AC-8) 데모 환자는 모두 무릎이라 전부 후보.
   // cardId/bodyId는 환자 상세(김민수 데모) DOM 갱신용.
   var DXS = [
     { n:'ALL rupture / LCL rupture', side:'우측', d:'2026.08.01', cardId:'detDx0',
@@ -935,8 +942,8 @@
              groups:[{ n:'보존적 평가', meta:'KOOS 1건 (2026.06.01)', forms:['KOOS'] }] }] }
   ];
 
-  // gtype: 임시 평가 그룹 타입. null이면 구글 폼 응답(미지정 → 담당자가 지정),
-  // 값이 있으면 기존 경로(접수 시트·프리셋)라 그 타입에 맞는 치료만 후보·생성 가능 (AC-14)
+  // gtype: 임시 평가 그룹 타입. null이면 구글 폼 응답(임시 보존적 평가 그릇). 값이 있으면 기존 경로(접수 시트·프리셋).
+  // 어느 쪽이든 치료 후보를 제한하지 않는다 — 그룹 유형은 담당자가 고른 치료를 따른다 (AC-14 변경)
   var TEMP = {
     'prom-none': { gtype:null, cat:'환자 주관적 평가', forms:['IKDC Score','KOOS'], at:'2026.08.13 08:41' },
     'prom-setb': { gtype:null, cat:'환자 주관적 평가 · Set B 응답', forms:['KOOS','IKDC Score','Lysholm Knee Score Scale'], at:'2026.08.13 09:02' },
@@ -968,12 +975,12 @@
 
   function tempHtml(t){
     if(!t) return '';
-    var head = t.gtype
-      ? '<div class="grp">' + t.gtype + '<span class="d">응답일 ' + t.at + '</span></div>'
-      : '<div class="grp none">평가 그룹 미지정<span class="d">응답일 ' + t.at + '</span></div>';
+    var gname = t.gtype || '보존적 평가';
+    var head = '<div class="grp">' + gname + (t.gtype ? '' : ' <span class="tmpnote">임시</span>') +
+               '<span class="d">응답일 ' + t.at + '</span></div>';
     var forms = t.forms.map(function(f){ return '<div class="form">' + f + '</div>' }).join('');
     var hint = t.gtype ? ''
-      : '<div class="hintline">구글 폼 응답이라 평가 그룹이 정해져 있지 않습니다 — 아래에서 응답이 들어갈 그룹을 지정해 주세요</div>';
+      : '<div class="hintline">구글 폼 응답은 임시로 보존적 평가에 들어옵니다 — 아래에서 응답이 실제로 들어갈 그룹을 지정해 주세요</div>';
     return '<div class="tempbox" style="margin-top:4px">' +
              '<span class="temppill">임시 데이터</span>' + head +
              '<div class="cat">↳ ' + t.cat + '</div>' + forms + hint +
@@ -989,12 +996,16 @@
     return t.forms.filter(function(f){ return st.grp.g.forms.indexOf(f) >= 0 });
   }
 
-  // 임시 평가 그룹 타입에 따른 치료 카테고리 제한 (AC-14)
-  // 보존적 평가 → 보존적 치료만 / 수술 전·후 → 수술만 / 미지정(구글 폼) → 제한 없음
-  function restrictCat(){
-    var t = TEMP[st.kind];
-    if(!t || !t.gtype) return null;
-    return t.gtype === '보존적 평가' ? '보존적 치료' : '수술';
+  // AC-14 변경: 임시 데이터의 그룹 타입으로 치료 후보를 제한하지 않는다.
+  // 그룹 유형 제약은 '평가 그룹 지정' 단계에서 선택한 치료 종류로만 걸린다 (allowedTypes).
+  function restrictCat(){ return null; }
+  // 선택한 치료 종류에 따라 만들 수 있는 새 그룹 유형
+  function allowedTypes(){
+    if(!st.tx) return [];
+    return st.tx.cat === '보존적 치료' ? ['보존적 평가'] : ['수술 전 평가','수술 후 추적관리'];
+  }
+  function disReason(ty){
+    return ty === '보존적 평가' ? '보존적 치료를 선택했을 때만 만들 수 있습니다' : '수술을 선택했을 때만 만들 수 있습니다';
   }
   function candidateTxs(){
     var cat = restrictCat();
@@ -1034,6 +1045,9 @@
 
     // 평가 그룹 지정 — PROM 임시 데이터가 있고 수술까지 정해진 뒤에만 노출 (AC-4·7)
     if(t && st.tx){
+      var allowed = allowedTypes();
+      // 보존적 치료면 선택지가 하나 → 보존적 평가 자동 선택
+      if(!st.grp && allowed.length === 1) st.grp = { mode:'NEW', type: allowed[0] };
       var html = '<div class="reclabel">평가 그룹 지정 — 응답이 들어갈 그룹을 선택해 주세요</div>';
       (st.tx.groups || []).forEach(function(g, i){
         var sel = st.grp && st.grp.mode === 'EXIST' && st.grp.g === g;
@@ -1042,11 +1056,15 @@
                   '<div class="m">' + g.meta + ' · 이 그룹 안에 응답이 추가됩니다</div></div><span class="sp"></span>' +
                 '</div>';
       });
+      // 새 그룹 3종은 항상 노출. 선택한 치료에 맞지 않는 유형은 비활성 + 사유 표시 (AC-4·14)
       ['수술 전 평가','수술 후 추적관리','보존적 평가'].forEach(function(ty){
-        var sel = st.grp && st.grp.mode === 'NEW' && st.grp.type === ty;
-        html += '<div class="cand' + (sel ? ' sel' : '') + '" onclick="pickGrpNew(\'' + ty + '\')">' +
+        var ok = allowed.indexOf(ty) >= 0;
+        var sel = ok && st.grp && st.grp.mode === 'NEW' && st.grp.type === ty;
+        var m = ok ? ty + ' 그룹을 새로 만들어 응답을 넣습니다 · 기존 그룹은 변경되지 않습니다' : disReason(ty);
+        html += '<div class="cand' + (sel ? ' sel' : '') + (ok ? '' : ' dis') + '"' +
+                  (ok ? ' onclick="pickGrpNew(\'' + ty + '\')"' : ' aria-disabled="true"') + '>' +
                   '<div class="b"><div class="t">＋ 새 그룹 · ' + ty + '</div>' +
-                  '<div class="m">' + ty + ' 그룹을 새로 만들어 응답을 넣습니다 · 기존 그룹은 변경되지 않습니다</div></div><span class="sp"></span>' +
+                  '<div class="m">' + m + '</div></div><span class="sp"></span>' +
                 '</div>';
       });
       grpArea.innerHTML = html;
@@ -1061,7 +1079,7 @@
     var pv = document.getElementById('preview');
     if(t && ready){
       var dup = dupForms(t);
-      var from = t.gtype ? t.gtype : '미지정';
+      var from = t.gtype ? t.gtype : '보존적 평가 (임시)';
       pv.style.display = 'block';
       pv.innerHTML =
         '<div class="pvbox">' +
@@ -1070,7 +1088,7 @@
           '<span class="sp"></span>' +
           '<span class="meta">설문 응답 ' + t.forms.length + '건 함께 이동</span>' +
         '</div>' +
-        (dup.length ? '<div class="hintline" style="margin-top:8px">기존 그룹의 ' + dup.join(', ') + ' 응답은 최신 응답으로 대체됩니다</div>' : '');
+        (dup.length ? '<div class="hintline" style="margin-top:8px">기존 그룹의 ' + dup.join(', ') + ' 응답은 지금 병합하는 응답으로 대체됩니다</div>' : '');
     }else{
       pv.style.display = 'none';
       pv.innerHTML = '';
@@ -1078,7 +1096,7 @@
   }
 
   function pickGrpExist(i){ st.grp = { mode:'EXIST', g: st.tx.groups[i] }; render(); }
-  function pickGrpNew(ty){ st.grp = { mode:'NEW', type: ty }; render(); }
+  function pickGrpNew(ty){ if(allowedTypes().indexOf(ty) < 0) return; st.grp = { mode:'NEW', type: ty }; render(); }
 
   // ---- 진단 선택: 후보 = 이 환자의 실제 진단 전체 (환측으로 거르지 않음 · AC-8) ----
   function openDxSel(){
@@ -1109,7 +1127,7 @@
     closeDx(); render();
   }
 
-  // ---- 수술 선택/추가 (임시 그룹 타입에 따라 후보·생성 유형 자동 제한 · AC-14) ----
+  // ---- 수술 선택/추가 (후보·생성 유형 제한 없음 — 담당자가 수술/보존적 치료를 고른다 · AC-14 변경) ----
   var txCandList = [];
   function openTxAdd(){
     var cands = candidateTxs();
@@ -1213,7 +1231,7 @@
       if(st.grp.mode === 'NEW'){
         bodyEl.insertAdjacentHTML('beforeend', leafHtml(grpName + ' (신규 그룹)', '', '2026.09.03', true) + moved);
       }else{
-        // 같은 설문 응답은 최신으로 대체 — 기존 프리셋 IKDC leaf 제거 (AC-9)
+        // 같은 설문 응답은 병합한 응답으로 대체 — 기존 IKDC leaf 제거 (AC-9)
         if(dup.indexOf('IKDC Score') >= 0){
           var old = document.getElementById('leaf-ikdc-preset');
           if(old) old.remove();
@@ -1252,6 +1270,14 @@
       return;
     }
     document.getElementById('birthErr').style.display = 'none';
+    var dupNow = dupForms(TEMP[st.kind]);
+    var dupEl = document.getElementById('confirmDup');
+    if(dupNow.length){
+      dupEl.style.display = 'inline';
+      dupEl.innerHTML = '기존 그룹의 ' + dupNow.join(', ') + ' 응답은 지금 병합하는 응답으로 대체됩니다.<br>';
+    }else{
+      dupEl.style.display = 'none'; dupEl.innerHTML = '';
+    }
     document.getElementById('confirmDim').classList.add('on');
   }
   function closeConfirm(){ document.getElementById('confirmDim').classList.remove('on') }
@@ -1280,7 +1306,7 @@
       if(t){
         lines.push('설문 응답 ' + formCount + '건이 <b>' + txName + ' · ' + label + '</b>(으)로 이동했습니다.');
         if(isNewGrp) lines.push('새 그룹이 만들어졌고, 기존 그룹은 변경되지 않았습니다.');
-        if(dup.length) lines.push('기존 그룹의 ' + dup.join(', ') + ' 응답은 최신 응답으로 대체되었습니다.');
+        if(dup.length) lines.push('기존 그룹의 ' + dup.join(', ') + ' 응답은 병합한 응답으로 대체되었습니다.');
         lines.push('병합에 사용된 임시 진단·수술은 정리되었습니다.');
       }else{
         lines.push('선택한 진단·수술이 저장되었습니다.');
