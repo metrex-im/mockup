@@ -203,8 +203,7 @@
       <b>폼 세트 2개(A·B) 확정</b> — ACLP-4415의 매핑표를 그대로 반영했습니다.
       QR 이미지는 <b>스캔되지 않는 목업 패턴</b>이며 실제 QR로 교체해야 합니다.
       진입 주소의 도메인과 세트 파라미터 이름(<code>form-set</code>)은 제안값입니다.
-      주소의 <code>hospital-uuid</code>는 기존 구현값을 그대로 두었는데, 병원을 화면에서 고르게 되었으므로
-      <b>주소에서 뺄지 결정이 필요</b>합니다.
+      병원은 진입 화면에서 선택하므로 <b>주소에는 폼 세트만 담깁니다</b>.
     </div>
     <nav class="tabs">
       <button class="on" data-tab="qr">① 현장 QR 인쇄물</button>
@@ -235,9 +234,6 @@
     마지막에 세트별로 다른 설문이 열리는 부분입니다. 아래에서 환자 상태와 세트를 바꿔가며 확인하세요.
   </p>
   <div class="addnote" style="max-width:none;margin-bottom:16px">
-    <b>남은 결정 ①</b> — 진입 주소에 여전히 <code>hospital-uuid</code>가 있다(기존 구현값).
-    병원을 화면에서 고르게 되어 정본이 두 개이므로, 주소에서 뺄지 / 기본값으로만 쓸지 정해야 한다.
-    시나리오 2-2(주소에 환자를 가리키는 값이 없다)의 확인 절차도 여기에 걸린다.<br>
     <b>선행 필요</b> — AC-7(7-1·7-3)은 각 구글 폼에 <b>등록번호·소속병원 항목이 실제로 만들어져 있어야</b> 통과한다.
     ACLP-4415(폼 제작)에 아직 그 문장이 없다.
   </div>
@@ -294,7 +290,6 @@
 /* ============================================================
    데이터
    ============================================================ */
-var HOSPITAL_UUID = '8f3c1d20-…-b71a';
 var ORIGIN = 'https://hub.rise-k.ai';
 
 /* 폼 세트 2개 — ACLP-4415에서 확정된 매핑 (Set A / Set B) */
@@ -363,7 +358,7 @@ var SCN = [
       g:'폼 세트 A용 QR 인쇄물이 준비된 상태에서',
       w:'QR을 스캔해 열린 주소를 확인하면',
       th:'주소에 환자 이름·등록번호·전화번호 등 특정 환자를 가리키는 값이 포함되어 있지 않다',
-      how:'① QR 인쇄물 탭의 주소 표기를 확인한다 ② 주소에 세트 값만 있는지 육안 확인한다 (병원은 화면에서 선택하므로 주소에 없어야 하는지 결정 필요)' },
+      how:'① QR 인쇄물 탭의 주소 표기를 확인한다 ② 주소에 세트 값만 있는지 육안 확인한다 (병원은 화면에서 선택하므로 주소에 없다)' },
   ]},
   { ac:'AC-3', mk:'chg', cat:'폼 세트 분기', legacy:'진입 경로와 무관하게 동일한 단일 폼이 열린다', items:[
     { id:'3-1', t:'폼 세트 A QR로 진입하면 A 설문이 열림', sim:{set:'A',state:'AGREED',step:'branch'}, simThen:{step:'survey'},
@@ -449,7 +444,7 @@ var curStep = 0;  // 0 Given 1 When 2 Then
 
 function setOf(id){ for(var i=0;i<SETS.length;i++){ if(SETS[i].id===id) return SETS[i]; } return SETS[0]; }
 function url(){
-  return ORIGIN+'/mobile-patient-intro?hospital-uuid='+HOSPITAL_UUID+'&form-set='+st.set;
+  return ORIGIN+'/mobile-patient-intro?form-set='+st.set;
 }
 
 /* ============================================================
@@ -497,7 +492,7 @@ function renderSheets(){
       '<div class="guide">'+s.guide.replace(/\n/g,'<br>')+'</div>'+
       '<div class="scope">대상 · '+s.scope+'</div>'+
       '<div class="proms">포함 설문 · '+s.proms.join(' + ')+'</div>'+
-      '<div class="url">'+ORIGIN+'/mobile-patient-intro?<br>hospital-uuid='+HOSPITAL_UUID+'&amp;form-set='+s.id+'</div>'+
+      '<div class="url">'+ORIGIN+'/mobile-patient-intro?form-set='+s.id+'</div>'+
       '<div class="cta printhide">클릭 → 이 세트로 진입하는 화면 보기</div>';
     host.appendChild(d);
     drawQR(d.querySelector('canvas'), 'formset-'+s.id);
