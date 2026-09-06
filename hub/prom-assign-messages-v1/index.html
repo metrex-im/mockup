@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>임시 데이터 지정 — 메시지 목업</title>
+<style>
+  :root{--navy:#1B2A5B;--blue:#1E5AF0;--blue-bg:#EEF3FF;--blue-line:#B9CCFA;--orange-tx:#B45E19;--green:#1C9A5B;--green-bg:#E8F6EE;--red:#E5484D;--red-bg:#FDECEC;
+    --ink:#1F2430;--ink2:#4B5563;--ink3:#8A94A6;--line:#E4E7EE;--line2:#EEF0F5;--bg:#F5F6F9}
+  *{box-sizing:border-box}
+  body{margin:0;background:#E9EBF0;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Noto Sans KR",sans-serif;font-size:15px;line-height:1.45}
+  .wrap{max-width:1400px;margin:0 auto;padding:36px 28px 80px}
+  h1{font-size:22px;margin:0 0 6px}
+  .lead{color:var(--ink2);font-size:14px;margin-bottom:30px}
+  h2{font-size:16px;margin:34px 0 14px;display:flex;align-items:center;gap:10px}
+  h2 .cnt{font-size:12px;font-weight:700;color:#fff;border-radius:10px;padding:2px 8px}
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+  .frame{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .frame-h{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--line2);background:#FAFBFD}
+  .frame-h .id{font-size:12px;font-weight:800;color:#fff;border-radius:5px;padding:2px 7px}
+  .frame-h .cond{font-size:13px;color:var(--ink2)}
+  .frame-b{padding:16px;background:#fff}
+  .B{background:var(--red)} .W{background:#E8873A} .I{background:var(--green)} .P{background:var(--navy)}
+
+  /* 컴포넌트 (기록 입력 모달 내 임시 데이터 지정) */
+  .tag{font-size:12px;font-weight:700;padding:3px 8px;border-radius:5px}
+  .tag.wait{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-line)}
+  .tag.ok{background:var(--green-bg);color:var(--green)}
+  .ev{border:1px solid var(--line);border-radius:10px;padding:16px;background:#FAFBFD;position:relative}
+  .ev.dis{opacity:.6}
+  .ev-head{display:flex;align-items:center;justify-content:space-between}
+  .ev-head .l{display:flex;align-items:center;gap:10px}
+  .ev-head .name{font-weight:700;font-size:15px}
+  .ev-head .date{color:var(--ink3);font-size:14px}
+  .btn{border:1px solid var(--line);background:#fff;border-radius:6px;padding:6px 12px;font-weight:600;font-size:13px}
+  .btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+  .btn.off{background:#E5E8EF;border-color:#E5E8EF;color:#A0A8B8}
+  .btn.danger{background:var(--red);border-color:var(--red);color:#fff}
+  .btn.text{border:none;background:none;color:var(--blue);padding:4px 6px;white-space:nowrap;flex-shrink:0}
+  .ev-body{margin-top:14px;display:grid;grid-template-columns:1.35fr 1fr;gap:12px}
+  .seg{display:flex;border:1px solid var(--line);border-radius:8px;background:#fff}
+  .seg span{flex:1;text-align:center;padding:10px 4px;font-size:13px;white-space:nowrap;font-weight:600;color:var(--ink2);border-right:1px solid var(--line);position:relative}
+  .seg span:first-child{border-radius:7px 0 0 7px}
+  .seg span:last-child{border-radius:0 7px 7px 0;border-right:none}
+  .seg span.on{background:var(--navy);color:#fff}
+  .seg span.dis{color:#B5BCC9;background:#F7F8FA}
+  .seg span .rec{position:absolute;top:-9px;left:50%;transform:translateX(-50%);font-size:11px;background:var(--blue);color:#fff;padding:1px 6px;border-radius:9px;font-weight:700;white-space:nowrap}
+  .sel{height:42px;border:1px solid var(--line);border-radius:8px;padding:0 12px;background:#fff;display:flex;align-items:center;justify-content:space-between;font-size:14px}
+  .sel.dis{background:#F7F8FA;color:#B5BCC9}
+  .sel .car{border:5px solid transparent;border-top-color:var(--ink2);margin-top:5px}
+  .sel.dis .car{border-top-color:#B5BCC9}
+  .foot{margin-top:10px;font-size:13px;color:var(--ink2);min-height:20px;display:flex;gap:6px;align-items:flex-start}
+  .foot.block{color:var(--red);font-weight:600}
+  .foot.warn{color:var(--orange-tx);font-weight:600}
+  .foot .calc{color:var(--green);font-weight:700}
+  .foot b{font-weight:700}
+  .tip{position:absolute;background:var(--ink);color:#fff;font-size:12px;padding:7px 10px;border-radius:6px;white-space:nowrap;font-weight:500}
+  .tip:after{content:"";position:absolute;left:60px;top:-5px;border:5px solid transparent;border-bottom-color:var(--ink);border-top:none}
+  .ev-locked{display:flex;align-items:center;justify-content:space-between;background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-top:12px;font-size:14px}
+  .ev-locked b{font-weight:700} .ev-locked .sep{color:var(--ink3);margin:0 6px}
+  .strike{text-decoration:line-through;color:var(--ink3)}
+
+  /* 팝업 */
+  .dim{background:#3B4252;padding:28px;border-radius:8px;display:flex;justify-content:center}
+  .dlg{background:#fff;border-radius:14px;width:100%;max-width:480px;padding:24px 26px 22px}
+  .dlg h4{margin:0 0 10px;font-size:17px}
+  .dlg p{margin:0;font-size:14px;color:var(--ink2);line-height:1.6}
+  .dlg .sub{font-size:12px;color:var(--ink3);margin-top:8px}
+  .dlg .acts{display:flex;gap:8px;margin-top:20px;justify-content:flex-end}
+  .dlg .acts .btn{padding:10px 16px;font-size:14px;border-radius:8px}
+  .dlg .acts .btn.cancel{background:#F1F3F7;border-color:#F1F3F7}
+  .dlg .acts .btn.ghost{background:#fff}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>임시 데이터 지정 — 상태별 메시지</h1>
+  <div class="lead">기록 입력 모달 안 '임시 데이터 지정' 컴포넌트의 상태 스냅샷. 예시 응답일 2025.09.25 기준. 차단은 빨강(선택 불가), 경고는 주황(진행 가능), 정보는 회색/녹색.</div>
+
+  <!-- ================= 차단 ================= -->
+  <h2><span class="cnt B">차단</span> 선택 불가 — 버튼 비활성 + 문구</h2>
+  <div class="grid">
+
+    <div class="frame"><div class="frame-h"><span class="id B">B1</span><span class="cond">진단 없음 → 컴포넌트 전체 비활성</span></div><div class="frame-b">
+      <div class="ev dis">
+        <div class="ev-head"><div class="l"><span class="tag wait">임시 데이터</span><span class="name">평가 응답</span><span class="date">환자 주관적 평가 1종 · 2025.09.25</span></div><span class="btn off">지정</span></div>
+        <div class="ev-body"><div class="seg"><span class="dis">수술 전 평가</span><span class="dis">수술 후 추적관리</span><span class="dis">보존적 평가</span></div><div class="sel dis"><span>분류를 먼저 선택하세요</span><span class="car"></span></div></div>
+      </div>
+      <div class="foot block">진단을 먼저 추가해 주세요. 평가는 진단 기록 아래에 저장됩니다.</div>
+    </div></div>
+
+    <div class="frame"><div class="frame-h"><span class="id B">B2·B3</span><span class="cond">수술 기록 없음 → 수술 전·후 비활성, 마우스 오버 툴팁</span></div><div class="frame-b">
+      <div class="ev">
+        <div class="tip" style="left:16px;top:112px">수술 기록이 없어 선택할 수 없습니다. 수술을 추가하거나 보존적 평가를 선택해 주세요.</div>
+        <div class="ev-head"><div class="l"><span class="tag wait">임시 데이터</span><span class="name">평가 응답</span><span class="date">환자 주관적 평가 1종 · 2025.09.25</span></div><span class="btn off">지정</span></div>
+        <div class="ev-body"><div class="seg"><span class="dis">수술 전 평가</span><span class="dis">수술 후 추적관리</span><span><span class="rec">추천</span>보존적 평가</span></div><div class="sel dis"><span>분류를 먼저 선택하세요</span><span class="car"></span></div></div>
+        <div class="foot">추천: <b>보존적 평가</b> — 수술 기록이 없음</div>
+      </div>
+    </div></div>
+
+    <div class="frame"><div class="frame-h"><span class="id B">B4</span><span class="cond">분류 선택, 대상 미선택</span></div><div class="frame-b">
+      <div class="ev">
+        <div class="ev-head"><div class="l"><span class="tag wait">임시 데이터</span><span class="name">평가 응답</span><span class="date">환자 주관적 평가 1종 · 2025.09.25</span></div><span class="btn off">지정</span></div>
+        <div class="ev-body"><div class="seg"><span>수술 전 평가</span><span class="on">수술 후 추적관리</span><span>보존적 평가</span></div><div class="sel" style="border-color:var(--red)"><span style="color:var(--ink3)">대상 수술 선택</span><span class="car"></span></div></div>
+        <div class="foot block">어느 기록의 평가인지 선택해 주세요.</div>
+      </div>
+    </div></div>
+
+    <div class="frame"><div class="frame-h"><span class="id B">B5</span><span class="cond">대상 수술에 수술일 없음</span></div><div class="frame-b">
+      <div class="ev">
+        <div class="ev-head"><div class="l"><span class="tag wait">임시 데이터</span><span class="name">평가 응답</span><span class="date">환자 주관적 평가 1종 · 2025.09.25</span></div><span class="btn off">지정</span></div>
+        <div class="ev-body"><div class="seg"><span>수술 전 평가</span><span class="on">수술 후 추적관리</span><span>보존적 평가</span></div><div class="sel"><span>[우측] ACL rupture › Ligament Surgery · <span style="color:var(--red)">수술일 미입력</span></span><span class="car"></span></div></div>
+        <div class="foot block">선택한 수술에 수술일이 없습니다. 수술일을 입력해야 수술 전·후를 구분할 수 있습니다.</div>
+      </div>
+    </div></div>
+
+    <div class="frame"><div class="frame-h"><span class="id B">B6</span><span class="cond">응답일 없음 (응답 원본 오류)</span></div><div class="frame-b">
+      <div class="ev dis">
+        <div class="ev-head"><div class="l"><span class="tag wait">임시 데이터</span><span class="name">평가 응답</span><span class="date">환자 주관적 평가 1종 · <span style="color:var(--red)">응답일 없음</span></span></div><span class="btn off">지정</span></div>
+        <div class="ev-body"><div class="seg"><span class="dis">수술 전 평가</span><span class="dis">수술 후 추적관리</span><span class="dis">보존적 평가</span></div><div class="sel dis"><span>분류를 먼저 선택하세요</span><span class="car"></span></div></div>
+      </div>
+      <div class="foot block">응답일을 확인할 수 없어 분류할 수 없습니다. 응답 원본을 확인해 주세요.</div>
+    </div></div>
+
+    <div class="frame"><div class="frame-h"><span class="id B">B7</span><span class="cond">지정 후 대상 기록 삭제됨 → 지정 해제</span></div><div class="frame-b">
+      <div class="ev">
+        <div class="ev-head"><div class="l"><span class="tag wait">임시 데이터</span><span class="name">평가 응답</span><span class="date">환자 주관적 평가 1종 · 2025.09.25</span></div><span class="btn off">지정</span></div>
+        <div class="ev-body"><div class="seg"><span>수술 전 평가</span><span>수술 후 추적관리</span><span>보존적 평가</span></div><div class="sel dis"><span>분류를 먼저 선택하세요</span><span class="car"></span></div></div>
+        <div class="foot block">지정했던 기록(Ligament Surgery)이 삭제되어 분류가 해제되었습니다. 다시 지정해 주세요.</div>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- ================= 경고 ================= -->
+  <h2><span class="cnt W">경고</span> 선택 가능 — 확인 요청, 지정 버튼 활성</h2>
+  <div class="grid">
+
+    <div class="frame"><div class="frame-h"><span class="id W">W1</span><span class="cond">수술 전 평가 선택, 응답일 ≥ 수술일</span></div><div class="frame-b">
+      <div class="ev">
+        <div class="ev-head"><div class="l"><span class="tag wait">임시 데이터</span><span class="name">평가 응답</span><span class="date">환자 주관적 평가 1종 · 2025.09.25</span></div><span class="btn primary">지정</span></div>
+        <div class="ev-body"><div class="seg"><span class="on">수술 전 평가</span><span><span class="rec">추천</span>수술 후 추적관리</span><span>보존적 평가</span></div><div class="sel"><span>[우측] ACL rupture › Ligament Surgery · 2025.09.20</span><span class="car"></span></div></div>
+        <div class="foot warn">응답일(2025.09.25)이 수술일(2025.09.20) 이후입니다. 수술 후 추적관리가 아닌지 확인해 주세요.</div>
+      </div>
+    </div></div>
+
+    <div class="frame"><div class="frame-h"><span class="id W">W2</span><span class="cond">수술 후 추적관리 선택, 응답일 &lt; 수술일</span></div><div class="frame-b">
+      <div class="ev">
+        <div class="ev-head"><div class="l"><span class="tag wait">임시 데이터</span><span class="name">평가 응답</span><span class="date">환자 주관적 평가 1종 · 2025.09.25</span></div><span class="btn primary">지정</span></div>
+        <div class="ev-body"><div class="seg"><span><span class="rec">추천</span>수술 전 평가</span><span class="on">수술 후 추적관리</span><span>보존적 평가</span></div><div class="sel"><span>[우측] ACL rupture › Ligament Surgery · 2025.09.30</span><span class="car"></span></div></div>
+        <div class="foot warn">응답일(2025.09.25)이 수술일(2025.09.30)보다 앞입니다. 수술 전 평가가 아닌지 확인해 주세요.</div>
+      </div>
+    </div></div>
+
+    <div class="frame"><div class="frame-h"><span class="id W">W3</span><span class="cond">수술 후 추적관리 선택, 응답일 = 수술일</span></div><div class="frame-b">
+      <div class="ev">
+        <div class="ev-head"><div class="l"><span class="tag wait">임시 데이터</span><span class="name">평가 응답</span><span class="date">환자 주관적 평가 1종 · 2025.09.25</span></div><span class="btn primary">지정</span></div>
+        <div class="ev-body"><div class="seg"><span>수술 전 평가</span><span class="on">수술 후 추적관리</span><span>보존적 평가</span></div><div class="sel"><span>[우측] ACL rupture › Ligament Surgery · 2025.09.25</span><span class="car"></span></div></div>
+        <div class="foot warn">응답일과 수술일이 같습니다. 수술 후 0주차로 기록됩니다.</div>
+      </div>
+    </div></div>
+
+    <div class="frame"><div class="frame-h"><span class="id W">W4</span><span class="cond">보존적 평가 선택, 해당 진단에 수술 기록 있음</span></div><div class="frame-b">
+      <div class="ev">
+        <div class="ev-head"><div class="l"><span class="tag wait">임시 데이터</span><span class="name">평가 응답</span><span class="date">환자 주관적 평가 1종 · 2025.09.25</span></div><span class="btn primary">지정</span></div>
+        <div class="ev-body"><div class="seg"><span>수술 전 평가</span><span><span class="rec">추천</span>수술 후 추적관리</span><span class="on">보존적 평가</span></div><div class="sel"><span>[우측] ACL rupture · 2025.09.01</span><span class="car"></span></div></div>
+        <div class="foot warn">이 진단에는 수술 기록이 있습니다. 수술 전·후 평가가 아닌지 확인해 주세요.</div>
+      </div>
+    </div></div>
+
+    <div class="frame"><div class="frame-h"><span class="id W">W5</span><span class="cond">응답일 &lt; 진단일</span></div><div class="frame-b">
+      <div class="ev">
+        <div class="ev-head"><div class="l"><span class="tag wait">임시 데이터</span><span class="name">평가 응답</span><span class="date">환자 주관적 평가 1종 · 2025.09.25</span></div><span class="btn primary">지정</span></div>
+        <div class="ev-body"><div class="seg"><span>수술 전 평가</span><span>수술 후 추적관리</span><span class="on">보존적 평가</span></div><div class="sel"><span>[우측] MPFL Lesion · 2025.10.01</span><span class="car"></span></div></div>
+        <div class="foot warn">응답일(2025.09.25)이 진단일(2025.10.01)보다 앞입니다. 진단일 또는 대상 기록을 확인해 주세요.</div>
+      </div>
+    </div></div>
+
+    <div class="frame"><div class="frame-h"><span class="id W">W8</span><span class="cond">수술 2건, 응답일이 두 수술일 사이 → 대상 모호</span></div><div class="frame-b">
+      <div class="ev">
+        <div class="ev-head"><div class="l"><span class="tag wait">임시 데이터</span><span class="name">평가 응답</span><span class="date">환자 주관적 평가 1종 · 2025.09.25</span></div><span class="btn primary">지정</span></div>
+        <div class="ev-body"><div class="seg"><span>수술 전 평가</span><span class="on">수술 후 추적관리</span><span>보존적 평가</span></div><div class="sel"><span>[우측] ACL rupture › Ligament Surgery · 2025.09.16</span><span class="car"></span></div></div>
+        <div class="foot warn">수술이 2건 있습니다. 응답일 기준 Ligament Surgery(9일 뒤) 또는 Meniscus Surgery(3일 전)에 해당합니다. 대상 수술을 확인해 주세요.</div>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- ================= 정보 ================= -->
+  <h2><span class="cnt I">정보</span> 정상 — 결과 미리보기</h2>
+  <div class="grid">
+
+    <div class="frame"><div class="frame-h"><span class="id I">I4</span><span class="cond">분류 미선택, 날짜 근거 추천 표시</span></div><div class="frame-b">
+      <div class="ev">
+        <div class="ev-head"><div class="l"><span class="tag wait">임시 데이터</span><span class="name">평가 응답</span><span class="date">환자 주관적 평가 1종 · 2025.09.25</span></div><span class="btn off">지정</span></div>
+        <div class="ev-body"><div class="seg"><span>수술 전 평가</span><span><span class="rec">추천</span>수술 후 추적관리</span><span>보존적 평가</span></div><div class="sel dis"><span>분류를 먼저 선택하세요</span><span class="car"></span></div></div>
+        <div class="foot">추천: <b>수술 후 추적관리</b> — 응답일이 수술일로부터 85일 뒤</div>
+      </div>
+    </div></div>
+
+    <div class="frame"><div class="frame-h"><span class="id I">I1</span><span class="cond">수술 후 추적관리, 정상</span></div><div class="frame-b">
+      <div class="ev">
+        <div class="ev-head"><div class="l"><span class="tag wait">임시 데이터</span><span class="name">평가 응답</span><span class="date">환자 주관적 평가 1종 · 2025.09.25</span></div><span class="btn primary">지정</span></div>
+        <div class="ev-body"><div class="seg"><span>수술 전 평가</span><span class="on">수술 후 추적관리</span><span>보존적 평가</span></div><div class="sel"><span>[우측] ACL rupture › Ligament Surgery · 2025.07.02</span><span class="car"></span></div></div>
+        <div class="foot"><span class="calc">수술 후 12주차(85일)</span>로 기록됩니다.</div>
+      </div>
+    </div></div>
+
+    <div class="frame"><div class="frame-h"><span class="id I">I2</span><span class="cond">수술 전 평가, 정상</span></div><div class="frame-b">
+      <div class="ev">
+        <div class="ev-head"><div class="l"><span class="tag wait">임시 데이터</span><span class="name">평가 응답</span><span class="date">환자 주관적 평가 1종 · 2025.09.25</span></div><span class="btn primary">지정</span></div>
+        <div class="ev-body"><div class="seg"><span class="on">수술 전 평가</span><span>수술 후 추적관리</span><span>보존적 평가</span></div><div class="sel"><span>[우측] ACL rupture › Ligament Surgery · 2025.09.30</span><span class="car"></span></div></div>
+        <div class="foot">수술 5일 전 응답입니다.</div>
+      </div>
+    </div></div>
+
+    <div class="frame"><div class="frame-h"><span class="id I">I3</span><span class="cond">보존적 평가, 정상 (수술 기록 없는 진단)</span></div><div class="frame-b">
+      <div class="ev">
+        <div class="ev-head"><div class="l"><span class="tag wait">임시 데이터</span><span class="name">평가 응답</span><span class="date">환자 주관적 평가 1종 · 2025.09.25</span></div><span class="btn primary">지정</span></div>
+        <div class="ev-body"><div class="seg"><span class="dis">수술 전 평가</span><span class="dis">수술 후 추적관리</span><span class="on">보존적 평가</span></div><div class="sel"><span>[우측] MPFL Lesion · 2025.09.10</span><span class="car"></span></div></div>
+        <div class="foot">선택한 진단의 보존적 평가로 기록됩니다.</div>
+      </div>
+    </div></div>
+
+    <div class="frame"><div class="frame-h"><span class="id I">I5</span><span class="cond">지정 완료 상태</span></div><div class="frame-b">
+      <div class="ev">
+        <div class="ev-head"><div class="l"><span class="tag ok">지정 완료</span><span class="name">평가 응답</span><span class="date">환자 주관적 평가 1종 · 2025.09.25</span></div></div>
+        <div class="ev-locked"><div><b>[우측] ACL rupture · 2025.06.20</b><span class="sep">›</span>Ligament Surgery · 2025.07.02<span class="sep">›</span><b>수술 후 추적관리 : 12주차</b></div><span class="btn text">변경</span></div>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- ================= 팝업 ================= -->
+  <h2><span class="cnt P">팝업</span> 중복·덮어쓰기·이동 — 지정/기록 버튼 클릭 시점</h2>
+  <div class="grid">
+
+    <div class="frame"><div class="frame-h"><span class="id P">P1</span><span class="cond">같은 수술·같은 주차에 평가 있음 (W6·W7 대체)</span></div><div class="frame-b">
+      <div class="dim"><div class="dlg">
+        <h4>같은 시점의 평가가 이미 있습니다</h4>
+        <p>Ligament Surgery · 수술 후 추적관리 12주차에 평가가 1건 기록되어 있습니다(2025.09.20 응답). 이번 응답(2025.09.25)을 어떻게 기록할지 선택해 주세요.</p>
+        <div class="sub">덮어쓰면 기존 응답은 삭제되며 복구할 수 없습니다.</div>
+        <div class="acts"><span class="btn cancel">취소</span><span class="btn ghost">기존 기록 덮어쓰기</span><span class="btn primary">추가로 기록</span></div>
+      </div></div>
+    </div></div>
+
+    <div class="frame"><div class="frame-h"><span class="id P">P1-b</span><span class="cond">수술 전 평가 중복 — 본문 첫 문장만 변경</span></div><div class="frame-b">
+      <div class="dim"><div class="dlg">
+        <h4>같은 시점의 평가가 이미 있습니다</h4>
+        <p>Ligament Surgery · 수술 전 평가에 평가가 1건 기록되어 있습니다(2025.09.20 응답). 이번 응답(2025.09.25)을 어떻게 기록할지 선택해 주세요.</p>
+        <div class="sub">덮어쓰면 기존 응답은 삭제되며 복구할 수 없습니다.</div>
+        <div class="acts"><span class="btn cancel">취소</span><span class="btn ghost">기존 기록 덮어쓰기</span><span class="btn primary">추가로 기록</span></div>
+      </div></div>
+    </div></div>
+
+    <div class="frame"><div class="frame-h"><span class="id P">P2</span><span class="cond">덮어쓰기 선택 후 최종 확인</span></div><div class="frame-b">
+      <div class="dim"><div class="dlg">
+        <h4>기존 평가를 덮어쓸까요?</h4>
+        <p>2025.09.20 응답(KOOS 외 2종)이 삭제되고 2025.09.25 응답으로 대체됩니다. 이 작업은 되돌릴 수 없습니다.</p>
+        <div class="acts"><span class="btn cancel">취소</span><span class="btn danger">덮어쓰기</span></div>
+      </div></div>
+    </div></div>
+
+    <div class="frame"><div class="frame-h"><span class="id P">P3</span><span class="cond">지정 완료 항목의 위치 변경</span></div><div class="frame-b">
+      <div class="dim"><div class="dlg">
+        <h4>평가 위치를 변경할까요?</h4>
+        <p>Ligament Surgery · 수술 후 12주차에서 Meniscus Surgery · 수술 후 3주차로 이동합니다. 원래 위치의 기록은 삭제됩니다.</p>
+        <div class="acts"><span class="btn cancel">취소</span><span class="btn primary">변경</span></div>
+      </div></div>
+    </div></div>
+  </div>
+</div>
+</body>
+</html>
