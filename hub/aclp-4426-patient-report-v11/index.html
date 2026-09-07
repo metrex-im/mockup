@@ -141,7 +141,7 @@
   body.show-rep div.rA,body.show-rep div.rB,body.show-rep div.rC,
   body.show-rep p.rA,body.show-rep p.rB,body.show-rep p.rC{padding:2px 5px;margin-left:-5px}
 
-  /* 상세 설명(스니펫 구간) 없음 */
+  /* 상세 설명(표준 문구 구간) 없음 */
   body.no-detail .dtl{display:none !important}
   .gap{display:none;font-size:12.5px;color:#9a6a12;background:#fff8e8;border:1px dashed #dbb264;
     border-radius:7px;padding:3px 9px;font-weight:600;margin-top:6px}
@@ -235,7 +235,7 @@
     <button data-set="tx" data-val="op" class="on">수술</button>
     <button data-set="tx" data-val="non">비수술</button>
   </div>
-  <div class="grp"><span class="lbl">스니펫 구간</span>
+  <div class="grp"><span class="lbl">표준 문구 구간</span>
     <button id="dtOn" class="on">있음</button><button id="dtOff">없음</button>
   </div>
   <div class="grp"><span class="lbl">재현성</span><button id="repBtn" class="on">표시 중</button></div>
@@ -245,7 +245,7 @@
 
 <div class="legend">
   <span class="i"><b class="lgA">A 객관식</b>선택·수치 → 템플릿 문장</span>
-  <span class="i"><b class="lgB">B 스니펫</b>사전에 저장된 문구</span>
+  <span class="i"><b class="lgB">B 표준 문구</b>사전에 저장해둔 완성 문장</span>
   <span class="i"><b class="lgC">C 자유 입력</b>매번 달라도 되는 곳</span>
   <span class="tail">A·B는 같은 상황이면 같은 문장이 나옵니다. C는 환자 고유 서술이라 달라지는 게 정상입니다. — 색이 칠해지지 않은 글자는 블록 제목·고정 문구.</span>
 </div>
@@ -505,7 +505,7 @@
   <div class="in">
     <div class="tally">
       <div class="t a"><div class="n" id="cA">0</div><div class="l">A 객관식</div><div class="s">템플릿</div></div>
-      <div class="t b"><div class="n" id="cB">0</div><div class="l">B 스니펫</div><div class="s">사전 문구</div></div>
+      <div class="t b"><div class="n" id="cB">0</div><div class="l">B 표준 문구</div><div class="s">문구 사전</div></div>
       <div class="t c"><div class="n" id="cC">0</div><div class="l">C 자유</div><div class="s">환자 고유</div></div>
     </div>
     <div class="bar"><i class="a" id="bA"></i><i class="b" id="bB"></i><i class="c" id="bC"></i></div>
@@ -530,7 +530,7 @@
       <div class="r"><span class="nm">문진 응답<em>초진 §2·§3 · 재진 §2</em></span><span class="ct">있음</span></div>
     </div>
     <div class="g">
-      <div class="gh"><span>B · 문구 사전</span><span class="p b">저장·재사용</span></div>
+      <div class="gh"><span>B · 표준 문구 사전</span><span class="p b">저장·재사용</span></div>
       <div class="r"><span class="nm">진단 → 환자용 표현<em>8개 질환 × 부위·정도</em></span><span class="ct new">신규</span></div>
       <div class="r"><span class="nm">영상 소견 → 환자용 번역<em>ACL rupture → 전방십자인대가 끊어짐</em></span><span class="ct new">신규 ~40</span></div>
       <div class="r"><span class="nm">질환별 표준 해석 문구<em>히어로 한 문장의 앞 절</em></span><span class="ct new">신규 8</span></div>
