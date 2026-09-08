@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ACLP-4424 검토 단계 목업 v1 · 필드 ↔ 리포트 1:1 매칭</title>
+<style>
+:root{
+  --bg:#f3f4f6; --card:#fff; --ink:#151a24; --ink2:#454c5a; --ink3:#6f7683;
+  --line:#e4e7ec; --brand:#1d4f91; --brand-deep:#153b6e; --brand-soft:#e9f0fa;
+  --good:#1b7a4b; --good-soft:#e3f3ea; --warn:#b4530a; --warn-soft:#fff2e3;
+  --miss:#c0392b; --miss-soft:#fdeaea;
+  --oSel:#4b86d6; --oSelS:#e7f0fc; --oSelT:#14477f;
+  --oTyp:#d9932a; --oTypS:#fdf1dc; --oTypT:#8a5307;
+  --oStt:#7c3aed; --oSttS:#f1eafd; --oSttT:#4c1d95;
+  --oDct:#3fa473; --oDctS:#e4f4ec; --oDctT:#0f5c39;
+  --hl:#ffe680;
+}
+*{box-sizing:border-box}
+html{color-scheme:light;background:#d8dce4}
+body{margin:0;background:#d8dce4;color:var(--ink);font-size:14px;
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Noto Sans KR","Malgun Gothic",sans-serif;
+  -webkit-font-smoothing:antialiased}
+
+/* ── 상단 컨트롤 ─────────────────── */
+.ctl{position:sticky;top:0;z-index:60;background:#151a24;color:#fff;padding:10px 16px;
+  display:flex;flex-wrap:wrap;gap:9px 18px;align-items:center;font-size:13px}
+.ctl .grp{display:flex;align-items:center;gap:5px}
+.ctl .lbl{opacity:.6;font-size:12px}
+.ctl button{background:#2a3040;color:#cfd4de;border:1px solid #3d4457;border-radius:6px;
+  padding:5px 11px;font-size:13px;cursor:pointer;font-family:inherit;white-space:nowrap}
+.ctl button:hover{background:#343b4e}
+.ctl button.on{background:#fff;color:#151a24;border-color:#fff;font-weight:700}
+.ctl .ttl{font-weight:800;letter-spacing:-.2px}
+.ctl .note{margin-left:auto;opacity:.62;font-size:12px}
+@media(max-width:1240px){.ctl .note{display:none}}
+
+/* ── 확정 게이트 ─────────────────── */
+.gate{position:sticky;top:44px;z-index:55;background:#fff;border-bottom:1px solid var(--line);
+  padding:11px 16px;display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;
+  box-shadow:0 2px 10px rgba(20,26,36,.06)}
+.gate .g{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ink2);
+  border:1px solid var(--line);border-radius:999px;padding:4px 12px;background:#fbfcfd;cursor:pointer}
+.gate .g:hover{border-color:#c6cbd4}
+.gate .g b{font-weight:800;font-variant-numeric:tabular-nums}
+.gate .g.miss{background:var(--miss-soft);border-color:#f2c9c4;color:#8e2a1e}
+.gate .g.spk{background:var(--oSttS);border-color:#d9c8fa;color:var(--oSttT)}
+.gate .g.warn{background:var(--warn-soft);border-color:#f2d5b0;color:#8a4008}
+.gate .g.on{outline:2px solid var(--ink);outline-offset:1px}
+.gate .approve{margin-left:auto;display:flex;align-items:center;gap:10px}
+.gate .approve .why{font-size:12px;color:var(--miss)}
+.gate .approve button{background:#c9ccd3;color:#fff;border:0;border-radius:8px;padding:9px 18px;
+  font-size:14px;font-weight:800;font-family:inherit;cursor:not-allowed}
+@media(max-width:900px){.gate{top:76px}}
+
+/* ── 레이아웃 ─────────────────────── */
+.wrap{padding:18px 14px 90px}
+.review{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,430px);gap:20px;
+  max-width:1320px;margin:0 auto;align-items:start}
+@media(max-width:1040px){.review{grid-template-columns:1fr;max-width:560px}}
+body[data-view="flow"] .review{display:none}
+body[data-view="review"] .flowview{display:none}
+
+/* ── 좌: 검토 패널 ─────────────────── */
+.panel{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.panel > h2{margin:0;padding:13px 16px;font-size:14px;font-weight:800;background:#f7f8fa;
+  border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px;letter-spacing:-.2px}
+.panel > h2 .cnt{margin-left:auto;font-size:12px;font-weight:600;color:var(--ink3)}
+.panel > h2 .sec-src{font-size:11px;font-weight:700;background:#eceef2;color:var(--ink3);
+  border-radius:4px;padding:2px 7px}
+.panel + .panel{margin-top:12px}
+.panel.crit > h2{background:var(--miss-soft);border-bottom-color:#f2c9c4;color:#8e2a1e}
+.panel.spkp > h2{background:var(--oSttS);border-bottom-color:#d9c8fa;color:var(--oSttT)}
+.panel.dctp > h2{background:var(--oDctS);border-bottom-color:#bfe4d0;color:var(--oDctT)}
+.panel .hint{padding:9px 16px;font-size:12.5px;color:var(--ink3);background:#fcfcfd;
+  border-bottom:1px solid var(--line);line-height:1.65;word-break:keep-all}
+
+.row{display:grid;grid-template-columns:22px minmax(120px,190px) minmax(0,1fr) auto;
+  gap:10px;align-items:start;padding:10px 14px;border-bottom:1px solid #f0f1f4;cursor:pointer}
+.row:last-child{border-bottom:0}
+.row:hover{background:#f9fafc}
+.row.sel{background:#fffbe6;box-shadow:inset 3px 0 0 var(--ink)}
+.row .o{width:22px;height:22px;border-radius:6px;display:grid;place-items:center;
+  font-size:11px;font-weight:800;margin-top:1px}
+.o.sel-o{background:var(--oSelS);color:var(--oSelT)}
+.o.typ{background:var(--oTypS);color:var(--oTypT)}
+.o.stt{background:var(--oSttS);color:var(--oSttT)}
+.o.dct{background:var(--oDctS);color:var(--oDctT)}
+.o.non{background:#eceef2;color:var(--ink3)}
+.row .q{font-size:13px;color:var(--ink2);line-height:1.5;word-break:keep-all}
+.row .q .sub{display:block;font-size:11px;font-weight:700;margin-top:3px;line-height:1.5}
+.row .v{font-size:13.5px;font-weight:700;line-height:1.55;word-break:keep-all}
+.row .v .empty{font-weight:600;color:var(--miss)}
+.row .v .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;font-weight:600}
+.row .v .sub{display:block;font-size:12px;font-weight:500;color:var(--ink3);margin-top:3px;line-height:1.6}
+.row .m{font-size:11px;font-weight:800;border-radius:999px;padding:3px 9px;white-space:nowrap;margin-top:1px}
+.m-11{background:var(--good-soft);color:var(--good)}
+.m-n1{background:var(--brand-soft);color:var(--brand)}
+.m-1n{background:#f0eafc;color:#5b3fd6}
+.m-off{background:#eceef2;color:var(--ink3)}
+.m-none{background:var(--miss-soft);color:var(--miss)}
+.m-warn{background:var(--warn-soft);color:var(--warn)}
+
+/* STT 3단 대조 */
+.row .stt3{grid-column:2 / -1;margin-top:9px;display:none}
+.row.sel .stt3{display:block}
+.stt3 .lane{display:grid;grid-template-columns:74px 1fr;gap:9px;align-items:start;
+  padding:8px 10px;border-radius:8px;background:#faf8ff;border:1px solid #ece5fb;margin-bottom:6px}
+.stt3 .lane:last-child{margin-bottom:0}
+.stt3 .lane .k{font-size:11px;font-weight:800;color:var(--oSttT);padding-top:1px}
+.stt3 .lane .t{font-size:12.5px;line-height:1.65;color:var(--ink2);word-break:keep-all}
+.stt3 .lane.void{background:#fbfbfc;border-color:var(--line);border-style:dashed}
+.stt3 .lane.void .k{color:var(--ink3)}
+.stt3 .lane.void .t{color:var(--miss);font-weight:600}
+.stt3 .lane.mockdata{border-style:dashed;border-color:#d9932a;background:#fffaf0}
+.stt3 .lane.mockdata .k{color:var(--oTypT)}
+.stt3 .fix{margin-top:7px;font-size:12px;color:var(--ink3);display:flex;gap:7px;align-items:center}
+.stt3 .fix b{background:var(--ink);color:#fff;border-radius:5px;padding:3px 8px;font-size:11px;font-weight:800}
+
+/* 집계 */
+.tally{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-top:12px}
+.tally h3{margin:0 0 4px;font-size:13.5px;font-weight:800}
+.tally .sub{font-size:12.5px;color:var(--ink3);margin:0 0 11px;line-height:1.6;word-break:keep-all}
+.tally .bar{display:flex;height:11px;border-radius:6px;overflow:hidden;background:#eceef2}
+.tally .bar i{display:block}
+.tally .bar .b11{background:var(--good)}
+.tally .bar .bn1{background:var(--brand)}
+.tally .bar .b1n{background:#5b3fd6}
+.tally .bar .boff{background:#c9ccd3}
+.tally .bar .bnone{background:var(--miss)}
+.tally .keys{display:flex;flex-wrap:wrap;gap:6px 12px;margin-top:10px;font-size:12px}
+.tally .keys span{display:flex;align-items:center;gap:5px;color:var(--ink2)}
+.tally .keys i{width:9px;height:9px;border-radius:3px;display:block}
+.tally .verdict{margin-top:11px;padding:10px 12px;border-radius:9px;background:var(--warn-soft);
+  border:1px solid #f2d5b0;font-size:12.5px;line-height:1.7;color:#7a3906;word-break:keep-all}
+
+/* ── 우: 환자 리포트 ─────────────── */
+.side{position:sticky;top:104px}
+@media(max-width:1040px){.side{position:static}}
+.sidehd{display:flex;align-items:center;gap:8px;margin:0 2px 9px;font-size:12.5px;color:#4b5261}
+.sidehd b{font-size:13.5px;color:var(--ink)}
+.sidehd .ro{margin-left:auto;background:#e2e5ea;color:#4b5261;border-radius:999px;
+  padding:3px 10px;font-size:11px;font-weight:800}
+.phone{background:var(--bg);border-radius:24px;overflow:hidden;border:6px solid #111;
+  box-shadow:0 14px 38px rgba(0,0,0,.2);max-height:78vh;overflow-y:auto}
+@media(max-width:1040px){.phone{max-height:none}}
+.screen{font-size:16px;line-height:1.6}
+.hero{background:linear-gradient(170deg,var(--brand) 0%,var(--brand-deep) 100%);color:#fff;padding:20px 20px 22px}
+.hero .top{font-size:13px;opacity:.85}
+.hero .eyebrow{margin-top:16px;font-size:13px;opacity:.8;font-weight:700}
+.hero .dx{font-size:23px;font-weight:800;line-height:1.35;margin:6px 0 0;letter-spacing:-.4px;word-break:keep-all}
+.hero .dx .side2{display:block;font-size:15px;font-weight:600;opacity:.86;margin-bottom:4px}
+.rbody{padding:16px 12px 28px}
+.sec{margin-bottom:18px}
+.sec>h2{font-size:17.5px;font-weight:800;margin:0 0 8px 4px;letter-spacing:-.3px;word-break:keep-all}
+.rcard{background:var(--card);border-radius:14px;padding:15px;border:1px solid var(--line)}
+.rcard + .rcard{margin-top:8px}
+.rcard p{margin:0 0 9px;color:var(--ink2);font-size:15.5px;word-break:keep-all;line-height:1.62}
+.rcard p:last-child{margin-bottom:0}
+.badge{display:inline-block;border-radius:999px;padding:5px 13px;font-size:13.5px;font-weight:800;margin-bottom:8px}
+.badge.op{background:var(--brand-soft);color:var(--brand)}
+.big{font-size:19px;font-weight:800;letter-spacing:-.3px;word-break:keep-all;line-height:1.4}
+.big small{display:block;font-size:14px;font-weight:600;color:var(--ink3);margin-top:2px}
+.why{margin:0;padding-left:19px}
+.why li{margin-bottom:9px;font-size:15px;color:var(--ink2);word-break:keep-all;line-height:1.62}
+.why li:last-child{margin-bottom:0}
+.concl{margin-top:11px;padding-top:11px;border-top:1px solid var(--line);font-size:15px;
+  font-weight:700;word-break:keep-all;line-height:1.6}
+.todo{margin:0;padding:0;list-style:none;counter-reset:t}
+.todo li{display:flex;gap:11px;align-items:flex-start;margin-bottom:10px}
+.todo li:last-child{margin-bottom:0}
+.todo .n{width:23px;height:23px;border-radius:50%;background:var(--brand-soft);color:var(--brand);
+  display:grid;place-items:center;font-size:12.5px;font-weight:800;flex:none;margin-top:1px}
+.todo .t{font-size:15.5px;font-weight:700;word-break:keep-all}
+.sub2{margin-top:7px;font-size:14px;color:var(--ink2);word-break:keep-all;line-height:1.6}
+details{background:#fff;border:1px solid var(--line);border-radius:12px;margin-bottom:7px}
+details summary{padding:12px 14px;font-size:14.5px;font-weight:700;cursor:pointer}
+details .in{padding:0 14px 13px}
+table.kv{width:100%;border-collapse:collapse;font-size:13.5px}
+table.kv th{text-align:left;width:38%;color:var(--ink3);font-weight:600;padding:5px 0;
+  vertical-align:top;word-break:keep-all}
+table.kv td{padding:5px 0;font-weight:700;word-break:keep-all}
+.sign{margin-top:16px;padding:13px;background:#eceef2;border-radius:11px;
+  font-size:12.5px;color:var(--ink3);line-height:1.7;text-align:center;word-break:keep-all}
+
+/* 리포트 노드 하이라이트 */
+[data-node]{border-radius:4px;transition:background .12s,box-shadow .12s;scroll-margin:100px}
+[data-node].lit{background:var(--hl);box-shadow:0 0 0 3px var(--hl)}
+.hero [data-node].lit{background:#f7cf3a;color:#22262f;box-shadow:0 0 0 3px #f7cf3a}
+[data-node].dim{opacity:.34}
+body.picking [data-node]{cursor:pointer}
+.orphan{display:inline-block;margin-left:5px;font-size:10.5px;font-weight:800;vertical-align:2px;
+  background:var(--miss-soft);color:var(--miss);border-radius:4px;padding:1px 5px;white-space:nowrap}
+.orphan.spk{background:var(--oSttS);color:var(--oSttT)}
+body:not(.show-tag) .orphan{display:none}
+
+/* ── 흐름도 ───────────────────────── */
+.flowview{max-width:1320px;margin:0 auto}
+.flownote{background:#fff;border:1px solid var(--line);border-radius:14px;padding:15px 17px;
+  margin-bottom:14px;font-size:13px;line-height:1.75;color:var(--ink2);word-break:keep-all}
+.flownote h3{margin:0 0 6px;font-size:14px;font-weight:800;color:var(--ink)}
+.flowbox{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 12px 20px;position:relative}
+.flowhd{display:grid;gap:10px;padding:0 4px 12px;font-size:12px;font-weight:800;color:var(--ink3)}
+.flowgrid{display:grid;gap:10px;position:relative}
+.flowhd,.flowgrid{grid-template-columns:1fr 1.3fr 1fr;column-gap:76px}
+@media(max-width:840px){.flowhd,.flowgrid{grid-template-columns:1fr;column-gap:10px}}
+.flowcol{display:flex;flex-direction:column;gap:7px}
+.fnode{border:1px solid var(--line);border-radius:9px;padding:8px 11px;background:#fcfcfd;
+  font-size:12.5px;line-height:1.5;cursor:pointer;word-break:keep-all;position:relative;z-index:2}
+.fnode:hover{border-color:#b9bfc9}
+.fnode .t{font-weight:700}
+.fnode .s{display:block;font-size:11px;color:var(--ink3);margin-top:2px;font-weight:500}
+.fnode.lit{background:#fffbe6;border-color:var(--ink);box-shadow:0 0 0 2px var(--hl)}
+.fnode.dim{opacity:.24}
+.fnode.o-sel{border-left:4px solid var(--oSel)}
+.fnode.o-typ{border-left:4px solid var(--oTyp)}
+.fnode.o-stt{border-left:4px solid var(--oStt)}
+.fnode.o-dct{border-left:4px solid var(--oDct)}
+.fnode.o-non{border-left:4px solid #c0392b}
+.fnode.rep{border-left:4px solid var(--brand)}
+.fnode.rep.off{border-left-color:#c9ccd3;background:#f7f8fa;color:var(--ink3)}
+.flowsvg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}
+.flowsvg path{fill:none;stroke:#c3c9d3;stroke-width:1.4}
+.flowsvg path.lit{stroke:#151a24;stroke-width:2.2}
+.flowsvg path.dim{opacity:.12}
+@media(max-width:840px){.flowsvg{display:none}}
+.flowlegend{display:flex;flex-wrap:wrap;gap:7px 15px;margin-top:14px;padding-top:13px;
+  border-top:1px solid var(--line);font-size:12px;color:var(--ink2)}
+.flowlegend span{display:flex;align-items:center;gap:6px}
+.flowlegend i{width:4px;height:14px;border-radius:2px;display:block}
+</style>
+</head>
+<body data-view="review" data-path="first-op" class="show-tag">
+
+<div class="ctl">
+  <span class="ttl">ACLP-4424 검토 단계 v1</span>
+  <div class="grp"><span class="lbl">뷰</span>
+    <button data-set="view" data-val="review" class="on">검토 화면</button>
+    <button data-set="view" data-val="flow">녹음 → 필드 → 리포트</button>
+  </div>
+  <div class="grp"><span class="lbl">경로</span>
+    <button data-set="path" data-val="first-op" class="on">초진 · 수술 (ACL)</button>
+    <button data-set="path" data-val="re-op">재진 · 수술 (LMAT)</button>
+  </div>
+  <div class="grp"><span class="lbl">리포트 표식</span>
+    <button id="tagBtn" class="on">표시 중</button>
+  </div>
+  <span class="note">좌측 항목을 누르면 우측 리포트에서 대응 위치가 켜집니다 · 우측 문장을 눌러도 됩니다</span>
+</div>
+
+<div class="gate">
+  <div class="g miss" data-filter="none">대응 필드 없음 <b id="gNone">0</b></div>
+  <div class="g spk" data-filter="stt">녹음 원문 확인 <b id="gStt">0</b></div>
+  <div class="g warn" data-filter="warn">근거 불일치 <b id="gWarn">0</b></div>
+  <div class="g" data-filter="off">리포트 미노출 <b id="gOff">0</b></div>
+  <div class="approve">
+    <span class="why" id="gWhy"></span>
+    <button disabled>검토 승인 → 미리보기</button>
+  </div>
+</div>
+
+<div class="wrap">
+
+<!-- ════════════════ 검토 화면 ════════════════ -->
+<div class="review">
+
+  <!-- ─── 좌: 검토 패널 ─── -->
+  <div class="left">
+
+  <!-- ▣ 초진 · 수술 -->
+  <div class="fp" data-for="first-op">
+
+    <div class="panel crit">
+      <h2>리포트에 있으나 대응 필드가 없음 <span class="cnt">여기가 0이 되어야 승인됩니다</span></h2>
+      <div class="hint">문진 구성안에 대응 문항이 없어 리포트 문장을 만들 근거가 없는 자리입니다. 검토 단계에서 의료진이 직접 채우거나, 문진 구성안에 문항을 신설해야 합니다.</div>
+      <div class="row" data-map="r-txtype" data-kind="none"><span class="o non">✕</span><span class="q">치료 유형</span><span class="v"><span class="empty">비어 있음</span><span class="sub">「수술로 / 수술 없이 치료합니다」 배지를 가르는 값 · 4경로 분기의 기준</span></span></div>
+      <div class="row" data-map="r-txname" data-kind="none"><span class="o non">✕</span><span class="q">수술·시술명</span><span class="v"><span class="empty">비어 있음</span><span class="sub">치료 사전 레코드를 부르는 키 · 잘못 고르면 전혀 다른 설명문이 환자에게 갑니다</span></span></div>
+      <div class="row" data-map="r-next" data-kind="none"><span class="o non">✕</span><span class="q">다음 진료 일시</span><span class="v"><span class="empty">비어 있음</span><span class="sub">예약 데이터 연동 예정</span></span></div>
+      <div class="row" data-map="r-todo1 r-todo2 r-todo3" data-kind="none"><span class="o non">✕</span><span class="q">환자 지시 (하실 일)</span><span class="v"><span class="empty">비어 있음 · 3항목</span><span class="sub">표준 항목 사전 신규 필요</span></span></div>
+    </div>
+
+    <div class="panel spkp">
+      <h2>녹음에서 온 것 <span class="sec-src">발화</span><span class="cnt">원문 대조 후 확정</span></h2>
+      <div class="hint">초진 경로에서 녹음이 리포트에 직접 닿는 자리는 <b>「다음 진료 목적」 한 곳</b>뿐입니다. 나머지는 의료진의 선택·입력을 거칩니다.</div>
+      <div class="row" data-map="r-nextpurpose" data-kind="stt"><span class="o stt">♪</span><span class="q">다음 진료 목적</span>
+        <span class="v">수술 전 검사 결과를 보고 수술 날짜와 입원 일정을 정합니다.</span>
+        <div class="stt3">
+          <div class="lane mockdata"><span class="k">① 발화 원문</span><span class="t">“검사 결과 나오면 그때 수술 날짜랑 입원 며칠 할지 같이 정하시죠.”<br><b style="color:#8a5307">— 가상 예시입니다. 실제 녹음 데이터가 아니며, 화면 구조 확인용입니다.</b></span></div>
+          <div class="lane"><span class="k">② 필드값</span><span class="t">다음 진료 목적 = 수술 전 검사 결과 확인 · 수술 일정 확정</span></div>
+          <div class="lane"><span class="k">③ 리포트</span><span class="t">수술 전 검사 결과를 보고 수술 날짜와 입원 일정을 정합니다.</span></div>
+          <div class="fix"><b>수정은 ②에서</b> 리포트 문장(③)은 ②의 결과라 직접 고치지 않습니다</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>§2 공통 초진 문진 <span class="sec-src">초진 §2</span></h2>
+      <div class="row" data-map="r-side r-q-side" data-kind="sel"><span class="o sel-o">택</span><span class="q">어느 무릎이 불편한가요</span><span class="v">오른쪽</span></div>
+      <div class="row" data-map="r-q-sx" data-kind="sel"><span class="o sel-o">택</span><span class="q">가장 불편한 증상</span><span class="v">통증, 붓기</span></div>
+      <div class="row" data-map="r-q-onset r-ev1" data-kind="sel"><span class="o sel-o">택</span><span class="q">증상 시작 시기</span><span class="v">1~6주 전</span></div>
+      <div class="row" data-map="r-q-mode" data-kind="sel"><span class="o sel-o">택</span><span class="q">증상 시작 방식</span><span class="v">다친 후 갑자기</span></div>
+      <div class="row" data-map="r-q-how" data-kind="sel"><span class="o sel-o">택</span><span class="q">어떻게 다쳤나요</span><span class="v">계단·내리막길</span></div>
+      <div class="row" data-map="r-q-how" data-kind="typ"><span class="o typ">입</span><span class="q">손상 상황 (주관식)</span><span class="v">내리막길에서 무릎이 꺾임</span></div>
+      <div class="row" data-map="r-q-nrs" data-kind="sel"><span class="o sel-o">택</span><span class="q">현재 통증 정도</span><span class="v">10점 중 3점 (NRS)</span></div>
+      <div class="row" data-map="r-q-site" data-kind="sel"><span class="o sel-o">택</span><span class="q">아픈 부위</span><span class="v">무릎 안쪽</span></div>
+      <div class="row" data-map="" data-kind="off"><span class="o sel-o">택</span><span class="q">타병원 검사·치료 여부</span><span class="v">있음<span class="sub">7-1·7-2가 리포트에 나가므로 이 여부 자체는 노출되지 않습니다</span></span></div>
+      <div class="row" data-map="r-q-out" data-kind="sel"><span class="o sel-o">택</span><span class="q">어떤 검사를 받았나요</span><span class="v">MRI</span></div>
+      <div class="row" data-map="r-q-out" data-kind="typ"><span class="o typ">입</span><span class="q">이전 병원에서 들은 설명</span><span class="v">전방십자인대 파열 및 반월상연골 손상, 수술 권유</span></div>
+      <div class="row" data-map="r-q-prevop" data-kind="sel"><span class="o sel-o">택</span><span class="q">이전 같은 무릎 수술</span><span class="v">없음</span></div>
+      <div class="row" data-map="" data-kind="off"><span class="o sel-o">택</span><span class="q">선수 여부 · 직업</span><span class="v">—<span class="sub">EMR 기록용 · 환자 리포트에 나가지 않습니다</span></span></div>
+    </div>
+
+    <div class="panel">
+      <h2>§3 질환별 핵심 질문 <span class="sec-src">초진 §3 ACL</span></h2>
+      <div class="hint">260907 구성안에서 <b>ACL 2번 문항이 교체</b>되었습니다 — 「다친 후 몇 시간 안에 많이 부었나요」가 삭제되고 「어떤 동작에서 다쳤나요」가 들어왔습니다. 리포트의 근거 문장 하나가 삭제된 문항을 아직 참조합니다.</div>
+      <div class="row" data-map="r-ev1 r-q-pop" data-kind="sel"><span class="o sel-o">택</span><span class="q">다칠 때 ‘뚝’ 소리</span><span class="v">있음</span></div>
+      <div class="row" data-map="r-ev1 r-q-swell" data-kind="warn"><span class="o non">✕</span><span class="q">다친 뒤 급격한 부종<span class="sub" style="color:#8a4008;font-weight:700">260907 삭제된 문항</span></span><span class="v"><span class="empty">수집 경로 없음</span><span class="sub">리포트 근거 문장 “몇 시간 안에 부은 것”이 이 값에 걸려 있습니다. 문장을 고치거나 문항을 되살려야 합니다.</span></span></div>
+      <div class="row" data-map="" data-kind="off"><span class="o sel-o">택</span><span class="q">어떤 동작에서 다쳤나요<span class="sub" style="color:#0f5c39;font-weight:700">260907 신설</span></span><span class="v">—<span class="sub">태클/점프/발차기/방향전환/넘어짐 · 리포트 대응 위치가 아직 정해지지 않았습니다</span></span></div>
+      <div class="row" data-map="r-ev2 r-q-giving" data-kind="sel"><span class="o sel-o">택</span><span class="q">무릎이 빠지는 느낌</span><span class="v">가끔</span></div>
+    </div>
+
+    <div class="panel">
+      <h2>§4 Imaging Findings <span class="sec-src">초진 §4</span></h2>
+      <div class="row" data-map="" data-kind="off"><span class="o sel-o">택</span><span class="q">영상 촬영처</span><span class="v">타병원<span class="sub">환자 리포트에 노출하지 않습니다</span></span></div>
+      <div class="row" data-map="r-dx" data-kind="typ"><span class="o typ">입</span><span class="q">Key Finding</span><span class="v"><span class="mono">Complete ACL tear</span></span></div>
+      <div class="row" data-map="r-dx r-find1 r-find2" data-kind="typ"><span class="o typ">입</span><span class="q">MRI Findings</span><span class="v"><span class="mono">ACL rupture / MM posterior bucket handle tear</span><span class="sub">한 필드가 히어로 진단과 「검사에서 확인된 것」 두 줄로 갈라집니다 — 1:1이 아닙니다</span></span></div>
+      <div class="row" data-map="" data-kind="off"><span class="o typ">입</span><span class="q">X-ray Findings</span><span class="v">—<span class="sub">이 케이스에서는 비어 있음</span></span></div>
+    </div>
+
+    <div class="panel dctp">
+      <h2>사전에서 불러온 문장 <span class="sec-src">표준 문구</span><span class="cnt">문장은 검증됨 · 키가 맞는지만 봅니다</span></h2>
+      <div class="hint">문안 자체는 의료진 산출물이라 검토에서 고칠 대상이 아닙니다. 위험은 <b>키 오선택</b> — 치료명·질환을 잘못 고르면 문장은 완벽한데 내용이 다른 환자의 것이 됩니다.</div>
+      <div class="row" data-map="r-ev-lead r-ev1 r-ev2 r-ev-concl" data-kind="dct"><span class="o dct">사</span><span class="q">질환별 논증 문구</span><span class="v">ACL · 수술<span class="sub">근거 블록 4문장을 이 레코드 하나가 채웁니다</span></span></div>
+      <div class="row" data-map="r-ev3 r-find1 r-find2" data-kind="dct"><span class="o dct">사</span><span class="q">영상 소견 → 환자용 번역</span><span class="v">ACL rupture · MM bucket handle tear</span></div>
+      <div class="row" data-map="r-cx1 r-cx2" data-kind="dct"><span class="o dct">사</span><span class="q">치료 설명</span><span class="v">전방십자인대 재건술 · 반월상연골 봉합술<span class="sub">치료명 키를 따라옵니다 — 위 「수술·시술명」이 비어 있어 현재는 확정되지 않은 상태</span></span></div>
+    </div>
+
+  </div><!-- /first-op -->
+
+  <!-- ▣ 재진 · 수술 -->
+  <div class="fp" data-for="re-op">
+
+    <div class="panel crit">
+      <h2>리포트에 있으나 대응 필드가 없음 <span class="cnt">여기가 0이 되어야 승인됩니다</span></h2>
+      <div class="hint">재진 문진 구성안에는 <b>부위 문항이 없습니다.</b> 초진과 재진이 아직 연결되지 않아 지난 회차 리포트도 불러올 수 없습니다.</div>
+      <div class="row" data-map="r-side" data-kind="none"><span class="o non">✕</span><span class="q">부위</span><span class="v"><span class="empty">비어 있음</span><span class="sub">초진 §2-1에는 있으나 재진 구성안에 대응 문항이 없습니다</span></span></div>
+      <div class="row" data-map="r-next" data-kind="none"><span class="o non">✕</span><span class="q">다음 진료 일시</span><span class="v"><span class="empty">비어 있음</span></span></div>
+      <div class="row" data-map="r-todo1 r-todo2" data-kind="none"><span class="o non">✕</span><span class="q">환자 지시 (하실 일)</span><span class="v"><span class="empty">비어 있음 · 2항목</span></span></div>
+      <div class="row" data-map="r-prevreport" data-kind="none"><span class="o non">✕</span><span class="q">지난 진료 리포트</span><span class="v"><span class="empty">Previous 필드 없음</span><span class="sub">지난 회차의 A·P를 불러오는 경로가 없습니다</span></span></div>
+    </div>
+
+    <div class="panel spkp">
+      <h2>녹음에서 온 것 <span class="sec-src">발화 → §4 A · §5 P</span><span class="cnt">리포트 골격 전체가 여기서 나옵니다</span></h2>
+      <div class="hint">재진 구성안은 A와 P를 <b>“진료 STT + P/E + Imaging 기반 자동 초안 → 의료진 수정·확정”</b>으로 정의합니다. 즉 재진 리포트의 진단·치료·치료명·치료 방향이 전부 녹음에서 두 단계를 거쳐 옵니다. 초진과 성격이 완전히 다릅니다.</div>
+      <div class="row" data-map="r-dx r-prevop" data-kind="stt"><span class="o stt">♪</span><span class="q">§4 Assessment</span>
+        <span class="v"><span class="mono">S/P DLM subtotal meniscectomy + PFJ &amp; MFC chondroplasty, Rt. / Lateral meniscal deficiency / Lateral compartment cartilage lesion</span><span class="sub">이 한 필드가 히어로 진단과 「받은 수술」 두 곳으로 갈라집니다</span></span>
+        <div class="stt3">
+          <div class="lane void"><span class="k">① 발화 원문</span><span class="t">원문 미확보 — 실제 녹음 데이터가 있어야 채울 수 있습니다</span></div>
+          <div class="lane"><span class="k">② 필드값</span><span class="t">Assessment (재진 구성안 §4 기록 예시)</span></div>
+          <div class="lane"><span class="k">③ 리포트</span><span class="t">히어로 진단 “바깥쪽 반월상연골이 부족하고 연골 손상이 남아 있습니다” · 「받은 수술」 “반월상연골 부분 절제술 + 연골 정리술”</span></div>
+          <div class="fix"><b>2단 변환</b> 원문 → 영문 소견 → 환자용 문장 · 각 단계에서 따로 틀릴 수 있습니다</div>
+        </div>
+      </div>
+      <div class="row" data-map="r-txtype r-txname r-txnote" data-kind="warn"><span class="o stt">♪</span><span class="q">§5 Plan</span>
+        <span class="v"><span class="mono">증상 지속 시 LMAT + cartilage repair 고려 / 재활운동 지속 / 3개월 후 외래 추적</span><span class="sub" style="color:#8a4008;font-weight:700">필드값은 “고려”인데 리포트는 “이번에 진행합니다”로 확정 서술 — 강도가 다릅니다</span></span>
+        <div class="stt3">
+          <div class="lane void"><span class="k">① 발화 원문</span><span class="t">원문 미확보</span></div>
+          <div class="lane"><span class="k">② 필드값</span><span class="t">증상 지속 시 LMAT + cartilage repair <b>고려</b></span></div>
+          <div class="lane"><span class="k">③ 리포트</span><span class="t">“수술로 치료합니다” · “지난번 말씀드린 수술을 <b>이번에 진행합니다</b>”</span></div>
+          <div class="fix"><b>검토에서 잡아야 하는 종류</b> 문장은 자연스럽지만 결정의 강도가 필드값보다 강해졌습니다</div>
+        </div>
+      </div>
+      <div class="row" data-map="r-nextpurpose" data-kind="stt"><span class="o stt">♪</span><span class="q">다음 진료 목적</span>
+        <span class="v">수술 전 검사 결과를 보고 수술 날짜와 입원 일정을 정합니다.</span>
+        <div class="stt3">
+          <div class="lane void"><span class="k">① 발화 원문</span><span class="t">원문 미확보</span></div>
+          <div class="lane"><span class="k">② 필드값</span><span class="t">대응 필드가 정의되지 않음 — 발화에서 바로 문장이 됩니다</span></div>
+          <div class="lane"><span class="k">③ 리포트</span><span class="t">수술 전 검사 결과를 보고 수술 날짜와 입원 일정을 정합니다.</span></div>
+          <div class="fix"><b>중간값 없음</b> 여기만 원문 ↔ 리포트 직접 대조가 유일한 검증 수단입니다</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>§2 S · 재진 공통 문진 <span class="sec-src">재진 §2</span><span class="cnt">전부 리포트 미노출</span></h2>
+      <div class="hint">재진·수술 경로의 v12 리포트에는 「말씀하신 내용 전체」 블록이 없습니다. 즉 §2 응답 네 개가 <b>입력은 되지만 환자에게 나가지 않습니다.</b> 의도인지 누락인지 확인이 필요합니다.</div>
+      <div class="row" data-map="" data-kind="off"><span class="o sel-o">택</span><span class="q">지난 진료 대비 무릎 상태</span><span class="v">—<span class="sub">많이/조금 좋아짐 · 비슷 · 조금/많이 나빠짐</span></span></div>
+      <div class="row" data-map="" data-kind="off"><span class="o sel-o">택</span><span class="q">가장 불편한 증상</span><span class="v">—</span></div>
+      <div class="row" data-map="" data-kind="off"><span class="o sel-o">택</span><span class="q">현재 통증 정도</span><span class="v">—<span class="sub">NRS 0–10</span></span></div>
+      <div class="row" data-map="" data-kind="off"><span class="o typ">입</span><span class="q">새롭게 달라진 증상</span><span class="v">—<span class="sub">구성안에 “향후 STT 자동 추출로 확장”이 전제로 적혀 있습니다</span></span></div>
+    </div>
+
+    <div class="panel">
+      <h2>§3 O · Objective / P.E / Imaging <span class="sec-src">재진 §3</span></h2>
+      <div class="row" data-map="r-find-pe1 r-find-pe2" data-kind="typ"><span class="o typ">입</span><span class="q">Physical Examination</span><span class="v"><span class="mono">ROM 0–130, effusion(-), joint line tenderness(+), McMurray(+)</span><span class="sub">한 필드가 진찰 두 줄로 갈라집니다</span></span></div>
+      <div class="row" data-map="" data-kind="off"><span class="o typ">입</span><span class="q">기능 / 회복 상태</span><span class="v">—<span class="sub">수술 경로 리포트에는 노출되지 않습니다</span></span></div>
+      <div class="row" data-map="" data-kind="off"><span class="o typ">입</span><span class="q">X-ray Findings</span><span class="v">—</span></div>
+      <div class="row" data-map="r-find-mri" data-kind="typ"><span class="o typ">입</span><span class="q">MRI Findings</span><span class="v"><span class="mono">Lateral meniscal deficiency, MFC cartilage lesion</span></span></div>
+    </div>
+
+    <div class="panel dctp">
+      <h2>사전에서 불러온 문장 <span class="sec-src">표준 문구</span></h2>
+      <div class="row" data-map="r-ev-lead r-ev1 r-ev2 r-ev3 r-ev-concl" data-kind="dct"><span class="o dct">사</span><span class="q">질환별 논증 문구</span><span class="v">반월상연골 결손 · 수술<span class="sub">근거 블록 5문장을 이 레코드 하나가 채웁니다</span></span></div>
+      <div class="row" data-map="r-find-pe1 r-find-pe2 r-find-mri" data-kind="dct"><span class="o dct">사</span><span class="q">소견 → 환자용 번역</span><span class="v">진찰 2 · MRI 1</span></div>
+      <div class="row" data-map="r-cx1 r-cx2" data-kind="dct"><span class="o dct">사</span><span class="q">치료 설명</span><span class="v">반월상연골 이식술 · 연골 재생 치료</span></div>
+      <div class="row" data-map="r-prevop" data-kind="dct"><span class="o dct">사</span><span class="q">수술 이력 원문 → 환자용</span><span class="v">DLM subtotal meniscectomy → “반월상연골 부분 절제술”</span></div>
+    </div>
+
+  </div><!-- /re-op -->
+
+    <div class="tally">
+      <h3>필드 ↔ 리포트 매칭 집계</h3>
+      <p class="sub" id="tsub"></p>
+      <div class="bar">
+        <i class="b11" id="b11"></i><i class="bn1" id="bn1"></i><i class="b1n" id="b1n"></i><i class="boff" id="boff"></i><i class="bnone" id="bnone"></i>
+      </div>
+      <div class="keys">
+        <span><i style="background:var(--good)"></i>1:1 <b id="c11">0</b></span>
+        <span><i style="background:var(--brand)"></i>다:1 합성 <b id="cn1">0</b></span>
+        <span><i style="background:#5b3fd6"></i>1:다 분산 <b id="c1n">0</b></span>
+        <span><i style="background:#c9ccd3"></i>리포트 미노출 <b id="coff">0</b></span>
+        <span><i style="background:var(--miss)"></i>대응 필드 없음 <b id="cnone">0</b></span>
+      </div>
+      <div class="verdict" id="verdict"></div>
+    </div>
+
+  </div><!-- /left -->
+
+  <!-- ─── 우: 환자 리포트 ─── -->
+  <div class="side">
+    <div class="sidehd"><b>환자가 받는 리포트</b><span>v12 구성 그대로</span><span class="ro">읽기 전용</span></div>
+    <div class="phone"><div class="screen">
+
+    <!-- 초진 · 수술 -->
+    <div class="rp" data-for="first-op">
+      <div class="hero">
+        <div class="top">○○정형외과 · 2026.9.7</div>
+        <div class="eyebrow">김○○ 님, 오늘 진료 결과입니다</div>
+        <div class="dx"><span class="side2"><span data-node="r-side" data-label="히어로 · 부위">오른쪽 무릎</span></span>
+          <span data-node="r-dx" data-label="히어로 · 진단">전방십자인대가 끊어지고<br>안쪽 반월상연골이 찢어졌습니다</span></div>
+      </div>
+      <div class="rbody">
+        <div class="sec"><h2>앞으로 받으실 치료</h2>
+          <div class="rcard">
+            <div class="badge op" data-node="r-txtype" data-label="치료 유형 배지">수술로 치료합니다</div>
+            <div class="big"><span data-node="r-txname" data-label="치료명">전방십자인대 재건술 + 반월상연골 봉합술</span></div>
+          </div></div>
+        <div class="sec"><h2>왜 수술이 필요한가요</h2>
+          <div class="rcard">
+            <p><b data-node="r-ev-lead" data-label="근거 · 도입">세 가지가 같은 곳을 가리킵니다.</b></p>
+            <ul class="why">
+              <li data-node="r-ev1" data-label="근거 1">다칠 때 ‘뚝’ 소리가 나고 몇 시간 안에 부은 것은 <b>인대가 끊어질 때 나타나는 전형적인 반응</b>입니다.<span class="orphan">부종 문항 삭제됨</span></li>
+              <li data-node="r-ev2" data-label="근거 2">지금도 무릎이 빠지는 느낌이 남아 있는 것은 <b>끊어진 인대가 무릎을 잡아주지 못하고 있다</b>는 뜻입니다.</li>
+              <li data-node="r-ev3" data-label="근거 3">MRI에서 전방십자인대가 <b>끊어진 것</b>이 확인되었고, 안쪽 반월상연골도 <b>찢어져 뒤쪽에서 접혀</b> 있습니다.</li>
+            </ul>
+            <div class="concl" data-node="r-ev-concl" data-label="근거 · 결론">인대를 그대로 두면 무릎이 불안정한 상태가 반복되면서 연골이 더 닳습니다. 그래서 수술로 치료합니다.</div>
+          </div></div>
+        <div class="sec"><h2>어떤 치료인가요</h2>
+          <div class="rcard">
+            <p data-node="r-cx1" data-label="치료 설명 1"><b>전방십자인대 재건술</b>은 끊어진 인대를 대신할 조직을 무릎 안에 새로 만들어 넣는 술식입니다. 이 인대가 없으면 무릎이 불안정해지고 연골 손상으로 이어질 수 있습니다.</p>
+            <p data-node="r-cx2" data-label="치료 설명 2"><b>반월상연골 봉합술</b>은 찢어진 연골을 꿰매어 붙여 원래 모양을 되살리는 술식입니다. 잘라내기보다 꿰매어 살리는 것이 관절염을 예방하는 데 유리합니다.</p>
+          </div></div>
+        <div class="sec"><h2>다음 진료까지 하실 일</h2>
+          <div class="rcard"><ul class="todo">
+            <li><div class="n">1</div><div class="t" data-node="r-todo1" data-label="하실 일 1">수술 전 검사 받기</div></li>
+            <li><div class="n">2</div><div class="t" data-node="r-todo2" data-label="하실 일 2">걸을 때는 항상 보조기 착용</div></li>
+            <li><div class="n">3</div><div class="t" data-node="r-todo3" data-label="하실 일 3">무릎 비틀기·쪼그려 앉기 피하기</div></li>
+          </ul></div></div>
+        <div class="sec"><h2>다음에 오시는 날</h2>
+          <div class="rcard">
+            <div class="big"><span data-node="r-next" data-label="다음 진료 일시">9월 14일 (월)<small>오전 10:30</small></span></div>
+            <div class="sub2" data-node="r-nextpurpose" data-label="다음 진료 목적">수술 전 검사 결과를 보고 수술 날짜와 입원 일정을 정합니다.<span class="orphan spk">발화 · 원문 대조</span></div>
+          </div></div>
+        <div class="sec"><h2>자세히 보기</h2>
+          <details open><summary>검사에서 확인된 것</summary>
+            <div class="in"><table class="kv">
+              <tr><th>MRI</th><td data-node="r-find1" data-label="검사 결과 1">전방십자인대가 끊어짐</td></tr>
+              <tr><th>MRI</th><td data-node="r-find2" data-label="검사 결과 2">안쪽 반월상연골이 찢어져 뒤쪽에서 접혀 있음</td></tr>
+            </table></div></details>
+          <details><summary>말씀하신 내용 전체</summary>
+            <div class="in"><table class="kv">
+              <tr><th>불편한 무릎</th><td data-node="r-q-side" data-label="문진 · 부위">오른쪽</td></tr>
+              <tr><th>주요 증상</th><td data-node="r-q-sx" data-label="문진 · 증상">통증, 붓기</td></tr>
+              <tr><th>시작 시기</th><td data-node="r-q-onset" data-label="문진 · 시기">1~6주 전</td></tr>
+              <tr><th>시작 방식</th><td data-node="r-q-mode" data-label="문진 · 방식">다친 후 갑자기</td></tr>
+              <tr><th>어떻게 다쳤나</th><td data-node="r-q-how" data-label="문진 · 손상 상황">계단·내리막길 — 내리막길에서 무릎이 꺾임</td></tr>
+              <tr><th>통증 정도</th><td data-node="r-q-nrs" data-label="문진 · 통증">10점 중 3점</td></tr>
+              <tr><th>아픈 부위</th><td data-node="r-q-site" data-label="문진 · 아픈 부위">무릎 안쪽</td></tr>
+              <tr><th>다른 병원 검사</th><td data-node="r-q-out" data-label="문진 · 타병원">MRI — 전방십자인대 파열 및 반월상연골 손상, 수술 권유</td></tr>
+              <tr><th>이전 수술</th><td data-node="r-q-prevop" data-label="문진 · 이전 수술">없음</td></tr>
+              <tr><th>다칠 때 ‘뚝’ 소리</th><td data-node="r-q-pop" data-label="문진 · 뚝 소리">있음</td></tr>
+              <tr><th>다친 뒤 급격한 부종</th><td data-node="r-q-swell" data-label="문진 · 부종">있음<span class="orphan">문항 삭제됨</span></td></tr>
+              <tr><th>무릎이 빠지는 느낌</th><td data-node="r-q-giving" data-label="문진 · 불안정감">가끔</td></tr>
+            </table></div></details>
+        </div>
+        <div class="sign">이 리포트는 <b>○○정형외과 ○○○ 원장</b>의<br>2026년 9월 7일 진료 내용을 바탕으로 작성되었습니다.</div>
+      </div>
+    </div>
+
+    <!-- 재진 · 수술 -->
+    <div class="rp" data-for="re-op">
+      <div class="hero">
+        <div class="top">○○정형외과 · 2026.12.7</div>
+        <div class="eyebrow">김○○ 님, 오늘 진료 결과입니다</div>
+        <div class="dx"><span class="side2"><span data-node="r-side" data-label="히어로 · 부위">오른쪽 무릎<span class="orphan">대응 문항 없음</span></span></span>
+          <span data-node="r-dx" data-label="히어로 · 진단">바깥쪽 반월상연골이 부족하고<br>연골 손상이 남아 있습니다</span></div>
+      </div>
+      <div class="rbody">
+        <div class="sec"><h2>앞으로 받으실 치료</h2>
+          <div class="rcard">
+            <div class="badge op" data-node="r-txtype" data-label="치료 유형 배지">수술로 치료합니다</div>
+            <div class="big"><span data-node="r-txname" data-label="치료명">바깥쪽 반월상연골 이식술 + 연골 재생 치료</span></div>
+            <p style="margin-top:9px" data-node="r-txnote" data-label="치료 방향">지난번 말씀드린 수술을 이번에 진행합니다.<span class="orphan">필드값은 “고려”</span></p>
+          </div></div>
+        <div class="sec"><h2>왜 수술이 필요한가요</h2>
+          <div class="rcard">
+            <p><b data-node="r-ev-lead" data-label="근거 · 도입">3개월 재활로는 충분하지 않았습니다.</b></p>
+            <ul class="why">
+              <li data-node="r-ev1" data-label="근거 1"><b>3개월 재활에도 걸림과 통증이 그대로</b>입니다. 운동으로 버티는 데 한계가 있다는 뜻입니다.</li>
+              <li data-node="r-ev2" data-label="근거 2">진찰에서 관절선 통증과 걸림이 지난번과 같고, MRI 소견도 변화가 없습니다.</li>
+              <li data-node="r-ev3" data-label="근거 3">반월상연골이 부족한 채로 두면 <b>체중이 한곳에 몰려 관절염이 빨라집니다.</b></li>
+            </ul>
+            <div class="concl" data-node="r-ev-concl" data-label="근거 · 결론">그래서 지난번에 말씀드린 이식 수술을 이번에 진행합니다.</div>
+          </div></div>
+        <div class="sec"><h2>어떤 치료인가요</h2>
+          <div class="rcard">
+            <p data-node="r-cx1" data-label="치료 설명 1"><b>반월상연골 이식술</b>은 기증받은 반월상연골 조직을 이식하여 연골의 기능을 살리는 술식입니다.</p>
+            <p data-node="r-cx2" data-label="치료 설명 2"><b>연골 재생 치료</b>는 손상된 연골 부위를 다듬고 자극을 주어 새로운 연골이 자라도록 돕는 술식입니다.</p>
+          </div></div>
+        <div class="sec"><h2>다음 진료까지 하실 일</h2>
+          <div class="rcard"><ul class="todo">
+            <li><div class="n">1</div><div class="t" data-node="r-todo1" data-label="하실 일 1">수술 전 검사 받기</div></li>
+            <li><div class="n">2</div><div class="t" data-node="r-todo2" data-label="하실 일 2">지금 하시는 재활운동은 수술 전까지 계속</div></li>
+          </ul></div></div>
+        <div class="sec"><h2>다음에 오시는 날</h2>
+          <div class="rcard">
+            <div class="big"><span data-node="r-next" data-label="다음 진료 일시">12월 14일 (월)<small>오전 10:30</small></span></div>
+            <div class="sub2" data-node="r-nextpurpose" data-label="다음 진료 목적">수술 전 검사 결과를 보고 수술 날짜와 입원 일정을 정합니다.<span class="orphan spk">발화 · 원문 대조</span></div>
+          </div></div>
+        <div class="sec"><h2>자세히 보기</h2>
+          <details open><summary>검사에서 확인된 것</summary>
+            <div class="in"><table class="kv">
+              <tr><th>진찰</th><td data-node="r-find-pe1" data-label="진찰 1">무릎 굽히고 펴기 0~130도 · 물 찬 것 없음</td></tr>
+              <tr><th>진찰</th><td data-node="r-find-pe2" data-label="진찰 2">관절선을 누르면 통증 · 무릎을 돌리는 검사에서 걸림 — 지난번과 같음</td></tr>
+              <tr><th>MRI</th><td data-node="r-find-mri" data-label="MRI">바깥쪽 반월상연골 부족 · 허벅지뼈 안쪽 끝 연골 손상 — 변화 없음</td></tr>
+            </table></div></details>
+          <details open><summary>받은 수술</summary>
+            <div class="in"><table class="kv">
+              <tr><th>수술</th><td data-node="r-prevop" data-label="받은 수술">오른쪽 무릎 반월상연골 부분 절제술 + 연골 정리술</td></tr>
+              <tr><th>지난 진료(9월)</th><td data-node="r-prevreport" data-label="지난 진료 리포트">재활운동 지속 · 증상 지속 시 이식술 고려 · 3개월 후 진료<span class="orphan">Previous 필드 없음</span></td></tr>
+            </table></div></details>
+        </div>
+        <div class="sign">이 리포트는 <b>○○정형외과 ○○○ 원장</b>의<br>2026년 12월 7일 진료 내용을 바탕으로 작성되었습니다.</div>
+      </div>
+    </div>
+
+    </div></div>
+  </div>
+</div>
+
+<!-- ════════════════ 흐름도 ════════════════ -->
+<div class="flowview">
+  <div class="flownote">
+    <h3>녹음 → 필드 → 리포트</h3>
+    같은 데이터를 3열로 편 것입니다. 왼쪽은 값이 어디서 <b>발생</b>하는지, 가운데는 <b>진료 필드</b>(= EMR로도 가는 값), 오른쪽은 <b>환자 리포트에서의 위치</b>입니다.
+    선이 갈라지거나 합쳐지는 곳이 1:1이 아닌 곳이고, 검토 화면에서 판단이 필요한 지점도 대부분 거기입니다.
+    <b>녹음은 리포트에 직접 닿지 않습니다</b> — 항상 가운데 필드를 한 번 거칩니다. 재진 A·P만 그 경유가 사실상 자동 초안이라, 원문 대조가 필요한 곳이 그쪽에 몰립니다.
+  </div>
+  <div class="flowbox">
+    <div class="flowhd"><span>① 발생지</span><span>② 진료 필드 (EMR 공용)</span><span>③ 환자 리포트 위치</span></div>
+    <div class="flowgrid" id="flowgrid">
+      <svg class="flowsvg" id="flowsvg"></svg>
+      <div class="flowcol" id="fcol1"></div>
+      <div class="flowcol" id="fcol2"></div>
+      <div class="flowcol" id="fcol3"></div>
+    </div>
+    <div class="flowlegend">
+      <span><i style="background:var(--oSel)"></i>의사 선택 (객관식)</span>
+      <span><i style="background:var(--oTyp)"></i>의사 입력 (자유)</span>
+      <span><i style="background:var(--oStt)"></i>녹음 → 자동 초안</span>
+      <span><i style="background:var(--oDct)"></i>표준 문구 사전</span>
+      <span><i style="background:#c0392b"></i>발생지 없음</span>
+      <span><i style="background:#c9ccd3"></i>리포트에 안 나감</span>
+    </div>
+  </div>
+</div>
+
+</div><!-- /wrap -->
+
+<script>
+const ORIGIN={sel:{c:'o-sel',t:'의사 선택',s:'문진 객관식·수치'},typ:{c:'o-typ',t:'의사 입력',s:'주관식·소견 입력'},
+  stt:{c:'o-stt',t:'녹음 → 자동 초안',s:'발화에서 추출'},dct:{c:'o-dct',t:'표준 문구 사전',s:'저장해둔 문장'},
+  none:{c:'o-non',t:'발생지 없음',s:'검토에서 채워야 함'}};
+const ORDER=['sel','typ','stt','dct','none'];
+const SECLBL={crit:'대응 필드 없음',spkp:'녹음 유래',dctp:'표준 문구'};
+function originOf(r){const o=r.querySelector('.o');
+  if(o.classList.contains('typ'))return'typ'; if(o.classList.contains('stt'))return'stt';
+  if(o.classList.contains('dct'))return'dct'; if(o.classList.contains('non'))return'none'; return'sel'}
+function secOf(r){const p=r.closest('.panel');
+  for(const k in SECLBL) if(p.classList.contains(k)) return SECLBL[k];
+  const s=p.querySelector('.sec-src'); return s?s.textContent.trim():''}
+
+function activePath(){return document.body.dataset.path}
+function fp(){return document.querySelector('.fp[data-for="'+activePath()+'"]')}
+function rp(){return document.querySelector('.rp[data-for="'+activePath()+'"]')}
+
+/* 경로별 표시 */
+function showPath(){
+  const p=activePath();
+  document.querySelectorAll('.fp').forEach(e=>e.style.display=e.dataset.for===p?'':'none');
+  document.querySelectorAll('.rp').forEach(e=>e.style.display=e.dataset.for===p?'':'none');
+  clearPick(); computeAll(); buildFlow();
+}
+
+/* ── 매칭 계산 ── */
+function rows(){return [...fp().querySelectorAll('.row')]}
+function targetsOf(r){const s=(r.dataset.map||'').trim();return s?s.split(/\s+/):[]}
+
+function computeAll(){
+  const rs=rows(), inc={};
+  rs.forEach(r=>targetsOf(r).forEach(t=>{(inc[t]=inc[t]||[]).push(r)}));
+  let n11=0,nn1=0,n1n=0,noff=0,nnone=0;
+  rs.forEach(r=>{
+    const t=targetsOf(r); let cls,txt;
+    if(r.dataset.kind==='none'){cls='m-none';txt='대응 필드 없음';nnone++}
+    else if(t.length===0){cls='m-off';txt='리포트 미노출';noff++}
+    else if(t.length>1){cls='m-1n';txt='1:'+t.length;n1n++}
+    else if((inc[t[0]]||[]).length>1){cls='m-n1';txt=(inc[t[0]].length)+':1';nn1++}
+    else {cls='m-11';txt='1:1';n11++}
+    if(r.dataset.kind==='warn'){cls='m-warn';txt='확인 필요'}
+    let b=r.querySelector('.m');
+    if(!b){b=document.createElement('span');b.className='m';
+      const s3=r.querySelector('.stt3'); if(s3) r.insertBefore(b,s3); else r.appendChild(b)}
+    b.className='m '+cls; b.textContent=txt;
+  });
+  /* 게이트 */
+  const cNone=rs.filter(r=>r.dataset.kind==='none').length;
+  const cStt=rs.filter(r=>r.dataset.kind==='stt').length;
+  const cWarn=rs.filter(r=>r.dataset.kind==='warn').length;
+  const cOff=rs.filter(r=>r.dataset.kind==='off').length;
+  gNone.textContent=cNone; gStt.textContent=cStt; gWarn.textContent=cWarn; gOff.textContent=cOff;
+  gWhy.textContent=cNone||cWarn ? `채워지지 않은 자리 ${cNone}곳, 확인이 필요한 자리 ${cWarn}곳이 남아 있습니다` : '';
+  /* 집계 바 */
+  const tot=n11+nn1+n1n+noff+nnone||1;
+  b11.style.flex=n11;bn1.style.flex=nn1;b1n.style.flex=n1n;boff.style.flex=noff;bnone.style.flex=nnone;
+  c11.textContent=n11;cn1.textContent=nn1;c1n.textContent=n1n;coff.textContent=noff;cnone.textContent=nnone;
+  const pct=Math.round(n11/tot*100);
+  tsub.textContent=`이 경로의 필드 ${tot}개 중 리포트와 1:1로 대응하는 것은 ${n11}개(${pct}%)입니다.`;
+  verdict.innerHTML = activePath()==='first-op'
+    ? `<b>1:1 매칭만으로는 검토가 성립하지 않습니다.</b> 진단·근거·치료 설명처럼 판단이 걸린 자리는 모두 여러 필드가 합쳐지거나(다:1) 한 필드가 여러 곳으로 갈라진(1:다) 곳입니다. 1:1인 것은 대부분 「말씀하신 내용 전체」 표의 문진 응답 — 즉 <b>가장 안전한 곳만 1:1</b>입니다. 그래서 좌우 대응은 <b>기본 뷰</b>로 두고, 승인 게이트는 다:1·1:다·대응 없음에만 세우는 편이 맞습니다.`
+    : `<b>재진은 매칭 구조 자체가 다릅니다.</b> 리포트의 진단·치료·치료명·치료 방향이 §4 A·§5 P 두 필드에서만 나오고, 그 둘은 녹음 기반 자동 초안입니다. 1:1이 거의 없고 <b>2개 필드 → 리포트 대부분</b>이라, 이 두 줄을 통과시키면 리포트 전체를 통과시킨 것이 됩니다. 검토의 무게를 여기에 몰아야 합니다.`;
+}
+
+/* ── 좌↔우 하이라이트 ── */
+let picked=null;
+function clearPick(){
+  picked=null; document.body.classList.remove('picking');
+  document.querySelectorAll('.row.sel').forEach(e=>e.classList.remove('sel'));
+  document.querySelectorAll('[data-node]').forEach(e=>e.classList.remove('lit','dim'));
+  document.querySelectorAll('.gate .g.on').forEach(e=>e.classList.remove('on'));
+}
+function pickRow(r,scroll){
+  const was=r.classList.contains('sel'); clearPick(); if(was) return;
+  r.classList.add('sel'); picked=r; document.body.classList.add('picking');
+  const t=targetsOf(r); const R=rp();
+  R.querySelectorAll('[data-node]').forEach(e=>{
+    if(t.includes(e.dataset.node)) e.classList.add('lit'); else e.classList.add('dim');
+  });
+  if(scroll&&t.length){
+    const first=R.querySelector('[data-node="'+t[0]+'"]');
+    if(first){const d=first.closest('details'); if(d) d.open=true;
+      first.scrollIntoView({block:'center',behavior:'smooth'});}
+  }
+}
+document.addEventListener('click',e=>{
+  const r=e.target.closest('.row'); if(r){pickRow(r,true);return}
+  const n=e.target.closest('[data-node]');
+  if(n){
+    const id=n.dataset.node;
+    const hits=rows().filter(x=>targetsOf(x).includes(id));
+    clearPick();
+    if(!hits.length){ n.classList.add('lit'); return }
+    document.body.classList.add('picking');
+    hits.forEach(x=>x.classList.add('sel'));
+    const all=new Set(); hits.forEach(x=>targetsOf(x).forEach(t=>all.add(t)));
+    rp().querySelectorAll('[data-node]').forEach(el=>{
+      if(all.has(el.dataset.node)) el.classList.add('lit'); else el.classList.add('dim')});
+    hits[0].scrollIntoView({block:'center',behavior:'smooth'});
+    return;
+  }
+  const g=e.target.closest('.gate .g');
+  if(g){
+    const k=g.dataset.filter; const was=g.classList.contains('on'); clearPick();
+    if(was) return; g.classList.add('on');
+    const hits=rows().filter(x=>x.dataset.kind===k);
+    if(!hits.length) return;
+    hits.forEach(x=>x.classList.add('sel'));
+    const all=new Set(); hits.forEach(x=>targetsOf(x).forEach(t=>all.add(t)));
+    document.body.classList.add('picking');
+    rp().querySelectorAll('[data-node]').forEach(el=>{
+      if(all.has(el.dataset.node)) el.classList.add('lit'); else el.classList.add('dim')});
+    hits[0].scrollIntoView({block:'center',behavior:'smooth'});
+  }
+});
+
+/* ── 흐름도 ── */
+function buildFlow(){
+  const c1=fcol1,c2=fcol2,c3=fcol3;
+  c1.innerHTML=c2.innerHTML=c3.innerHTML='';
+  const rs=rows(), R=rp();
+  const originGroups={}, links=[];
+  rs.forEach((r,i)=>{
+    const k=originOf(r);
+    const q=(r.querySelector('.q').cloneNode(true));
+    q.querySelectorAll('.sub').forEach(x=>x.remove());
+    const f=document.createElement('div');
+    f.className='fnode '+ORIGIN[k].c; f.dataset.fid='f'+i;
+    f.innerHTML='<span class="t">'+q.textContent.trim()+'</span><span class="s">'+secOf(r)+'</span>';
+    c2.appendChild(f);
+    (originGroups[k]=originGroups[k]||[]).push('f'+i);
+    const t=targetsOf(r);
+    if(!t.length){ links.push(['f'+i,'off']); }
+    t.forEach(id=>links.push(['f'+i,'n:'+id]));
+  });
+  ORDER.forEach(k=>{
+    if(!originGroups[k]) return;
+    const o=document.createElement('div');
+    o.className='fnode '+ORIGIN[k].c; o.dataset.oid=k;
+    o.innerHTML='<span class="t">'+ORIGIN[k].t+' · '+originGroups[k].length+'</span><span class="s">'+ORIGIN[k].s+'</span>';
+    c1.appendChild(o);
+  });
+  const seen=new Set();
+  R.querySelectorAll('[data-node]').forEach(el=>{
+    const id=el.dataset.node; if(seen.has(id))return; seen.add(id);
+    const d=document.createElement('div'); d.className='fnode rep'; d.dataset.nid='n:'+id;
+    const inc=rs.filter(x=>targetsOf(x).includes(id)).length;
+    d.innerHTML='<span class="t">'+(el.dataset.label||id)+'</span><span class="s">'+(inc?('필드 '+inc+'개'):'대응 필드 없음')+'</span>';
+    if(!inc) d.style.borderLeftColor='#c0392b';
+    c3.appendChild(d);
+  });
+  const off=document.createElement('div'); off.className='fnode rep off'; off.dataset.nid='off';
+  off.innerHTML='<span class="t">리포트에 안 나감</span><span class="s">EMR 기록으로만 사용</span>';
+  c3.appendChild(off);
+  window.__links=links;
+  requestAnimationFrame(drawFlow);
+}
+function drawFlow(){
+  const svg=flowsvg, grid=flowgrid; if(!window.__links) return;
+  const gb=grid.getBoundingClientRect();
+  svg.setAttribute('viewBox','0 0 '+gb.width+' '+gb.height);
+  let d='';
+  const oOf={};
+  rows().forEach((r,i)=>{oOf['f'+i]=originOf(r)});
+  window.__links.forEach(([a,b])=>{
+    const A=grid.querySelector('[data-fid="'+a+'"]'), B=grid.querySelector('[data-nid="'+b.replace(/"/g,'')+'"]');
+    const O=grid.querySelector('[data-oid="'+oOf[a]+'"]');
+    if(!A) return;
+    const ab=A.getBoundingClientRect();
+    const ax=ab.right-gb.left, ay=ab.top-gb.top+ab.height/2;
+    if(B){const bb=B.getBoundingClientRect();
+      const bx=bb.left-gb.left, by=bb.top-gb.top+bb.height/2;
+      d+=`<path data-a="${a}" data-b="${b}" d="M${ax} ${ay} C${ax+34} ${ay} ${bx-34} ${by} ${bx} ${by}"/>`;}
+    if(O){const ob=O.getBoundingClientRect();
+      const ox=ob.right-gb.left, oy=ob.top-gb.top+ob.height/2;
+      const lx=ab.left-gb.left;
+      d+=`<path data-a="${a}" d="M${ox} ${oy} C${ox+34} ${oy} ${lx-34} ${ay} ${lx} ${ay}"/>`;}
+  });
+  svg.innerHTML=d;
+}
+flowgrid.addEventListener('mouseover',e=>{
+  const n=e.target.closest('.fnode'); if(!n) return;
+  const fid=n.dataset.fid;
+  flowgrid.querySelectorAll('.fnode').forEach(x=>{x.classList.remove('lit');x.classList.add('dim')});
+  flowsvg.querySelectorAll('path').forEach(p=>{p.classList.remove('lit');p.classList.add('dim')});
+  const on=new Set();
+  if(fid){ on.add(n);
+    flowsvg.querySelectorAll('path[data-a="'+fid+'"]').forEach(p=>{
+      p.classList.add('lit');p.classList.remove('dim');
+      if(p.dataset.b){const t=flowgrid.querySelector('[data-nid="'+p.dataset.b+'"]'); if(t) on.add(t)}});
+    const k=originOf(rows()[+fid.slice(1)]);
+    const o=flowgrid.querySelector('[data-oid="'+k+'"]'); if(o) on.add(o);
+  } else if(n.dataset.nid){ on.add(n);
+    flowsvg.querySelectorAll('path[data-b="'+n.dataset.nid+'"]').forEach(p=>{
+      p.classList.add('lit');p.classList.remove('dim');
+      const f=flowgrid.querySelector('[data-fid="'+p.dataset.a+'"]'); if(f){on.add(f);
+        flowsvg.querySelectorAll('path[data-a="'+p.dataset.a+'"]:not([data-b])').forEach(q=>{q.classList.add('lit');q.classList.remove('dim')});
+        const k=originOf(rows()[+p.dataset.a.slice(1)]);
+        const o=flowgrid.querySelector('[data-oid="'+k+'"]'); if(o) on.add(o);}});
+  } else if(n.dataset.oid){ on.add(n);
+    rows().forEach((r,i)=>{ if(originOf(r)===n.dataset.oid){
+      const f=flowgrid.querySelector('[data-fid="f'+i+'"]'); if(f) on.add(f);
+      flowsvg.querySelectorAll('path[data-a="f'+i+'"]').forEach(p=>{p.classList.add('lit');p.classList.remove('dim');
+        if(p.dataset.b){const t=flowgrid.querySelector('[data-nid="'+p.dataset.b+'"]'); if(t) on.add(t)}});
+    }});
+  }
+  on.forEach(x=>{x.classList.add('lit');x.classList.remove('dim')});
+});
+flowgrid.addEventListener('mouseleave',()=>{
+  flowgrid.querySelectorAll('.fnode').forEach(x=>x.classList.remove('lit','dim'));
+  flowsvg.querySelectorAll('path').forEach(p=>p.classList.remove('lit','dim'));
+});
+window.addEventListener('resize',()=>requestAnimationFrame(drawFlow));
+
+/* ── 컨트롤 ── */
+document.querySelectorAll('.ctl button[data-set]').forEach(b=>{
+  b.onclick=()=>{
+    document.body.dataset[b.dataset.set]=b.dataset.val;
+    document.querySelectorAll('.ctl button[data-set="'+b.dataset.set+'"]').forEach(x=>x.classList.toggle('on',x===b));
+    if(b.dataset.set==='path') showPath();
+    if(b.dataset.set==='view'&&b.dataset.val==='flow') requestAnimationFrame(drawFlow);
+  };
+});
+tagBtn.onclick=()=>{const on=document.body.classList.toggle('show-tag');
+  tagBtn.classList.toggle('on',on); tagBtn.textContent=on?'표시 중':'표시';};
+
+showPath();
+</script>
+</body>
+</html>
