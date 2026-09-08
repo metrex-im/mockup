@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ACLP-4424 진료기록 검토 v2 · LLM 자동 체크 + 의사 최종 확인</title>
+<style>
+:root{
+  --bg:#F3F4F7; --card:#fff; --ink:#101010; --ink2:#3D434F; --ink3:#767C8A; --ink4:#A8ADBA;
+  --line:#E5E7EC; --line2:#EEF0F4;
+  --blue:#2E6BE6; --blue-d:#1E52C4; --blue-s:#EAF1FE;
+  --ai:#7A3FE0; --ai-s:#F2EBFD; --ai-b:#DFCFFA;
+  --warn:#C2610B; --warn-s:#FFF3E4; --warn-b:#F6D9B4;
+  --ok:#0E7A48; --ok-s:#E5F4EC; --ok-b:#C2E5D2;
+  --gray-s:#F1F2F5;
+}
+*{box-sizing:border-box}
+html{color-scheme:light}
+body{margin:0;background:#DCDFE6;color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Noto Sans KR","Malgun Gothic",sans-serif;
+  font-size:14px;-webkit-font-smoothing:antialiased}
+
+/* ── 상단 안내 바 ── */
+.ctl{position:sticky;top:0;z-index:80;background:#101010;color:#fff;padding:9px 16px;
+  display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;font-size:12.5px}
+.ctl .ttl{font-weight:800}
+.ctl .lbl{opacity:.6}
+.ctl button{background:#282C36;color:#CFD3DC;border:1px solid #3C414D;border-radius:6px;
+  padding:4px 10px;font-size:12.5px;cursor:pointer;font-family:inherit}
+.ctl button.on{background:#fff;color:#101010;border-color:#fff;font-weight:700}
+.ctl .note{margin-left:auto;opacity:.6}
+@media(max-width:1080px){.ctl .note{display:none}}
+
+.warnbar{background:#FFF3E4;border-bottom:1px solid #F6D9B4;color:#7A3D05;
+  padding:9px 16px;font-size:12.5px;line-height:1.65;word-break:keep-all}
+.warnbar b{font-weight:800}
+
+/* ── 화면 프레임 ── */
+.stage{padding:22px 14px 60px;display:flex;justify-content:center}
+.frame{width:100%;max-width:980px;background:var(--bg);border-radius:14px;overflow:hidden;
+  box-shadow:0 18px 50px rgba(16,20,30,.24);border:1px solid #C9CDD6}
+.nav{background:#fff;border-bottom:1px solid var(--line);padding:11px 18px;
+  display:flex;align-items:center;gap:18px;font-size:13px;color:var(--ink3)}
+.nav .logo{font-weight:800;color:var(--blue);letter-spacing:-.3px}
+.nav .on{color:var(--blue);font-weight:700}
+.nav .right{margin-left:auto;font-size:12px;color:var(--ink4)}
+
+/* ── 모달 ── */
+.scrim{background:rgba(16,20,30,.42);padding:22px 16px}
+.modal{background:#fff;border-radius:16px;max-width:760px;margin:0 auto;overflow:hidden;
+  box-shadow:0 20px 50px rgba(16,20,30,.28)}
+.mhd{padding:20px 22px 0;display:flex;align-items:flex-start;gap:12px}
+.mhd h1{margin:0;font-size:21px;font-weight:800;letter-spacing:-.4px}
+.mhd .x{margin-left:auto;font-size:22px;color:var(--ink4);cursor:pointer;line-height:1}
+.mhd .meta{font-size:12px;color:var(--ink4);margin-top:5px}
+
+.mtabs{display:flex;gap:4px;padding:14px 22px 0;border-bottom:1px solid var(--line)}
+.mtabs button{background:none;border:0;border-bottom:2px solid transparent;padding:8px 12px 10px;
+  font-size:14px;font-weight:700;color:var(--ink4);cursor:pointer;font-family:inherit}
+.mtabs button.on{color:var(--blue);border-bottom-color:var(--blue)}
+.mtabs .badge{display:inline-block;background:var(--warn-s);color:var(--warn);border-radius:999px;
+  font-size:11px;font-weight:800;padding:1px 7px;margin-left:5px}
+
+/* 진행 요약 */
+.msum{padding:13px 22px;display:flex;flex-wrap:wrap;gap:7px;border-bottom:1px solid var(--line);
+  background:#FBFCFD}
+.chip{display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:#fff;
+  border-radius:999px;padding:4px 12px;font-size:12.5px;color:var(--ink2);cursor:pointer}
+.chip b{font-weight:800;font-variant-numeric:tabular-nums}
+.chip:hover{border-color:#C6CBD4}
+.chip.sel{outline:2px solid var(--ink);outline-offset:1px}
+.chip.c-ai{background:var(--ai-s);border-color:var(--ai-b);color:var(--ai)}
+.chip.c-warn{background:var(--warn-s);border-color:var(--warn-b);color:var(--warn)}
+.chip.c-ok{background:var(--ok-s);border-color:var(--ok-b);color:var(--ok)}
+.chip.c-non{background:var(--gray-s);color:var(--ink3)}
+
+.mbody{max-height:60vh;overflow-y:auto;padding:16px 22px 20px;background:#fff}
+@media(max-width:640px){.mbody{max-height:none}}
+body[data-tab="stt"] #paneQ{display:none}
+body[data-tab="q"] #paneS{display:none}
+
+/* ── 문항 카드 ── */
+.qc{border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:9px;
+  transition:border-color .12s,background .12s}
+.qc:last-child{margin-bottom:0}
+.qc.hide{display:none}
+.qc.flash{border-color:var(--ink);box-shadow:0 0 0 3px #FFE680}
+.qc .top{display:flex;align-items:flex-start;gap:9px}
+.qn{background:var(--gray-s);color:var(--ink3);border-radius:6px;font-size:11.5px;font-weight:800;
+  padding:3px 7px;flex:none;margin-top:1px}
+.qt{font-size:15px;font-weight:700;line-height:1.5;word-break:keep-all;flex:1}
+.qact{margin-left:auto;display:flex;gap:6px;flex:none;align-items:center}
+.lnk{background:none;border:0;color:var(--ai);font-size:12.5px;font-weight:700;cursor:pointer;
+  font-family:inherit;padding:4px 0 0;text-decoration:underline;text-underline-offset:2px}
+.lnk:hover{color:var(--blue)}
+.btn{border:1px solid var(--line);background:#fff;border-radius:7px;padding:5px 11px;
+  font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;color:var(--ink2)}
+.btn:hover{border-color:#C6CBD4}
+.btn.pri{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn.pri:hover{background:var(--blue-d);border-color:var(--blue-d)}
+
+.qb{margin-top:9px}
+.tag{display:inline-block;border-radius:6px;font-size:11.5px;font-weight:800;padding:3px 9px;margin-bottom:7px}
+.t-ai{background:var(--ai);color:#fff}
+.t-warn{background:var(--warn);color:#fff}
+.t-doc{background:var(--blue);color:#fff}
+.t-ok{background:var(--ok);color:#fff}
+.t-non{background:var(--gray-s);color:var(--ink3)}
+.t-auto{background:var(--blue-s);color:var(--blue-d)}
+.tag2{display:inline-block;border-radius:6px;font-size:11.5px;font-weight:700;padding:3px 9px;
+  margin:0 0 7px 5px;background:var(--warn-s);color:var(--warn);border:1px solid var(--warn-b)}
+
+.ans{font-size:15.5px;font-weight:800;color:var(--blue-d);line-height:1.5;word-break:keep-all}
+.ans.none{color:var(--ink4);font-weight:600}
+.ans .num{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+
+/* 근거 발화 */
+.ev{margin-top:10px;border:1px solid var(--ai-b);background:#FBF9FE;border-radius:9px;
+  padding:10px 12px;display:none}
+.qc.open .ev{display:block}
+.ev .hd{font-size:11.5px;font-weight:800;color:var(--ai);margin-bottom:6px}
+.ev .q{font-size:13.5px;line-height:1.7;color:var(--ink2);word-break:keep-all}
+.ev .q .ts{font-family:ui-monospace,Menlo,monospace;font-size:11.5px;color:var(--ink4);margin-right:6px}
+.ev .q .hi{background:#FFE680;border-radius:3px;padding:0 2px;font-weight:700}
+.ev .foot{margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.ev .conf{font-size:11.5px;font-weight:700;color:var(--ink3)}
+.ev.void{border-color:var(--line);background:#FAFBFC;border-style:dashed}
+.ev.void .hd{color:var(--ink3)}
+.ev.void .q{color:var(--ink4)}
+
+/* 후보 충돌 */
+.cands{margin-top:9px;display:flex;flex-direction:column;gap:6px}
+.cand{border:1px solid var(--line);border-radius:9px;padding:9px 11px;cursor:pointer;display:flex;
+  align-items:center;gap:9px;font-size:13.5px}
+.cand:hover{border-color:var(--blue);background:var(--blue-s)}
+.cand .pct{margin-left:auto;font-size:11.5px;font-weight:800;color:var(--ink4);font-variant-numeric:tabular-nums}
+.cand .nm{font-weight:700}
+
+/* 선택지 칩 */
+.opts{margin-top:9px;display:flex;flex-wrap:wrap;gap:6px;display:none}
+.qc.edit .opts{display:flex}
+.opt{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 12px;font-size:13px;
+  cursor:pointer;font-family:inherit;color:var(--ink2)}
+.opt:hover{border-color:var(--blue)}
+.opt.on{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:700}
+.opts .note{font-size:12px;color:var(--ink4);align-self:center}
+
+.unk{border:1px dashed var(--line);border-radius:12px;padding:13px 16px;margin-bottom:9px;
+  font-size:13px;color:var(--ink4);line-height:1.6;background:#FBFBFC;word-break:keep-all}
+
+/* ── 발화 원문 탭 ── */
+.sttnote{background:#FBF9FE;border:1px solid var(--ai-b);border-radius:10px;padding:12px 14px;
+  font-size:12.5px;line-height:1.7;color:var(--ink2);margin-bottom:14px;word-break:keep-all}
+.sttnote b{font-weight:800}
+.turn{display:grid;grid-template-columns:52px 34px 1fr;gap:9px;padding:8px 10px;border-radius:9px;
+  align-items:start;margin-bottom:3px;cursor:pointer}
+.turn:hover{background:#F7F8FA}
+.turn .ts{font-family:ui-monospace,Menlo,monospace;font-size:11.5px;color:var(--ink4);padding-top:3px}
+.turn .who{font-size:11.5px;font-weight:800;color:var(--ink3);padding-top:3px}
+.turn .tx{font-size:14px;line-height:1.65;word-break:keep-all;color:var(--ink2)}
+.turn.linked{background:#FBF9FE}
+.turn.linked .tx{color:var(--ink)}
+.turn .qref{display:inline-block;margin-left:6px;font-size:11px;font-weight:800;background:var(--ai-s);
+  color:var(--ai);border-radius:5px;padding:1px 7px;vertical-align:1px;white-space:nowrap}
+.turn.orphan{background:#FFF9F2;box-shadow:inset 3px 0 0 var(--warn)}
+.turn.orphan .qref{background:var(--warn-s);color:var(--warn)}
+.turn.flash{box-shadow:0 0 0 3px #FFE680}
+
+/* ── 하단 ── */
+.mfoot{border-top:1px solid var(--line);padding:14px 22px;background:#FBFCFD;
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.mfoot .msg{font-size:12.5px;color:var(--ink3);line-height:1.6;flex:1;min-width:200px;word-break:keep-all}
+.mfoot .msg b{color:var(--warn);font-weight:800}
+.done{background:#C9CCD3;color:#fff;border:0;border-radius:9px;padding:11px 22px;font-size:14.5px;
+  font-weight:800;font-family:inherit;cursor:not-allowed;white-space:nowrap}
+.done.live{background:var(--blue);cursor:pointer}
+.done.live:hover{background:var(--blue-d)}
+
+.toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,14px);background:#101010;color:#fff;
+  padding:12px 18px;border-radius:10px;font-size:13.5px;font-weight:600;opacity:0;pointer-events:none;
+  transition:opacity .18s,transform .18s;z-index:120;max-width:88vw;text-align:center;line-height:1.6}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+</style>
+</head>
+<body data-tab="q">
+
+<div class="ctl">
+  <span class="ttl">ACLP-4424 진료기록 검토 v2</span>
+  <span class="lbl">기존 검토 모달 구조 유지 + LLM 자동 체크 상태축</span>
+  <span class="note">문항 카드에서 [확인]·[수정] · 「근거 발화」를 펼치면 원문 스니펫 · 「발화 원문」 탭에서 연결 안 된 발화 확인</span>
+</div>
+
+<div class="warnbar">
+  <b>실제 데이터 범위</b> — 문항과 선택지는 현재 화면(문진 답안 1/13)에 보이는 <b>Q.1~Q.11</b>을 그대로 썼습니다.
+  Q.11은 선택지가, Q.12·Q.13은 문항 자체가 확인되지 않아 자리만 두었습니다.
+  <b>발화 원문·확신도는 가상 예시</b>입니다 — 실제 녹음이 없어 화면 구조 확인용으로만 넣었습니다.
+</div>
+
+<div class="stage"><div class="frame">
+  <div class="nav">
+    <span class="logo">RISE-K</span><span>환자 관리</span><span>오늘의 환자</span>
+    <span class="on">진료 녹음</span><span>논문 관리</span>
+    <span class="right">시연용병원 · 시연용공용계정님</span>
+  </div>
+
+  <div class="scrim"><div class="modal">
+
+    <div class="mhd">
+      <div>
+        <h1>진료기록 검토</h1>
+        <div class="meta">탁나리 · 남성 · 차트 01700034 &nbsp;·&nbsp; 초진 &nbsp;·&nbsp; 2026.09.08 15:28 &nbsp;·&nbsp; 녹음 1분 12초</div>
+      </div>
+      <div class="x">✕</div>
+    </div>
+
+    <div class="mtabs">
+      <button data-tab="q" class="on">문진 답안 검토</button>
+      <button data-tab="stt">발화 원문 <span class="badge" id="orphanBadge">2</span></button>
+    </div>
+
+    <div class="msum">
+      <div class="chip c-ai" data-f="ai">AI 선택 · 확인 대기 <b id="nAi">0</b></div>
+      <div class="chip c-warn" data-f="warn">확인 필요 <b id="nWarn">0</b></div>
+      <div class="chip c-ok" data-f="ok">확인 완료 <b id="nOk">0</b></div>
+      <div class="chip c-non" data-f="non">진료 중 언급 없음 <b id="nNon">0</b></div>
+      <div class="chip" data-f="auto">환자 정보에서 <b id="nAuto">0</b></div>
+    </div>
+
+    <div class="mbody">
+
+      <!-- ══ 문항 검토 ══ -->
+      <div id="paneQ">
+
+        <div class="qc" data-st="ai" data-key="q1">
+          <div class="top"><span class="qn">Q.1</span><span class="qt">언제쯤 다치셨나요?</span>
+            <span class="qact"><button class="btn pri" data-act="ok">확인</button><button class="btn" data-act="edit">수정</button></span></div>
+          <div class="qb">
+            <span class="tag t-ai">AI 선택</span>
+            <div class="ans">1–6주 전</div>
+            <button class="lnk" data-act="ev">근거 발화 보기</button>
+            <div class="ev">
+              <div class="hd">이 답을 고른 근거</div>
+              <div class="q"><span class="ts">00:15</span>환자 — “<span class="hi">한 달쯤 전</span>이요. 축구하다가.”</div>
+              <div class="foot"><span class="conf">확신도 높음</span><button class="btn" data-act="goto" data-turn="t2">원문에서 보기</button></div>
+            </div>
+            <div class="opts">
+              <button class="opt">1주 전</button><button class="opt on">1–6주 전</button><button class="opt">6주–3개월 전</button>
+              <button class="opt">3개월–1년 전</button><button class="opt">1년 이상</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="qc" data-st="ai" data-key="q2">
+          <div class="top"><span class="qn">Q.2</span><span class="qt">어떤 동작에서 다치셨나요?</span>
+            <span class="qact"><button class="btn pri" data-act="ok">확인</button><button class="btn" data-act="edit">수정</button></span></div>
+          <div class="qb">
+            <span class="tag t-ai">AI 선택</span>
+            <div class="ans">방향 전환 중 (비접촉)</div>
+            <button class="lnk" data-act="ev">근거 발화 보기</button>
+            <div class="ev">
+              <div class="hd">이 답을 고른 근거</div>
+              <div class="q"><span class="ts">00:23</span>환자 — “아니요, <span class="hi">부딪힌 건 아니고 방향 바꾸다가</span> 무릎이 돌아갔어요.”</div>
+              <div class="foot"><span class="conf">확신도 높음</span><button class="btn" data-act="goto" data-turn="t4">원문에서 보기</button></div>
+            </div>
+            <div class="opts">
+              <button class="opt on">방향 전환 중 (비접촉)</button><button class="opt">무릎이 뒤로 꺾임 (과신전)</button>
+              <button class="opt">상대와 부딪힘 (접촉·충돌)</button><button class="opt">잘 모르겠음</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="qc" data-st="ai" data-key="q3">
+          <div class="top"><span class="qn">Q.3</span><span class="qt">수상 당시 신호를 모두 선택해주세요.</span>
+            <span class="qact"><button class="btn pri" data-act="ok">확인</button><button class="btn" data-act="edit">수정</button></span></div>
+          <div class="qb">
+            <span class="tag t-ai">AI 선택</span>
+            <div class="ans">“뚝/펑” 소리 (Pop) · 수 시간 내 부종 (혈관절증)</div>
+            <button class="lnk" data-act="ev">근거 발화 보기</button>
+            <div class="ev">
+              <div class="hd">이 답을 고른 근거 · 한 발화에서 두 항목</div>
+              <div class="q"><span class="ts">00:29</span>환자 — “그때 <span class="hi">뚝 소리가 났고</span>, <span class="hi">그날 저녁에 많이 부었어요</span>.”</div>
+              <div class="foot"><span class="conf">확신도 높음 · “그날 저녁”을 ‘수 시간 내’로 판정</span><button class="btn" data-act="goto" data-turn="t5">원문에서 보기</button></div>
+            </div>
+            <div class="opts">
+              <button class="opt on">“뚝/펑” 소리 (Pop)</button><button class="opt on">수 시간 내 부종 (혈관절증)</button><button class="opt">해당 없음</button>
+              <span class="note">복수 선택</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="qc" data-st="warn" data-key="q4">
+          <div class="top"><span class="qn">Q.4</span><span class="qt">이전 ACL 또는 같은 쪽 무릎 손상/수술 이력이 있나요?</span>
+            <span class="qact"><button class="btn" data-act="edit">수정</button></span></div>
+          <div class="qb">
+            <span class="tag t-warn">확인 필요</span><span class="tag2">후보 2개 · 자동 선택하지 않음</span>
+            <div class="ans none">의사가 골라야 합니다</div>
+            <div class="ev" style="display:block">
+              <div class="hd">판정이 갈린 발화</div>
+              <div class="q"><span class="ts">00:39</span>환자 — “예전에 <span class="hi">한 번 삐끗한 적은 있는데</span>, <span class="hi">병원은 안 갔어요</span>.”</div>
+              <div class="foot"><span class="conf">‘손상 이력 있음’과 ‘진단받은 적 없음’이 한 문장에 같이 있어 어느 항목으로도 확정하지 못했습니다</span><button class="btn" data-act="goto" data-turn="t7">원문에서 보기</button></div>
+            </div>
+            <div class="cands">
+              <div class="cand" data-pick="없음 (초발)"><span class="nm">없음 (초발)</span><span class="pct">48%</span></div>
+              <div class="cand" data-pick="ACL 진단만 (수술 안 함)"><span class="nm">ACL 진단만 (수술 안 함)</span><span class="pct">44%</span></div>
+            </div>
+            <div class="opts">
+              <button class="opt">없음 (초발)</button><button class="opt">ACL 진단만 (수술 안 함)</button><button class="opt">ACL 재건술 이력 (Revision)</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="qc" data-st="warn" data-key="q5">
+          <div class="top"><span class="qn">Q.5</span><span class="qt">동반 손상이 있나요? 해당 항목을 모두 선택해주세요.</span>
+            <span class="qact"><button class="btn pri" data-act="ok">이대로 확정</button><button class="btn" data-act="edit">수정</button></span></div>
+          <div class="qb">
+            <span class="tag t-doc">의사 선택</span><span class="tag2">발화와 다릅니다</span>
+            <div class="ans">다중 인대 손상 (PCL·MCL·LCL·PLC)</div>
+            <button class="lnk" data-act="ev">발화와 어떻게 다른지 보기</button>
+            <div class="ev">
+              <div class="hd">선택값과 발화가 어긋납니다</div>
+              <div class="q"><span class="ts">00:53</span>의사 — “MRI 보면 전방십자인대가 끊어졌고, <span class="hi">안쪽 반월상연골도 찢어져</span> 있어요.”</div>
+              <div class="foot"><span class="conf">발화는 반월상연골 손상을 가리키는데 선택은 다중 인대 손상입니다. 둘 중 하나가 틀렸거나, 진찰에서 확인한 내용이 말로 나오지 않은 것입니다</span><button class="btn" data-act="goto" data-turn="t10">원문에서 보기</button></div>
+            </div>
+            <div class="opts">
+              <button class="opt">반월상연골 손상</button><button class="opt">연골 손상</button>
+              <button class="opt on">다중 인대 손상 (PCL·MCL·LCL·PLC)</button><button class="opt">없음</button>
+              <span class="note">복수 선택</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="qc" data-st="ai" data-key="q6">
+          <div class="top"><span class="qn">Q.6</span><span class="qt">평소 활동 수준은 어느 정도인가요?</span>
+            <span class="qact"><button class="btn pri" data-act="ok">확인</button><button class="btn" data-act="edit">수정</button></span></div>
+          <div class="qb">
+            <span class="tag t-ai">AI 선택</span>
+            <div class="ans">Level II — 방향전환 레저</div>
+            <button class="lnk" data-act="ev">근거 발화 보기</button>
+            <div class="ev">
+              <div class="hd">이 답을 고른 근거</div>
+              <div class="q"><span class="ts">00:47</span>환자 — “<span class="hi">주말에 축구 한 번씩</span> 해요. <span class="hi">선수는 아니고요</span>.”</div>
+              <div class="foot"><span class="conf">확신도 보통 · 주 1회는 Level I 기준(주2회↑)에 못 미쳐 Level II로 판정</span><button class="btn" data-act="goto" data-turn="t9">원문에서 보기</button></div>
+            </div>
+            <div class="opts">
+              <button class="opt">Level I — 선수/피벗 주2회↑</button><button class="opt on">Level II — 방향전환 레저</button>
+              <button class="opt">Level III — 직선 운동</button><button class="opt">Level IV — 일상생활 위주</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="qc" data-st="auto" data-key="q7">
+          <div class="top"><span class="qn">Q.7</span><span class="qt">환자의 연령대는 어디에 해당하나요?</span>
+            <span class="qact"><button class="btn" data-act="edit">수정</button></span></div>
+          <div class="qb">
+            <span class="tag t-auto">환자 정보에서</span>
+            <div class="ans">35–49세</div>
+            <div class="ev void" style="display:block">
+              <div class="hd">발화 근거 없음 — 있을 필요도 없음</div>
+              <div class="q">차트에 등록된 생년월일에서 계산됩니다. <b>의사가 진료 중에 물을 항목이 아니므로 검토 대상에서 빠져야 합니다.</b> 현재 화면에는 선택지로 남아 있습니다.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="qc" data-st="non" data-key="q8">
+          <div class="top"><span class="qn">Q.8</span><span class="qt">Beighton Score를 입력해주세요.</span>
+            <span class="qact"><button class="btn" data-act="edit">입력</button><button class="btn" data-act="skip">해당 없음으로 확정</button></span></div>
+          <div class="qb">
+            <span class="tag t-non">진료 중 언급 없음</span>
+            <div class="ans none">답변 없음</div>
+            <div class="ev void" style="display:block">
+              <div class="hd">왜 비어 있는지</div>
+              <div class="q">원문에 관련 발화가 없습니다. <b>의사가 검사하지 않았거나, 했지만 말로 하지 않은 것</b>입니다 — 둘 다 가능해 자동으로는 판단할 수 없습니다.</div>
+            </div>
+            <div class="opts"><span class="note">0–9 숫자 입력</span></div>
+          </div>
+        </div>
+
+        <div class="qc" data-st="non" data-key="q9">
+          <div class="top"><span class="qn">Q.9</span><span class="qt">Pivot shift 검사 결과는 무엇인가요?</span>
+            <span class="qact"><button class="btn" data-act="edit">수정</button><button class="btn" data-act="skip">해당 없음으로 확정</button></span></div>
+          <div class="qb">
+            <span class="tag t-non">진료 중 언급 없음</span>
+            <div class="ans none">답변 없음</div>
+            <div class="opts"><button class="opt">음성</button><button class="opt">Grade I↑</button></div>
+          </div>
+        </div>
+
+        <div class="qc" data-st="non" data-key="q10">
+          <div class="top"><span class="qn">Q.10</span><span class="qt">Lachman 검사 결과는 무엇인가요?</span>
+            <span class="qact"><button class="btn" data-act="edit">수정</button><button class="btn" data-act="skip">해당 없음으로 확정</button></span></div>
+          <div class="qb">
+            <span class="tag t-non">진료 중 언급 없음</span>
+            <div class="ans none">답변 없음</div>
+            <div class="opts"><button class="opt">정상·경도</button><button class="opt">중등도 이상</button></div>
+          </div>
+        </div>
+
+        <div class="qc" data-st="non" data-key="q11">
+          <div class="top"><span class="qn">Q.11</span><span class="qt">Pull-push Stress X-ray 결과는 무엇인가요?</span>
+            <span class="qact"><button class="btn" data-act="skip">해당 없음으로 확정</button></span></div>
+          <div class="qb">
+            <span class="tag t-non">진료 중 언급 없음</span>
+            <div class="ans none">답변 없음</div>
+            <div class="ev void" style="display:block">
+              <div class="hd">선택지 미확인</div>
+              <div class="q">현재 화면에서 이 문항의 선택지가 잘려 확인하지 못했습니다. 지어내지 않고 비워 두었습니다.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="unk">Q.12 · Q.13 — 문항 자체를 확인하지 못해 자리만 두었습니다. (문진 답안 1/13 기준 총 13문항)</div>
+      </div>
+
+      <!-- ══ 발화 원문 ══ -->
+      <div id="paneS">
+        <div class="sttnote">
+          <b>발화 원문은 따로 저장되고, 검토 화면은 이것을 읽기만 합니다.</b>
+          문항에 연결된 발화는 보라색, <b style="color:var(--warn)">어느 문항에도 연결되지 않은 발화는 주황색</b>입니다.
+          연결 안 된 발화가 남는다는 것은 <b>진료에서 나온 내용을 담을 문항이 없다</b>는 뜻이라, 문진 구성안을 다시 봐야 하는 신호입니다.
+        </div>
+
+        <div class="turn" id="t1"><span class="ts">00:12</span><span class="who">의사</span><span class="tx">언제 다치셨어요?</span></div>
+        <div class="turn linked" id="t2" data-q="q1"><span class="ts">00:15</span><span class="who">환자</span><span class="tx">한 달쯤 전이요. 축구하다가.<span class="qref">Q.1</span></span></div>
+        <div class="turn" id="t3"><span class="ts">00:19</span><span class="who">의사</span><span class="tx">어떻게 다쳤는지 기억나세요? 부딪히셨어요?</span></div>
+        <div class="turn linked" id="t4" data-q="q2"><span class="ts">00:23</span><span class="who">환자</span><span class="tx">아니요, 부딪힌 건 아니고 방향 바꾸다가 무릎이 돌아갔어요.<span class="qref">Q.2</span></span></div>
+        <div class="turn linked" id="t5" data-q="q3"><span class="ts">00:29</span><span class="who">환자</span><span class="tx">그때 뚝 소리가 났고, 그날 저녁에 많이 부었어요.<span class="qref">Q.3</span></span></div>
+        <div class="turn" id="t6"><span class="ts">00:36</span><span class="who">의사</span><span class="tx">전에 같은 무릎 다친 적 있으세요?</span></div>
+        <div class="turn linked" id="t7" data-q="q4"><span class="ts">00:39</span><span class="who">환자</span><span class="tx">예전에 한 번 삐끗한 적은 있는데, 병원은 안 갔어요.<span class="qref">Q.4 확인 필요</span></span></div>
+        <div class="turn" id="t8"><span class="ts">00:45</span><span class="who">의사</span><span class="tx">운동은 자주 하세요?</span></div>
+        <div class="turn linked" id="t9" data-q="q6"><span class="ts">00:47</span><span class="who">환자</span><span class="tx">주말에 축구 한 번씩 해요. 선수는 아니고요.<span class="qref">Q.6</span></span></div>
+        <div class="turn orphan" id="t10"><span class="ts">00:53</span><span class="who">의사</span><span class="tx">MRI 보면 전방십자인대가 끊어졌고, 안쪽 반월상연골도 찢어져 있어요.<span class="qref">담을 문항 없음 · 영상 소견</span></span></div>
+        <div class="turn orphan" id="t11"><span class="ts">01:02</span><span class="who">의사</span><span class="tx">수술로 가는 게 맞습니다.<span class="qref">담을 문항 없음 · 치료 결정</span></span></div>
+
+        <div class="sttnote" style="margin-top:14px;background:#FFF9F2;border-color:var(--warn-b)">
+          연결 안 된 발화 2건이 각각 <b>영상 소견</b>과 <b>치료 결정</b>입니다. 둘 다 환자 리포트의 핵심 블록(히어로 진단 · 앞으로 받으실 치료)이 쓰는 값인데,
+          현재 13문항에는 담을 자리가 없습니다. <b>260907 문진 구성안의 §4 Imaging Findings·치료 유형 문항이 여기에 대응합니다.</b>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="mfoot">
+      <span class="msg" id="footMsg"></span>
+      <button class="done" id="doneBtn">검토 완료</button>
+    </div>
+
+  </div></div>
+</div></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const ST={ai:'AI 선택',warn:'확인 필요',ok:'확인 완료',non:'진료 중 언급 없음',auto:'환자 정보에서'};
+const cards=()=>[...document.querySelectorAll('.qc')];
+let filter=null;
+
+function setState(c,st,label,cls){
+  c.dataset.st=st;
+  const tag=c.querySelector('.tag');
+  tag.className='tag '+cls; tag.textContent=label;
+  recount();
+}
+function toast(t){const el=document.getElementById('toast');el.textContent=t;el.classList.add('on');
+  clearTimeout(window.__tt);window.__tt=setTimeout(()=>el.classList.remove('on'),2600)}
+
+function recount(){
+  const n={ai:0,warn:0,ok:0,non:0,auto:0};
+  cards().forEach(c=>n[c.dataset.st]!==undefined&&n[c.dataset.st]++);
+  nAi.textContent=n.ai; nWarn.textContent=n.warn; nOk.textContent=n.ok;
+  nNon.textContent=n.non; nAuto.textContent=n.auto;
+  const block=n.ai+n.warn;
+  const btn=doneBtn;
+  btn.classList.toggle('live',block===0);
+  btn.disabled=block!==0;
+  footMsg.innerHTML = block>0
+    ? `AI가 고른 답 <b>${n.ai}개</b>를 확인하고, <b>확인 필요 ${n.warn}개</b>를 정해야 발송 단계로 넘어갈 수 있습니다.`
+    : (n.non>0
+       ? `확인이 끝났습니다. <b>언급 없음 ${n.non}개</b>는 그대로 남긴 채 완료합니다 — 안 물어본 항목은 리포트에서 빠집니다.`
+       : `모든 항목이 확인되었습니다.`);
+  applyFilter();
+}
+function applyFilter(){
+  cards().forEach(c=>c.classList.toggle('hide', !!filter && c.dataset.st!==filter));
+  document.querySelectorAll('.msum .chip').forEach(ch=>ch.classList.toggle('sel',ch.dataset.f===filter));
+}
+
+document.addEventListener('click',e=>{
+  /* 탭 */
+  const tb=e.target.closest('.mtabs button');
+  if(tb){document.body.dataset.tab=tb.dataset.tab;
+    document.querySelectorAll('.mtabs button').forEach(b=>b.classList.toggle('on',b===tb));
+    document.querySelector('.mbody').scrollTop=0; return}
+
+  /* 요약 칩 필터 */
+  const ch=e.target.closest('.msum .chip');
+  if(ch){filter = filter===ch.dataset.f ? null : ch.dataset.f; applyFilter(); return}
+
+  /* 원문 → 문항 */
+  const tn=e.target.closest('.turn');
+  if(tn){
+    if(!tn.dataset.q){toast('이 발화는 어느 문항에도 연결되지 않았습니다.');return}
+    document.body.dataset.tab='q';
+    document.querySelectorAll('.mtabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab==='q'));
+    const c=document.querySelector('.qc[data-key="'+tn.dataset.q+'"]');
+    filter=null; applyFilter();
+    c.classList.add('open','flash'); c.scrollIntoView({block:'center',behavior:'smooth'});
+    setTimeout(()=>c.classList.remove('flash'),1400); return}
+
+  const btn=e.target.closest('[data-act]'); if(!btn) return;
+  const c=btn.closest('.qc'), act=btn.dataset.act;
+
+  if(act==='ev'){c.classList.toggle('open');
+    btn.textContent=c.classList.contains('open')?'근거 접기':(c.dataset.key==='q5'?'발화와 어떻게 다른지 보기':'근거 발화 보기');return}
+
+  if(act==='edit'){c.classList.add('edit');
+    if(c.dataset.st==='non') toast('직접 입력하면 「의사 선택」으로 기록됩니다.');
+    return}
+
+  if(act==='ok'){
+    setState(c,'ok', c.dataset.key==='q5'?'의사 확정':'확인 완료','t-ok');
+    c.querySelector('.tag2')?.remove();
+    btn.remove(); return}
+
+  if(act==='skip'){
+    setState(c,'non','언급 없음 · 확정','t-non');
+    c.querySelector('.ans').textContent='해당 없음으로 확정';
+    btn.remove(); return}
+
+  if(act==='goto'){
+    document.body.dataset.tab='stt';
+    document.querySelectorAll('.mtabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab==='stt'));
+    const t=document.getElementById(btn.dataset.turn);
+    t.classList.add('flash'); t.scrollIntoView({block:'center',behavior:'smooth'});
+    setTimeout(()=>t.classList.remove('flash'),1600); return}
+});
+
+/* 후보 선택 */
+document.querySelectorAll('.cand').forEach(el=>{
+  el.onclick=ev=>{ev.stopPropagation();
+    const c=el.closest('.qc');
+    c.querySelector('.ans').className='ans';
+    c.querySelector('.ans').textContent=el.dataset.pick;
+    c.querySelector('.tag2')?.remove();
+    c.querySelector('.cands').remove();
+    setState(c,'ok','의사 선택 · 확정','t-ok');
+    c.querySelector('[data-act="edit"]')?.remove();
+  };
+});
+
+/* 선택지 칩 */
+document.querySelectorAll('.opts .opt').forEach(el=>{
+  el.onclick=ev=>{ev.stopPropagation();
+    const c=el.closest('.qc'), multi=!!el.closest('.opts').querySelector('.note')&&el.closest('.opts').querySelector('.note').textContent.includes('복수');
+    if(multi) el.classList.toggle('on');
+    else {el.closest('.opts').querySelectorAll('.opt').forEach(o=>o.classList.toggle('on',o===el));}
+    const on=[...el.closest('.opts').querySelectorAll('.opt.on')].map(o=>o.textContent);
+    const ans=c.querySelector('.ans');
+    ans.className='ans'+(on.length?'':' none');
+    ans.textContent=on.length?on.join(' · '):'답변 없음';
+    c.querySelector('.tag2')?.remove();
+    setState(c, on.length?'ok':'non', on.length?'의사 선택 · 확정':'언급 없음','t-ok');
+    if(!on.length){c.querySelector('.tag').className='tag t-non'}
+    c.querySelectorAll('[data-act="ok"],[data-act="skip"]').forEach(b=>b.remove());
+  };
+});
+
+doneBtn.onclick=()=>{ if(doneBtn.disabled) return;
+  toast('검토 완료 — 다음은 환자 리포트 미리보기입니다. 이후에는 수정할 수 없습니다.'); };
+
+recount();
+</script>
+</body>
+</html>
