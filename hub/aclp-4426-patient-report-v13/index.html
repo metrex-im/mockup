@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ACLP-4426 환자 진료 리포트 목업 v13 · 결정 근거·치료 설명·다음 진료 목적 없음 고정</title>
+<style>
+  :root{
+    --bg:#f3f4f6; --card:#fff; --ink:#151a24; --ink2:#454c5a; --ink3:#6f7683;
+    --line:#e4e7ec; --brand:#1d4f91; --brand-deep:#153b6e; --brand-soft:#e9f0fa;
+    --good:#1b7a4b; --good-soft:#e3f3ea; --warn:#b4530a; --warn-soft:#fff2e3;
+    --tag:#5b3fd6; --tag-soft:#efeafc; --miss:#c0392b; --miss-soft:#fdeaea;
+    --rA:#cfe3ff; --rAb:#4b86d6; --rAt:#14477f;
+    --rB:#cdf0dd; --rBb:#3fa473; --rBt:#0f5c39;
+    --rC:#ffe1b5; --rCb:#d9932a; --rCt:#8a5307;
+  }
+  *{box-sizing:border-box}
+  html{color-scheme:light;background:#d8dce4}
+  body{margin:0;background:#d8dce4;color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Noto Sans KR","Malgun Gothic",sans-serif;
+    -webkit-font-smoothing:antialiased}
+
+  /* ── 컨트롤 ─────────────────────────────── */
+  .ctl{position:sticky;top:0;z-index:50;background:#151a24;color:#fff;padding:10px 16px;
+    display:flex;flex-wrap:wrap;gap:9px 17px;align-items:center;font-size:13px}
+  .ctl .grp{display:flex;align-items:center;gap:5px}
+  .ctl .lbl{opacity:.62;font-size:12px}
+  .ctl button{background:#2a3040;color:#cfd4de;border:1px solid #3d4457;border-radius:6px;
+    padding:5px 11px;font-size:13px;cursor:pointer;font-family:inherit;white-space:nowrap}
+  .ctl button:hover{background:#343b4e}
+  .ctl button.on{background:#fff;color:#151a24;border-color:#fff;font-weight:700}
+  .ctl .grp.hi .lbl{opacity:1;color:#ffd98a;font-weight:700}
+  .ctl .note{margin-left:auto;opacity:.68;font-size:12px}
+  @media(max-width:1240px){.ctl .note{display:none}}
+
+  .legend{display:none;background:#20263a;color:#e6e9f2;font-size:12.5px;padding:10px 16px;line-height:1.9}
+  body.show-rep .legend{display:block}
+  .legend .i{display:inline-block;margin-right:18px;white-space:nowrap}
+  .legend b{display:inline-block;border-radius:4px;padding:1px 8px;margin-right:6px;font-weight:800;font-size:11.5px}
+  .lgA{background:var(--rA);color:var(--rAt)}
+  .lgB{background:var(--rB);color:var(--rBt)}
+  .lgC{background:var(--rC);color:var(--rCt)}
+  .legend .tail{display:block;opacity:.66;font-size:11.5px;margin-top:3px}
+
+  .srcbar{display:none;background:#1f1a3a;color:#d9d1ff;font-size:12.5px;padding:9px 16px;line-height:1.8}
+  body.show-src .srcbar{display:block}
+  .srcbar b{color:#fff}.srcbar .x{color:#ff9d9d;font-weight:700}
+  .srcbar .d{color:#9ae6c0;font-weight:700}
+
+  /* ── 스테이지 ───────────────────────────── */
+  .stage{display:grid;grid-template-columns:minmax(0,440px) minmax(0,420px);gap:26px;
+    justify-content:center;padding:26px 14px 70px;align-items:start}
+  @media(max-width:920px){.stage{grid-template-columns:1fr;max-width:460px;margin:0 auto}}
+  @media(max-width:520px){.stage{padding:0}}
+
+  .phone{background:var(--bg);border-radius:26px;overflow:hidden;border:7px solid #111;
+    box-shadow:0 16px 44px rgba(0,0,0,.22)}
+  @media(max-width:520px){.phone{border:0;border-radius:0;box-shadow:none}}
+  .screen{font-size:17px;line-height:1.6}
+
+  /* ── 히어로 ─────────────────────────────── */
+  .hero{background:linear-gradient(170deg,var(--brand) 0%,var(--brand-deep) 100%);color:#fff;padding:22px 22px 24px}
+  .hero .top{display:flex;justify-content:space-between;align-items:center;font-size:14px;opacity:.85}
+  .hero .eyebrow{margin-top:20px;font-size:14px;opacity:.8;font-weight:700}
+  .hero .dx{font-size:25px;font-weight:800;line-height:1.34;margin:6px 0 13px;letter-spacing:-.4px;word-break:keep-all}
+  .hero .dx .side{display:block;font-size:16px;font-weight:600;opacity:.85;margin-bottom:4px}
+  .hero .one{font-size:17px;line-height:1.6;opacity:.95;word-break:keep-all}
+
+  /* ── 본문 ───────────────────────────────── */
+  .body{padding:18px 14px 34px}
+  .sec{margin-bottom:22px}
+  .sec:last-of-type{margin-bottom:0}
+  .sec>h2{font-size:19.5px;font-weight:800;margin:0 0 10px 4px;letter-spacing:-.3px;word-break:keep-all}
+  .card{background:var(--card);border-radius:16px;padding:18px;border:1px solid var(--line)}
+  .card + .card{margin-top:9px}
+  .card p{margin:0 0 10px;color:var(--ink2);font-size:16.5px;word-break:keep-all}
+  .card p:last-child{margin-bottom:0}
+  .lead{font-size:18px;font-weight:700;line-height:1.5;margin:0 0 12px;color:var(--ink) !important;word-break:keep-all}
+
+  .tx .badge{display:inline-block;font-size:12.5px;font-weight:800;letter-spacing:.02em;
+    border-radius:6px;padding:3px 11px;margin-bottom:10px}
+  .tx .badge.op{background:var(--brand);color:#fff}
+  .tx .badge.non{background:var(--good-soft);color:var(--good);border:1px solid #b6dcc6}
+  .tx .big{font-size:22px;font-weight:800;line-height:1.35;letter-spacing:-.3px;word-break:keep-all}
+  .tx .sub{font-size:16px;color:var(--ink2);margin-top:8px;word-break:keep-all;line-height:1.6}
+  .nx .big{font-size:24px;font-weight:800;color:var(--brand);letter-spacing:-.3px}
+  .nx .big small{font-size:16px;font-weight:700;color:var(--ink);margin-left:6px}
+  .nx .sub{font-size:16px;color:var(--ink2);margin-top:7px;word-break:keep-all}
+
+  /* 치료 설명 */
+  .desc p{font-size:16.5px;line-height:1.62;margin:0 0 14px}
+  .desc p:last-child{margin-bottom:0}
+  .desc p b{color:var(--ink)}
+
+  /* 결정 근거 — 논증형 */
+  .why{list-style:none;margin:8px 0 0;padding:0}
+  .why li{padding:12px 0;border-top:1px solid var(--line);font-size:16.5px;
+    word-break:keep-all;color:var(--ink2);line-height:1.6}
+  .why li:first-child{border-top:0;padding-top:0}
+  .why b{color:var(--ink)}
+  .concl{margin-top:13px;padding-top:14px;border-top:2px solid #cfdcef;
+    font-size:16.5px;font-weight:700;color:var(--ink);word-break:keep-all;line-height:1.55}
+
+  .todo{list-style:none;margin:0;padding:0}
+  .todo li{display:flex;gap:13px;padding:13px 0;border-top:1px solid var(--line)}
+  .todo li:first-child{border-top:0;padding-top:0}
+  .todo .n{flex:0 0 33px;height:33px;border-radius:50%;background:#e9ecf1;color:var(--ink2);
+    font-weight:800;display:flex;align-items:center;justify-content:center;font-size:16px}
+  .todo .t{font-weight:700;font-size:17px;word-break:keep-all}
+  .todo li.hi{background:var(--brand-soft);margin:0 -18px;padding:15px 18px;border-top:0}
+  .todo li.hi:first-child{border-radius:16px 16px 0 0;margin-top:-18px}
+  .todo li.hi .n{background:var(--brand);color:#fff}
+  .todo li.hi .t{font-size:18.5px}
+  .todo li.hi + li{border-top:0}
+
+  .more details{background:var(--card);border:1px solid var(--line);border-radius:14px;margin-bottom:8px}
+  .more summary{list-style:none;cursor:pointer;padding:15px 18px;font-size:17px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:center}
+  .more summary::-webkit-details-marker{display:none}
+  .more summary::after{content:"▾";color:var(--ink3);font-size:15px}
+  .more details[open] summary::after{content:"▴"}
+  .more details[open] summary{border-bottom:1px solid var(--line)}
+  .more .in{padding:6px 18px 16px;font-size:16px;color:var(--ink2)}
+  .kv{width:100%;border-collapse:collapse;font-size:16px}
+  .kv th,.kv td{text-align:left;padding:9px 2px;border-bottom:1px solid var(--line);vertical-align:top;word-break:keep-all}
+  .kv th{color:var(--ink3);font-weight:600;width:42%}
+  .kv.ev th{width:22%;color:var(--brand);font-weight:700}
+  .kv tr:last-child th,.kv tr:last-child td{border-bottom:0}
+  .sign{text-align:center;color:var(--ink3);font-size:14.5px;padding:22px 10px 0;line-height:1.7}
+  .sign b{color:var(--ink);font-size:16px}
+
+  /* ── 출처 꼬리표 ────────────────────────── */
+  .src{display:none;font-size:11px;font-weight:700;color:var(--tag);background:var(--tag-soft);
+    border-radius:4px;padding:0 5px;vertical-align:middle;margin-left:5px;
+    font-family:ui-monospace,Menlo,monospace;line-height:1.55;white-space:nowrap}
+  .src.spk{color:#8a5a00;background:#ffefcf}
+  .src.miss{color:var(--miss);background:var(--miss-soft)}
+  .src.dct{color:var(--rBt);background:#d9f2e4}
+  .hero .src{background:rgba(255,255,255,.92)}
+  .hero .src.spk{background:#ffe6b0}
+  .hero .src.miss{background:#ffd6d6}
+  body.show-src .src{display:inline-block}
+
+  /* ── 재현성 하이라이트 ──────────────────── */
+  .rA,.rB,.rC{-webkit-box-decoration-break:clone;box-decoration-break:clone;border-radius:3px}
+  body.show-rep .rA{background:var(--rA);box-shadow:0 0 0 1px var(--rAb)}
+  body.show-rep .rB{background:var(--rB);box-shadow:0 0 0 1px var(--rBb)}
+  body.show-rep .rC{background:var(--rC);box-shadow:0 0 0 1px var(--rCb)}
+  body.show-rep .hero .rA{background:rgba(120,190,255,.42);box-shadow:none}
+  body.show-rep .hero .rB{background:rgba(105,235,175,.34);box-shadow:none}
+  body.show-rep .hero .rC{background:rgba(255,190,105,.46);box-shadow:none}
+  body.show-rep div.rA,body.show-rep div.rB,body.show-rep div.rC,
+  body.show-rep p.rA,body.show-rep p.rB,body.show-rep p.rC{padding:2px 5px;margin-left:-5px}
+
+  body.no-detail .dtl{display:none !important}
+  .gap{display:none;font-size:12.5px;color:#9a6a12;background:#fff8e8;border:1px dashed #dbb264;
+    border-radius:7px;padding:3px 9px;font-weight:600;margin-top:6px}
+  body.no-detail .gap{display:inline-block}
+
+  /* ── 결정 근거 3단 ──────────────────────── */
+  .evblock,.evfold{display:none !important}
+  body[data-ev="block"] .evblock{display:block !important}
+  body[data-ev="fold"] .evfold{display:block !important}
+
+  /* ── 치료 설명 3단 ──────────────────────── */
+  .cxsec,.cxhost{display:none !important}
+  body[data-cx="block"] .cxsec{display:block !important}
+  body[data-cx="fold"] .cxhost{display:block !important}
+  .cxhost .in > .cxcard{border:0;padding:0;background:transparent;margin:0}
+
+  .path{display:none}
+  body[data-visit="first"][data-tx="op"] .path.first-op,
+  body[data-visit="first"][data-tx="non"] .path.first-non,
+  body[data-visit="re"][data-tx="op"] .path.re-op,
+  body[data-visit="re"][data-tx="non"] .path.re-non{display:block}
+
+  /* ── 우측 패널 ──────────────────────────── */
+  .spanel{background:#fff;border-radius:14px;border:1px solid #c3c9d4;overflow:hidden auto;
+    position:sticky;top:56px;max-height:calc(100vh - 76px);
+    scrollbar-width:thin;scrollbar-color:#c3c9d4 transparent}
+  @media(max-width:920px){.spanel{position:static;max-height:none;overflow:hidden}}
+  @media(max-width:520px){.spanel{margin:14px 10px;border-radius:12px}}
+  .spanel h3,.spanel h4{margin:0;padding:12px 16px;font-size:14px;background:#f4f6f9;
+    border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .spanel h4{font-size:13.5px;border-top:1px solid #c3c9d4}
+  .spanel h3 small,.spanel h4 small{font-weight:400;color:var(--ink3);font-size:11.5px}
+  .spanel .in{padding:12px 14px 15px}
+
+  .tally{display:flex;gap:7px;margin-bottom:11px}
+  .tally .t{flex:1;border-radius:10px;padding:9px 10px;text-align:center;border:1px solid}
+  .tally .t.a{background:#eef5ff;border-color:#bcd6f5}
+  .tally .t.b{background:#eefaf3;border-color:#b8e6cd}
+  .tally .t.c{background:#fff6e9;border-color:#f0d3a4}
+  .tally .t .n{font-size:22px;font-weight:800;line-height:1.1}
+  .tally .t.a .n{color:var(--rAt)}.tally .t.b .n{color:var(--rBt)}.tally .t.c .n{color:var(--rCt)}
+  .tally .t .l{font-size:11px;font-weight:700;margin-top:3px;color:var(--ink2)}
+  .tally .t .s{font-size:10px;color:var(--ink3);margin-top:1px}
+  .bar{display:flex;height:8px;border-radius:5px;overflow:hidden;margin-bottom:12px;background:#eceff3}
+  .bar i{display:block}
+  .bar .a{background:var(--rAb)}.bar .b{background:var(--rBb)}.bar .c{background:var(--rCb)}
+  .tnote{font-size:12px;color:var(--ink3);line-height:1.65;background:#f7f8fa;
+    border:1px dashed #c8cdd6;border-radius:9px;padding:9px 11px;word-break:keep-all}
+  .tnote b{color:var(--ink2)}
+
+  ol.blocks{list-style:none;margin:0;padding:0;counter-reset:b}
+  ol.blocks li{counter-increment:b;display:flex;gap:9px;align-items:flex-start;
+    padding:7px 10px;border-radius:9px;font-size:13px;margin-bottom:5px;background:#f7f8fa;
+    border-left:4px solid #b6bcc7}
+  ol.blocks li.nw{border-left-color:var(--rBb);background:#eefaf3}
+  ol.blocks li.ev{border-left-color:#d9932a;background:#fff8ec}
+  ol.blocks li::before{content:counter(b);flex:0 0 18px;height:18px;border-radius:50%;
+    background:#dde1e8;color:var(--ink2);font-weight:800;font-size:10.5px;
+    display:flex;align-items:center;justify-content:center;margin-top:1px}
+  ol.blocks li .nm{flex:1;font-weight:700;word-break:keep-all}
+  ol.blocks li .nm em{font-style:normal;font-weight:700;font-size:10px;color:var(--rBt);
+    background:#d9f2e4;border-radius:4px;padding:0 5px;margin-left:5px}
+  ol.blocks li .nm em.e{color:#8a5307;background:#ffe8c4}
+  ol.blocks li .mix{display:flex;gap:2px;margin-top:3px;flex:0 0 auto;flex-wrap:wrap;max-width:88px;justify-content:flex-end}
+  ol.blocks li .mix i{width:7px;height:7px;border-radius:2px;display:block}
+  ol.blocks li .mix i.a{background:var(--rAb)}
+  ol.blocks li .mix i.b{background:var(--rBb)}
+  ol.blocks li .mix i.c{background:var(--rCb)}
+
+  .dic{font-size:12.5px}
+  .dic .g{margin-bottom:13px}
+  .dic .g:last-child{margin-bottom:0}
+  .dic .gh{font-size:11.5px;font-weight:800;margin-bottom:6px;padding-bottom:4px;
+    border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+  .dic .gh .p{border-radius:4px;padding:1px 7px;font-size:10.5px}
+  .dic .gh .p.a{background:var(--rA);color:var(--rAt)}
+  .dic .gh .p.b{background:var(--rB);color:var(--rBt)}
+  .dic .gh .p.c{background:var(--rC);color:var(--rCt)}
+  .dic .r{display:flex;gap:8px;padding:4px 0;align-items:baseline}
+  .dic .r .nm{flex:1;color:var(--ink2);word-break:keep-all;line-height:1.5}
+  .dic .r .ct{flex:0 0 auto;font-size:11px;font-weight:700;color:var(--ink3);
+    background:#f1f3f6;border-radius:4px;padding:1px 6px;white-space:nowrap}
+  .dic .r .ct.new{color:#8a2f22;background:#fbe6e2}
+  .dic .r .ct.big{color:#0f5c39;background:#d9f2e4}
+  .dic .r .ct.cond{color:#8a5307;background:#ffe8c4}
+  .dic .r .nm em{font-style:normal;color:var(--ink3);font-size:11.5px;display:block;margin-top:1px}
+
+  .chg{background:#fffaf2;border-top:1px solid #c3c9d4}
+  .chg .in{padding:12px 16px 15px;font-size:12.5px;color:var(--ink2);line-height:1.7}
+  .chg .in b{color:var(--ink)}
+  .chg .in dl{margin:8px 0 0}
+  .chg .in dt{font-weight:800;color:var(--ink);margin-top:7px}
+  .chg .in dd{margin:1px 0 0;color:var(--ink2)}
+</style>
+</head>
+<body data-visit="first" data-tx="op" data-ev="none" data-cx="none" class="show-rep no-detail">
+
+<div class="ctl">
+  <div class="grp"><span class="lbl">방문</span>
+    <button data-set="visit" data-val="first" class="on">초진</button>
+    <button data-set="visit" data-val="re">재진</button>
+  </div>
+  <div class="grp"><span class="lbl">치료</span>
+    <button data-set="tx" data-val="op" class="on">수술</button>
+    <button data-set="tx" data-val="non">비수술</button>
+  </div>
+  <div class="grp"><span class="lbl">재현성</span><button id="repBtn" class="on">표시 중</button></div>
+  <div class="grp"><span class="lbl">출처</span><button id="srcBtn">표시</button></div>
+  <div class="note">v13 · 결정 근거·치료 설명·다음 진료 목적 없음 고정</div>
+</div>
+
+<div class="legend">
+  <span class="i"><b class="lgA">A 객관식</b>선택·수치 → 템플릿 문장</span>
+  <span class="i"><b class="lgB">B 표준 문구</b>사전에 저장해둔 완성 문장</span>
+  <span class="i"><b class="lgC">C 자유 입력</b>매번 달라도 되는 곳</span>
+  <span class="tail">A·B는 같은 상황이면 같은 문장이 나옵니다. C는 환자 고유 서술이라 달라지는 게 정상입니다. — 집계는 <b>현재 결정 근거 모드에서 보이는 것만</b> 셉니다.</span>
+</div>
+<div class="srcbar">
+  출처 — <b>초진 §2</b> 공통 초진 문진 · <b>초진 §3</b> 질환별 핵심 질문 · <b>초진 §4</b> Imaging Findings ·
+  <b>재진 §2</b> S · <b>재진 §3</b> O · <b>재진 §4</b> A · <b>재진 §5</b> P · <b style="color:#ffcf8a">발화</b> 진료 STT ·
+  <span class="d">치료 사전</span> 치료명 선택 시 불러옴 · <span class="d">근거 사전</span> 질환별 논증 문구 ·
+  <span class="d">소견 번역</span> 영문 소견 → 환자용 · <span class="x">✕ 미정의</span> 대응 필드 없음
+</div>
+
+<div class="stage">
+<div class="phone"><div class="screen">
+
+<!-- ═══════════ 초진 · 수술 (ACL) ═══════════ -->
+<div class="path first-op">
+  <div class="hero">
+    <div class="top"><span>○○정형외과 · 2026.9.7</span></div>
+    <div class="eyebrow">김○○ 님, 오늘 진료 결과입니다</div>
+    <div class="dx"><span class="side"><span class="rA">오른쪽 무릎</span><span class="src">초진 §2-1</span></span>
+      <span class="rA">전방십자인대가 끊어지고<br>안쪽 반월상연골이 찢어졌습니다</span><span class="src">초진 §4 Key Finding·MRI</span></div>
+  </div>
+  <div class="body">
+
+    <div class="sec"><h2>앞으로 받으실 치료</h2>
+      <div class="card tx">
+        <div class="badge op rA">수술로 치료합니다<span class="src miss">✕ 미정의</span></div>
+        <div class="big"><span class="rA">전방십자인대 재건술 + 반월상연골 봉합술</span><span class="src miss">✕ 미정의</span></div>
+      </div></div>
+
+    <div class="sec evblock"><h2>왜 수술이 필요한가요</h2>
+      <div class="card">
+        <p class="lead rB">세 가지가 같은 곳을 가리킵니다.<span class="src dct">근거 사전</span></p>
+        <ul class="why">
+          <li><span class="rA">다칠 때 ‘뚝’ 소리가 나고 몇 시간 안에 부은 것</span>은 <span class="rB"><b>인대가 끊어질 때 나타나는 전형적인 반응</b>입니다.</span><span class="src dct">근거 사전</span></li>
+          <li><span class="rA">지금도 무릎이 빠지는 느낌이 남아 있는 것</span>은 <span class="rB"><b>끊어진 인대가 무릎을 잡아주지 못하고 있다</b>는 뜻입니다.</span><span class="src dct">근거 사전</span></li>
+          <li><span class="rB">MRI에서 전방십자인대가 <b>끊어진 것</b>이 확인되었고, 안쪽 반월상연골도 <b>찢어져 뒤쪽에서 접혀</b> 있습니다.</span><span class="src dct">소견 번역</span></li>
+        </ul>
+        <div class="concl rB">인대를 그대로 두면 무릎이 불안정한 상태가 반복되면서 연골이 더 닳습니다. 그래서 수술로 치료합니다.<span class="src dct">근거 사전</span></div>
+      </div></div>
+
+    <div class="sec cxsec"><h2>어떤 치료인가요</h2>
+      <div class="card desc cxcard">
+        <p class="rB"><b>전방십자인대 재건술</b>은 끊어진 인대를 대신할 조직을 무릎 안에 새로 만들어 넣는 술식입니다. 전방십자인대는 무릎이 앞으로 밀리거나 돌아가지 않도록 잡아주는 역할을 하기 때문에, 이 인대가 없으면 무릎이 불안정해지고 연골 손상으로 이어질 수 있습니다.<span class="src dct">치료 사전</span></p>
+        <p class="rB"><b>반월상연골 봉합술</b>은 찢어진 연골을 꿰매어 붙여 원래 모양을 되살리는 술식입니다. 반월상연골은 무릎에 실리는 체중을 분산시키는 중요한 기능을 하기 때문에, 잘라내기보다 꿰매어 살리는 것이 관절염을 예방하는 데 유리합니다.<span class="src dct">치료 사전</span></p>
+      </div>
+    </div>
+
+    <div class="sec"><h2>다음 진료까지 하실 일</h2>
+      <div class="card"><ol class="todo">
+        <li class="hi"><div class="n">1</div><div><div class="t rA">수술 전 검사 받기</div></div></li>
+        <li class="hi"><div class="n">2</div><div><div class="t rA">걸을 때는 항상 보조기 착용</div></div></li>
+        <li><div class="n">3</div><div><div class="t rA">무릎 비틀기·쪼그려 앉기 피하기</div></div></li>
+      </ol></div></div>
+
+    <div class="sec"><h2>다음에 오시는 날</h2>
+      <div class="card nx">
+        <div class="big"><span class="rA">9월 14일 (월)<small>오전 10:30</small></span><span class="src miss">✕ 미정의</span></div>
+        <div class="sub rA dtl">수술 전 검사 결과를 보고 수술 날짜와 입원 일정을 정합니다.<span class="src spk">발화</span></div>      </div></div>
+
+    <div class="sec more"><h2>자세히 보기</h2>
+      <details class="cxhost"><summary>어떤 치료인가요<span class="src dct">치료 사전</span></summary><div class="in"></div></details>
+      <details class="evfold"><summary>검사에서 확인된 것<span class="src dct">소견 번역</span></summary>
+        <div class="in"><table class="kv ev">
+          <tr><th>MRI</th><td><span class="rB">전방십자인대가 끊어짐</span></td></tr>
+          <tr><th>MRI</th><td><span class="rB">안쪽 반월상연골이 찢어져 뒤쪽에서 접혀 있음</span></td></tr>
+        </table></div></details>
+      <details><summary>말씀하신 내용 전체<span class="src">초진 §2 · §3 ACL</span></summary>
+        <div class="in"><table class="kv">
+          <tr><th>불편한 무릎</th><td><span class="rA">오른쪽</span></td></tr>
+          <tr><th>주요 증상</th><td><span class="rA">통증, 붓기</span></td></tr>
+          <tr><th>시작 시기</th><td><span class="rA">1~6주 전</span></td></tr>
+          <tr><th>시작 방식</th><td><span class="rA">다친 후 갑자기</span></td></tr>
+          <tr><th>어떻게 다쳤나</th><td><span class="rA">계단·내리막길</span> — <span class="rC">내리막길에서 무릎이 꺾임</span></td></tr>
+          <tr><th>통증 정도</th><td><span class="rA">10점 중 3점</span></td></tr>
+          <tr><th>아픈 부위</th><td><span class="rA">무릎 안쪽</span></td></tr>
+          <tr><th>다른 병원 검사</th><td><span class="rA">MRI</span> — <span class="rC">전방십자인대 파열 및 반월상연골 손상, 수술 권유</span></td></tr>
+          <tr><th>이전 수술</th><td><span class="rA">없음</span></td></tr>
+          <tr><th>다칠 때 ‘뚝’ 소리</th><td><span class="rA">있음</span></td></tr>
+          <tr><th>다친 뒤 급격한 부종</th><td><span class="rA">있음</span></td></tr>
+          <tr><th>무릎이 빠지는 느낌</th><td><span class="rA">가끔</span></td></tr>
+        </table></div></details>
+    </div>
+    <div class="sign">이 리포트는 <b><span class="rA">○○정형외과 ○○○ 원장</span></b>의<br><span class="rA">2026년 9월 7일</span> 진료 내용을 바탕으로 작성되었습니다.</div>
+  </div>
+</div>
+
+<!-- ═══════════ 초진 · 비수술 (OA) ═══════════ -->
+<div class="path first-non">
+  <div class="hero">
+    <div class="top"><span>○○정형외과 · 2026.9.7</span></div>
+    <div class="eyebrow">김○○ 님, 오늘 진료 결과입니다</div>
+    <div class="dx"><span class="side"><span class="rA">오른쪽 무릎</span><span class="src">초진 §2-1</span></span>
+      <span class="rB">안쪽 관절 간격이 좁아진</span><span class="src">초진 §4 X-ray</span> <span class="rA">관절염입니다</span><span class="src spk">발화</span></div>
+  </div>
+  <div class="body">
+
+    <div class="sec"><h2>앞으로 받으실 치료</h2>
+      <div class="card tx">
+        <div class="badge non rA">수술 없이 치료합니다<span class="src miss">✕ 미정의</span></div>
+        <div class="big"><span class="rA">약 + 주사 + 운동치료</span><span class="src miss">✕ 미정의</span></div>
+      </div></div>
+
+    <div class="sec evblock"><h2>왜 이렇게 치료하나요</h2>
+      <div class="card">
+        <p class="lead rB">지금은 수술보다 이 방법이 낫다고 판단했습니다.<span class="src dct">근거 사전</span></p>
+        <ul class="why">
+          <li><span class="rA">통증이 서서히 시작되어 3개월 이상 이어진 것</span>은 <span class="rB"><b>다쳐서 생긴 손상이 아니라 연골이 닳으면서 생긴 변화</b>를 뜻합니다.</span><span class="src dct">근거 사전</span></li>
+          <li><span class="rB">X-ray에서 무릎 <b>안쪽 관절 간격이 좁아진</b> 3단계(4단계 중)입니다.</span> <span class="rB"><b>관절을 바꿔야 할 정도는 아닙니다.</b></span><span class="src dct">소견 번역</span></li>
+          <li><span class="rA">쉬거나 밤에도 아프고 일상생활이 많이 불편한 상태</span>라 <span class="rB"><b>통증을 먼저 줄이는 것이 급합니다.</b></span><span class="src dct">근거 사전</span></li>
+        </ul>
+        <div class="concl rB">약과 주사로 통증을 줄이고, 근력 운동으로 무릎 부담을 덜어봅니다. 3개월 뒤에도 좋아지지 않으면 다른 치료를 상의합니다.<span class="src dct">근거 사전</span></div>
+      </div></div>
+
+    <div class="sec cxsec"><h2>어떤 치료인가요</h2>
+      <div class="card desc cxcard">
+        <p class="rB"><b>소염진통제</b>는 관절에 생긴 염증을 가라앉혀 통증을 줄이는 약입니다. <b>관절 안에 넣는 주사</b>는 닳은 연골 사이의 마찰을 줄여 움직일 때의 통증을 덜어 줍니다.<span class="src dct">치료 사전</span></p>
+        <p class="rB"><b>허벅지 근력 운동</b>은 무릎이 받는 부담을 근육이 나눠 지도록 만드는 치료입니다. 무릎 주변 근육이 튼튼할수록 관절에 실리는 힘이 줄어들기 때문에, 관절염이 진행되는 속도를 늦추는 데 도움이 됩니다.<span class="src dct">치료 사전</span></p>
+      </div>
+    </div>
+
+    <div class="sec"><h2>다음 진료까지 하실 일</h2>
+      <div class="card"><ol class="todo">
+        <li class="hi"><div class="n">1</div><div><div class="t rA">허벅지 근력 운동 매일 하기</div></div></li>
+        <li class="hi"><div class="n">2</div><div><div class="t rA">약은 식후에 챙겨 드시기</div></div></li>
+        <li><div class="n">3</div><div><div class="t rA">쪼그려 앉기·계단 오르내리기 줄이기</div></div></li>
+      </ol></div></div>
+
+    <div class="sec"><h2>다음에 오시는 날</h2>
+      <div class="card nx">
+        <div class="big"><span class="rA">3개월 후</span><span class="src miss">✕ 미정의</span></div>
+        <div class="sub rA dtl">약과 주사에 통증이 얼마나 줄었는지 확인합니다.<span class="src spk">발화</span></div>      </div></div>
+
+    <div class="sec more"><h2>자세히 보기</h2>
+      <details class="cxhost"><summary>어떤 치료인가요<span class="src dct">치료 사전</span></summary><div class="in"></div></details>
+      <details class="evfold"><summary>검사에서 확인된 것<span class="src dct">소견 번역</span></summary>
+        <div class="in"><table class="kv ev">
+          <tr><th>X-ray</th><td><span class="rB">무릎 안쪽 관절 간격이 좁아짐</span></td></tr>
+          <tr><th>X-ray</th><td><span class="rB">관절염 3단계 (4단계 중)</span></td></tr>
+        </table></div></details>
+      <details><summary>말씀하신 내용 전체<span class="src">초진 §2 · §3 OA</span></summary>
+        <div class="in"><table class="kv">
+          <tr><th>불편한 무릎</th><td><span class="rA">오른쪽</span></td></tr>
+          <tr><th>주요 증상</th><td><span class="rA">통증, 움직임 제한</span></td></tr>
+          <tr><th>시작 시기</th><td><span class="rA">3개월~1년 전</span></td></tr>
+          <tr><th>시작 방식</th><td><span class="rA">서서히</span></td></tr>
+          <tr><th>통증 정도</th><td><span class="rA">10점 중 5점</span></td></tr>
+          <tr><th>아픈 부위</th><td><span class="rA">무릎 안쪽</span></td></tr>
+          <tr><th>다른 병원 검사</th><td><span class="rA">없음</span></td></tr>
+          <tr><th>이전 수술</th><td><span class="rA">없음</span></td></tr>
+          <tr><th>쉬거나 밤에도 통증</th><td><span class="rA">있음</span></td></tr>
+          <tr><th>일상생활 불편</th><td><span class="rA">많이 불편함</span></td></tr>
+          <tr><th>이전 치료</th><td><span class="rA">있음 — 효과 적거나 없음</span></td></tr>
+        </table></div></details>
+    </div>
+    <div class="sign">이 리포트는 <b><span class="rA">○○정형외과 ○○○ 원장</span></b>의<br><span class="rA">2026년 9월 7일</span> 진료 내용을 바탕으로 작성되었습니다.</div>
+  </div>
+</div>
+
+<!-- ═══════════ 재진 · 수술 ═══════════ -->
+<div class="path re-op">
+  <div class="hero">
+    <div class="top"><span>○○정형외과 · 2026.12.7</span></div>
+    <div class="eyebrow">김○○ 님, 오늘 진료 결과입니다</div>
+    <div class="dx"><span class="side"><span class="rA">오른쪽 무릎</span><span class="src miss">✕ 미정의</span></span>
+      <span class="rB">바깥쪽 반월상연골이 부족하고<br>연골 손상이 남아 있습니다</span><span class="src">재진 §4 A</span></div>
+  </div>
+  <div class="body">
+
+    <div class="sec"><h2>앞으로 받으실 치료</h2>
+      <div class="card tx">
+        <div class="badge op rA">수술로 치료합니다<span class="src">재진 §5 P</span></div>
+        <div class="big"><span class="rA">바깥쪽 반월상연골 이식술 + 연골 재생 치료</span><span class="src">재진 §5 P · LMAT + cartilage repair</span></div>
+        <div class="sub rA">지난번 말씀드린 수술을 이번에 진행합니다.<span class="src">재진 §5 P</span></div>
+      </div></div>
+
+    <div class="sec evblock"><h2>왜 수술이 필요한가요</h2>
+      <div class="card">
+        <p class="lead rB">3개월 재활로는 충분하지 않았습니다.<span class="src dct">근거 사전</span></p>
+        <ul class="why">
+          <li><span class="rA">3개월 재활에도 걸림과 통증이 그대로</span>입니다. <span class="rB"><b>운동으로 버티는 데 한계가 있다는 뜻</b>입니다.</span><span class="src dct">근거 사전</span></li>
+          <li><span class="rA">진찰에서 관절선 통증과 걸림이 지난번과 같고, MRI 소견도 변화가 없습니다.</span> <span class="rB"><b>저절로 회복되는 상태가 아닙니다.</b></span><span class="src dct">근거 사전</span></li>
+          <li><span class="rB">반월상연골이 부족한 채로 두면 <b>체중이 한곳에 몰려 관절염이 빨라집니다.</b></span><span class="src dct">근거 사전</span></li>
+        </ul>
+        <div class="concl rB">그래서 지난번에 말씀드린 이식 수술을 이번에 진행합니다.<span class="src dct">근거 사전</span></div>
+      </div></div>
+
+    <div class="sec cxsec"><h2>어떤 치료인가요</h2>
+      <div class="card desc cxcard">
+        <p class="rB"><b>반월상연골 이식술</b>은 죽은 사람이 기증한 반월상연골 조직을 반월상연골이 없는 사람에게 이식하여 연골의 기능을 살리는 술식입니다. 반월상연골은 무릎에 실리는 체중을 분산시키는 데 굉장히 중요한 기능을 함으로써 관절염을 예방하는 데 중요한 역할을 합니다.<span class="src dct">치료 사전</span></p>
+        <p class="rB"><b>연골 재생 치료</b>는 손상된 연골 부위를 다듬고 자극을 주어 새로운 연골이 자라도록 돕는 술식입니다. 연골은 한 번 닳으면 저절로 회복되지 않기 때문에, 남아 있는 부분을 지키고 재생을 유도하는 것이 중요합니다.<span class="src dct">치료 사전</span></p>
+      </div>
+    </div>
+
+    <div class="sec"><h2>다음 진료까지 하실 일</h2>
+      <div class="card"><ol class="todo">
+        <li class="hi"><div class="n">1</div><div><div class="t rA">수술 전 검사 받기</div></div></li>
+        <li><div class="n">2</div><div><div class="t rA">지금 하시는 재활운동은 수술 전까지 계속</div></div></li>
+      </ol></div></div>
+
+    <div class="sec"><h2>다음에 오시는 날</h2>
+      <div class="card nx">
+        <div class="big"><span class="rA">12월 14일 (월)<small>오전 10:30</small></span><span class="src miss">✕ 미정의</span></div>
+        <div class="sub rA dtl">수술 전 검사 결과를 보고 수술 날짜와 입원 일정을 정합니다.<span class="src spk">발화</span></div>      </div></div>
+
+    <div class="sec more"><h2>자세히 보기</h2>
+      <details class="cxhost"><summary>어떤 치료인가요<span class="src dct">치료 사전</span></summary><div class="in"></div></details>
+      <details class="evfold"><summary>검사에서 확인된 것<span class="src dct">소견 번역</span></summary>
+        <div class="in"><table class="kv ev">
+          <tr><th>진찰</th><td><span class="rA">무릎 굽히고 펴기 0~130도 · 물 찬 것 없음</span></td></tr>
+          <tr><th>진찰</th><td><span class="rA">관절선을 누르면 통증 · 무릎을 돌리는 검사에서 걸림 — 지난번과 같음</span></td></tr>
+          <tr><th>MRI</th><td><span class="rB">바깥쪽 반월상연골 부족 · 허벅지뼈 안쪽 끝 연골 손상</span> — <span class="rA">변화 없음</span></td></tr>
+        </table></div></details>
+      <details><summary>받은 수술<span class="src">재진 §4 A</span></summary>
+        <div class="in"><span class="rB">오른쪽 무릎 반월상연골 부분 절제술 + 연골 정리술</span></div></details>
+      <details><summary>지난 진료(9월) 리포트<span class="src miss">✕ 미정의 · Previous 필드 없음</span></summary>
+        <div class="in"><span class="rA">재활운동 지속 · 증상 지속 시 바깥쪽 반월상연골 이식술 + 연골 재생 치료 고려 · 3개월 후 진료</span></div></details>
+    </div>
+    <div class="sign">이 리포트는 <b><span class="rA">○○정형외과 ○○○ 원장</span></b>의<br><span class="rA">2026년 12월 7일</span> 진료 내용을 바탕으로 작성되었습니다.</div>
+  </div>
+</div>
+
+<!-- ═══════════ 재진 · 비수술 ═══════════ -->
+<div class="path re-non">
+  <div class="hero">
+    <div class="top"><span>○○정형외과 · 2026.9.7</span></div>
+    <div class="eyebrow">김○○ 님, 오늘 진료 결과입니다</div>
+    <div class="dx"><span class="side"><span class="rA">오른쪽 무릎</span><span class="src miss">✕ 미정의</span></span>
+      <span class="rB">바깥쪽 반월상연골이 부족하고<br>바깥쪽 연골에 손상이 있습니다</span><span class="src">재진 §4 A</span></div>
+  </div>
+  <div class="body">
+
+    <div class="sec"><h2>앞으로 받으실 치료</h2>
+      <div class="card tx">
+        <div class="badge non rA">수술 없이 치료합니다<span class="src">재진 §5 P</span></div>
+        <div class="big"><span class="rA">재활운동 계속</span><span class="src">재진 §5 P</span></div>
+        <div class="sub"><span class="rA">증상이 계속되면 바깥쪽 반월상연골 이식술과 연골 재생 치료를 고려합니다.</span><span class="src">재진 §5 P</span></div>
+      </div></div>
+
+    <div class="sec evblock"><h2>왜 이렇게 치료하나요</h2>
+      <div class="card">
+        <p class="lead rB">좋아지는 중이라 지금 방식을 이어갑니다.<span class="src dct">근거 사전</span></p>
+        <ul class="why">
+          <li><span class="rA">통증이 10점 중 2점까지 줄었습니다.</span> <span class="rB"><b>재활이 효과를 내고 있다는 뜻</b>입니다.</span><span class="src dct">근거 사전</span></li>
+          <li><span class="rA">다만 진찰에서 걸림은 아직 남아 있고, MRI 소견도 그대로입니다.</span> <span class="rB"><b>연골이 부족한 상태 자체는 변하지 않습니다.</b></span><span class="src dct">근거 사전</span></li>
+        </ul>
+        <div class="concl rB">좋아지는 흐름이 있으니 3개월 더 지켜봅니다. 걸림이 남아 있으면 그때 수술을 상의합니다.<span class="src dct">근거 사전</span></div>
+      </div></div>
+
+    <div class="sec cxsec"><h2>어떤 치료인가요</h2>
+      <div class="card desc cxcard">
+        <p class="rB"><b>재활운동</b>은 무릎 주변 근육을 키워 관절이 받는 부담을 줄이는 치료입니다. 반월상연골이 부족한 상태에서는 근육이 그 역할을 일부 대신하기 때문에, 꾸준한 운동이 수술 시기를 늦추는 데 도움이 됩니다.<span class="src dct">치료 사전</span></p>
+      </div>
+    </div>
+
+    <div class="sec"><h2>다음 진료까지 하실 일</h2>
+      <div class="card"><ol class="todo">
+        <li class="hi"><div class="n">1</div><div><div class="t rA">재활운동 계속하기</div></div></li>
+      </ol></div></div>
+
+    <div class="sec"><h2>다음에 오시는 날</h2>
+      <div class="card nx">
+        <div class="big"><span class="rA">3개월 후</span><span class="src">재진 §5 P</span></div>
+        <div class="sub rA dtl">그때 걸림 증상이 남아 있는지 다시 확인합니다.<span class="src spk">발화</span></div>      </div></div>
+
+    <div class="sec more"><h2>자세히 보기</h2>
+      <details class="cxhost"><summary>어떤 치료인가요<span class="src dct">치료 사전</span></summary><div class="in"></div></details>
+      <details class="evfold"><summary>검사에서 확인된 것<span class="src dct">소견 번역</span></summary>
+        <div class="in"><table class="kv ev">
+          <tr><th>진찰</th><td><span class="rA">무릎 굽히고 펴기 0~130도 · 물 찬 것 없음</span></td></tr>
+          <tr><th>진찰</th><td><span class="rA">관절선을 누르면 통증 · 무릎을 돌리는 검사에서 걸림</span></td></tr>
+          <tr><th>기능</th><td><span class="rA">걷기 좋음 · 계단 내려갈 때 약간 불편</span></td></tr>
+          <tr><th>X-ray</th><td><span class="rB">특별한 이상 없음</span></td></tr>
+          <tr><th>MRI</th><td><span class="rB">바깥쪽 반월상연골 부족 · 허벅지뼈 안쪽 끝 연골 손상</span></td></tr>
+        </table></div></details>
+      <details><summary>받은 수술<span class="src">재진 §4 A</span></summary>
+        <div class="in"><span class="rB">오른쪽 무릎 반월상연골 부분 절제술 + 연골 정리술</span></div></details>
+      <details><summary>말씀하신 내용 전체<span class="src">재진 §2</span></summary>
+        <div class="in"><table class="kv">
+          <tr><th>지난 진료 대비</th><td><span class="rA">조금 좋아짐</span></td></tr>
+          <tr><th>불편한 증상</th><td><span class="rA">통증, 소리·마찰감</span></td></tr>
+          <tr><th>통증 정도</th><td><span class="rA">10점 중 2점 (NRS)</span></td></tr>
+          <tr><th>달라진 것</th><td><span class="rC">통증은 많이 줄었으나 무릎 앞쪽에서 그득거리는 소리가 남</span></td></tr>
+        </table></div></details>
+    </div>
+    <div class="sign">이 리포트는 <b><span class="rA">○○정형외과 ○○○ 원장</span></b>의<br><span class="rA">2026년 9월 7일</span> 진료 내용을 바탕으로 작성되었습니다.</div>
+  </div>
+</div>
+
+</div></div>
+
+<!-- ── 우측 패널 ── -->
+<div class="spanel">
+  <h3><span>재현성 집계</span><small id="pathName"></small></h3>
+  <div class="in">
+    <div class="tally">
+      <div class="t a"><div class="n" id="cA">0</div><div class="l">A 객관식</div><div class="s">템플릿</div></div>
+      <div class="t b"><div class="n" id="cB">0</div><div class="l">B 표준 문구</div><div class="s">문구 사전</div></div>
+      <div class="t c"><div class="n" id="cC">0</div><div class="l">C 자유</div><div class="s">환자 고유</div></div>
+    </div>
+    <div class="bar"><i class="a" id="bA"></i><i class="b" id="bB"></i><i class="c" id="bC"></i></div>
+    <div class="tnote" id="tnote"></div>
+  </div>
+
+  <h4><span>블록 순서</span><small>블록별 A·B·C 구성</small></h4>
+  <div class="in"><ol class="blocks" id="blocks"></ol></div>
+
+  <div class="chg">
+    <div class="in">
+      <b>v13 고정</b> — 결정 근거·치료 설명·다음 진료 목적을 모두 「없음」으로 고정하고 상태 토글을 제거했습니다. 리포트는 히어로(부위+진단) → 앞으로 받으실 치료 → 하실 일 → 다음에 오시는 날 순의 가장 얇은 구성입니다.
+      <dl>
+        <dt>히어로</dt><dd><b>내 상태가 무엇인가</b> — 부위 + 진단, 딱 두 줄. 결정도 해석도 말하지 않습니다.</dd>
+        <dt>앞으로 받으실 치료</dt><dd><b>무엇을 받나</b> — 「수술로 / 수술 없이 치료합니다」 배지 + 치료명. 설명은 넣지 않습니다.</dd>
+        <dt>하실 일 · 다음에 오시는 날</dt><dd>다음 진료까지의 행동과 다음 방문일(날짜만).</dd>
+      </dl>
+      <br><b>제외된 블록</b> — 왜 이렇게 치료하나요(결정 근거), 어떤 치료인가요(치료 설명), 다음 진료 목적. 셋 다 이번 리포트에서 빠졌습니다. 그 결과 <b>MRI·X-ray 소견도, 왜 이 치료인지도 리포트에 없습니다.</b>
+      <br><br><b>재진 미해결</b> — 히어로에서 「반월상연골 절제술 후」를 뺐습니다(초진·재진 미연결). 남은 부위 「오른쪽 무릎」도 재진 구성안에 대응 문항이 없어 <b>✕ 미정의</b>입니다.
+    </div>
+  </div>
+
+  <h4><span>필요한 사전</span><small>v13 고정 구성 기준</small></h4>
+  <div class="in dic">
+    <div class="g">
+      <div class="gh"><span>A · 객관식 항목</span><span class="p a">선택·수치</span></div>
+      <div class="r"><span class="nm">치료 유형<em>수술 / 비수술 — 4경로를 가르는 값</em></span><span class="ct new">신규</span></div>
+      <div class="r"><span class="nm">수술·시술명<em>사전 레코드를 부르는 키</em></span><span class="ct new">신규 ~25</span></div>
+      <div class="r"><span class="nm">비수술 치료<em>약·주사·운동·물리치료 분류</em></span><span class="ct new">신규 ~10</span></div>
+      <div class="r"><span class="nm">환자 지시 (하실 일)</span><span class="ct new">신규 ~25</span></div>
+      <div class="r"><span class="nm">다음 진료 일시<em>예약 데이터 연동</em></span><span class="ct new">연동</span></div>
+      <div class="r"><span class="nm">부위<em>초진 §2-1은 있음 · <b>재진에는 문항 없음</b></em></span><span class="ct cond">재진 신규</span></div>
+      <div class="r"><span class="nm">문진 응답</span><span class="ct">있음</span></div>
+    </div>
+    <div class="g">
+      <div class="gh"><span>B · 표준 문구 사전</span><span class="p b">저장·재사용</span></div>
+      <div class="r"><span class="nm">진단 → 환자용 표현<em>8개 질환 × 부위·정도 — 히어로의 유일한 문장</em></span><span class="ct new">신규</span></div>
+      <div class="r"><span class="nm">수술 이력 원문 → 환자용 번역<em>재진 A 필드</em></span><span class="ct new">신규</span></div>
+    </div>
+    <div class="g">
+      <div class="gh"><span>C · 그대로 두는 곳</span><span class="p c">재현 포기</span></div>
+      <div class="r"><span class="nm">손상 상황<em>초진 §4-1 주관식</em></span><span class="ct">있음</span></div>
+      <div class="r"><span class="nm">이전 병원에서 들은 설명<em>초진 §7-2 주관식</em></span><span class="ct">있음</span></div>
+      <div class="r"><span class="nm">새롭게 달라진 증상<em>재진 §2-4 주관식</em></span><span class="ct">있음</span></div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+  document.querySelectorAll('.ctl button[data-set]').forEach(b=>{
+    b.addEventListener('click',()=>{
+      document.body.dataset[b.dataset.set]=b.dataset.val;
+      document.querySelectorAll('.ctl button[data-set="'+b.dataset.set+'"]').forEach(x=>x.classList.toggle('on',x===b));
+      window.scrollTo({top:0});
+      sync();
+    });
+  });
+  function mk(id,cls){const b=document.getElementById(id);
+    b.onclick=()=>{const on=document.body.classList.toggle(cls);b.classList.toggle('on',on);b.textContent=on?'표시 중':'표시'};}
+  mk('repBtn','show-rep'); mk('srcBtn','show-src');
+
+  const NAMES={first:'초진',re:'재진',op:'수술',non:'비수술'};
+  const MODE={none:'없음',fold:'접힘',block:'블록'};
+  const NEWBLOCK=['어떤 치료인가요'];
+  const EVBLOCK=['왜 수술이 필요한가요','왜 이렇게 치료하나요'];
+
+  function sync(){
+    const v=document.body.dataset.visit, t=document.body.dataset.tx;
+    const ev=document.body.dataset.ev, cx=document.body.dataset.cx;
+    document.getElementById('pathName').textContent=`${NAMES[v]} · ${NAMES[t]}`;
+    const path=document.querySelector(`.path.${v}-${t}`);
+    const hideDtl=document.body.classList.contains('no-detail');
+
+    // 치료 설명 카드 위치 이동 (블록 ↔ 자세히 보기)
+    document.querySelectorAll('.path').forEach(p=>{
+      const card=p.querySelector('.cxcard'), sec=p.querySelector('.cxsec'), host=p.querySelector('.cxhost .in');
+      if(!card||!sec||!host) return;
+      if(cx==='fold'){ if(card.parentElement!==host) host.appendChild(card); }
+      else if(card.parentElement!==sec){ sec.appendChild(card); }
+    });
+
+    const vis=el=>{
+      if(hideDtl && el.closest('.dtl')) return false;
+      if(el.closest('.evblock') && ev!=='block') return false;
+      if(el.closest('.evfold')  && ev!=='fold')  return false;
+      if(el.closest('.cxsec')   && cx!=='block') return false;
+      if(el.closest('.cxhost')  && cx!=='fold')  return false;
+      return true;
+    };
+
+    const n={A:0,B:0,C:0};
+    ['A','B','C'].forEach(k=>{
+      path.querySelectorAll('.r'+k).forEach(el=>{ if(vis(el)) n[k]++; });
+    });
+    const tot=n.A+n.B+n.C||1;
+    document.getElementById('cA').textContent=n.A;
+    document.getElementById('cB').textContent=n.B;
+    document.getElementById('cC').textContent=n.C;
+    document.getElementById('bA').style.flex=n.A;
+    document.getElementById('bB').style.flex=n.B;
+    document.getElementById('bC').style.flex=n.C;
+    const rep=Math.round((n.A+n.B)/tot*100);
+    document.getElementById('tnote').innerHTML = n.C===0
+      ? `이 조합은 <b>전 구간이 재현 가능</b>합니다(A+B ${n.A+n.B}/${tot}). C가 하나도 없습니다.`
+      : `재현이 보장되는 구간은 <b>${rep}%</b>(A+B ${n.A+n.B}/${tot})입니다. ` +
+        `C ${n.C}개는 모두 <b>환자가 직접 말한 서술</b>이라 매번 달라지는 게 정상입니다.`;
+
+    const items=[['히어로 — 부위 + 진단', path.querySelector('.hero'), '']];
+    path.querySelectorAll('.body > .sec').forEach(sec=>{
+      if(sec.classList.contains('evblock') && ev!=='block') return;
+      if(sec.classList.contains('cxsec')   && cx!=='block') return;
+      const h=sec.querySelector('h2'); if(!h) return;
+      const nm=h.textContent.trim();
+      items.push([nm, sec, NEWBLOCK.includes(nm)?'nw':(EVBLOCK.includes(nm)?'ev':'')]);
+    });
+    items.push(['서명', path.querySelector('.sign'), '']);
+    document.getElementById('blocks').innerHTML=items.map(([nm,el,cls])=>{
+      let dots='';
+      ['a','b','c'].forEach(k=>{
+        const c=[...el.querySelectorAll('.r'+k.toUpperCase())].filter(vis).length;
+        for(let i=0;i<c;i++) dots+=`<i class="${k}"></i>`;
+      });
+      const tag = cls==='nw' ? '<em>신설</em>' : (cls==='ev' ? '<em class="e">근거</em>' : '');
+      return `<li class="${cls}"><span class="nm">${nm}${tag}</span><span class="mix">${dots}</span></li>`;
+    }).join('');
+  }
+  sync();
+</script>
+</body>
+</html>
