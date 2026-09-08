@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ACLP-4426 환자 진료 리포트 목업 v12 · 결정 근거 3단 비교</title>
+<title>ACLP-4426 환자 진료 리포트 목업 v12 · 근거 3단 × 설명 3단</title>
 <style>
   :root{
     --bg:#f3f4f6; --card:#fff; --ink:#151a24; --ink2:#454c5a; --ink3:#6f7683;
@@ -31,7 +31,7 @@
   .ctl button.on{background:#fff;color:#151a24;border-color:#fff;font-weight:700}
   .ctl .grp.hi .lbl{opacity:1;color:#ffd98a;font-weight:700}
   .ctl .note{margin-left:auto;opacity:.68;font-size:12px}
-  @media(max-width:1240px){.ctl .note{display:none}}
+  @media(max-width:1400px){.ctl .note{display:none}}
 
   .legend{display:none;background:#20263a;color:#e6e9f2;font-size:12.5px;padding:10px 16px;line-height:1.9}
   body.show-rep .legend{display:block}
@@ -161,6 +161,12 @@
   body[data-ev="block"] .evblock{display:block !important}
   body[data-ev="fold"] .evfold{display:block !important}
 
+  /* ── 치료 설명 3단 ──────────────────────── */
+  .cxsec,.cxhost{display:none !important}
+  body[data-cx="block"] .cxsec{display:block !important}
+  body[data-cx="fold"] .cxhost{display:block !important}
+  .cxhost .in > .cxcard{border:0;padding:0;background:transparent;margin:0}
+
   .path{display:none}
   body[data-visit="first"][data-tx="op"] .path.first-op,
   body[data-visit="first"][data-tx="non"] .path.first-non,
@@ -240,7 +246,7 @@
   .chg .in dd{margin:1px 0 0;color:var(--ink2)}
 </style>
 </head>
-<body data-visit="first" data-tx="op" data-ev="none" class="show-rep">
+<body data-visit="first" data-tx="op" data-ev="none" data-cx="block" class="show-rep">
 
 <div class="ctl">
   <div class="grp"><span class="lbl">방문</span>
@@ -256,19 +262,24 @@
     <button data-set="ev" data-val="fold">접힘</button>
     <button data-set="ev" data-val="block">블록</button>
   </div>
+  <div class="grp hi"><span class="lbl">치료 설명</span>
+    <button data-set="cx" data-val="none">없음</button>
+    <button data-set="cx" data-val="fold">접힘</button>
+    <button data-set="cx" data-val="block" class="on">블록</button>
+  </div>
   <div class="grp"><span class="lbl">다음 진료 목적</span>
     <button id="dtOn" class="on">있음</button><button id="dtOff">없음</button>
   </div>
   <div class="grp"><span class="lbl">재현성</span><button id="repBtn" class="on">표시 중</button></div>
   <div class="grp"><span class="lbl">출처</span><button id="srcBtn">표시</button></div>
-  <div class="note">v12 · 결정 근거 3단 비교</div>
+  <div class="note">v12 · 근거 3단 × 설명 3단 비교</div>
 </div>
 
 <div class="legend">
   <span class="i"><b class="lgA">A 객관식</b>선택·수치 → 템플릿 문장</span>
   <span class="i"><b class="lgB">B 표준 문구</b>사전에 저장해둔 완성 문장</span>
   <span class="i"><b class="lgC">C 자유 입력</b>매번 달라도 되는 곳</span>
-  <span class="tail">A·B는 같은 상황이면 같은 문장이 나옵니다. C는 환자 고유 서술이라 달라지는 게 정상입니다. — 집계는 <b>현재 결정 근거 모드에서 보이는 것만</b> 셉니다.</span>
+  <span class="tail">A·B는 같은 상황이면 같은 문장이 나옵니다. C는 환자 고유 서술이라 달라지는 게 정상입니다. — 집계는 <b>현재 근거·설명 모드에서 보이는 것만</b> 셉니다.</span>
 </div>
 <div class="srcbar">
   출처 — <b>초진 §2</b> 공통 초진 문진 · <b>초진 §3</b> 질환별 핵심 질문 · <b>초진 §4</b> Imaging Findings ·
@@ -307,8 +318,8 @@
         <div class="concl rB">인대를 그대로 두면 무릎이 불안정한 상태가 반복되면서 연골이 더 닳습니다. 그래서 수술로 치료합니다.<span class="src dct">근거 사전</span></div>
       </div></div>
 
-    <div class="sec"><h2>어떤 치료인가요</h2>
-      <div class="card desc">
+    <div class="sec cxsec"><h2>어떤 치료인가요</h2>
+      <div class="card desc cxcard">
         <p class="rB"><b>전방십자인대 재건술</b>은 끊어진 인대를 대신할 조직을 무릎 안에 새로 만들어 넣는 술식입니다. 전방십자인대는 무릎이 앞으로 밀리거나 돌아가지 않도록 잡아주는 역할을 하기 때문에, 이 인대가 없으면 무릎이 불안정해지고 연골 손상으로 이어질 수 있습니다.<span class="src dct">치료 사전</span></p>
         <p class="rB"><b>반월상연골 봉합술</b>은 찢어진 연골을 꿰매어 붙여 원래 모양을 되살리는 술식입니다. 반월상연골은 무릎에 실리는 체중을 분산시키는 중요한 기능을 하기 때문에, 잘라내기보다 꿰매어 살리는 것이 관절염을 예방하는 데 유리합니다.<span class="src dct">치료 사전</span></p>
       </div>
@@ -329,6 +340,7 @@
       </div></div>
 
     <div class="sec more"><h2>자세히 보기</h2>
+      <details class="cxhost"><summary>어떤 치료인가요<span class="src dct">치료 사전</span></summary><div class="in"></div></details>
       <details class="evfold"><summary>검사에서 확인된 것<span class="src dct">소견 번역</span></summary>
         <div class="in"><table class="kv ev">
           <tr><th>MRI</th><td><span class="rB">전방십자인대가 끊어짐</span></td></tr>
@@ -381,8 +393,8 @@
         <div class="concl rB">약과 주사로 통증을 줄이고, 근력 운동으로 무릎 부담을 덜어봅니다. 3개월 뒤에도 좋아지지 않으면 다른 치료를 상의합니다.<span class="src dct">근거 사전</span></div>
       </div></div>
 
-    <div class="sec"><h2>어떤 치료인가요</h2>
-      <div class="card desc">
+    <div class="sec cxsec"><h2>어떤 치료인가요</h2>
+      <div class="card desc cxcard">
         <p class="rB"><b>소염진통제</b>는 관절에 생긴 염증을 가라앉혀 통증을 줄이는 약입니다. <b>관절 안에 넣는 주사</b>는 닳은 연골 사이의 마찰을 줄여 움직일 때의 통증을 덜어 줍니다.<span class="src dct">치료 사전</span></p>
         <p class="rB"><b>허벅지 근력 운동</b>은 무릎이 받는 부담을 근육이 나눠 지도록 만드는 치료입니다. 무릎 주변 근육이 튼튼할수록 관절에 실리는 힘이 줄어들기 때문에, 관절염이 진행되는 속도를 늦추는 데 도움이 됩니다.<span class="src dct">치료 사전</span></p>
       </div>
@@ -403,6 +415,7 @@
       </div></div>
 
     <div class="sec more"><h2>자세히 보기</h2>
+      <details class="cxhost"><summary>어떤 치료인가요<span class="src dct">치료 사전</span></summary><div class="in"></div></details>
       <details class="evfold"><summary>검사에서 확인된 것<span class="src dct">소견 번역</span></summary>
         <div class="in"><table class="kv ev">
           <tr><th>X-ray</th><td><span class="rB">무릎 안쪽 관절 간격이 좁아짐</span></td></tr>
@@ -455,8 +468,8 @@
         <div class="concl rB">그래서 지난번에 말씀드린 이식 수술을 이번에 진행합니다.<span class="src dct">근거 사전</span></div>
       </div></div>
 
-    <div class="sec"><h2>어떤 치료인가요</h2>
-      <div class="card desc">
+    <div class="sec cxsec"><h2>어떤 치료인가요</h2>
+      <div class="card desc cxcard">
         <p class="rB"><b>반월상연골 이식술</b>은 죽은 사람이 기증한 반월상연골 조직을 반월상연골이 없는 사람에게 이식하여 연골의 기능을 살리는 술식입니다. 반월상연골은 무릎에 실리는 체중을 분산시키는 데 굉장히 중요한 기능을 함으로써 관절염을 예방하는 데 중요한 역할을 합니다.<span class="src dct">치료 사전</span></p>
         <p class="rB"><b>연골 재생 치료</b>는 손상된 연골 부위를 다듬고 자극을 주어 새로운 연골이 자라도록 돕는 술식입니다. 연골은 한 번 닳으면 저절로 회복되지 않기 때문에, 남아 있는 부분을 지키고 재생을 유도하는 것이 중요합니다.<span class="src dct">치료 사전</span></p>
       </div>
@@ -476,6 +489,7 @@
       </div></div>
 
     <div class="sec more"><h2>자세히 보기</h2>
+      <details class="cxhost"><summary>어떤 치료인가요<span class="src dct">치료 사전</span></summary><div class="in"></div></details>
       <details class="evfold"><summary>검사에서 확인된 것<span class="src dct">소견 번역</span></summary>
         <div class="in"><table class="kv ev">
           <tr><th>진찰</th><td><span class="rA">무릎 굽히고 펴기 0~130도 · 물 찬 것 없음</span></td></tr>
@@ -518,8 +532,8 @@
         <div class="concl rB">좋아지는 흐름이 있으니 3개월 더 지켜봅니다. 걸림이 남아 있으면 그때 수술을 상의합니다.<span class="src dct">근거 사전</span></div>
       </div></div>
 
-    <div class="sec"><h2>어떤 치료인가요</h2>
-      <div class="card desc">
+    <div class="sec cxsec"><h2>어떤 치료인가요</h2>
+      <div class="card desc cxcard">
         <p class="rB"><b>재활운동</b>은 무릎 주변 근육을 키워 관절이 받는 부담을 줄이는 치료입니다. 반월상연골이 부족한 상태에서는 근육이 그 역할을 일부 대신하기 때문에, 꾸준한 운동이 수술 시기를 늦추는 데 도움이 됩니다.<span class="src dct">치료 사전</span></p>
       </div>
     </div>
@@ -537,6 +551,7 @@
       </div></div>
 
     <div class="sec more"><h2>자세히 보기</h2>
+      <details class="cxhost"><summary>어떤 치료인가요<span class="src dct">치료 사전</span></summary><div class="in"></div></details>
       <details class="evfold"><summary>검사에서 확인된 것<span class="src dct">소견 번역</span></summary>
         <div class="in"><table class="kv ev">
           <tr><th>진찰</th><td><span class="rA">무릎 굽히고 펴기 0~130도 · 물 찬 것 없음</span></td></tr>
@@ -592,13 +607,15 @@
         <dt>접힘</dt>
         <dd>「자세히 보기」에 <b>검사에서 확인된 것</b>을 추가합니다. 본문 길이는 그대로, 소견은 볼 수 있습니다. 사전 부담은 소견 번역뿐입니다.</dd>
         <dt>블록</dt>
-        <dd>본문에 논증형 블록으로 노출합니다. 문진 응답을 나열하지 않고 <b>[관찰 → 그것이 뜻하는 것]</b> 구조로 쓰고, 마지막에 결론 한 줄을 둡니다. 가족에게 보여줄 근거로는 이 형태만 기능합니다. 대신 <b>질환별 논증 사전</b>이 새로 필요합니다.</dd>
+        <dd>본문에 논증형 블록으로 노출합니다. v11처럼 문진 응답을 나열하지 않고 <b>[관찰 → 그것이 뜻하는 것]</b> 구조로 쓰고, 마지막에 결론 한 줄을 둡니다. 가족에게 보여줄 근거로는 이 형태만 기능합니다. 대신 <b>질환별 논증 사전</b>이 새로 필요합니다.</dd>
       </dl>
-      <br><b>재진 미해결</b> — 히어로에서 「반월상연골 절제술 후」를 뺐습니다(초진·재진 미연결). 남은 부위 「오른쪽 무릎」도 재진 구성안에 대응 문항이 없어 <b>✕ 미정의</b>입니다.
+      <br><b>치료 설명 3단</b> — 「어떤 치료인가요」도 같은 방식으로 켜고 끕니다. <b>접힘</b>은 카드를 그대로 「자세히 보기」 안으로 옮깁니다 — 내용은 같고 위치만 바뀝니다.
+      근거 3단 × 설명 3단으로 <b>9가지 조합</b>을 볼 수 있고, 집계도 조합마다 다시 계산됩니다.
+      <br><br><b>재진 미해결</b> — 히어로에서 「반월상연골 절제술 후」를 뺐습니다(초진·재진 미연결). 남은 부위 「오른쪽 무릎」도 재진 구성안에 대응 문항이 없어 <b>✕ 미정의</b>입니다.
     </div>
   </div>
 
-  <h4><span>필요한 사전</span><small>결정 근거 모드에 따라 변동</small></h4>
+  <h4><span>필요한 사전</span><small>근거·설명 모드에 따라 변동</small></h4>
   <div class="in dic">
     <div class="g">
       <div class="gh"><span>A · 객관식 항목</span><span class="p a">선택·수치</span></div>
@@ -610,15 +627,15 @@
       <div class="r"><span class="nm">다음 진료 일시<em>예약 데이터 연동</em></span><span class="ct new">연동</span></div>
       <div class="r"><span class="nm">부위<em>초진 §2-1은 있음 · <b>재진에는 문항 없음</b></em></span><span class="ct cond">재진 신규</span></div>
       <div class="r"><span class="nm">문진 응답</span><span class="ct">있음</span></div>
-      <div class="r"><span class="nm">P.E 검사 항목<em>접힘·블록 모드에서만 리포트에 노출</em></span><span class="ct cond">조건부 11</span></div>
+      <div class="r"><span class="nm">P.E 검사 항목<em>근거 접힘·블록 모드에서만 리포트에 노출</em></span><span class="ct cond">조건부 11</span></div>
     </div>
     <div class="g">
       <div class="gh"><span>B · 표준 문구 사전</span><span class="p b">저장·재사용</span></div>
-      <div class="r"><span class="nm"><b>치료 설명</b><em>치료명당 2문장 — 무엇을 하는 술식인지 + 왜 중요한지</em></span><span class="ct big">신규 ~25×2</span></div>
+      <div class="r"><span class="nm"><b>치료 설명</b><em>치료명당 2문장 — 무엇을 하는 술식인지 + 왜 중요한지 · 설명 모드 「없음」이면 불필요</em></span><span class="ct cond">조건부 ~25×2</span></div>
       <div class="r"><span class="nm">진단 → 환자용 표현<em>8개 질환 × 부위·정도 — 히어로의 유일한 문장</em></span><span class="ct new">신규</span></div>
       <div class="r"><span class="nm" style="color:#b0b6c0">상태 해석 한 줄 <em style="color:#c0b8a0">히어로에서 제거 — 의료진이 말할 때도 안 할 때도 있어 항상 채워지지 않음</em></span><span class="ct">제거</span></div>
-      <div class="r"><span class="nm">영상 소견 → 환자용 번역<em>없음 모드는 히어로용 ~10 · 접힘·블록은 소견 전체 ~40</em></span><span class="ct cond">조건부</span></div>
-      <div class="r"><span class="nm"><b>질환별 논증 문구</b><em>블록 모드에서만 필요 — 관찰값 → 의미 연결 + 결론. 질환 × 수술·비수술</em></span><span class="ct cond">블록 전용 ~16</span></div>
+      <div class="r"><span class="nm">영상 소견 → 환자용 번역<em>근거 없음 모드는 히어로용 ~10 · 접힘·블록은 소견 전체 ~40</em></span><span class="ct cond">조건부</span></div>
+      <div class="r"><span class="nm"><b>질환별 논증 문구</b><em>근거 블록 모드에서만 필요 — 관찰값 → 의미 연결 + 결론. 질환 × 수술·비수술</em></span><span class="ct cond">블록 전용 ~16</span></div>
       <div class="r"><span class="nm">수술 이력 원문 → 환자용 번역<em>재진 「받은 수술」</em></span><span class="ct new">신규</span></div>
     </div>
     <div class="g">
@@ -637,7 +654,7 @@
     b.addEventListener('click',()=>{
       document.body.dataset[b.dataset.set]=b.dataset.val;
       document.querySelectorAll('.ctl button[data-set="'+b.dataset.set+'"]').forEach(x=>x.classList.toggle('on',x===b));
-      if(b.dataset.set!=='ev') window.scrollTo({top:0});
+      if(b.dataset.set==='visit'||b.dataset.set==='tx') window.scrollTo({top:0});
       sync();
     });
   });
@@ -649,20 +666,31 @@
   mk('repBtn','show-rep'); mk('srcBtn','show-src');
 
   const NAMES={first:'초진',re:'재진',op:'수술',non:'비수술'};
-  const EVNAME={none:'근거 없음',fold:'근거 접힘',block:'근거 블록'};
+  const MODE={none:'없음',fold:'접힘',block:'블록'};
   const NEWBLOCK=['어떤 치료인가요'];
   const EVBLOCK=['왜 수술이 필요한가요','왜 이렇게 치료하나요'];
 
   function sync(){
-    const v=document.body.dataset.visit, t=document.body.dataset.tx, ev=document.body.dataset.ev;
-    document.getElementById('pathName').textContent=`${NAMES[v]} · ${NAMES[t]} · ${EVNAME[ev]}`;
+    const v=document.body.dataset.visit, t=document.body.dataset.tx;
+    const ev=document.body.dataset.ev, cx=document.body.dataset.cx;
+    document.getElementById('pathName').textContent=`${NAMES[v]} · ${NAMES[t]} · 근거 ${MODE[ev]} · 설명 ${MODE[cx]}`;
     const path=document.querySelector(`.path.${v}-${t}`);
     const hideDtl=document.body.classList.contains('no-detail');
+
+    // 치료 설명 카드 위치 이동 (블록 ↔ 자세히 보기)
+    document.querySelectorAll('.path').forEach(p=>{
+      const card=p.querySelector('.cxcard'), sec=p.querySelector('.cxsec'), host=p.querySelector('.cxhost .in');
+      if(!card||!sec||!host) return;
+      if(cx==='fold'){ if(card.parentElement!==host) host.appendChild(card); }
+      else if(card.parentElement!==sec){ sec.appendChild(card); }
+    });
 
     const vis=el=>{
       if(hideDtl && el.closest('.dtl')) return false;
       if(el.closest('.evblock') && ev!=='block') return false;
       if(el.closest('.evfold')  && ev!=='fold')  return false;
+      if(el.closest('.cxsec')   && cx!=='block') return false;
+      if(el.closest('.cxhost')  && cx!=='fold')  return false;
       return true;
     };
 
@@ -686,6 +714,7 @@
     const items=[['히어로 — 부위 + 진단', path.querySelector('.hero'), '']];
     path.querySelectorAll('.body > .sec').forEach(sec=>{
       if(sec.classList.contains('evblock') && ev!=='block') return;
+      if(sec.classList.contains('cxsec')   && cx!=='block') return;
       const h=sec.querySelector('h2'); if(!h) return;
       const nm=h.textContent.trim();
       items.push([nm, sec, NEWBLOCK.includes(nm)?'nw':(EVBLOCK.includes(nm)?'ev':'')]);
