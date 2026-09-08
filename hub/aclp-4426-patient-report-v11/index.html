@@ -316,8 +316,6 @@
           <tr><th>다친 뒤 급격한 부종</th><td><span class="rA">있음</span></td></tr>
           <tr><th>무릎이 빠지는 느낌</th><td><span class="rA">가끔</span></td></tr>
         </table></div></details>
-      <details><summary>검사 결과 원문<span class="src">초진 §4</span></summary>
-        <div class="in">영상 촬영처: <span class="rA">타병원</span><br>MRI Findings: <span class="rC">ACL rupture / MM posterior bucket handle tear</span></div></details>
     </div>
     <div class="sign">이 리포트는 <b><span class="rA">○○정형외과 ○○○ 원장</span></b>의<br><span class="rA">2026년 9월 7일</span> 진료 내용을 바탕으로 작성되었습니다.</div>
   </div>
@@ -379,8 +377,6 @@
           <tr><th>일상생활 불편</th><td><span class="rA">많이 불편함</span></td></tr>
           <tr><th>이전 치료</th><td><span class="rA">있음 — 효과 적거나 없음</span></td></tr>
         </table></div></details>
-      <details><summary>검사 결과 원문<span class="src">초진 §4</span></summary>
-        <div class="in">영상 촬영처: <span class="rA">원내</span><br>X-ray Findings: <span class="rC">Medial joint space narrowing, KL grade 3</span></div></details>
     </div>
     <div class="sign">이 리포트는 <b><span class="rA">○○정형외과 ○○○ 원장</span></b>의<br><span class="rA">2026년 9월 7일</span> 진료 내용을 바탕으로 작성되었습니다.</div>
   </div>
@@ -481,10 +477,7 @@
 
     <div class="sec more"><h2>자세히 보기</h2>
       <details><summary>받은 수술<span class="src">재진 §4 A</span></summary>
-        <div class="in"><span class="rB">오른쪽 무릎 반월상연골 부분 절제술 + 연골 정리술</span><br>
-          <span style="color:#9aa0ab">원문: <span class="rC">S/P DLM subtotal meniscectomy + PFJ &amp; MFC chondroplasty, Rt.</span></span></div></details>
-      <details><summary>진찰·검사 결과 원문<span class="src">재진 §3</span></summary>
-        <div class="in"><span class="rC">P/E: ROM 0–130, effusion(-), joint line tenderness(+), McMurray(+)<br>Function: 보행 양호, 계단 하행 시 경미한 불편감<br>XR &gt; WNL<br>MRI &gt; Lateral meniscal deficiency, MFC cartilage lesion</span></div></details>
+        <div class="in"><span class="rB">오른쪽 무릎 반월상연골 부분 절제술 + 연골 정리술</span></div></details>
       <details><summary>말씀하신 내용 전체<span class="src">재진 §2</span></summary>
         <div class="in"><table class="kv">
           <tr><th>지난 진료 대비</th><td><span class="rA">조금 좋아짐</span></td></tr>
@@ -542,7 +535,6 @@
       <div class="r"><span class="nm">손상 상황<em>초진 §4-1 주관식</em></span><span class="ct">있음</span></div>
       <div class="r"><span class="nm">이전 병원에서 들은 설명<em>초진 §7-2 주관식</em></span><span class="ct">있음</span></div>
       <div class="r"><span class="nm">새롭게 달라진 증상<em>재진 §2-4 주관식</em></span><span class="ct">있음</span></div>
-      <div class="r"><span class="nm">검사 결과 원문<em>의사 작성 원문 노출 — 변환 없음</em></span><span class="ct">있음</span></div>
     </div>
   </div>
 
@@ -595,10 +587,11 @@
     document.getElementById('bB').style.flex=n.B;
     document.getElementById('bC').style.flex=n.C;
     const rep=Math.round((n.A+n.B)/tot*100);
-    document.getElementById('tnote').innerHTML =
-      `이 경로에서 재현이 보장되는 구간은 <b>${rep}%</b>(A+B ${n.A+n.B}/${tot})입니다. ` +
-      `C ${n.C}개는 모두 <b>환자 고유 서술</b>이거나 <b>의사 작성 원문</b>이라 매번 달라지는 게 정상입니다. ` +
-      `— 의사의 판단·처방 구간에는 C가 하나도 없습니다.`;
+    document.getElementById('tnote').innerHTML = n.C===0
+      ? `이 경로는 <b>전 구간이 재현 가능</b>합니다(A+B ${n.A+n.B}/${tot}). C가 하나도 없습니다.`
+      : `이 경로에서 재현이 보장되는 구간은 <b>${rep}%</b>(A+B ${n.A+n.B}/${tot})입니다. ` +
+        `C ${n.C}개는 모두 <b>환자가 직접 말한 서술</b>이라 매번 달라지는 게 정상입니다. ` +
+        `— 의사가 말한 구간에는 C가 하나도 없습니다.`;
 
     // 블록별 구성
     const items=[['히어로 — 진단 한 문장', path.querySelector('.hero')]];
