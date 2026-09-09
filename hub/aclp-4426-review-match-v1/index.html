@@ -304,7 +304,7 @@ const ck = id => S.caseKey + "." + id;
 const qDef = id => C().questions.find(q => q.id === id);
 const qVal = id => { const p = S.picks[ck(id)]; return p === undefined ? qDef(id).ai : p; };
 const qChanged = id => S.picks[ck(id)] !== undefined;
-const locked = () => S.reviewDone || S.sent;
+const locked = () => S.reviewDone && !S.sent;
 const fDef = id => id.indexOf("todo") === 0 ? C().fields.todos[+id.slice(4)] : C().fields[id];
 const fVal = id => {
   const d = fDef(id);
@@ -421,8 +421,9 @@ function modalHtml(){
   let h = '<div class="ovl"><div class="modal"><div class="mhead"><span class="t">진료기록 검토</span>';
   h += '<button class="cs' + (review ? " on" : "") + '" data-act="tab" data-t="review">검토 · 수정</button>';
   h += '<button class="cs' + (!review ? " on" : "") + '" data-act="tab" data-t="preview">미리보기</button>';
-  h += '<span class="h">' + (review ? "선택이 맞는지 확인하고, 리포트에 어떻게 담기는지 오른쪽에서 함께 봅니다" : "환자에게 발송될 형태 — 수정 불가") + '</span>';
-  if (lk) h += '<span class="lockchip">' + (S.sent ? "발송 완료 — 수정할 수 없습니다" : "검토 완료 — 수정하려면 검토를 재개하세요") + '</span>';
+  h += '<span class="h">' + (review ? "선택이 맞는지 확인하고, 리포트에 어떻게 담기는지 오른쪽에서 함께 봅니다" : "환자에게 발송될 형태 — 이 화면에서는 수정 불가") + '</span>';
+  if (lk) h += '<span class="lockchip">검토 완료 — 수정하려면 검토를 재개하세요</span>';
+  else if (S.sent) h += '<span class="lockchip">발송 완료 · 수정 가능</span>';
   if (S.reviewDone && !S.sent) h += '<button class="btn-out" data-act="resume">검토 재개</button>';
   h += '<button class="close" data-act="close">✕</button></div>';
 
@@ -450,7 +451,7 @@ function modalHtml(){
   h += '</div></div>';
 
   h += '<div class="mfoot"><button class="l" data-act="' + (review ? "close" : "back") + '">' + (review ? "닫기" : "검토로 돌아가기") + '</button>';
-  h += '<button class="r" data-act="' + (review ? "toprev" : (lk ? "close" : "done")) + '">' + (review ? "미리보기로" : (lk ? "닫기" : "검토 완료")) + '</button>';
+  h += '<button class="r" data-act="' + (review ? "toprev" : ((lk || S.sent) ? "close" : "done")) + '">' + (review ? "미리보기로" : ((lk || S.sent) ? "닫기" : "검토 완료")) + '</button>';
   return h + '</div></div></div>';
 }
 
@@ -463,20 +464,19 @@ function render(){
   document.getElementById("headtags").innerHTML =
     Object.keys(CASES).map(k => '<button class="cs' + (k === S.caseKey ? " on" : "") + '" data-act="case" data-k="' + k + '">' + CASES[k].label + '</button>').join("") +
     '<span class="tag-b">' + c.visitTag + '</span>' +
-    '<span class="' + (lk ? "tag-g" : "tag-b") + '">' + (S.sent ? "발송 완료" : (S.reviewDone ? "검토 완료" : "작성중")) + '</span>' +
+    '<span class="' + ((S.reviewDone || S.sent) ? "tag-g" : "tag-b") + '">' + (S.sent ? "발송 완료" : (S.reviewDone ? "검토 완료" : "작성중")) + '</span>' +
     '<span style="color:var(--ink3)">2026.09.08 15:28</span>';
   document.getElementById("lockbar").innerHTML = lk
-    ? '<div class="lockbar"><span>' + (S.sent ? "발송 완료 — 수정할 수 없습니다" : "검토 완료 — 수정하려면 검토를 재개하세요") + '</span>' +
-      (S.reviewDone && !S.sent ? '<button class="btn-out" style="margin-left:auto" data-act="resume">검토 재개</button>' : "") + '</div>'
-    : "";
+    ? '<div class="lockbar"><span>검토 완료 — 수정하려면 검토를 재개하세요</span><button class="btn-out" style="margin-left:auto" data-act="resume">검토 재개</button></div>'
+    : (S.sent ? '<div class="lockbar"><span>발송 완료 · 이후 수정 사항은 기록에 반영됩니다</span></div>' : "");
   document.getElementById("qlist").innerHTML = c.questions.map(q => qCard(q, false)).join("");
   const send = document.getElementById("send");
   send.textContent = S.sent ? "발송 완료" : "진료 내용 발송";
   send.className = "send" + (S.reviewDone && !S.sent ? " ready" : "");
   const hint = document.getElementById("hint");
-  hint.textContent = S.sent ? "환자에게 발송되었습니다 — 더 이상 수정할 수 없습니다."
+  hint.textContent = S.sent ? "환자에게 발송되었습니다 · 이후 수정 사항은 기록에 반영됩니다."
     : (S.reviewDone ? "검토가 완료되었습니다. 발송할 수 있습니다." : "진료기록 검토를 완료해야 발송할 수 있습니다.");
-  hint.className = "hint" + (S.reviewDone ? " ok" : "");
+  hint.className = "hint" + ((S.reviewDone || S.sent) ? " ok" : "");
   document.getElementById("modal").innerHTML = modalHtml();
 }
 
