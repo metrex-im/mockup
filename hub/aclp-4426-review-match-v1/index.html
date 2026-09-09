@@ -452,14 +452,13 @@ function modalHtml(){
 }
 
 function kakaoHtml(){
-  const c = C(), dx = fVal("dx"), dec = fVal("decision"), nd = fVal("nextDate");
+  const c = C();
   let h = '<div class="kkcard">';
   h += '<div class="kkhead"><span class="kkmk"></span>액티메디 톡톡</div>';
   h += '<div class="kkbody">';
-  h += '<div class="kktag">[액티메디]</div>';
-  h += '<p>[시연용병원] 오늘 진료 내용 안내<br>' + esc(c.patient) + '님, 안녕하세요.<br>오늘 ' + esc(c.clinic) + ' 원장님과 진행한 진료 내용을 정리해 보내드려요.</p>';
-  h += '<p>■ 오늘 진료 요약 — ' + esc(c.visitDate) + '<br>· ' + esc(dx) + '<br>· ' + esc(dec) + '<br>· 다음 진료: ' + esc(nd) + '</p>';
-  h += '<div class="kkbtn">진료 내용 확인</div><div class="kkbtn">톡톡으로 상담하기</div>';
+  h += '<div class="kktag">[시연용병원] 오늘 진료 내용 안내</div>';
+  h += '<p>' + esc(c.patient) + '님, 안녕하세요.<br>오늘 진행하신 진료 내용을 정리해 보내드려요.<br>아래 버튼에서 진료 내용을 확인하실 수 있어요.<br>궁금한 점은 AI 챗봇에게 바로 물어보세요.</p>';
+  h += '<div class="kkbtn">진료 내용 확인하기</div><div class="kkbtn">AI 채팅 상담하기</div>';
   h += '</div></div>';
   return h;
 }
