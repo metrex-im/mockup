@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>진료기록 검토 — 모달</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="ds/tokens/fonts.css">
+  <link rel="stylesheet" href="ds/tokens/colors.css">
+  <link rel="stylesheet" href="ds/tokens/typography.css">
+  <link rel="stylesheet" href="ds/tokens/spacing.css">
+  <link rel="stylesheet" href="ds/tokens/base.css">
+  <link rel="stylesheet" href="ds/styles.css">
+  <script src="ds/_ds_bundle.js"></script>
+  <style>
+    html, body { margin: 0; background: #F3F4F7; color: #101010; overflow: hidden; }
+    a { color: #1E5AF0; } a:hover { color: #1342CC; }
+    textarea { font: inherit; }
+    button { font: inherit; cursor: pointer; }
+  </style>
+</helmet>
+<div style="position: fixed; inset: 0; background: #F3F4F7; font-family: var(--am-font-body); color: #101010; overflow: hidden;">
+
+  <div aria-hidden="true" style="position: absolute; inset: 0; display: flex; flex-direction: column;">
+    <div style="height: 64px; background: #FFFFFF; border-bottom: 1px solid #E5E7EC; display: flex; align-items: center; gap: 28px; padding: 0 40px;">
+      <span style="font-family: var(--am-font-head); font-weight: 800; font-size: 20px; color: #1E5AF0;">RISE-K</span>
+      <span style="width: 1px; height: 20px; background: #E5E7EC;"></span>
+      <span style="font-size: 15px; color: #555B68;">환자 관리</span>
+      <span style="font-size: 15px; color: #555B68;">오늘의 환자</span>
+      <span style="font-size: 15px; color: #1E5AF0; font-weight: 700;">진료 녹음</span>
+      <span style="font-size: 15px; color: #555B68;">논문 관리</span>
+      <span style="flex: 1;"></span>
+      <span style="font-size: 14px; color: #7C8290;">시연용병원</span>
+      <span style="font-size: 14px; color: #262A33; border: 1px solid #E5E7EC; border-radius: 999px; padding: 8px 14px;">시연용공용계정님 ⌄</span>
+    </div>
+    <div style="padding: 28px 40px; display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 28px;">
+      <div style="display: flex; flex-direction: column; gap: 16px;">
+        <div style="font-family: var(--am-font-head); font-size: 22px; font-weight: 800;">진료 녹음</div>
+        <div style="background: #FFFFFF; border-radius: 20px; padding: 18px; display: flex; flex-direction: column; gap: 8px;"><span style="font-size: 13px; color: #555B68;">진료실 선택</span><div style="height: 44px; border: 1px solid #E5E7EC; border-radius: 12px;"></div></div>
+        <div style="background: #FFFFFF; border-radius: 20px; padding: 18px; display: flex; flex-direction: column; gap: 10px;"><span style="font-size: 13px; color: #555B68;">환자 선택</span><span style="font-size: 16px; font-weight: 700;">사태양</span><span style="font-size: 13px; color: #7C8290;">여성 · 차트 01700050</span><div style="height: 44px; background: #1E5AF0; border-radius: 12px; margin-top: 6px;"></div></div>
+        <div style="background: #FFFFFF; border-radius: 20px; padding: 18px; height: 320px;"><div style="height: 40px; background: #1E5AF0; border-radius: 12px;"></div></div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 44px;">
+        <div style="display: flex; align-items: center; gap: 8px;"><span style="font-size: 16px; font-weight: 700;">문진 답안</span><span style="font-size: 13px; background: #E5E7EC; border-radius: 8px; padding: 2px 8px;">11/11</span></div>
+        <div style="background: #FFFFFF; border-radius: 16px; height: 96px;"></div>
+        <div style="background: #FFFFFF; border-radius: 16px; height: 96px;"></div>
+        <div style="background: #FFFFFF; border-radius: 16px; height: 96px;"></div>
+        <div style="background: #FFFFFF; border-radius: 16px; height: 96px;"></div>
+        <div style="background: #FFFFFF; border-radius: 16px; height: 96px;"></div>
+        <div style="background: #FFFFFF; border-radius: 16px; height: 96px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="position: absolute; inset: 0; background: rgba(16, 16, 16, 0.45); display: flex; align-items: center; justify-content: center; padding: 24px;">
+    <div role="dialog" aria-label="진료기록 검토" style="width: min(1320px, 100%); height: min(920px, 100%); background: #FFFFFF; border-radius: 28px; box-shadow: 0 16px 36px rgba(12,30,107,0.12), 0 4px 8px rgba(12,30,107,0.06); display: flex; flex-direction: column; overflow: hidden;">
+
+      <header style="padding: 20px 28px 16px; border-bottom: 1px solid #E5E7EC; display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+        <div style="display: flex; align-items: baseline; gap: 14px; flex: 1; min-width: 240px;">
+          <h1 style="margin: 0; font-family: var(--am-font-head); font-size: 22px; font-weight: 800; letter-spacing: -0.01em;">진료기록 검토</h1>
+        </div>
+        <button aria-label="닫기" style="width: 40px; height: 40px; border: 0; background: transparent; border-radius: 999px; color: #555B68; font-size: 22px; line-height: 1; display: inline-flex; align-items: center; justify-content: center;" style-hover="background: #F3F4F7;">×</button>
+      </header>
+
+      <div ref="{{ bodyRef }}" style="flex: 1; min-height: 0; overflow: auto; background: #F3F4F7;">
+        <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(320px, 380px); gap: 28px; padding: 24px 28px 32px; align-items: start;">
+
+          <main style="display: flex; flex-direction: column; gap: 32px; min-width: 0;">
+
+            <section style="display: flex; flex-direction: column; gap: 14px;">
+              <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+                <div>
+                  <div style="font-family: var(--am-font-head); font-size: 11px; font-weight: 700; letter-spacing: 0.11em; color: #1E5AF0; text-transform: uppercase;">Step 1</div>
+                  <h2 style="margin: 4px 0 4px; font-family: var(--am-font-head); font-size: 19px; font-weight: 800;">AI가 고른 답변을 확인해 주세요</h2>
+                  <p style="margin: 0; font-size: 14px; color: #555B68;">녹음 발화를 근거로 자동 선택된 {{ aiCount }}개입니다. 틀렸으면 다른 답을 눌러 바꾸세요. 직접 고른 답은 아래에 접어 두었습니다.</p>
+                </div>
+                <button onClick="{{ checkAll }}" style="background: transparent; border: 0; color: #1E5AF0; font-weight: 600; font-size: 14px; padding: 8px 4px;">모두 확인</button>
+              </div>
+
+              <sc-for list="{{ aiAnswers }}" as="a" hint-placeholder-count="3">
+                <div style="{{ a.hl }}">
+                  <div onClick="{{ a.focus }}" style="background: #FFFFFF; border: 1px solid #E5E7EC; border-radius: 20px; padding: 16px 20px; display: flex; flex-direction: column; gap: 12px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                      <span style="font-size: 12px; font-weight: 700; color: #7C8290; min-width: 34px;">{{ a.no }}</span>
+                      <span style="flex: 1; font-size: 15px; font-weight: 600; color: #262A33;">{{ a.q }}</span>
+                      <span style="font-size: 12px; font-weight: 600; color: {{ a.srcColor }}; background: {{ a.srcBg }}; padding: 3px 9px; border-radius: 999px;">{{ a.src }}</span>
+                      <button onClick="{{ a.toggle }}" style="{{ a.checkStyle }}">{{ a.checkLabel }}</button>
+                    </div>
+                    <div style="display: flex; flex-wrap: wrap; gap: 8px; padding-left: 46px;">
+                      <sc-for list="{{ a.options }}" as="o" hint-placeholder-count="3">
+                        <button onClick="{{ o.pick }}" style="{{ o.style }}">{{ o.label }}</button>
+                      </sc-for>
+                    </div>
+                    <sc-if value="{{ a.showEv }}" hint-placeholder-val="{{ true }}">
+                      <div style="padding-left: 46px; font-size: 13px; color: #7C8290; line-height: 1.5;">발화 근거 · “{{ a.evidence }}”</div>
+                    </sc-if>
+                  </div>
+                </div>
+              </sc-for>
+            </section>
+
+            <section style="display: flex; flex-direction: column; gap: 14px;">
+              <div>
+                <div style="font-family: var(--am-font-head); font-size: 11px; font-weight: 700; letter-spacing: 0.11em; color: #1E5AF0; text-transform: uppercase;">Step 2</div>
+                <h2 style="margin: 4px 0 4px; font-family: var(--am-font-head); font-size: 19px; font-weight: 800;">환자에게 보낼 내용을 확정해 주세요</h2>
+                <p style="margin: 0; font-size: 14px; color: #555B68;">작성한 A·P의 의학 용어가 환자 표현으로 바뀌어 오른쪽 리포트가 됩니다. 여기서 고치면 리포트도 바로 바뀝니다.</p>
+              </div>
+
+              <sc-for list="{{ fields }}" as="f" hint-placeholder-count="4">
+                <div style="{{ f.hl }}">
+                  <div ref="{{ f.ref }}" onClick="{{ f.focus }}" style="background: #FFFFFF; border: 1px solid #E5E7EC; border-radius: 20px; padding: 16px 20px; display: flex; flex-direction: column; gap: 10px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                      <span style="flex: 1; font-size: 15px; font-weight: 600; color: #262A33;">{{ f.label }}</span>
+                      <span style="font-size: 12px; color: #7C8290;">리포트 · {{ f.target }}</span>
+                    </div>
+                    <textarea value="{{ f.value }}" onChange="{{ f.onChange }}" rows="{{ f.rows }}" style="width: 100%; box-sizing: border-box; resize: vertical; border: 1px solid #E5E7EC; border-radius: 16px; padding: 12px 14px; font-size: 15px; line-height: 1.55; color: #101010; background: #FFFFFF; outline: none;" style-focus="border-color: #1E5AF0; box-shadow: 0 0 0 4px rgba(30,90,240,0.12);"></textarea>
+                    <sc-if value="{{ f.hasMissing }}" hint-placeholder-val="{{ false }}">
+                      <div style="display: flex; flex-direction: column; gap: 8px; background: #FFF7EA; border-radius: 12px; padding: 10px 12px;">
+                        <div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px;">
+                          <span style="font-size: 13px; font-weight: 700; color: #B8700F;">확인 필요</span>
+                          <span style="font-size: 13px; color: #8A5A10;">사전에 없는 용어라 리포트에서 빠졌습니다. 아래 용어로 바꾸거나 표현을 고쳐 주세요.</span>
+                        </div>
+                        <sc-for list="{{ f.missing }}" as="m" hint-placeholder-count="1">
+                          <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px;">
+                            <span style="font-size: 14px; font-weight: 700; color: #8A5A10; text-decoration: underline dashed #F2A02D; text-underline-offset: 3px;">{{ m.term }}</span>
+                            <sc-if value="{{ m.hasSug }}" hint-placeholder-val="{{ true }}">
+                              <span style="font-size: 12px; color: #A8ADBA;">→</span>
+                              <sc-for list="{{ m.sugs }}" as="sg" hint-placeholder-count="1">
+                                <button onClick="{{ sg.apply }}" style="display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px; border: 1px solid #1E5AF0; border-radius: 999px; background: #FFFFFF; color: #1E5AF0; font-size: 13px; font-weight: 600;" style-hover="background: #E3EBFF;">{{ sg.term }}<span style="font-weight: 400; color: #555B68;">{{ sg.patient }}</span></button>
+                              </sc-for>
+                            </sc-if>
+                            <sc-if value="{{ m.noSug }}" hint-placeholder-val="{{ false }}">
+                              <span style="font-size: 13px; color: #8A5A10;">유사한 사전 용어 없음</span>
+                            </sc-if>
+                          </div>
+                        </sc-for>
+                        <div style="font-size: 12px; color: #A8ADBA;">실패한 용어는 사전 운영을 위해 자동 기록됩니다.</div>
+                      </div>
+                    </sc-if>
+                    <sc-if value="{{ f.showTr }}" hint-placeholder-val="{{ false }}">
+                      <div style="font-size: 13px; color: #7C8290; line-height: 1.5;">환자 표현 · {{ f.translated }}</div>
+                    </sc-if>
+                  </div>
+                </div>
+              </sc-for>
+            </section>
+
+            <section style="display: flex; flex-direction: column; gap: 10px;">
+              <div style="font-size: 13px; font-weight: 600; color: #7C8290;">검토가 필요하지 않은 항목</div>
+              <div style="background: #FFFFFF; border: 1px solid #E5E7EC; border-radius: 20px; overflow: hidden;">
+                <button onClick="{{ toggleDoc }}" style="width: 100%; text-align: left; background: transparent; border: 0; padding: 14px 20px; display: flex; align-items: center; gap: 10px; font-size: 15px; color: #262A33;">
+                  <span style="flex: 1; font-weight: 600;">직접 선택한 문진 답변 <span style="color: #7C8290; font-weight: 500;">{{ docCount }}개</span></span>
+                  <span style="font-size: 13px; color: #7C8290;">{{ docToggleLabel }}</span>
+                </button>
+                <sc-if value="{{ docOpen }}" hint-placeholder-val="{{ false }}">
+                  <div style="border-top: 1px solid #E5E7EC; padding: 8px 20px 14px; display: flex; flex-direction: column;">
+                    <sc-for list="{{ docAnswers }}" as="d" hint-placeholder-count="2">
+                      <div style="display: flex; gap: 12px; padding: 8px 0; font-size: 14px; border-bottom: 1px solid #F3F4F7;">
+                        <span style="color: #7C8290; min-width: 34px; font-weight: 700; font-size: 12px; padding-top: 2px;">{{ d.no }}</span>
+                        <span style="flex: 1; color: #555B68;">{{ d.q }}</span>
+                        <span style="font-weight: 600; color: #262A33;">{{ d.display }}</span>
+                      </div>
+                    </sc-for>
+                  </div>
+                </sc-if>
+              </div>
+              <div style="background: #FFFFFF; border: 1px solid #E5E7EC; border-radius: 20px; overflow: hidden;">
+                <button onClick="{{ toggleImg }}" style="width: 100%; text-align: left; background: transparent; border: 0; padding: 14px 20px; display: flex; align-items: center; gap: 10px; font-size: 15px; color: #262A33;">
+                  <span style="flex: 1; font-weight: 600;">Imaging Findings <span style="color: #7C8290; font-weight: 500;">직접 작성 · 리포트 미반영</span></span>
+                  <span style="font-size: 13px; color: #7C8290;">{{ imgToggleLabel }}</span>
+                </button>
+                <sc-if value="{{ imgOpen }}" hint-placeholder-val="{{ false }}">
+                  <div style="border-top: 1px solid #E5E7EC; padding: 14px 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; font-size: 14px;">
+                    <div><div style="font-size: 12px; color: #7C8290; margin-bottom: 4px;">영상 촬영처</div><div style="color: #262A33;">○○영상의학과</div></div>
+                    <div><div style="font-size: 12px; color: #7C8290; margin-bottom: 4px;">Key Finding</div><div style="color: #262A33;">Complete ACL tear</div></div>
+                    <div><div style="font-size: 12px; color: #7C8290; margin-bottom: 4px;">X-ray Findings</div><div style="color: #262A33;">특이 소견 없음</div></div>
+                    <div><div style="font-size: 12px; color: #7C8290; margin-bottom: 4px;">MRI Findings</div><div style="color: #262A33; white-space: pre-line;">ACL rupture
+MM posterior bucket handle tear
+LFC, LTP bone contusion</div></div>
+                  </div>
+                </sc-if>
+              </div>
+            </section>
+          </main>
+
+          <aside style="position: sticky; top: 0; display: flex; flex-direction: column; gap: 12px;">
+            <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px;">
+              <span style="font-size: 14px; font-weight: 700; color: #262A33;">환자에게 보이는 리포트</span>
+              <span style="font-size: 12px; color: #7C8290;">블록을 누르면 근거 항목으로 이동</span>
+            </div>
+            <div style="background: #101010; border-radius: 40px; padding: 10px;">
+              <div style="background: #F3F4F7; border-radius: 32px; overflow: hidden; display: flex; flex-direction: column;">
+                <div style="{{ hlDx }}">
+                  <div onClick="{{ focusDx }}" style="background: #1E5AF0; color: #FFFFFF; padding: 26px 22px 24px; display: flex; flex-direction: column; gap: 6px; cursor: pointer;">
+                    <div style="font-size: 12px; opacity: 0.85;">○○정형외과 · 2026.9.10</div>
+                    <div style="font-size: 15px; margin-top: 6px;">사태양 님, 오늘 진료 결과입니다</div>
+                    <div style="font-size: 14px; opacity: 0.9;">{{ sideText }}</div>
+                    <div style="display: flex; flex-direction: column; gap: 4px; margin-top: 2px;">
+                      <sc-for list="{{ dxLines }}" as="l" hint-placeholder-count="2">
+                        <div style="font-family: var(--am-font-head); font-size: 21px; font-weight: 800; line-height: 1.3; letter-spacing: -0.01em;">{{ l }}</div>
+                      </sc-for>
+                    </div>
+                  </div>
+                </div>
+                <div style="padding: 20px 16px 8px; display: flex; flex-direction: column; gap: 18px;">
+                  <div style="{{ hlPlan }}">
+                    <div onClick="{{ focusPlan }}" style="cursor: pointer;">
+                      <div style="font-family: var(--am-font-head); font-size: 16px; font-weight: 800; margin: 0 4px 8px;">앞으로의 진료 계획</div>
+                      <div style="background: #FFFFFF; border-radius: 20px; padding: 16px 18px; display: flex; flex-direction: column; gap: 8px;">
+                        <sc-if value="{{ hasPlanChip }}" hint-placeholder-val="{{ true }}">
+                          <span style="align-self: flex-start; background: #1E5AF0; color: #FFFFFF; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px;">{{ planChip }}</span>
+                        </sc-if>
+                        <div style="font-family: var(--am-font-head); font-size: 18px; font-weight: 700; line-height: 1.4; color: #101010;">{{ planText }}</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div style="{{ hlTodo }}">
+                    <div onClick="{{ focusTodo }}" style="cursor: pointer;">
+                      <div style="font-family: var(--am-font-head); font-size: 16px; font-weight: 800; margin: 0 4px 8px;">다음 진료까지 하실 일</div>
+                      <div style="background: #FFFFFF; border-radius: 20px; padding: 8px 18px; display: flex; flex-direction: column;">
+                        <sc-for list="{{ todoLines }}" as="t" hint-placeholder-count="3">
+                          <div style="display: flex; align-items: center; gap: 12px; padding: 10px 0; font-size: 15px; color: #262A33;">
+                            <span style="width: 24px; height: 24px; border-radius: 999px; background: #1E5AF0; color: #FFFFFF; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;">{{ t.n }}</span>
+                            <span>{{ t.text }}</span>
+                          </div>
+                        </sc-for>
+                      </div>
+                    </div>
+                  </div>
+                  <div style="{{ hlNext }}">
+                    <div onClick="{{ focusNext }}" style="cursor: pointer;">
+                      <div style="font-family: var(--am-font-head); font-size: 16px; font-weight: 800; margin: 0 4px 8px;">다음에 오시는 날</div>
+                      <div style="background: #FFFFFF; border-radius: 20px; padding: 16px 18px; display: flex; flex-direction: column; gap: 4px;">
+                        <div style="font-family: var(--am-font-head); font-size: 20px; font-weight: 800; color: #1E5AF0;">{{ nextMain }}</div>
+                        <div style="font-size: 14px; color: #555B68;">{{ nextNote }}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div style="height: 20px;"></div>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+
+      <footer style="padding: 16px 28px; border-top: 1px solid #E5E7EC; background: #FFFFFF; display: flex; align-items: center; justify-content: flex-end; gap: 12px;">
+        <x-import component-from-global-scope="ActiMediKneefreshDesignSystem_75d675.Button" variant="secondary" size="md" hint-size="88px,48px">닫기</x-import>
+        <x-import component-from-global-scope="ActiMediKneefreshDesignSystem_75d675.Button" variant="primary" size="md" disabled="{{ sendDisabled }}" hint-size="150px,48px">환자에게 발송</x-import>
+      </footer>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;showEvidence&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;showTranslation&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  constructor(p) {
+    super(p);
+    const q = (id, no, q, options, value, source, evidence, conf, multi) => ({ id, no, q, options, value, source, evidence, conf, multi: !!multi, checked: false });
+    this.state = {
+      answers: [
+        q('q1', 'Q.1', '어느 무릎이 불편한가요?', ['오른쪽', '왼쪽', '양쪽'], '오른쪽', 'ai', '오른쪽 무릎이요, 축구하다가 다쳤어요', 96),
+        q('q2', 'Q.2', '현재 가장 불편한 증상은 무엇인가요?', ['통증', '붓기', '걸림·잠김', '빠짐·힘 빠짐', '움직임 제한', '기타'], ['통증', '붓기'], 'ai', '아프고 많이 부었어요', 91, true),
+        q('q3', 'Q.3', '증상은 언제부터 시작되었나요?', ['1주 이내', '1–6주', '6주–3개월', '3개월–1년', '1년 이상'], '1–6주', 'doctor', '', 0),
+        q('q4', 'Q.4', '증상은 어떻게 시작되었나요?', ['다친 후 갑자기', '서서히', '오래전부터 반복됨', '잘 모르겠음'], '다친 후 갑자기', 'doctor', '', 0),
+        q('q5', 'Q.5', '현재 통증은 어느 정도인가요? (0–10)', ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'], '6', 'ai', '걸을 때는 한 6 정도요', 78),
+        q('q6', 'Q.6', '주로 어느 부위가 아픈가요?', ['안쪽', '바깥쪽', '앞쪽', '뒤쪽', '전체/잘 모르겠음'], ['안쪽'], 'ai', '안쪽이 제일 아파요', 88, true),
+        q('q7', 'Q.7', '이번 증상 때문에 다른 병원에서 검사나 치료를 받은 적이 있나요?', ['없음', '있음'], '있음', 'ai', '동네 병원에서 엑스레이는 찍었는데 괜찮다고…', 93),
+        q('q8', 'Q.8', '이전에 같은 무릎으로 수술을 받은 적이 있나요?', ['없음', '있음', '잘 모르겠음'], '없음', 'doctor', '', 0),
+        q('a1', 'ACL.1', "다칠 당시 '뚝/펑' 하는 느낌이나 소리가 있었나요?", ['있음', '없음', '잘 모르겠음'], '있음', 'ai', '뚝 소리가 났어요', 95),
+        q('a2', 'ACL.2', '다친 후 몇 시간 안에 무릎이 많이 부었나요?', ['있음', '없음', '잘 모르겠음'], '있음', 'ai', '그날 저녁에 바로 부었어요', 90),
+        q('a3', 'ACL.3', '현재 무릎이 빠지거나 무너지는 느낌이 있나요?', ['자주', '가끔', '없음'], '가끔', 'doctor', '', 0),
+      ],
+      ap: {
+        dx: 'ACL complete rupture, medial meniscus tear 동반. LFC bone contusion.',
+        plan: 'A/S ACL-R + MM repair 시행 예정',
+        todo: '수술 전 검사 받기\n보행 시 brace 착용\n무릎 회전·쪼그려 앉기 금지',
+        next: 'f/u 1주 후 — 수술일·입원일정 결정',
+      },
+      dict: [
+        { t: 'ACL complete rupture', p: '전방십자인대가 완전히 끊어졌습니다', k: 'dx' },
+        { t: 'ACL rupture', p: '전방십자인대가 끊어졌습니다', k: 'dx' },
+        { t: 'medial meniscus tear', p: '안쪽 반월상연골이 찢어졌습니다', k: 'dx' },
+        { t: 'A/S ACL-R', p: '관절경 전방십자인대 재건술', k: 'surgery' },
+        { t: 'MM repair', p: '반월상연골 봉합술', k: 'surgery' },
+        { t: 'bone contusion', p: '뼈에 멍이 들었습니다', k: 'dx' },
+        { t: 'lateral meniscus tear', p: '바깥쪽 반월상연골이 찢어졌습니다', k: 'dx' },
+        { t: 'brace', p: '보조기', k: 'word' },
+        { t: 'f/u', p: '다음 진료', k: 'word' },
+        { t: 'PT', p: '물리치료', k: 'word' },
+      ],
+      active: null, docOpen: false, imgOpen: false,
+    };
+    this.refs_ = { dx: React.createRef(), plan: React.createRef(), todo: React.createRef(), next: React.createRef() };
+    this.bodyRef = React.createRef();
+  }
+
+  analyze(text) {
+    const dict = this.state.dict;
+    const matches = [], missing = [];
+    const translated = text.replace(/[A-Za-z][A-Za-z0-9\/\-]*(?: +[A-Za-z][A-Za-z0-9\/\-]*)*/g, m => {
+      const trail = (m.match(/ +$/) || [''])[0], run = m.slice(0, m.length - trail.length);
+      const d = dict.find(x => x.t.toLowerCase() === run.toLowerCase());
+      if (d) { if (!matches.includes(d)) matches.push(d); return d.p + trail; }
+      if (!missing.includes(run)) missing.push(run);
+      return m;
+    });
+    return { matches, missing, translated };
+  }
+
+  scrollTo(key) {
+    const el = this.refs_[key] && this.refs_[key].current, body = this.bodyRef.current;
+    if (!el || !body) return;
+    const r = el.getBoundingClientRect(), b = body.getBoundingClientRect();
+    if (r.top < b.top + 16 || r.bottom > b.bottom) body.scrollBy({ top: r.top - b.top - 24, behavior: 'smooth' });
+  }
+
+  renderVals() {
+    const s = this.state, showEv = this.props.showEvidence ?? true, showTr = this.props.showTranslation ?? true;
+    const outline = (on, color) => ({ borderRadius: '22px', outline: on ? `2px solid ${color}` : '2px solid transparent', outlineOffset: '2px', transition: 'outline-color 120ms cubic-bezier(0.2,0,0.1,1)' });
+    const setActive = a => this.setState({ active: a });
+
+    const mkAnswer = a => {
+      const isAi = a.source === 'ai';
+      const isArr = Array.isArray(a.value);
+      const sel = v => isArr ? a.value.includes(v) : a.value === v;
+      return {
+        ...a,
+        display: isArr ? a.value.join(', ') : a.value,
+        src: isAi ? `AI 선택 ${a.conf}%` : '의사 선택',
+        srcColor: isAi ? '#1E5AF0' : '#1FAE6B', srcBg: isAi ? '#E3EBFF' : '#E6F7EE',
+        showEv: showEv && isAi && !!a.evidence,
+        hl: outline(s.active === 'side' && a.id === 'q1', '#1E5AF0'),
+        focus: () => { if (a.id === 'q1') setActive('side'); },
+        checkLabel: a.checked ? '확인함' : '확인',
+        checkStyle: a.checked
+          ? { height: '32px', padding: '0 12px', borderRadius: '999px', border: '0', background: '#1FAE6B', color: '#FFFFFF', fontSize: '13px', fontWeight: 700 }
+          : { height: '32px', padding: '0 12px', borderRadius: '999px', border: '1.5px solid #1E5AF0', background: '#FFFFFF', color: '#1E5AF0', fontSize: '13px', fontWeight: 700 },
+        toggle: e => { e.stopPropagation(); this.setState(st => ({ answers: st.answers.map(x => x.id === a.id ? { ...x, checked: !x.checked } : x) })); },
+        options: a.options.map(o => ({
+          label: o,
+          style: sel(o)
+            ? { height: '36px', padding: '0 14px', borderRadius: '12px', border: '1.5px solid #1E5AF0', background: '#1E5AF0', color: '#FFFFFF', fontSize: '14px', fontWeight: 700 }
+            : { height: '36px', padding: '0 14px', borderRadius: '12px', border: '1px solid #E5E7EC', background: '#FFFFFF', color: '#555B68', fontSize: '14px' },
+          pick: e => { e.stopPropagation(); this.setState(st => ({ answers: st.answers.map(x => {
+            if (x.id !== a.id) return x;
+            let v = o;
+            if (isArr) { v = x.value.includes(o) ? x.value.filter(y => y !== o) : [...x.value, o]; if (!v.length) v = [o]; }
+            return { ...x, value: v, source: 'doctor', checked: true };
+          }) })); },
+        })),
+      };
+    };
+    const aiAnswers = s.answers.filter(a => a.source === 'ai').map(mkAnswer);
+    const docAnswers = s.answers.filter(a => a.source !== 'ai').map(mkAnswer);
+
+    const an = { dx: this.analyze(s.ap.dx), plan: this.analyze(s.ap.plan), todo: this.analyze(s.ap.todo), next: this.analyze(s.ap.next) };
+    const fieldDefs = [
+      { key: 'dx', label: '진단 (Assessment)', target: '진단 문장', rows: 2 },
+      { key: 'plan', label: '치료 계획 (Plan)', target: '앞으로의 진료 계획', rows: 2 },
+      { key: 'todo', label: '다음 진료까지 하실 일 (Plan)', target: '하실 일', rows: 3 },
+      { key: 'next', label: '다음 진료 (Plan)', target: '다음에 오시는 날', rows: 1 },
+    ];
+    const fields = fieldDefs.map(f => {
+      const a = an[f.key], hasMissing = a.missing.length > 0;
+      return {
+        ...f, value: s.ap[f.key], ref: this.refs_[f.key], hasMissing, showTr: showTr && !hasMissing && a.matches.length > 0,
+        translated: a.translated.replace(/\n/g, ' / '),
+        hl: outline(s.active === f.key || hasMissing, s.active === f.key ? '#1E5AF0' : '#F2A02D'),
+        focus: () => setActive(f.key),
+        onChange: e => { const v = e.target.value; this.setState(st => ({ ap: { ...st.ap, [f.key]: v } })); },
+        missing: a.missing.map(term => {
+          const toks = term.toLowerCase().split(/[\s,\/\-]+/).filter(Boolean);
+          const sugs = s.dict
+            .map(d => ({ d, score: d.t.toLowerCase().split(/[\s,\/\-]+/).filter(x => toks.includes(x)).length }))
+            .filter(x => x.score > 0).sort((x, y) => y.score - x.score).slice(0, 3)
+            .map(x => ({ term: x.d.t, patient: x.d.p, apply: e => { e.stopPropagation(); this.setState(st => ({ ap: { ...st.ap, [f.key]: st.ap[f.key].split(term).join(x.d.t) }, active: f.key })); } }));
+          return { term, sugs, hasSug: sugs.length > 0, noSug: sugs.length === 0 };
+        }),
+      };
+    });
+    const totalMissing = Object.values(an).reduce((n, a) => n + a.missing.length, 0);
+
+    const q1 = s.answers.find(a => a.id === 'q1');
+    const dxLines = an.dx.matches.filter(d => d.k === 'dx').map(d => d.p);
+    const surg = an.plan.matches.filter(d => d.k === 'surgery');
+    const nextParts = an.next.translated.split(/\s[—\-–]\s/);
+    const unchecked = s.answers.filter(a => a.source === 'ai' && !a.checked).length;
+    const remaining = unchecked + totalMissing;
+
+    const focus = key => () => { setActive(key); this.scrollTo(key); };
+    const rep = key => outline(s.active === key || an[key].missing.length > 0, s.active === key ? '#1E5AF0' : '#F2A02D');
+
+    return {
+      bodyRef: this.bodyRef,
+      aiCount: aiAnswers.length, docCount: docAnswers.length, aiAnswers, docAnswers,
+      checkAll: () => this.setState(st => ({ answers: st.answers.map(a => ({ ...a, checked: true })) })),
+      fields,
+      statusText: remaining ? `확인 필요 ${remaining}` : '모두 확인됨 · 발송할 수 있습니다',
+      statusColor: remaining ? '#B8700F' : '#1FAE6B',
+      sendDisabled: remaining > 0,
+      docOpen: s.docOpen, imgOpen: s.imgOpen,
+      docToggleLabel: s.docOpen ? '접기' : '펼치기', imgToggleLabel: s.imgOpen ? '접기' : '펼치기',
+      toggleDoc: () => this.setState({ docOpen: !s.docOpen }), toggleImg: () => this.setState({ imgOpen: !s.imgOpen }),
+      sideText: q1 ? `${q1.value} 무릎` : '',
+      dxLines: dxLines.length ? dxLines : ['진단 내용이 아직 없습니다'],
+      hasPlanChip: surg.length > 0, planChip: '수술로 치료합니다',
+      planText: surg.length ? surg.map(d => d.p).join(' + ') : an.plan.translated,
+      todoLines: s.ap.todo.split('\n').filter(Boolean).map((l, i) => ({ n: i + 1, text: this.analyze(l).translated })),
+      nextMain: nextParts[0] || '', nextNote: nextParts.slice(1).join(' ') || '',
+      hlDx: { ...rep('dx'), borderRadius: '32px 32px 0 0', outlineOffset: '-3px' }, hlPlan: rep('plan'), hlTodo: rep('todo'), hlNext: rep('next'),
+      focusDx: focus('dx'), focusPlan: focus('plan'), focusTodo: focus('todo'), focusNext: focus('next'),
+    };
+  }
+}
+</script>
+</body>
+</html>
