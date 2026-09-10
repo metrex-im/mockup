@@ -1,0 +1,8 @@
+html, body {
+  font-family: var(--am-font-body);
+  font-feature-settings: "ss01", "tnum";
+  color: var(--am-text-strong);
+  background: var(--am-surface-page);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}

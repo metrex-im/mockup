@@ -1,0 +1,13 @@
+@font-face {
+  font-family: "SUITE Variable";
+  font-weight: 300 900;
+  font-display: swap;
+  src: url("https://fastly.jsdelivr.net/gh/sunn-us/SUITE/fonts/variable/woff2/SUITE-Variable.woff2") format("woff2-variations");
+}
+
+@font-face {
+  font-family: "SUIT Variable";
+  font-weight: 300 900;
+  font-display: swap;
+  src: url("https://fastly.jsdelivr.net/gh/sunn-us/SUIT/fonts/variable/woff2/SUIT-Variable.woff2") format("woff2-variations");
+}

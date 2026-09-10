@@ -1,0 +1,84 @@
+:root {
+  --am-blue:        #1E5AF0;
+  --am-navy:        #0C1E6B;
+  --am-skyblue:     #38D2FF;
+  --am-yellow:      #FFCF2C;
+  --am-white:       #FFFFFF;
+  --am-black:       #101010;
+
+  --am-blue-900:    #061B6B;
+  --am-blue-800:    #0A2DA8;
+  --am-blue-700:    #1342CC;
+  --am-blue-600:    #1E5AF0;
+  --am-blue-500:    #2E6CFF;
+  --am-blue-400:    #5D8CFF;
+  --am-blue-300:    #93B2FF;
+  --am-blue-200:    #C5D5FF;
+  --am-blue-100:    #E3EBFF;
+  --am-blue-50:     #F3F6FF;
+
+  --am-sky-900:     #0B6B92;
+  --am-sky-700:     #1F9CC8;
+  --am-sky-500:     #38D2FF;
+  --am-sky-300:     #84E2FF;
+  --am-sky-100:     #D6F4FF;
+  --am-sky-50:      #ECFAFF;
+
+  --am-yellow-700:  #B58705;
+  --am-yellow-500:  #FFCF2C;
+  --am-yellow-300:  #FFE17C;
+  --am-yellow-100:  #FFF4C7;
+
+  --am-ink-1000:    #050609;
+  --am-ink-900:     #101010;
+  --am-ink-800:     #1A1D24;
+  --am-ink-700:     #262A33;
+  --am-ink-600:     #3A3F4B;
+  --am-ink-500:     #555B68;
+  --am-ink-400:     #7C8290;
+  --am-ink-300:     #A8ADBA;
+  --am-ink-200:     #C9CDD6;
+  --am-ink-100:     #E5E7EC;
+  --am-ink-50:      #F3F4F7;
+  --am-ink-30:      #F8F9FB;
+  --am-ink-10:      #FCFCFD;
+  --am-ink-0:       #FFFFFF;
+
+  --am-status-positive:    #1FAE6B;
+  --am-status-cautionary:  #F2A02D;
+  --am-status-destructive: #E5484D;
+  --am-status-info:        var(--am-skyblue);
+  --am-status-positive-bg:   #E6F7EF;
+  --am-status-cautionary-bg: #FDF1DF;
+  --am-status-destructive-bg:#FCE9EA;
+  --am-status-info-bg:       #ECFAFF;
+
+  --am-text-strong:      #101010;
+  --am-text-neutral:     #262A33;
+  --am-text-alternative: #555B68;
+  --am-text-assistive:   #A8ADBA;
+  --am-text-disable:     #C9CDD6;
+  --am-text-onbrand:     #FFFFFF;
+  --am-text-link:        var(--am-blue);
+
+  --am-ontext-strong:      #FFFFFF;
+  --am-ontext-neutral:     #E5E7EC;
+  --am-ontext-alternative: #A8ADBA;
+  --am-ontext-assistive:   #7C8290;
+  --am-ontext-disable:     #555B68;
+
+  --am-surface-page:      #FFFFFF;
+  --am-surface-elev:      #F8F9FB;
+  --am-surface-sunken:    #F3F4F7;
+  --am-surface-brand:     var(--am-blue);
+  --am-surface-deep:      var(--am-navy);
+  --am-surface-dark:      #101010;
+  --am-surface-dark-elev: #1A1D24;
+  --am-surface-card-dark: #262A33;
+
+  --am-line:          #E5E7EC;
+  --am-line-strong:   #C9CDD6;
+  --am-line-on-dark:  rgba(255,255,255,0.10);
+  --am-line-on-brand: rgba(255,255,255,0.20);
+  --am-focus-ring:    rgba(30,90,240,0.35);
+}

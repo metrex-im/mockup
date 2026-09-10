@@ -1,0 +1,29 @@
+:root {
+  --am-font-head: "SUITE Variable", "SUITE", -apple-system, BlinkMacSystemFont,
+                  "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
+  --am-font-body: "SUIT Variable", "SUIT", -apple-system, BlinkMacSystemFont,
+                  "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
+  --am-font-num:  "SUIT Variable", "SUIT", ui-monospace, "SF Mono", Menlo, monospace;
+
+  --am-type-display-1: 56px;
+  --am-type-display-2: 44px;
+  --am-type-h1:        36px;
+  --am-type-h2:        28px;
+  --am-type-h3:        22px;
+  --am-type-h4:        18px;
+  --am-type-body-lg:   17px;
+  --am-type-body:      15px;
+  --am-type-body-sm:   14px;
+  --am-type-caption:   12px;
+  --am-type-micro:     11px;
+
+  --am-lh-display: 1.08;
+  --am-lh-heading: 1.2;
+  --am-lh-body:    1.55;
+  --am-lh-tight:   1.3;
+
+  --am-track-display: -0.025em;
+  --am-track-h1:      -0.018em;
+  --am-track-h2:      -0.012em;
+  --am-track-eyebrow: 0.11em;
+}
