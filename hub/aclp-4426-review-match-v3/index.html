@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>진료기록 검토 — v3 (표준화 DB 반영)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="../aclp-4426-review-match-v2/support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="../aclp-4426-review-match-v2/ds/tokens/fonts.css">
+  <link rel="stylesheet" href="../aclp-4426-review-match-v2/ds/tokens/colors.css">
+  <link rel="stylesheet" href="../aclp-4426-review-match-v2/ds/tokens/typography.css">
+  <link rel="stylesheet" href="../aclp-4426-review-match-v2/ds/tokens/spacing.css">
+  <link rel="stylesheet" href="../aclp-4426-review-match-v2/ds/tokens/base.css">
+  <link rel="stylesheet" href="../aclp-4426-review-match-v2/ds/styles.css">
+  <script src="../aclp-4426-review-match-v2/ds/_ds_bundle.js"></script>
+  <style>
+    html, body { margin: 0; background: #F3F4F7; color: #101010; overflow: hidden; }
+    a { color: #1E5AF0; } a:hover { color: #1342CC; }
+    textarea { font: inherit; }
+    button { font: inherit; cursor: pointer; }
+  </style>
+</helmet>
+<div style="position: fixed; inset: 0; background: #F3F4F7; font-family: var(--am-font-body); color: #101010; overflow: hidden;">
+
+  <div aria-hidden="true" style="position: absolute; inset: 0; display: flex; flex-direction: column;">
+    <div style="height: 64px; background: #FFFFFF; border-bottom: 1px solid #E5E7EC; display: flex; align-items: center; gap: 28px; padding: 0 40px;">
+      <span style="font-family: var(--am-font-head); font-weight: 800; font-size: 20px; color: #1E5AF0;">RISE-K</span>
+      <span style="width: 1px; height: 20px; background: #E5E7EC;"></span>
+      <span style="font-size: 15px; color: #555B68;">환자 관리</span>
+      <span style="font-size: 15px; color: #555B68;">오늘의 환자</span>
+      <span style="font-size: 15px; color: #1E5AF0; font-weight: 700;">진료 녹음</span>
+      <span style="font-size: 15px; color: #555B68;">논문 관리</span>
+      <span style="flex: 1;"></span>
+      <span style="font-size: 14px; color: #7C8290;">시연용병원</span>
+      <span style="font-size: 14px; color: #262A33; border: 1px solid #E5E7EC; border-radius: 999px; padding: 8px 14px;">시연용공용계정님 ⌄</span>
+    </div>
+    <div style="padding: 28px 40px; display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 28px;">
+      <div style="display: flex; flex-direction: column; gap: 16px;">
+        <div style="font-family: var(--am-font-head); font-size: 22px; font-weight: 800;">진료 녹음</div>
+        <div style="background: #FFFFFF; border-radius: 20px; padding: 18px; display: flex; flex-direction: column; gap: 8px;"><span style="font-size: 13px; color: #555B68;">진료실 선택</span><div style="height: 44px; border: 1px solid #E5E7EC; border-radius: 12px;"></div></div>
+        <div style="background: #FFFFFF; border-radius: 20px; padding: 18px; display: flex; flex-direction: column; gap: 10px;"><span style="font-size: 13px; color: #555B68;">환자 선택</span><span style="font-size: 16px; font-weight: 700;">{{ patientName }}</span><span style="font-size: 13px; color: #7C8290;">{{ patientMeta }}</span><div style="height: 44px; background: #1E5AF0; border-radius: 12px; margin-top: 6px;"></div></div>
+        <div style="background: #FFFFFF; border-radius: 20px; padding: 18px; height: 320px;"><div style="height: 40px; background: #1E5AF0; border-radius: 12px;"></div></div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 44px;">
+        <div style="display: flex; align-items: center; gap: 8px;"><span style="font-size: 16px; font-weight: 700;">문진 답안</span><span style="font-size: 13px; background: #E5E7EC; border-radius: 8px; padding: 2px 8px;">11/11</span></div>
+        <div style="background: #FFFFFF; border-radius: 16px; height: 96px;"></div>
+        <div style="background: #FFFFFF; border-radius: 16px; height: 96px;"></div>
+        <div style="background: #FFFFFF; border-radius: 16px; height: 96px;"></div>
+        <div style="background: #FFFFFF; border-radius: 16px; height: 96px;"></div>
+        <div style="background: #FFFFFF; border-radius: 16px; height: 96px;"></div>
+        <div style="background: #FFFFFF; border-radius: 16px; height: 96px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="position: absolute; inset: 0; background: rgba(16, 16, 16, 0.45); display: flex; align-items: center; justify-content: center; padding: 24px;">
+    <div role="dialog" aria-label="진료기록 검토" style="width: min(1320px, 100%); height: min(920px, 100%); background: #FFFFFF; border-radius: 28px; box-shadow: 0 16px 36px rgba(12,30,107,0.12), 0 4px 8px rgba(12,30,107,0.06); display: flex; flex-direction: column; overflow: hidden;">
+
+      <header style="padding: 20px 28px 16px; border-bottom: 1px solid #E5E7EC; display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+        <div style="display: flex; align-items: baseline; gap: 14px; flex: 1; min-width: 240px;">
+          <h1 style="margin: 0; font-family: var(--am-font-head); font-size: 22px; font-weight: 800; letter-spacing: -0.01em; white-space: nowrap;">진료기록 검토</h1>
+          <span style="font-size: 14px; color: #555B68;">{{ patientName }} · {{ visitType }} · 2026.09.11</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 12px; color: #A8ADBA;">시연 케이스</span>
+          <x-import component-from-global-scope="ActiMediKneefreshDesignSystem_75d675.SegmentedControl" options="{{ scenarioOptions }}" value="{{ scenario }}" on-change="{{ setScenario }}" hint-size="260px,40px"></x-import>
+        </div>
+        <sc-if value="{{ hasIssues }}" hint-placeholder-val="{{ false }}">
+          <span style="font-size: 13px; font-weight: 700; color: #B8700F; background: #FFF7EA; padding: 5px 11px; border-radius: 999px; white-space: nowrap;">확인 필요 {{ issueCount }}</span>
+        </sc-if>
+        <button aria-label="닫기" style="width: 40px; height: 40px; border: 0; background: transparent; border-radius: 999px; color: #555B68; font-size: 22px; line-height: 1; display: inline-flex; align-items: center; justify-content: center;" style-hover="background: #F3F4F7;">×</button>
+      </header>
+
+      <div ref="{{ bodyRef }}" style="flex: 1; min-height: 0; overflow: auto; background: #F3F4F7;">
+        <div style="display: grid; grid-template-columns: minmax(0, 1fr) clamp(300px, 32%, 380px); gap: 24px; padding: 24px 28px 32px; align-items: start;">
+
+          <main style="display: flex; flex-direction: column; gap: 28px; min-width: 0;">
+            <p style="margin: 0; font-size: 14px; color: #555B68; line-height: 1.55;">녹음에서 AI가 채운 항목은 <span style="color: #1E5AF0; font-weight: 700;">AI 선택</span> 배지와 근거 발화가 붙어 있습니다. 내용을 훑어보고 틀린 곳만 「수정」으로 고치세요. 환자 리포트는 맨 아래 Assessment · Plan에서만 만들어집니다.</p>
+
+            <sc-for list="{{ sections }}" as="sec" hint-placeholder-count="2">
+              <section style="display: flex; flex-direction: column; gap: 10px;">
+                <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; padding: 0 4px;">
+                  <h2 style="margin: 0; font-family: var(--am-font-head); font-size: 17px; font-weight: 800; color: #101010; white-space: nowrap;">{{ sec.title }}</h2>
+                  <span style="font-size: 13px; color: #7C8290;">{{ sec.note }}</span>
+                </div>
+
+                <sc-for list="{{ sec.items }}" as="it" hint-placeholder-count="3">
+                  <div style="{{ it.hl }}">
+                    <div ref="{{ it.ref }}" onClick="{{ it.focus }}" style="{{ it.cardStyle }}">
+                      <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                        <span style="font-size: 12px; font-weight: 700; color: #7C8290; min-width: 34px; white-space: nowrap;">{{ it.no }}</span>
+                        <span style="flex: 1 1 200px; min-width: 0; font-size: 15px; font-weight: 600; color: #262A33; text-wrap: pretty;">{{ it.title }}</span>
+                        <div style="display: flex; align-items: center; gap: 8px; margin-left: auto; flex-wrap: wrap; justify-content: flex-end;">
+                          <span style="font-size: 12px; font-weight: 600; color: {{ it.srcColor }}; background: {{ it.srcBg }}; padding: 3px 9px; border-radius: 999px; white-space: nowrap;">{{ it.src }}</span>
+                          <button onClick="{{ it.toggleEdit }}" style="{{ it.editBtnStyle }}">{{ it.editLabel }}</button>
+                        </div>
+                      </div>
+
+                      <sc-if value="{{ it.showEv }}" hint-placeholder-val="{{ false }}">
+                        <div style="padding-left: 44px; font-size: 13px; color: #7C8290; line-height: 1.5;">근거 · “{{ it.evidence }}”</div>
+                      </sc-if>
+
+                      <sc-if value="{{ it.readChoice }}" hint-placeholder-val="{{ true }}">
+                        <div style="padding-left: 44px; font-size: 15px; font-weight: 700; color: {{ it.valueColor }};">{{ it.display }}</div>
+                      </sc-if>
+                      <sc-if value="{{ it.editChoice }}" hint-placeholder-val="{{ false }}">
+                        <div style="display: flex; flex-wrap: wrap; gap: 8px; padding-left: 44px;">
+                          <sc-for list="{{ it.options }}" as="o" hint-placeholder-count="3">
+                            <button onClick="{{ o.pick }}" style="{{ o.style }}">{{ o.label }}</button>
+                          </sc-for>
+                        </div>
+                      </sc-if>
+
+                      <sc-if value="{{ it.readText }}" hint-placeholder-val="{{ false }}">
+                        <div style="padding-left: 44px; font-size: 15px; line-height: 1.55; color: {{ it.valueColor }}; white-space: pre-line;">{{ it.display }}</div>
+                      </sc-if>
+                      <sc-if value="{{ it.editText }}" hint-placeholder-val="{{ false }}">
+                        <div style="padding-left: 44px;">
+                          <textarea value="{{ it.value }}" onChange="{{ it.onChange }}" rows="{{ it.rows }}" autoFocus="{{ true }}" style="width: 100%; box-sizing: border-box; resize: vertical; border: 1px solid #1E5AF0; border-radius: 16px; padding: 12px 14px; font-size: 15px; line-height: 1.55; color: #101010; background: #FFFFFF; outline: none; box-shadow: 0 0 0 4px rgba(30,90,240,0.12);"></textarea>
+                        </div>
+                      </sc-if>
+
+                      <sc-if value="{{ it.hasUnknown }}" hint-placeholder-val="{{ false }}">
+                        <div style="margin-left: 44px; display: flex; flex-direction: column; gap: 8px; background: #FFF7EA; border-radius: 12px; padding: 10px 12px;">
+                          <div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px;">
+                            <span style="font-size: 13px; font-weight: 700; color: #B8700F;">확인 필요</span>
+                            <span style="font-size: 13px; color: #8A5A10;">표준 용어 사전에 없는 표현입니다. 환자용으로 자동 변환하지 않고 검수 큐로 보냅니다. 등록된 표현으로 고치면 바로 반영됩니다.</span>
+                          </div>
+                          <sc-for list="{{ it.unknown }}" as="m" hint-placeholder-count="1">
+                            <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px;">
+                              <span style="font-size: 14px; font-weight: 700; color: #8A5A10; text-decoration: underline dashed #F2A02D; text-underline-offset: 3px;">{{ m.term }}</span>
+                              <sc-if value="{{ m.hasSug }}" hint-placeholder-val="{{ true }}">
+                                <span style="font-size: 12px; color: #A8ADBA;">→</span>
+                                <sc-for list="{{ m.sugs }}" as="sg" hint-placeholder-count="1">
+                                  <button onClick="{{ sg.apply }}" style="display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px; border: 1px solid #1E5AF0; border-radius: 999px; background: #FFFFFF; color: #1E5AF0; font-size: 13px; font-weight: 600;" style-hover="background: #E3EBFF;">{{ sg.alias }}<span style="font-weight: 400; color: #555B68;">{{ sg.patient }}</span></button>
+                                </sc-for>
+                              </sc-if>
+                              <sc-if value="{{ m.noSug }}" hint-placeholder-val="{{ false }}">
+                                <span style="font-size: 13px; color: #8A5A10;">{{ m.hint }}</span>
+                              </sc-if>
+                            </div>
+                          </sc-for>
+                        </div>
+                      </sc-if>
+                      <sc-if value="{{ it.hasReview }}" hint-placeholder-val="{{ false }}">
+                        <div style="margin-left: 44px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; font-size: 13px; color: #555B68;">
+                          <span style="font-weight: 700; color: #7C8290;">검수 대기</span>
+                          <span>{{ it.reviewText }}</span>
+                        </div>
+                      </sc-if>
+                      <sc-if value="{{ it.showTr }}" hint-placeholder-val="{{ false }}">
+                        <div style="padding-left: 44px; font-size: 13px; color: #7C8290; line-height: 1.5;">인식된 개념 · {{ it.concepts }}</div>
+                      </sc-if>
+                    </div>
+                  </div>
+                </sc-for>
+              </section>
+            </sc-for>
+          </main>
+
+          <aside style="position: sticky; top: 0; display: flex; flex-direction: column; gap: 12px;">
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+              <span style="font-size: 14px; font-weight: 700; color: #262A33;">환자에게 보이는 리포트</span>
+              <span style="font-size: 12px; color: #7C8290;">{{ reportNote }}</span>
+            </div>
+            <div style="{{ reportWrapStyle }}">
+              <div style="background: #101010; border-radius: 40px; padding: 10px;">
+                <div style="background: #F3F4F7; border-radius: 32px; overflow: hidden; display: flex; flex-direction: column; min-height: 520px;">
+
+                  <sc-if value="{{ reportHeld }}" hint-placeholder-val="{{ false }}">
+                    <div style="background: #262A33; color: #FFFFFF; padding: 26px 22px 24px; display: flex; flex-direction: column; gap: 6px;">
+                      <div style="font-size: 12px; opacity: 0.7;">○○정형외과 · 2026.9.11</div>
+                      <div style="font-size: 15px; margin-top: 6px; opacity: 0.85;">{{ patientName }} 님, 오늘 진료 결과입니다</div>
+                      <div style="font-family: var(--am-font-head); font-size: 20px; font-weight: 800; line-height: 1.3; color: #FFCF2C;">리포트를 아직 만들 수 없습니다</div>
+                    </div>
+                    <div style="padding: 20px 16px; display: flex; flex-direction: column; gap: 12px;">
+                      <div style="background: #FFFFFF; border-radius: 20px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px;">
+                        <div style="font-size: 13px; font-weight: 700; color: #B8700F;">진단에 확인 필요 표현이 있습니다</div>
+                        <div style="font-size: 14px; color: #555B68; line-height: 1.55;">진단이 확정되지 않은 채 계획만 보내지 않습니다. 아래 표현을 표준 용어로 고치거나 검수를 마치면 리포트가 만들어집니다.</div>
+                        <div style="display: flex; flex-direction: column; gap: 6px;">
+                          <sc-for list="{{ heldReasons }}" as="r" hint-placeholder-count="1">
+                            <div onClick="{{ r.go }}" style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: #FFF7EA; border-radius: 12px; cursor: pointer;">
+                              <span style="font-size: 14px; font-weight: 700; color: #8A5A10;">{{ r.term }}</span>
+                              <span style="font-size: 12px; color: #8A5A10; margin-left: auto; white-space: nowrap;">{{ r.where }} · {{ r.kind }}</span>
+                            </div>
+                          </sc-for>
+                        </div>
+                      </div>
+                      <div style="font-size: 12px; color: #A8ADBA; text-align: center; padding: 4px;">확정된 내용만 환자에게 전달됩니다</div>
+                    </div>
+                  </sc-if>
+
+                  <sc-if value="{{ reportReady }}" hint-placeholder-val="{{ true }}">
+                    <div style="{{ hlDx }}">
+                      <div onClick="{{ focusDx }}" style="background: #1E5AF0; color: #FFFFFF; padding: 26px 22px 24px; display: flex; flex-direction: column; gap: 6px; cursor: pointer;">
+                        <div style="font-size: 12px; opacity: 0.85;">○○정형외과 · 2026.9.11</div>
+                        <div style="font-size: 15px; margin-top: 6px;">{{ patientName }} 님, 오늘 진료 결과입니다</div>
+                        <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 4px;">
+                          <sc-for list="{{ dxLines }}" as="l" hint-placeholder-count="2">
+                            <div style="font-family: var(--am-font-head); font-size: 20px; font-weight: 800; line-height: 1.3; letter-spacing: -0.01em;">{{ l }}</div>
+                          </sc-for>
+                        </div>
+                        <sc-if value="{{ hasDxDesc }}" hint-placeholder-val="{{ false }}">
+                          <div style="font-size: 13px; line-height: 1.5; opacity: 0.9; margin-top: 4px;">{{ dxDesc }}</div>
+                        </sc-if>
+                      </div>
+                    </div>
+                    <div style="padding: 20px 16px 8px; display: flex; flex-direction: column; gap: 18px;">
+                      <sc-if value="{{ hasTreat }}" hint-placeholder-val="{{ true }}">
+                        <div style="{{ hlPlan }}">
+                          <div onClick="{{ focusPlan }}" style="cursor: pointer;">
+                            <div style="font-family: var(--am-font-head); font-size: 16px; font-weight: 800; margin: 0 4px 8px;">{{ treatTitle }}</div>
+                            <div style="background: #FFFFFF; border-radius: 20px; padding: 16px 18px; display: flex; flex-direction: column; gap: 8px;">
+                              <span style="align-self: flex-start; background: {{ treatChipBg }}; color: #FFFFFF; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px;">{{ treatChip }}</span>
+                              <div style="font-family: var(--am-font-head); font-size: 18px; font-weight: 700; line-height: 1.4; color: #101010;">{{ treatText }}</div>
+                              <sc-if value="{{ hasTreatDetail }}" hint-placeholder-val="{{ false }}">
+                                <div style="font-size: 13px; color: #555B68; line-height: 1.5;">{{ treatDetail }}</div>
+                              </sc-if>
+                            </div>
+                          </div>
+                        </div>
+                      </sc-if>
+                      <sc-if value="{{ hasTodo }}" hint-placeholder-val="{{ true }}">
+                        <div style="{{ hlTodo }}">
+                          <div onClick="{{ focusTodo }}" style="cursor: pointer;">
+                            <div style="font-family: var(--am-font-head); font-size: 16px; font-weight: 800; margin: 0 4px 8px;">다음 진료까지 하실 일</div>
+                            <div style="background: #FFFFFF; border-radius: 20px; padding: 8px 18px; display: flex; flex-direction: column;">
+                              <sc-for list="{{ todoLines }}" as="t" hint-placeholder-count="2">
+                                <div style="display: flex; align-items: center; gap: 12px; padding: 10px 0; font-size: 15px; color: #262A33;">
+                                  <span style="width: 24px; height: 24px; border-radius: 999px; background: #1E5AF0; color: #FFFFFF; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;">{{ t.n }}</span>
+                                  <span>{{ t.text }}</span>
+                                </div>
+                              </sc-for>
+                            </div>
+                          </div>
+                        </div>
+                      </sc-if>
+                      <sc-if value="{{ hasNext }}" hint-placeholder-val="{{ true }}">
+                        <div style="{{ hlNext }}">
+                          <div onClick="{{ focusNext }}" style="cursor: pointer;">
+                            <div style="font-family: var(--am-font-head); font-size: 16px; font-weight: 800; margin: 0 4px 8px;">다음에 오시는 날</div>
+                            <div style="background: #FFFFFF; border-radius: 20px; padding: 16px 18px;">
+                              <div style="font-family: var(--am-font-head); font-size: 18px; font-weight: 800; color: #1E5AF0; line-height: 1.4;">{{ nextText }}</div>
+                            </div>
+                          </div>
+                        </div>
+                      </sc-if>
+                    </div>
+                    <div style="height: 20px;"></div>
+                  </sc-if>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+
+      <footer style="padding: 16px 28px; border-top: 1px solid #E5E7EC; background: #FFFFFF; display: flex; align-items: center; justify-content: flex-end; gap: 12px;">
+        <sc-if value="{{ hasIssues }}" hint-placeholder-val="{{ false }}">
+          <span style="flex: 1; min-width: 0; font-size: 13px; color: #8A5A10;">「확인 필요」 항목을 해결해야 검토를 완료하고 발송할 수 있습니다.</span>
+        </sc-if>
+        <div style="display: flex; align-items: center; gap: 12px; flex-shrink: 0; margin-left: auto;">
+          <x-import component-from-global-scope="ActiMediKneefreshDesignSystem_75d675.Button" variant="secondary" size="md" disabled="{{ hasIssues }}" style="flex-shrink: 0; white-space: nowrap;" hint-size="130px,48px">검토 완료</x-import>
+          <x-import component-from-global-scope="ActiMediKneefreshDesignSystem_75d675.Button" variant="primary" size="md" disabled="{{ sendDisabled }}" style="flex-shrink: 0; white-space: nowrap;" hint-size="200px,48px">검토 완료 후 환자에게 발송</x-import>
+        </div>
+      </footer>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;scenario&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;ready&quot;,&quot;held&quot;],&quot;default&quot;:&quot;ready&quot;,&quot;tsType&quot;:&quot;'ready' | 'held'&quot;,&quot;section&quot;:&quot;시연 케이스&quot;},&quot;showEvidence&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;검토 보조&quot;},&quot;showConcepts&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;검토 보조&quot;}}">
+class Component extends DCLogic {
+  constructor(p) {
+    super(p);
+    // ── 표준화 DB (정형외과_AP_환자리포트_표준화DB.xlsx 발췌) ──
+    this.CONCEPTS = {
+      DX_ACL_RUPTURE: { cat: 'dx', name: '전방십자인대 파열', desc: '무릎의 안정성을 잡아주는 전방십자인대가 파열된 상태입니다.', show: '핵심', st: '자동' },
+      DX_ALL_INJURY: { cat: 'dx', name: '전외측인대 손상', desc: '무릎 바깥쪽의 안정성을 보조하는 인대가 손상된 상태입니다.', show: '핵심', st: '자동' },
+      DX_MM_TEAR: { cat: 'dx', name: '무릎 안쪽 반월상연골판 파열', desc: '무릎 안쪽에서 충격을 흡수하는 반월상연골판이 찢어진 상태입니다.', show: '핵심', st: '자동' },
+      DX_LM_TEAR: { cat: 'dx', name: '무릎 바깥쪽 반월상연골판 파열', desc: '', show: '핵심', st: '자동' },
+      DX_OA: { cat: 'dx', name: '퇴행성 무릎 관절염', desc: '무릎 관절의 연골이 닳아 통증과 기능 저하가 생긴 상태입니다.', show: '핵심', st: '자동' },
+      DX_LAT_OA: { cat: 'dx', name: '무릎 바깥쪽 퇴행성 관절염', desc: '무릎 바깥쪽 관절의 연골이 닳은 상태입니다.', show: '핵심', st: '자동' },
+      DX_CART_PFJ: { cat: 'dx', name: '무릎 앞쪽 관절의 연골 손상', desc: '', show: '핵심', st: '자동' },
+      OP_ACLR: { cat: 'op', name: '전방십자인대 재건술', desc: '손상된 전방십자인대를 이식건으로 재건하는 수술입니다.', show: '핵심', st: '자동' },
+      OP_REV_ACLR: { cat: 'op', name: '전방십자인대 재재건술', desc: '', show: '핵심', st: '자동' },
+      OP_ALLR: { cat: 'op', name: '전외측인대 재건술', desc: '무릎 바깥쪽 안정성을 보강하는 전외측인대를 재건하는 수술입니다.', show: '핵심', st: '자동' },
+      OP_MM_REPAIR: { cat: 'op', name: '반월상연골판 봉합술', desc: '', show: '핵심', st: '자동' },
+      OP_MENISCECTOMY: { cat: 'op', name: '손상된 반월상연골판 일부 제거술', desc: '', show: '핵심', st: '자동' },
+      OP_LMAT: { cat: 'op', name: '외측 반월상연골판 이식술', desc: '기능이 소실된 바깥쪽 반월상연골판을 기증 연골판으로 대체하는 수술입니다.', show: '핵심', st: '자동' },
+      OP_HTO: { cat: 'op', name: '휜 다리를 교정하는 절골술', desc: '', show: '핵심', st: '자동' },
+      OP_HWR: { cat: 'op', name: '수술 후 금속 고정물 제거술', desc: '', show: '핵심', st: '자동' },
+      OP_AS_EXAM: { cat: 'op', name: '관절경으로 무릎 내부 확인', desc: '', show: '상세', st: '자동' },
+      EXAM_MRI: { cat: 'exam', name: 'MRI 검사', desc: '', show: '핵심', st: '자동' },
+      EXAM_XR: { cat: 'exam', name: 'X-ray 검사', desc: '', show: '상세', st: '자동' },
+      EXAM_CYBEX: { cat: 'exam', name: '무릎 근력검사', desc: '', show: '핵심', st: '자동' },
+      STATUS_POSTOP: { cat: 'status', name: '수술 후 상태', desc: '', show: '숨김', st: '자동' },
+      GRAFT_AUTO: { cat: 'graft', name: '본인의 힘줄', desc: '본인의 힘줄을 이용해 손상된 인대를 재건합니다.', show: '상세', st: '자동' },
+      MAT_BIOBRACE: { cat: 'mat', name: '조직 보강재 사용', desc: '', show: '상세', st: '검수' },
+    };
+    this.ALIASES = [
+      ['ACL rupture', 'DX_ACL_RUPTURE'], ['ACL tear', 'DX_ACL_RUPTURE'], ['ACL ruture', 'DX_ACL_RUPTURE'], ['ALL injury', 'DX_ALL_INJURY'],
+      ['MM tear', 'DX_MM_TEAR'], ['Tear of medial meniscus', 'DX_MM_TEAR'], ['LM tear', 'DX_LM_TEAR'], ['OA, knee', 'DX_OA'], ['OA', 'DX_OA'], ['lat. OA', 'DX_LAT_OA'], ['lat OA', 'DX_LAT_OA'],
+      ['PFJ cartilage defect', 'DX_CART_PFJ'],
+      ['ACL reconstruction', 'OP_ACLR'], ['ACL-R', 'OP_ACLR'], ['ACLR', 'OP_ACLR'], ['rev-ACL-R', 'OP_REV_ACLR'], ['ALL reconstruction', 'OP_ALLR'], ['ALL-R', 'OP_ALLR'],
+      ['MM repair', 'OP_MM_REPAIR'], ['meniscectomy', 'OP_MENISCECTOMY'], ['LMAT', 'OP_LMAT'], ['HTO', 'OP_HTO'], ['HWR', 'OP_HWR'], ['A/S exam', 'OP_AS_EXAM'],
+      ['MRI', 'EXAM_MRI'], ['MR>', 'EXAM_MRI'], ['XR>', 'EXAM_XR'], ['Cybex test', 'EXAM_CYBEX'], ['CBX', 'EXAM_CYBEX'],
+      ['s/p', 'STATUS_POSTOP'], ['auto', 'GRAFT_AUTO'], ['BioBrace', 'MAT_BIOBRACE'],
+    ].sort((a, b) => b[0].length - a[0].length);
+    this.MODS = [
+      [/\b(Rt\.?|right)\b/gi, 'side', '오른쪽'], [/\b(Lt\.?|left)\b/gi, 'side', '왼쪽'], [/\b(both|bilateral)\b/gi, 'side', '양쪽'],
+      [/\bknee\b/gi, 'anat', '무릎'], [/\br\/o\b/gi, 'cert', '의심'], [/\b(candidate|consider)\b/gi, 'cert', '고려'],
+      [/K-?L\s*G?(\d)/gi, 'sev', 'KL'], [/\bintact\b/gi, 'ignore', ''], [/\b(c|with|and)\b/gi, 'ignore', ''], [/\bPOD\b/gi, 'ignore', ''],
+    ];
+    this.UNKNOWN_HINTS = { DA: 'DA의 full term과 술기 의미 확인 필요 (Review_Required)', MTP: 'medial tibial plateau 의미인지 확인 필요', 'Pull-Push': '검사명·환자용 명칭 확인 필요' };
+    this.REVIEW_HINTS = { MAT_BIOBRACE: 'BioBrace — 환자용 공식 설명 승인 전이라 리포트에서는 생략합니다.' };
+
+    const common = [
+      ['q2', 'Q.2', '현재 가장 불편한 증상은 무엇인가요?', ['통증', '붓기', '걸림·잠김', '빠짐·힘 빠짐', '움직임 제한', '기타'], ['통증', '붓기'], 'ai', '아프고 많이 부었어요', 91, true],
+      ['q3', 'Q.3', '증상은 언제부터 시작되었나요?', ['1주 이내', '1–6주', '6주–3개월', '3개월–1년', '1년 이상'], '1–6주', 'doctor', '', 0],
+      ['q4', 'Q.4', '증상은 어떻게 시작되었나요?', ['다친 후 갑자기', '서서히', '오래전부터 반복됨', '잘 모르겠음'], '다친 후 갑자기', 'doctor', '', 0],
+      ['q5', 'Q.5', '현재 통증은 어느 정도인가요? (0–10)', ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'], '6', 'ai', '걸을 때는 한 6 정도요', 78],
+      ['q6', 'Q.6', '주로 어느 부위가 아픈가요?', ['안쪽', '바깥쪽', '앞쪽', '뒤쪽', '전체/잘 모르겠음'], ['안쪽'], 'ai', '안쪽이 제일 아파요', 88, true],
+      ['q7', 'Q.7', '이번 증상 때문에 다른 병원에서 검사나 치료를 받은 적이 있나요?', ['없음', '있음'], '있음', 'ai', '동네 병원에서 엑스레이는 찍었는데 괜찮다고…', 93],
+      ['q8', 'Q.8', '이전에 같은 무릎으로 수술을 받은 적이 있나요?', ['없음', '있음', '잘 모르겠음'], null, 'none', '', 0],
+      ['a1', 'ACL.1', "다칠 당시 '뚝/펑' 하는 느낌이나 소리가 있었나요?", ['있음', '없음', '잘 모르겠음'], '있음', 'ai', '뚝 소리가 났어요', 95],
+      ['a2', 'ACL.2', '다친 후 몇 시간 안에 무릎이 많이 부었나요?', ['있음', '없음', '잘 모르겠음'], '있음', 'ai', '그날 저녁에 바로 부었어요', 90],
+      ['a3', 'ACL.3', '현재 무릎이 빠지거나 무너지는 느낌이 있나요?', ['자주', '가끔', '없음'], '가끔', 'doctor', '', 0],
+    ];
+    const q = a => ({ id: a[0], no: a[1], title: a[2], kind: 'choice', options: a[3], value: a[4], source: a[5], evidence: a[6], conf: a[7], multi: !!a[8] });
+    const t = (id, no, title, value, source, evidence, conf, rows) => ({ id, no, title, kind: 'text', value, source, evidence, conf, rows });
+    this.SCENARIOS = {
+      ready: {
+        label: '리포트 생성됨', patient: '김민준', meta: '남성 · 17세 · 차트 01700412', visit: '초진',
+        items: [
+          q(['q1', 'Q.1', '어느 무릎이 불편한가요?', ['오른쪽', '왼쪽', '양쪽'], '왼쪽', 'ai', '왼쪽 무릎이요, 축구하다가 다쳤어요', 96]),
+          ...common.map(q),
+          t('img1', 'IMG', '영상 촬영처 · Key Finding', '○○영상의학과 · Complete ACL tear', 'doctor', '', 0, 1),
+          t('img2', 'MRI', 'MRI Findings', 'ACL rupture, ALL injury\nLM MM intact', 'doctor', '', 0, 2),
+          t('dx', 'A', 'Assessment', 'ACL rupture, ALL injury, knee Lt.\nLM MM intact', 'ai', '왼쪽 전방십자인대 파열이고 전외측인대도 같이 손상됐어요, 연골판은 괜찮습니다', 91, 2),
+          t('plan', 'P', 'Plan', 'ACL-R(auto + BioBrace) + ALL-R, Lt.\n수술 전 검사 진행\n2주 후 외래 — 수술 일정 상의', 'ai', '재건술 하고 전외측인대도 같이 보강하죠 … 2주 뒤에 오셔서 수술 날짜 잡겠습니다', 89, 3),
+        ],
+      },
+      held: {
+        label: '리포트 보류', patient: '박정자', meta: '여성 · 63세 · 차트 01698830', visit: '재진',
+        items: [
+          q(['q1', 'Q.1', '어느 무릎이 불편한가요?', ['오른쪽', '왼쪽', '양쪽'], '양쪽', 'ai', '양쪽 다 불편한데 오른쪽이 더 아파요', 94]),
+          ...common.map(q),
+          t('img1', 'X-ray', 'X-ray Findings', 'XR> s/p DA + LMAT, knee, Lt.\nlat. OA, knee, Rt. (KL G4)', 'doctor', '', 0, 2),
+          t('dx', 'A', 'Assessment', 'XR> s/p DA + LMAT, knee, Lt.\nlat. OA, knee, Rt. (KL G4)', 'doctor', '', 0, 2),
+          t('plan', 'P', 'Plan', '수술 경과 좋음\n근력운동 지속\n내년 6월 오른쪽 수술 고려\nDA removal + A/S exam Lt.\n이후 both knee MRI', 'ai', '왼쪽은 경과 좋으니 근력운동 계속하시고 … 내년 6월쯤 오른쪽 수술 생각해 보죠', 87, 5),
+        ],
+      },
+    };
+    const sc = this.props.scenario === 'held' ? 'held' : 'ready';
+    this.state = { scenario: sc, items: this.SCENARIOS[sc].items, editing: null, active: null };
+    this.refs_ = {}; this.bodyRef = React.createRef();
+  }
+  componentDidUpdate(prev) {
+    const sc = this.props.scenario === 'held' ? 'held' : this.props.scenario === 'ready' ? 'ready' : null;
+    if (sc && prev.scenario !== this.props.scenario && sc !== this.state.scenario) this.switchScenario(sc);
+  }
+  switchScenario(sc) { this.setState({ scenario: sc, items: this.SCENARIOS[sc].items, editing: null, active: null }); }
+  ref(id) { return this.refs_[id] || (this.refs_[id] = React.createRef()); }
+  item(id) { return this.state.items.find(x => x.id === id); }
+  patch(id, fn) { this.setState(st => ({ items: st.items.map(x => x.id === id ? { ...x, ...fn(x) } : x) })); }
+
+  // Entity Extraction → Alias Normalization → Modifier 결합. 한 줄 단위.
+  parseLine(line) {
+    let rest = ' ' + line + ' ';
+    const found = [], mods = { side: null, cert: null, sev: null };
+    for (const [alias, cid] of this.ALIASES) {
+      const re = new RegExp('(?<![A-Za-z])' + alias.replace(/[.*+?^${}()|[\]\\\/]/g, '\\$&') + '(?![A-Za-z])', 'gi');
+      if (re.test(rest)) { found.push(cid); rest = rest.replace(re, ' '); }
+    }
+    for (const [re, kind, val] of this.MODS) {
+      const m = rest.match(re);
+      if (m) { if (kind === 'side') mods.side = mods.side || val; else if (kind === 'cert') mods.cert = val; else if (kind === 'sev') mods.sev = 'KL ' + (m[0].match(/\d/) || [''])[0] + '단계'; rest = rest.replace(re, ' '); }
+    }
+    const unknown = [...new Set((rest.match(/[A-Za-z][A-Za-z0-9\-]*/g) || []).filter(w => w.length > 1 && !/^(KL|G\d|MM|LM|PFJ|MFC)$/.test(w)))];
+    const concepts = [...new Set(found)].map(id => ({ id, ...this.CONCEPTS[id] }));
+    return { line, concepts, mods, unknown, review: concepts.filter(c => c.st === '검수') };
+  }
+  parse(text) { return (text || '').split('\n').map(s => s.trim()).filter(Boolean).map(l => this.parseLine(l)); }
+  classify(p) {
+    const l = p.line;
+    if (/외래|주 후|일 후|개월 후|내년|다음 진료|재진|f\/u/i.test(l)) return 'next';
+    if (p.concepts.some(c => c.cat === 'exam') || /운동|재활|근력|검사|착용|금지|유지|복용|주의/.test(l)) return 'todo';
+    if (p.concepts.some(c => c.cat === 'op') || /수술|시행|예정|고려/.test(l)) return 'treat';
+    return 'other';
+  }
+  scrollTo(id) {
+    const el = this.refs_[id] && this.refs_[id].current, body = this.bodyRef.current;
+    if (!el || !body) return;
+    const r = el.getBoundingClientRect(), b = body.getBoundingClientRect();
+    if (r.top < b.top + 16 || r.bottom > b.bottom) body.scrollBy({ top: r.top - b.top - 24, behavior: 'smooth' });
+  }
+
+  renderVals() {
+    const s = this.state, showEv = this.props.showEvidence ?? true, showTr = this.props.showConcepts ?? true;
+    const SC = this.SCENARIOS[s.scenario];
+    const REPORT = ['dx', 'plan'];
+    const outline = (on, color) => ({ borderRadius: '22px', outline: on ? `2px solid ${color}` : '2px solid transparent', outlineOffset: '2px', transition: 'outline-color 120ms cubic-bezier(0.2,0,0.1,1)' });
+    const dxP = this.parse(this.item('dx').value), planP = this.parse(this.item('plan').value);
+    const activeBase = s.active ? String(s.active).split(':')[0] : null;
+
+    const mk = it => {
+      const isAi = it.source === 'ai', isChoice = it.kind === 'choice', editing = s.editing === it.id;
+      const isArr = Array.isArray(it.value), empty = it.value == null || it.value === '' || (isArr && !it.value.length);
+      const inReport = REPORT.includes(it.id), parsed = inReport ? (it.id === 'dx' ? dxP : planP) : [];
+      const unknownTerms = [...new Set(parsed.flatMap(p => p.unknown))], reviewC = [...new Set(parsed.flatMap(p => p.review.map(c => c.id)))];
+      const hasUnknown = unknownTerms.length > 0;
+      const sel = v => isArr ? it.value.includes(v) : it.value === v;
+      return {
+        ...it, ref: this.ref(it.id), editing,
+        src: isAi ? `AI 선택 ${it.conf}%` : it.source === 'doctor' ? (isChoice ? '직접 선택' : '직접 입력') : '답변 없음',
+        srcColor: isAi ? '#1E5AF0' : it.source === 'doctor' ? '#1FAE6B' : '#7C8290',
+        srcBg: isAi ? '#E3EBFF' : it.source === 'doctor' ? '#E6F7EE' : '#F3F4F7',
+        showEv: showEv && isAi && !!it.evidence,
+        display: empty ? '답변 없음' : isArr ? it.value.join(', ') : it.value,
+        valueColor: empty ? '#A8ADBA' : '#101010',
+        readChoice: isChoice && !editing, editChoice: isChoice && editing, readText: !isChoice && !editing, editText: !isChoice && editing,
+        editLabel: editing ? '완료' : '수정',
+        editBtnStyle: editing
+          ? { height: '32px', padding: '0 14px', borderRadius: '999px', border: '0', background: '#1E5AF0', color: '#FFFFFF', fontSize: '13px', fontWeight: 700, whiteSpace: 'nowrap' }
+          : { height: '32px', padding: '0 12px', borderRadius: '999px', border: '1px solid #E5E7EC', background: '#FFFFFF', color: '#555B68', fontSize: '13px', fontWeight: 600, whiteSpace: 'nowrap' },
+        toggleEdit: e => { e.stopPropagation(); this.setState({ editing: editing ? null : it.id, active: it.id }); },
+        focus: () => { if (activeBase !== it.id) this.setState({ active: it.id }); },
+        hl: outline(activeBase === it.id, hasUnknown && activeBase !== it.id ? '#F2A02D' : '#1E5AF0'),
+        cardStyle: { background: hasUnknown ? '#FFFDF8' : '#FFFFFF', border: hasUnknown ? '1px solid #F2A02D' : '1px solid #E5E7EC', borderRadius: '20px', padding: '14px 20px', display: 'flex', flexDirection: 'column', gap: '10px', cursor: 'default' },
+        options: (it.options || []).map(o => ({
+          label: o,
+          style: sel(o)
+            ? { height: '36px', padding: '0 14px', borderRadius: '12px', border: '1.5px solid #1E5AF0', background: '#1E5AF0', color: '#FFFFFF', fontSize: '14px', fontWeight: 700, whiteSpace: 'nowrap' }
+            : { height: '36px', padding: '0 14px', borderRadius: '12px', border: '1px solid #E5E7EC', background: '#FFFFFF', color: '#555B68', fontSize: '14px', whiteSpace: 'nowrap' },
+          pick: e => { e.stopPropagation(); this.patch(it.id, x => { let v = o; if (x.multi) { const cur = Array.isArray(x.value) ? x.value : []; v = cur.includes(o) ? cur.filter(y => y !== o) : [...cur, o]; } return { value: v, source: 'doctor' }; }); },
+        })),
+        onChange: e => { const v = e.target.value; this.patch(it.id, () => ({ value: v, source: 'doctor' })); },
+        hasUnknown,
+        unknown: unknownTerms.map(term => {
+          const toks = term.toLowerCase().split(/[\s\-\/]+/);
+          const sugs = this.ALIASES.filter(([a]) => toks.some(tk => a.toLowerCase().includes(tk) && tk.length >= 2)).slice(0, 3)
+            .map(([alias, cid]) => ({ alias, patient: this.CONCEPTS[cid].name, apply: e => { e.stopPropagation(); this.patch(it.id, y => ({ value: y.value.split(term).join(alias), source: 'doctor' })); this.setState({ active: it.id }); } }));
+          return { term, sugs, hasSug: sugs.length > 0, noSug: sugs.length === 0, hint: this.UNKNOWN_HINTS[term] || '유사한 표준 용어 없음 · 검수 큐로 전송' };
+        }),
+        hasReview: reviewC.length > 0, reviewText: reviewC.map(id => this.REVIEW_HINTS[id] || this.CONCEPTS[id].name + ' — 승인 전 개념').join(' '),
+        showTr: showTr && inReport && !editing && parsed.some(p => p.concepts.length),
+        concepts: [...new Set(parsed.flatMap(p => p.concepts.filter(c => c.show !== '숨김' && c.st !== '검수').map(c => c.name)))].join(' · '),
+      };
+    };
+    const all = s.items.map(mk);
+    const pick = ids => all.filter(x => ids.includes(x.id));
+    const sections = [
+      { title: '공통 문진', note: '리포트에는 반영되지 않습니다', items: pick(['q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8']) },
+      { title: '질환별 문진 · ACL', note: '리포트에는 반영되지 않습니다', items: pick(['a1', 'a2', 'a3']) },
+      { title: 'Imaging Findings', note: '직접 작성 · 리포트에는 반영되지 않습니다', items: pick(['img1', 'img2']) },
+      { title: 'Assessment · Plan', note: '이 문장이 환자 리포트가 됩니다', items: pick(REPORT) },
+    ];
+
+    // ── Report_Rule ──
+    const dxUnknown = [...new Set(dxP.flatMap(p => p.unknown))], planUnknown = [...new Set(planP.flatMap(p => p.unknown))];
+    const issueCount = dxUnknown.length + planUnknown.length;
+    const reportHeld = dxUnknown.length > 0; // R09 + 정책: 진단에 미등록 용어가 있으면 리포트 전체 보류
+    const heldReasons = [...dxUnknown.map(t => ({ term: t, where: 'Assessment', kind: '미등록 용어' })), ...planUnknown.map(t => ({ term: t, where: 'Plan', kind: '미등록 용어' }))]
+      .map(r => ({ ...r, go: () => { this.setState({ active: r.where === 'Plan' ? 'plan' : 'dx' }); this.scrollTo(r.where === 'Plan' ? 'plan' : 'dx'); } }));
+
+    const dxLines = [], dxDescs = [];
+    for (const p of dxP) {
+      const side = p.mods.side ? p.mods.side + ' 무릎' : '무릎';
+      const dxs = p.concepts.filter(c => c.cat === 'dx' && c.st !== '검수'), ops = p.concepts.filter(c => c.cat === 'op'), postop = p.concepts.some(c => c.id === 'STATUS_POSTOP');
+      if (postop && ops.length) dxLines.push(`${side}은 ${ops.map(o => o.name).join(' · ')} 후 경과를 확인하고 있습니다`); // R02
+      for (const d of dxs) { dxLines.push(`${side} ${d.name}${p.mods.cert === '의심' ? ' (의심 소견)' : ''}${p.mods.sev ? ' · ' + p.mods.sev : ''}`); if (d.desc) dxDescs.push(d.desc); } // R01, R03
+    }
+    const byDest = d => planP.filter(p => this.classify(p) === d);
+    const treatP = byDest('treat'), todoP = byDest('todo'), nextP = byDest('next');
+    const ops = [...new Set(treatP.flatMap(p => p.concepts.filter(c => c.cat === 'op' && c.show === '핵심')))];
+    const consider = treatP.some(p => p.mods.cert === '고려' || /고려/.test(p.line));
+    const side = (treatP.find(p => p.mods.side) || {}).mods?.side;
+    const treatText = ops.length ? `${side ? side + ' 무릎 ' : ''}${ops.map(o => o.name).join(' + ')}${consider ? '을 고려하고 있습니다' : ''}` : treatP.filter(p => !p.unknown.length).map(p => p.line).join(' / ');
+    const grafts = [...new Set(treatP.flatMap(p => p.concepts.filter(c => (c.cat === 'graft' || c.cat === 'mat') && c.st !== '검수')))];
+    const treatDetail = [...grafts.map(g => g.desc || g.name), ...ops.filter(o => o.desc).map(o => o.desc)].join(' ');
+    const todoLines = todoP.filter(p => !p.unknown.length).map(p => {
+      const ex = p.concepts.filter(c => c.cat === 'exam');
+      return ex.length ? `${p.mods.side ? p.mods.side + ' 무릎 ' : ''}${ex.map(e => e.name).join('·')}을 진행할 예정입니다` : p.line.replace(/\s*(지속|진행)\s*$/, '') + '을 꾸준히 진행해 주세요'; // R06, R07
+    }).map((t, i) => ({ n: i + 1, text: t }));
+    const nextText = nextP.filter(p => !p.unknown.length).map(p => p.line).join(' / '); // R08 원문 시점 보존
+
+    const activeInReport = s.active == null || REPORT.includes(activeBase);
+    const focus = key => () => { this.setState({ active: key }); this.scrollTo(key.split(':')[0]); };
+    const rep = (key, miss) => outline(s.active === key || miss, s.active === key ? '#1E5AF0' : '#F2A02D');
+    const noteFor = () => {
+      if (!activeInReport) return '지금 보는 항목은 리포트에 반영되지 않습니다';
+      if (reportHeld) return '확인 필요가 해결되면 자동으로 만들어집니다';
+      if (activeBase === 'dx') return '「현재 상태」 ← Assessment';
+      if (activeBase === 'plan') return '「치료 · 하실 일 · 다음 진료」 ← Plan';
+      return 'Assessment · Plan에서 만들어집니다. 블록을 누르면 근거 문장으로 이동';
+    };
+
+    return {
+      bodyRef: this.bodyRef, sections,
+      patientName: SC.patient, patientMeta: SC.meta, visitType: SC.visit,
+      scenario: s.scenario, scenarioOptions: Object.entries(this.SCENARIOS).map(([v, o]) => ({ value: v, label: o.label })), setScenario: v => this.switchScenario(v),
+      hasIssues: issueCount > 0, issueCount, sendDisabled: issueCount > 0 || reportHeld,
+      reportNote: noteFor(),
+      reportWrapStyle: { opacity: activeInReport ? 1 : 0.45, filter: activeInReport ? 'none' : 'saturate(0.6)', transition: 'opacity 180ms cubic-bezier(0.2,0,0.1,1), filter 180ms cubic-bezier(0.2,0,0.1,1)' },
+      reportHeld, reportReady: !reportHeld, heldReasons,
+      dxLines: dxLines.length ? dxLines : ['진단 내용이 아직 없습니다'], hasDxDesc: dxDescs.length > 0, dxDesc: dxDescs[0] || '',
+      hasTreat: treatP.length > 0, treatTitle: consider ? '앞으로의 치료 계획' : '앞으로 받으실 치료',
+      treatChip: consider ? '수술을 고려 중입니다' : '수술로 치료합니다', treatChipBg: consider ? '#7C8290' : '#1E5AF0',
+      treatText: treatText || '치료 계획 문장이 아직 없습니다', hasTreatDetail: !!treatDetail, treatDetail,
+      hasTodo: todoLines.length > 0, todoLines,
+      hasNext: !!nextText, nextText,
+      hlDx: { ...rep('dx', false), borderRadius: '32px 32px 0 0', outlineOffset: '-3px' },
+      hlPlan: rep('plan:treat', treatP.some(p => p.unknown.length)), hlTodo: rep('plan:todo', false), hlNext: rep('plan:next', false),
+      focusDx: focus('dx'), focusPlan: focus('plan:treat'), focusTodo: focus('plan:todo'), focusNext: focus('plan:next'),
+    };
+  }
+}
+</script>
+</body>
+</html>
