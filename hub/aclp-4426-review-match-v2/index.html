@@ -61,13 +61,13 @@
 
       <header style="padding: 20px 28px 16px; border-bottom: 1px solid #E5E7EC; display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
         <div style="display: flex; align-items: baseline; gap: 14px; flex: 1; min-width: 240px;">
-          <h1 style="margin: 0; font-family: var(--am-font-head); font-size: 22px; font-weight: 800; letter-spacing: -0.01em;">진료기록 검토</h1>
+          <h1 style="margin: 0; font-family: var(--am-font-head); font-size: 22px; font-weight: 800; letter-spacing: -0.01em; white-space: nowrap;">진료기록 검토</h1>
         </div>
         <button aria-label="닫기" style="width: 40px; height: 40px; border: 0; background: transparent; border-radius: 999px; color: #555B68; font-size: 22px; line-height: 1; display: inline-flex; align-items: center; justify-content: center;" style-hover="background: #F3F4F7;">×</button>
       </header>
 
       <div ref="{{ bodyRef }}" style="flex: 1; min-height: 0; overflow: auto; background: #F3F4F7;">
-        <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(320px, 380px); gap: 28px; padding: 24px 28px 32px; align-items: start;">
+        <div style="display: grid; grid-template-columns: minmax(0, 1fr) clamp(300px, 32%, 380px); gap: 24px; padding: 24px 28px 32px; align-items: start;">
 
           <main style="display: flex; flex-direction: column; gap: 32px; min-width: 0;">
 
@@ -76,27 +76,37 @@
                 <div>
                   <div style="font-family: var(--am-font-head); font-size: 11px; font-weight: 700; letter-spacing: 0.11em; color: #1E5AF0; text-transform: uppercase;">Step 1</div>
                   <h2 style="margin: 4px 0 4px; font-family: var(--am-font-head); font-size: 19px; font-weight: 800;">AI가 고른 답변을 확인해 주세요</h2>
-                  <p style="margin: 0; font-size: 14px; color: #555B68;">녹음 발화를 근거로 자동 선택된 {{ aiCount }}개입니다. 틀렸으면 다른 답을 눌러 바꾸세요. 직접 고른 답은 아래에 접어 두었습니다.</p>
+                  <p style="margin: 0; font-size: 14px; color: #555B68;">녹음 발화를 근거로 자동 선택된 {{ aiCount }}개입니다. 틀렸으면 다른 답을 눌러 바꾸세요. 확인한 문항도 그대로 남아 있으니 언제든 다시 볼 수 있습니다.</p>
                 </div>
-                <button onClick="{{ checkAll }}" style="background: transparent; border: 0; color: #1E5AF0; font-weight: 600; font-size: 14px; padding: 8px 4px;">모두 확인</button>
+                <button onClick="{{ checkAll }}" style="background: transparent; border: 0; color: #1E5AF0; font-weight: 600; font-size: 14px; padding: 8px 4px; white-space: nowrap;">{{ checkAllLabel }}</button>
               </div>
 
               <sc-for list="{{ aiAnswers }}" as="a" hint-placeholder-count="3">
                 <div style="{{ a.hl }}">
-                  <div onClick="{{ a.focus }}" style="background: #FFFFFF; border: 1px solid #E5E7EC; border-radius: 20px; padding: 16px 20px; display: flex; flex-direction: column; gap: 12px;">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                      <span style="font-size: 12px; font-weight: 700; color: #7C8290; min-width: 34px;">{{ a.no }}</span>
-                      <span style="flex: 1; font-size: 15px; font-weight: 600; color: #262A33;">{{ a.q }}</span>
-                      <span style="font-size: 12px; font-weight: 600; color: {{ a.srcColor }}; background: {{ a.srcBg }}; padding: 3px 9px; border-radius: 999px;">{{ a.src }}</span>
-                      <button onClick="{{ a.toggle }}" style="{{ a.checkStyle }}">{{ a.checkLabel }}</button>
+                  <div onClick="{{ a.focus }}" style="{{ a.cardStyle }}">
+                    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                      <span style="font-size: 12px; font-weight: 700; color: #7C8290; min-width: 34px; white-space: nowrap;">{{ a.no }}</span>
+                      <span style="flex: 1 1 200px; min-width: 0; font-size: 15px; font-weight: 600; color: #262A33; text-wrap: pretty;">{{ a.q }}</span>
+                      <div style="display: flex; align-items: center; gap: 8px; margin-left: auto; flex-wrap: wrap; justify-content: flex-end;">
+                        <sc-if value="{{ a.collapsed }}" hint-placeholder-val="{{ false }}">
+                          <span style="font-size: 14px; font-weight: 700; color: #1E5AF0; white-space: nowrap;">{{ a.display }}</span>
+                        </sc-if>
+                        <span style="font-size: 12px; font-weight: 600; color: {{ a.srcColor }}; background: {{ a.srcBg }}; padding: 3px 9px; border-radius: 999px; white-space: nowrap;">{{ a.src }}</span>
+                        <button onClick="{{ a.toggle }}" style="{{ a.checkStyle }}">{{ a.checkLabel }}</button>
+                        <sc-if value="{{ a.checked }}" hint-placeholder-val="{{ false }}">
+                          <span style="font-size: 12px; color: #7C8290; white-space: nowrap;">{{ a.foldLabel }}</span>
+                        </sc-if>
+                      </div>
                     </div>
-                    <div style="display: flex; flex-wrap: wrap; gap: 8px; padding-left: 46px;">
-                      <sc-for list="{{ a.options }}" as="o" hint-placeholder-count="3">
-                        <button onClick="{{ o.pick }}" style="{{ o.style }}">{{ o.label }}</button>
-                      </sc-for>
-                    </div>
-                    <sc-if value="{{ a.showEv }}" hint-placeholder-val="{{ true }}">
-                      <div style="padding-left: 46px; font-size: 13px; color: #7C8290; line-height: 1.5;">발화 근거 · “{{ a.evidence }}”</div>
+                    <sc-if value="{{ a.expanded }}" hint-placeholder-val="{{ true }}">
+                      <div style="display: flex; flex-wrap: wrap; gap: 8px; padding-left: 46px;">
+                        <sc-for list="{{ a.options }}" as="o" hint-placeholder-count="3">
+                          <button onClick="{{ o.pick }}" style="{{ o.style }}">{{ o.label }}</button>
+                        </sc-for>
+                      </div>
+                      <sc-if value="{{ a.showEv }}" hint-placeholder-val="{{ true }}">
+                        <div style="padding-left: 46px; font-size: 13px; color: #7C8290; line-height: 1.5;">발화 근거 · “{{ a.evidence }}”</div>
+                      </sc-if>
                     </sc-if>
                   </div>
                 </div>
@@ -138,7 +148,6 @@
                             </sc-if>
                           </div>
                         </sc-for>
-                        <div style="font-size: 12px; color: #A8ADBA;">실패한 용어는 사전 운영을 위해 자동 기록됩니다.</div>
                       </div>
                     </sc-if>
                     <sc-if value="{{ f.showTr }}" hint-placeholder-val="{{ false }}">
@@ -256,11 +265,11 @@ LFC, LTP bone contusion</div></div>
   </div>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props="{&quot;showEvidence&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;showTranslation&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+<script type="text/x-dc" data-dc-script data-props="{&quot;showEvidence&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;검토 보조&quot;},&quot;showTranslation&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;검토 보조&quot;}}">
 class Component extends DCLogic {
   constructor(p) {
     super(p);
-    const q = (id, no, q, options, value, source, evidence, conf, multi) => ({ id, no, q, options, value, source, evidence, conf, multi: !!multi, checked: false });
+    const q = (id, no, q, options, value, source, evidence, conf, multi) => ({ id, no, q, options, value, source, origin: source, evidence, conf, multi: !!multi, checked: false });
     this.state = {
       answers: [
         q('q1', 'Q.1', '어느 무릎이 불편한가요?', ['오른쪽', '왼쪽', '양쪽'], '오른쪽', 'ai', '오른쪽 무릎이요, 축구하다가 다쳤어요', 96),
@@ -294,6 +303,7 @@ class Component extends DCLogic {
         { t: 'PT', p: '물리치료', k: 'word' },
       ],
       active: null, docOpen: false, imgOpen: false,
+      peek: {},
     };
     this.refs_ = { dx: React.createRef(), plan: React.createRef(), todo: React.createRef(), next: React.createRef() };
     this.bodyRef = React.createRef();
@@ -328,24 +338,33 @@ class Component extends DCLogic {
       const isAi = a.source === 'ai';
       const isArr = Array.isArray(a.value);
       const sel = v => isArr ? a.value.includes(v) : a.value === v;
+      const expanded = !a.checked || !!s.peek[a.id];
       return {
         ...a,
+        expanded, collapsed: !expanded,
+        foldLabel: expanded ? '접기' : '펼치기',
         display: isArr ? a.value.join(', ') : a.value,
         src: isAi ? `AI 선택 ${a.conf}%` : '의사 선택',
         srcColor: isAi ? '#1E5AF0' : '#1FAE6B', srcBg: isAi ? '#E3EBFF' : '#E6F7EE',
-        showEv: showEv && isAi && !!a.evidence,
+        showEv: showEv && a.origin === 'ai' && !!a.evidence,
         hl: outline(s.active === 'side' && a.id === 'q1', '#1E5AF0'),
-        focus: () => { if (a.id === 'q1') setActive('side'); },
-        checkLabel: a.checked ? '확인함' : '확인',
+        focus: () => {
+          if (a.checked) this.setState(st => ({ peek: { ...st.peek, [a.id]: !st.peek[a.id] }, active: a.id === 'q1' ? 'side' : st.active }));
+          else if (a.id === 'q1') setActive('side');
+        },
+        cardStyle: a.checked
+          ? { background: '#F8F9FB', border: '1px solid #E5E7EC', borderRadius: '20px', padding: expanded ? '16px 20px' : '12px 20px', display: 'flex', flexDirection: 'column', gap: '12px', cursor: 'pointer', transition: 'background 150ms cubic-bezier(0.2,0,0.1,1), border-color 150ms cubic-bezier(0.2,0,0.1,1)' }
+          : { background: '#FFFFFF', border: '1.5px solid #1E5AF0', borderRadius: '20px', padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: '12px', boxShadow: '0 0 0 4px rgba(30,90,240,0.08)', transition: 'background 150ms cubic-bezier(0.2,0,0.1,1), border-color 150ms cubic-bezier(0.2,0,0.1,1)' },
+        checkLabel: a.checked ? '확인함 · 다시 검토' : '확인',
         checkStyle: a.checked
-          ? { height: '32px', padding: '0 12px', borderRadius: '999px', border: '0', background: '#1FAE6B', color: '#FFFFFF', fontSize: '13px', fontWeight: 700 }
-          : { height: '32px', padding: '0 12px', borderRadius: '999px', border: '1.5px solid #1E5AF0', background: '#FFFFFF', color: '#1E5AF0', fontSize: '13px', fontWeight: 700 },
-        toggle: e => { e.stopPropagation(); this.setState(st => ({ answers: st.answers.map(x => x.id === a.id ? { ...x, checked: !x.checked } : x) })); },
+          ? { height: '32px', padding: '0 12px', borderRadius: '999px', border: '1px solid #1FAE6B', background: '#E6F7EF', color: '#1FAE6B', fontSize: '13px', fontWeight: 700, whiteSpace: 'nowrap' }
+          : { height: '32px', padding: '0 12px', borderRadius: '999px', border: '0', background: '#1E5AF0', color: '#FFFFFF', fontSize: '13px', fontWeight: 700, whiteSpace: 'nowrap' },
+        toggle: e => { e.stopPropagation(); this.setState(st => ({ answers: st.answers.map(x => x.id === a.id ? { ...x, checked: !x.checked } : x), peek: { ...st.peek, [a.id]: false } })); },
         options: a.options.map(o => ({
           label: o,
           style: sel(o)
-            ? { height: '36px', padding: '0 14px', borderRadius: '12px', border: '1.5px solid #1E5AF0', background: '#1E5AF0', color: '#FFFFFF', fontSize: '14px', fontWeight: 700 }
-            : { height: '36px', padding: '0 14px', borderRadius: '12px', border: '1px solid #E5E7EC', background: '#FFFFFF', color: '#555B68', fontSize: '14px' },
+            ? { height: '36px', padding: '0 14px', borderRadius: '12px', border: '1.5px solid #1E5AF0', background: '#1E5AF0', color: '#FFFFFF', fontSize: '14px', fontWeight: 700, whiteSpace: 'nowrap' }
+            : { height: '36px', padding: '0 14px', borderRadius: '12px', border: '1px solid #E5E7EC', background: '#FFFFFF', color: '#555B68', fontSize: '14px', whiteSpace: 'nowrap' },
           pick: e => { e.stopPropagation(); this.setState(st => ({ answers: st.answers.map(x => {
             if (x.id !== a.id) return x;
             let v = o;
@@ -355,8 +374,9 @@ class Component extends DCLogic {
         })),
       };
     };
-    const aiAnswers = s.answers.filter(a => a.source === 'ai').map(mkAnswer);
-    const docAnswers = s.answers.filter(a => a.source !== 'ai').map(mkAnswer);
+    const aiAnswers = s.answers.filter(a => a.origin === 'ai').map(mkAnswer);
+    const docAnswers = s.answers.filter(a => a.origin !== 'ai').map(mkAnswer);
+    const allChecked = aiAnswers.every(a => a.checked);
 
     const an = { dx: this.analyze(s.ap.dx), plan: this.analyze(s.ap.plan), todo: this.analyze(s.ap.todo), next: this.analyze(s.ap.next) };
     const fieldDefs = [
@@ -389,7 +409,7 @@ class Component extends DCLogic {
     const dxLines = an.dx.matches.filter(d => d.k === 'dx').map(d => d.p);
     const surg = an.plan.matches.filter(d => d.k === 'surgery');
     const nextParts = an.next.translated.split(/\s[—\-–]\s/);
-    const unchecked = s.answers.filter(a => a.source === 'ai' && !a.checked).length;
+    const unchecked = s.answers.filter(a => a.origin === 'ai' && !a.checked).length;
     const remaining = unchecked + totalMissing;
 
     const focus = key => () => { setActive(key); this.scrollTo(key); };
@@ -398,7 +418,8 @@ class Component extends DCLogic {
     return {
       bodyRef: this.bodyRef,
       aiCount: aiAnswers.length, docCount: docAnswers.length, aiAnswers, docAnswers,
-      checkAll: () => this.setState(st => ({ answers: st.answers.map(a => ({ ...a, checked: true })) })),
+      checkAllLabel: allChecked ? '모두 재검토' : '모두 확인',
+      checkAll: () => this.setState(st => ({ answers: st.answers.map(a => a.origin === 'ai' ? { ...a, checked: !allChecked } : a), peek: {} })),
       fields,
       statusText: remaining ? `확인 필요 ${remaining}` : '모두 확인됨 · 발송할 수 있습니다',
       statusColor: remaining ? '#B8700F' : '#1FAE6B',
