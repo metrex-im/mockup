@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>RISE-K · 진료기록 검토 — 입력은 그대로, 확인은 리포트에서</title>
+<title>RISE-K · 진료기록 검토 v3 — v2 구조 + 새 Step 2</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/sunn-us/SUIT/fonts/variable/woff2/SUIT-Variable.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/sunn-us/SUITE/fonts/variable/woff2/SUITE-Variable.css">
 <style>
@@ -57,13 +57,7 @@
   .modal{width:min(1320px,100%);height:min(900px,calc(100% - 50px));background:#fff;border-radius:28px;box-shadow:0 16px 36px rgba(12,30,107,.12),0 4px 8px rgba(12,30,107,.06);display:flex;flex-direction:column;overflow:hidden}
   .mhead{display:flex;align-items:center;gap:14px;padding:18px 24px 14px;border-bottom:1px solid var(--line)}
   .mhead h1{font-family:var(--head);font-size:20px;font-weight:800;margin:0}
-  .mhead .sub{font-size:12.5px;color:var(--ink3)}
   .mhead .sp{flex:1}
-  .badge{display:inline-flex;align-items:center;gap:8px;height:34px;padding:0 6px 0 12px;border-radius:999px;border:1px solid var(--need);background:var(--need-bg);color:var(--need-ink);font-size:13px;font-weight:800;white-space:nowrap}
-  .badge .n{font-size:14px}
-  .badge .nx{height:24px;border:0;border-radius:999px;background:var(--need);color:#fff;font-size:12px;font-weight:800;padding:0 10px;display:inline-flex;align-items:center;gap:4px}
-  .badge .nx:hover{filter:brightness(.95)}
-  .badge.ok{border-color:var(--ok);background:var(--ok-bg);color:#137A4B;padding-right:12px}
   .close{width:40px;height:40px;border:0;background:transparent;border-radius:999px;color:#555B68;font-size:24px;line-height:1;display:inline-flex;align-items:center;justify-content:center}
   .close:hover{background:var(--sunken)}
 
@@ -83,11 +77,9 @@
   /* AI 답변 카드 */
   .qcard{border-radius:20px;padding:14px 18px;margin-bottom:10px;display:flex;flex-direction:column;gap:10px;background:#fff;border:1.5px solid var(--am-blue);box-shadow:0 0 0 4px rgba(30,90,240,.08);transition:box-shadow .15s}
   .qcard.done{background:#F8F9FB;border:1px solid var(--line);box-shadow:none;padding:11px 18px;cursor:pointer}
-  .qcard.hot{box-shadow:0 0 0 4px rgba(216,118,12,.28);border-color:var(--need)}
   .qtop{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
   .qno{font-size:11.5px;font-weight:800;color:var(--ink2);background:#EDEFF3;border-radius:7px;padding:3px 8px}
   .qq{font-size:14px;font-weight:700;flex:1;min-width:200px;word-break:keep-all}
-  .qval{font-size:13.5px;font-weight:700;color:var(--ink)}
   .src{font-size:11.5px;font-weight:800;border-radius:999px;padding:3px 9px;background:#E3EBFF;color:var(--am-blue);white-space:nowrap}
   .src.low{background:var(--need-bg);color:var(--need)}
   .src.doc{background:var(--ok-bg);color:var(--ok)}
@@ -101,13 +93,11 @@
   /* ---- A·P 필드 ---- */
   .field{background:#fff;border:1px solid var(--line);border-radius:22px;padding:14px 18px 16px;margin-bottom:12px;outline:2px solid transparent;outline-offset:2px;transition:outline-color .15s}
   .field.active{outline-color:var(--am-blue)}
-  .field.flag{outline-color:#F2A02D}
   .ftop{display:flex;align-items:center;gap:10px;margin-bottom:9px}
   .ftop .lb{font-size:14px;font-weight:800}
   .ftop .tg{font-size:12px;color:var(--ink3);margin-left:auto}
   .ftop .tg b{color:var(--ink2);font-weight:700}
   .ftop .fc{font-size:11.5px;font-weight:800;color:var(--need-ink);background:var(--need-bg);border-radius:999px;padding:3px 9px}
-  .ftop .fc.pend{color:var(--pend);background:var(--pend-bg)}
 
   .ed{position:relative;border:1px solid var(--line);border-radius:13px;background:#fff;transition:border-color .12s,box-shadow .12s}
   .ed:focus-within{border-color:var(--am-blue);box-shadow:0 0 0 4px rgba(30,90,240,.12)}
@@ -120,9 +110,6 @@
   .ed .mirror .u.typo.pin,.ed .mirror .u.typo:hover{background:rgba(242,160,45,.32)}
   .ed .mirror .u:focus-visible{outline:2px solid var(--am-blue);outline-offset:1px}
   .ed .mirror .cm{display:inline-block;width:0;height:1em;vertical-align:text-bottom}
-  .tr{margin-top:9px;font-size:12.5px;color:var(--ink3);line-height:1.6;word-break:keep-all}
-  .tr b{color:var(--ink2);font-weight:700}
-  .tr.none{color:var(--ink4)}
 
   /* 검토 불필요 */
   .fold{background:#fff;border:1px solid var(--line);border-radius:18px;margin-bottom:10px;overflow:hidden}
@@ -133,36 +120,6 @@
   .drow{display:flex;gap:10px;align-items:center;font-size:13.5px}
   .drow .qq{font-weight:500;color:var(--ink2)}
   .drow .v{font-weight:700}
-  .irow{display:grid;grid-template-columns:120px 1fr;gap:10px;font-size:13.5px}
-  .irow div:first-child{color:var(--ink3)}
-  .irow div:last-child{white-space:pre-line;font-weight:600}
-
-  /* ---- 리포트(우) ---- */
-  .rcap{display:flex;align-items:baseline;gap:10px;margin-bottom:12px}
-  .rcap b{font-size:14px;font-weight:800}
-  .rcap span{font-size:12px;color:var(--ink3)}
-  .phone{background:var(--sunken);border-radius:32px;border:8px solid #101010;overflow:hidden;max-width:360px;margin:0 auto}
-  .blk{cursor:pointer;outline:2px solid transparent;outline-offset:-3px;transition:outline-color .15s;position:relative}
-  .blk.on{outline-color:var(--am-blue)}
-  .blk.flag{outline-color:#F2A02D}
-  .hero{background:var(--am-blue);color:#fff;padding:22px 20px 22px}
-  .hero .c{font-size:12px;color:rgba(255,255,255,.82)}
-  .hero .e{margin-top:12px;font-family:var(--head);font-size:13px;font-weight:700;color:rgba(255,255,255,.86)}
-  .hero .side{font-size:15px;font-weight:600;color:rgba(255,255,255,.92);margin-top:8px}
-  .hero .dx{font-family:var(--head);font-size:20px;font-weight:800;line-height:1.38;letter-spacing:-.02em;word-break:keep-all;margin-top:4px}
-  .hero .dx div+div{margin-top:4px}
-  .rbody{padding:14px 14px 22px;display:flex;flex-direction:column;gap:12px}
-  .rcard{background:#fff;border:1px solid var(--line);border-radius:18px;padding:15px 16px}
-  .rcard h3{font-family:var(--head);font-size:14.5px;font-weight:800;margin:0 0 10px;letter-spacing:-.01em}
-  .chip{display:inline-block;background:var(--am-blue);color:#fff;font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;margin-bottom:9px}
-  .txn{font-family:var(--head);font-size:18px;font-weight:800;line-height:1.4;letter-spacing:-.015em;word-break:keep-all}
-  .todos{display:flex;flex-direction:column;gap:9px}
-  .todo{display:flex;gap:10px;align-items:center}
-  .todo .n{flex:0 0 24px;height:24px;border-radius:999px;background:var(--am-blue);color:#fff;font-family:var(--head);font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center}
-  .todo .t{font-size:14px;font-weight:600;line-height:1.45;word-break:keep-all}
-  .nxt{font-family:var(--head);font-size:19px;font-weight:800;color:var(--am-blue);letter-spacing:-.015em}
-  .nxtp{font-size:13px;color:var(--ink2);margin-top:4px;line-height:1.55;word-break:keep-all}
-  .muted{color:var(--ink4);font-size:13px}
 
   /* ---- 팝오버 ---- */
   .pop{position:fixed;z-index:100;width:340px;background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 14px 40px rgba(12,30,107,.18),0 2px 6px rgba(0,0,0,.06);padding:13px 14px 12px;display:none;flex-direction:column;gap:10px;font-size:13px}
@@ -172,7 +129,6 @@
   .pop .ph{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
   .pop .ph .term{font-family:var(--mono);font-size:13.5px;font-weight:800;background:var(--sunken);border-radius:7px;padding:3px 8px}
   .pop .ph .st{font-size:11.5px;font-weight:800;border-radius:999px;padding:3px 9px;background:var(--need-bg);color:var(--need-ink)}
-  .pop .ph .st.pend{background:var(--pend-bg);color:var(--pend)}
   .pop .ph .x{margin-left:auto;border:0;background:transparent;color:var(--ink4);font-size:16px;line-height:1;padding:2px 4px}
   .pop p{margin:0;color:var(--ink2);line-height:1.55;word-break:keep-all}
   .pop .cands{display:flex;flex-direction:column;gap:6px}
@@ -184,15 +140,9 @@
   .pop .acts{display:flex;gap:8px;flex-wrap:wrap;padding-top:2px}
   .pop .acts button{height:32px;padding:0 12px;border-radius:999px;font-size:12.5px;font-weight:700;border:1px solid var(--line);background:#fff;color:var(--ink2)}
   .pop .acts button:hover{background:var(--sunken)}
-  .pop .acts button.pri{border-color:var(--am-blue);color:var(--am-blue)}
-  .pop .acts button.pri:hover{background:#F2F6FF}
-  .pop .kbd{font-size:11px;color:var(--ink4);margin-top:-2px}
 
   /* ---- 푸터 ---- */
   .mfoot{display:flex;align-items:center;gap:12px;padding:14px 24px;border-top:1px solid var(--line)}
-  .mfoot .note{font-size:12.5px;color:var(--ink3);margin-right:auto;word-break:keep-all;line-height:1.5}
-  .mfoot .note b{color:var(--need-ink)}
-  .mfoot .note.ok b{color:#137A4B}
   .btn{height:48px;padding:0 22px;border-radius:14px;font-size:14.5px;font-weight:800;border:1px solid var(--line);background:#fff;color:var(--ink2)}
   .btn.pri{border:0;background:var(--am-blue);color:#fff}
   .btn:disabled{opacity:.45;cursor:not-allowed}
@@ -218,31 +168,21 @@
   .tip.on{display:block}
   .tip b{color:#FFD27A}
   .infoline{font-size:12.5px;color:var(--ink3);margin-right:auto;word-break:keep-all;line-height:1.5}
-  .infoline .m{color:var(--ink4);font-family:var(--mono);font-size:12px}
-  .infoline .w{color:var(--need-ink);font-weight:700}
   .pop .ph .st.typo{background:var(--need-bg);color:var(--need-ink)}
 
   /* 배정 메뉴 */
   .menu{position:fixed;z-index:120;width:380px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 14px 40px rgba(12,30,107,.18);padding:8px;display:none;flex-direction:column;gap:3px}
   .menu.on{display:flex}
-  .menu .cap{font-size:11px;font-weight:800;color:var(--ink4);padding:6px 10px 5px;word-break:keep-all;line-height:1.5}
-  .menu .cap b{color:var(--ink2);font-weight:700;font-family:var(--mono);font-size:11px}
-  .rsub{font-size:12.5px;line-height:1.6;color:var(--ink2);word-break:keep-all;margin-top:8px}
-  .fixedtx{font-size:13.5px;line-height:1.6;color:var(--ink2);word-break:keep-all;margin-top:8px}
-  .fixedtx .k{font-size:11.5px;font-weight:800;color:var(--ink3);margin:8px 0 2px}
 
   /* ---- v5: 입력은 깨끗하게, 표시는 리포트 쪽 ---- */
   .ed .mirror .u.mute{color:inherit;text-decoration:none;pointer-events:none;background:transparent}
   .ed .mirror .sg{box-shadow:none;border:0;cursor:text;pointer-events:none;border-radius:4px;transition:background .15s}
   .ed .mirror .sg.hot{background:rgba(30,90,240,.16);box-shadow:0 0 0 3px rgba(30,90,240,.16)}
-  .ed .mirror .ln.dim{color:inherit}
-  .gut{display:none}
   .ritem{position:relative;cursor:pointer;border-radius:10px;transition:background .12s;padding:2px 4px;margin:-2px -4px}
   .ritem:hover{background:rgba(30,90,240,.06)}
   .ritem.hot{background:rgba(30,90,240,.10);box-shadow:0 0 0 2px rgba(30,90,240,.25)}
   .aimark{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:800;color:var(--need-ink);background:var(--need-bg);border-radius:999px;padding:3px 8px;vertical-align:middle;margin-left:6px;white-space:nowrap}
   .aimark i{width:6px;height:6px;border-radius:999px;background:var(--need);display:inline-block}
-  .hero .aimark{background:rgba(255,255,255,.92)}
   .xcard{background:#FAFBFC;border:1px dashed #C9CED8;border-radius:17px;padding:14px 16px}
   .xcard h3{font-family:var(--head);font-size:14px;font-weight:800;margin:0 0 4px;color:var(--ink2)}
   .xcard .xs{font-size:12px;color:var(--ink3);margin-bottom:10px;line-height:1.5;word-break:keep-all}
@@ -251,17 +191,98 @@
   .xrow .why{flex:0 0 auto;font-size:11px;font-weight:800;border-radius:6px;padding:3px 7px;background:var(--pend-bg);color:var(--pend);margin-top:2px;white-space:nowrap}
   .xrow .why.cond{background:#FBEFD8;color:#8A5307}
   .xrow .why.term{background:#F1F3F6;color:var(--ink3)}
-  .xrow .tx{flex:1;font-size:13px;line-height:1.55;color:var(--ink2);word-break:keep-all;cursor:pointer}
-  .xrow .tx:hover{color:var(--ink)}
-  .xrow .tx code{font-family:var(--mono);font-size:12px;background:var(--sunken);border-radius:5px;padding:1px 5px}
+  .xrow .xtx{flex:1;font-size:13px;line-height:1.55;color:var(--ink2);word-break:keep-all;cursor:pointer}
+  .xrow .xtx:hover{color:var(--ink)}
+  .xrow .xtx code{font-family:var(--mono);font-size:12px;background:var(--sunken);border-radius:5px;padding:1px 5px}
   .xempty{font-size:13px;color:var(--ink4);padding:4px 0}
   .src{font-size:13px;line-height:1.6;color:var(--ink);background:var(--sunken);border-radius:10px;padding:9px 11px;word-break:keep-all;font-family:var(--body)}
   .src .lab{display:block;font-size:11px;font-weight:800;color:var(--ink4);margin-bottom:3px}
-  .menu .row{display:flex;flex-wrap:wrap;gap:6px;padding:4px 8px 6px}
-  .menu .row button{height:30px;padding:0 11px;border-radius:999px;border:1px solid var(--line);background:#fff;font-size:12.5px;font-weight:700;color:var(--ink2);display:inline-flex;align-items:center;gap:6px}
-  .menu .row button i{width:7px;height:7px;border-radius:999px;display:inline-block}
-  .menu .row button:hover{background:var(--sunken)}
-  .menu .sub{font-size:11px;font-weight:800;color:var(--ink4);padding:8px 10px 2px}
+
+  /* ---- v6: v2 구조로 되돌림 (단일 스크롤 · sticky 리포트) ---- */
+  .mhead{padding:20px 28px 16px}
+  .mhead h1{font-size:22px}
+  .mbody{display:block;overflow:auto;background:#F3F4F7}
+  .mgrid{display:grid;grid-template-columns:minmax(0,1fr) clamp(300px,32%,380px);gap:24px;padding:24px 28px 32px;align-items:start}
+  @media(max-width:960px){.mgrid{grid-template-columns:1fr}}
+  main{overflow:visible;padding:0;background:transparent;display:flex;flex-direction:column;gap:32px}
+  aside{position:sticky;top:0;overflow:visible;padding:0;border:0;background:transparent;display:flex;flex-direction:column;gap:12px}
+  section{margin:0;display:flex;flex-direction:column;gap:14px}
+  .sh{align-items:flex-end;justify-content:space-between;gap:16px;margin:0}
+  .sh .step{font-family:var(--head);font-size:11px;letter-spacing:.11em;text-transform:uppercase;margin:0}
+  .sh h2{font-size:19px;margin:4px 0 4px}
+  .sh p{font-size:14px;color:#555B68}
+  .sh .act{border:0;background:transparent;color:var(--am-blue);font-weight:600;font-size:14px;padding:8px 4px;height:auto}
+  .sh .act:hover{background:transparent;text-decoration:underline}
+  .qcard{border-radius:20px;padding:16px 20px;margin:0;gap:12px}
+  .qcard.done{background:#F8F9FB;border:1px solid var(--line);box-shadow:none;padding:16px 20px;cursor:default}
+  .qno{font-size:12px;font-weight:700;color:#7C8290;background:transparent;min-width:34px;padding:0;border-radius:0}
+  .qq{font-size:15px;font-weight:600;color:#262A33}
+  .src{font-size:12px;font-weight:600;padding:3px 9px}
+  .src.doc{color:#1FAE6B;background:#E6F7EE}
+  .chk{height:32px;font-size:13px}
+  .chk.done{border:1px solid #1FAE6B;background:#E6F7EF;color:#1FAE6B}
+  .opts{padding-left:46px}
+  .opt{height:36px;padding:0 14px;border-radius:12px;font-size:14px}
+  .evi{background:transparent;padding:0 0 0 46px;font-size:13px;color:#7C8290;border-radius:0}
+  .field{margin:0}
+  .nr{font-size:13px;font-weight:600;color:#7C8290}
+  .fold{border-radius:20px;margin:0}
+  .fold>button{padding:14px 20px;font-size:15px;color:#262A33}
+  .fold>button small{font-size:15px;color:#7C8290;font-weight:500}
+  .fold>button .tgl{font-size:13px;color:#7C8290;font-weight:500}
+  .fold .in{border-top:1px solid var(--line);padding:8px 20px 14px;gap:0}
+  .drow{gap:12px;padding:8px 0;font-size:14px;border-bottom:1px solid #F3F4F7}
+  .drow .qno{padding-top:2px}
+  .drow .qq{flex:1;color:#555B68;font-weight:400;font-size:14px;min-width:0}
+  .drow .v{font-weight:600;color:#262A33}
+  .igrid{border-top:1px solid var(--line);padding:14px 20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;font-size:14px}
+  .igrid .k{font-size:12px;color:#7C8290;margin-bottom:4px}
+  .igrid .v{color:#262A33;white-space:pre-line}
+  .mfoot{padding:16px 28px;justify-content:flex-end}
+  .mfoot .infoline{margin-right:auto}
+  .mfoot .st{font-size:13px;font-weight:700;margin-right:auto}
+
+  /* ---- 실제 환자 리포트(명지병원 v13) 재현 ---- */
+  .rcap{justify-content:space-between}
+  .rcap b{color:#262A33}.rcap span{color:#7C8290}
+  .dev{background:#101010;border-radius:40px;padding:10px}
+  .scr{background:#EEF3FD;border-radius:32px;overflow:hidden;font-family:var(--body);color:#111}
+  .rhead{background:linear-gradient(180deg,#0B3FD6 0%,#0F4BE0 100%);color:#fff;padding:18px 20px 0;position:relative;overflow:hidden}
+  .rhead:before{content:"";position:absolute;right:-60px;top:-30px;width:260px;height:260px;border-radius:50%;border:26px solid rgba(255,255,255,.07)}
+  .rhead .top{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;font-weight:700;position:relative}
+  .rhead .top span:last-child{font-weight:500;opacity:.95}
+  .rhead .greet{font-family:var(--head);font-size:24px;font-weight:800;line-height:1.3;letter-spacing:-.02em;margin:34px 0 0;position:relative}
+  .rhead .pad{height:118px}
+  .rwrap{background:#EEF3FD;margin-top:-92px;border-radius:26px 26px 0 0;padding:14px 14px 22px;position:relative}
+  .dxcard{background:#fff;border-radius:22px;padding:10px 16px 18px;box-shadow:0 2px 10px rgba(12,30,107,.05)}
+  .fig{display:block;margin:0 auto 6px;width:140px;height:130px}
+  .sidechip{display:inline-block;background:#1E5AF0;color:#fff;font-size:12px;font-weight:700;padding:5px 10px;border-radius:9px;margin:8px 0 8px}
+  .dxs{font-family:var(--head);font-size:20px;font-weight:800;line-height:1.38;letter-spacing:-.02em;word-break:keep-all;color:#111}
+  .dxgroup+.dxgroup{margin-top:12px}
+  .rsec{margin-top:22px}
+  .rsec h3{font-family:var(--head);font-size:16px;font-weight:800;margin:0 0 10px 2px;letter-spacing:-.01em;color:#111}
+  .tx{background:#fff;border-radius:20px;padding:18px 18px 16px;box-shadow:0 2px 10px rgba(12,30,107,.05)}
+  .tx+.tx{margin-top:12px}
+  .tx .nm{font-family:var(--head);font-size:19px;font-weight:800;letter-spacing:-.015em;color:#111}
+  .tx .ds{font-size:13.5px;line-height:1.6;color:#555B68;margin-top:6px;word-break:keep-all}
+  .tx hr{border:0;border-top:1px solid #E9ECF2;margin:14px 0}
+  .tx .k{font-size:12px;font-weight:800;color:#1E5AF0;margin:10px 0 3px}
+  .tx .k:first-child{margin-top:0}
+  .tx .v{font-size:13.5px;line-height:1.6;color:#555B68;word-break:keep-all}
+  .tx .body{font-size:13.5px;line-height:1.7;color:#555B68;word-break:keep-all;white-space:pre-line}
+  .tx .note{font-size:12px;line-height:1.6;color:#8B929E;margin-top:12px;word-break:keep-all}
+  .tdcard{background:#fff;border-radius:20px;padding:6px 18px;box-shadow:0 2px 10px rgba(12,30,107,.05)}
+  .td{display:flex;align-items:center;gap:12px;padding:12px 0;font-size:15px;font-weight:700;color:#111;word-break:keep-all}
+  .td+.td{border-top:1px solid #F1F3F7}
+  .td .ck{flex:0 0 24px;height:24px;border-radius:999px;background:#8FB6FF;display:inline-flex;align-items:center;justify-content:center}
+  .td .ck:after{content:"";width:9px;height:5px;border-left:2.5px solid #fff;border-bottom:2.5px solid #fff;transform:rotate(-45deg) translate(1px,-1px)}
+  .nxcard{background:#fff;border-radius:20px;padding:18px;box-shadow:0 2px 10px rgba(12,30,107,.05)}
+  .nxcard .d{font-family:var(--head);font-size:21px;font-weight:800;color:#111;letter-spacing:-.015em}
+  .nxcard .p{font-size:13.5px;color:#555B68;margin-top:4px;line-height:1.5}
+  .rfoot{font-size:12px;color:#8B929E;line-height:1.6;padding:16px 6px 4px;word-break:keep-all}
+  .ritem{display:block}
+  .aimark{font-size:10.5px;padding:2px 7px}
+  .xcard{margin-top:2px}
 </style>
 </head>
 <body>
@@ -280,8 +301,8 @@
 
 <div class="ovl">
   <div class="hint">
-    <b>진료기록 검토 · 입력은 그대로, 확인은 리포트에서</b>
-    <span class="d">A·P 입력 칸에는 라벨이 없다(오타 의심 밑줄만). 어디에 담겼는지는 <b>오른쪽 리포트</b>가 보여 주고, 항목을 누르면 원문만 강조된다. 고치는 방법은 하나 — A·P 원문을 수정한다. 규칙으로 못 정한 항목은 <b>AI 배정 · 확인</b>이 붙고, 원문을 한 번 열어 보면 확인 처리. 안 들어간 내용은 리포트 끝 카드.</span>
+    <b>진료기록 검토 v3 · v2 구조 + 새 Step 2</b>
+    <span class="d">Step 1·검토 불필요 항목·헤더·푸터는 <b>v2 그대로</b>(확인한 문항도 접지 않음) · Step 2는 A·P 두 칸 자유 서술, 라벨 없음(오타 의심 밑줄만) · 리포트는 <b>실제 환자 리포트(명지병원 v13)</b> 구성으로 그려지고, 항목을 누르면 원문만 강조 · 안 들어간 내용은 리포트 아래 의료진용 카드.</span>
     <div class="seg" id="modeSeg">
       <button data-mode="case1" class="on">예시 · 재진(비수술)</button>
       <button data-mode="case2">예시 · 초진(수술)</button>
@@ -290,20 +311,20 @@
   </div>
   <div class="modal" role="dialog" aria-label="진료기록 검토">
     <div class="mhead">
-      <div><h1>진료기록 검토</h1><div class="sub" id="subtitle">리포트의 항목을 누르면 근거가 된 A·P 원문이 왼쪽에서 강조됩니다 · 고칠 것이 있으면 A·P를 수정하세요</div></div>
+      <div><h1>진료기록 검토</h1></div>
       <span class="sp"></span>
-      <div id="badgeRoot"></div>
+      <div id="badgeRoot" style="display:none"></div>
       <button class="close" aria-label="닫기" data-act="close">×</button>
     </div>
-    <div class="mbody">
+    <div class="mbody"><div class="mgrid">
       <main id="main"></main>
       <aside id="aside"></aside>
-    </div>
+    </div></div>
     <div class="mfoot">
       <span class="infoline" id="footnote"></span>
       <button class="btn" data-act="close">닫기</button>
-      <button class="btn" id="btnDone" data-act="done">검토 완료</button>
-      <button class="btn pri" id="btnSend" data-act="send">검토 완료 후 환자에게 발송</button>
+      <button class="btn" id="btnDone" data-act="done" style="display:none">검토 완료</button>
+      <button class="btn pri" id="btnSend" data-act="send">환자에게 발송</button>
     </div>
   </div>
 </div>
@@ -320,70 +341,92 @@
    ========================================================= */
 const CASES={
   case1:{ // 도언 제공 실제 예시 · 재진 · 비수술
-    title:'재진 · 비수술', date:'2026.9.14', patient:'탁나리',
+    title:'재진 · 비수술', dateK:'2026년 9월 8일', patient:'김액티', nextDate:'12월 7일 월요일',
     a:'S/P DLM subtotal meniscectomy + PFJ & MFC chondroplasty, Rt.\nLateral meniscal deficiency\nLateral compartment cartilage lesion',
     p:'증상 지속 시 LMAT + cartilage repair 고려\n재활운동 지속\n3개월 후 외래 추적',
     answers:[
-      {id:'q1',no:'Q.1',q:'어느 무릎이 불편한가요?',opts:['오른쪽','왼쪽','양쪽'],val:'오른쪽',src:'ai',conf:96,evi:'오른쪽이요, 수술한 쪽',checked:true},
-      {id:'q2',no:'Q.2',q:'지난 진료와 비교해 증상은 어떤가요?',opts:['많이 좋아짐','조금 좋아짐','비슷함','나빠짐'],val:'조금 좋아짐',src:'ai',conf:90,evi:'조금 나아진 것 같아요, 걸을 때 덜 아파요',checked:true},
-      {id:'q5',no:'Q.5',q:'현재 통증은 어느 정도인가요? (0–10)',opts:['0','1','2','3','4','5','6','7','8','9','10'],val:'2',src:'ai',conf:93,evi:'한 2 정도요',checked:true},
-    ]},
+      {id:'q1',no:'Q.1',q:'어느 무릎이 불편한가요?',opts:['오른쪽','왼쪽','양쪽'],val:'오른쪽',src:'ai',conf:96,evi:'오른쪽이요, 수술한 쪽',checked:false},
+      {id:'q2',no:'Q.2',q:'지난 진료와 비교해 증상은 어떤가요?',opts:['많이 좋아짐','조금 좋아짐','비슷함','나빠짐'],val:'조금 좋아짐',src:'ai',conf:90,evi:'조금 나아진 것 같아요, 걸을 때 덜 아파요',checked:false},
+      {id:'q5',no:'Q.5',q:'현재 통증은 어느 정도인가요? (0–10)',opts:['0','1','2','3','4','5','6','7','8','9','10'],val:'2',src:'ai',conf:93,evi:'한 2 정도요',checked:false},
+      {id:'q3',no:'Q.3',q:'남아 있는 증상은 무엇인가요?',val:'소리·마찰감',src:'doc'},
+      {id:'q4',no:'Q.4',q:'운동을 다시 시작하셨나요?',val:'가벼운 운동만',src:'doc'},
+    ],
+    imaging:{src:'본원',key:'Lateral meniscal deficiency',xray:'특이 소견 없음',mri:'Lateral meniscus deficiency\nLateral compartment cartilage thinning'}},
   case3:{ // 같은 내용을 줄바꿈 없이 이어 쓴 경우
-    title:'재진 · 이어 쓴 문장', date:'2026.9.14', patient:'탁나리',
+    title:'재진 · 이어 쓴 문장', dateK:'2026년 9월 8일', patient:'김액티', nextDate:'12월 7일 월요일',
     a:'S/P DLM subtotal meniscectomy + PFJ & MFC chondroplasty, Rt. Lateral meniscal deficiency, lateral compartment cartilage lesion',
     p:'증상 지속 시 LMAT + cartilage repair 고려, 재활운동 지속하고 3개월 후 외래 추적',
     answers:[
-      {id:'q1',no:'Q.1',q:'어느 무릎이 불편한가요?',opts:['오른쪽','왼쪽','양쪽'],val:'오른쪽',src:'ai',conf:96,evi:'오른쪽이요, 수술한 쪽',checked:true},
-      {id:'q2',no:'Q.2',q:'지난 진료와 비교해 증상은 어떤가요?',opts:['많이 좋아짐','조금 좋아짐','비슷함','나빠짐'],val:'조금 좋아짐',src:'ai',conf:90,evi:'조금 나아진 것 같아요',checked:true},
-    ]},
-  case2:{ // 초진 · 수술 (v2 예시)
-    title:'초진 · 수술', date:'2026.9.14', patient:'사태양',
+      {id:'q1',no:'Q.1',q:'어느 무릎이 불편한가요?',opts:['오른쪽','왼쪽','양쪽'],val:'오른쪽',src:'ai',conf:96,evi:'오른쪽이요, 수술한 쪽',checked:false},
+      {id:'q2',no:'Q.2',q:'지난 진료와 비교해 증상은 어떤가요?',opts:['많이 좋아짐','조금 좋아짐','비슷함','나빠짐'],val:'조금 좋아짐',src:'ai',conf:90,evi:'조금 나아진 것 같아요',checked:false},
+      {id:'q3',no:'Q.3',q:'남아 있는 증상은 무엇인가요?',val:'소리·마찰감',src:'doc'},
+    ],
+    imaging:{src:'본원',key:'Lateral meniscal deficiency',xray:'특이 소견 없음',mri:'Lateral meniscus deficiency\nLateral compartment cartilage thinning'}},
+  case2:{ // 초진 · 수술 (v2 예시 그대로)
+    title:'초진 · 수술', dateK:'2026년 9월 8일', patient:'김액티', nextDate:'9월 14일 월요일',
     a:'ACL complete rupture, medial meniscus tear 동반. LFC bone contusion.',
     p:'A/S ACL-R + MM repir 시행 예정\n수술 전 검사 받기\n보행 시 brace 착용, 무릎 회전·쪼그려 앉기 금지\nKT-1000 계측값 확인\nf/u 1주 후 — 수술일·입원일정 결정',
     answers:[
-      {id:'q1',no:'Q.1',q:'어느 무릎이 불편한가요?',opts:['오른쪽','왼쪽','양쪽'],val:'오른쪽',src:'ai',conf:96,evi:'오른쪽 무릎이요, 축구하다가 다쳤어요',checked:true},
+      {id:'q1',no:'Q.1',q:'어느 무릎이 불편한가요?',opts:['오른쪽','왼쪽','양쪽'],val:'오른쪽',src:'ai',conf:96,evi:'오른쪽 무릎이요, 축구하다가 다쳤어요',checked:false},
+      {id:'q2',no:'Q.2',q:'현재 가장 불편한 증상은 무엇인가요?',opts:['통증','붓기','걸림·잠김','빠짐·힘 빠짐','움직임 제한','기타'],val:['통증','붓기'],src:'ai',conf:91,evi:'아프고 많이 부었어요',multi:true,checked:false},
+      {id:'q3',no:'Q.3',q:'증상은 언제부터 시작되었나요?',val:'1–6주',src:'doc'},
+      {id:'q4',no:'Q.4',q:'증상은 어떻게 시작되었나요?',val:'다친 후 갑자기',src:'doc'},
       {id:'q5',no:'Q.5',q:'현재 통증은 어느 정도인가요? (0–10)',opts:['0','1','2','3','4','5','6','7','8','9','10'],val:'6',src:'ai',conf:78,evi:'걸을 때는 한 6 정도요',checked:false},
-      {id:'a1',no:'ACL.1',q:"다칠 당시 '뚝/펑' 하는 느낌이나 소리가 있었나요?",opts:['있음','없음','잘 모르겠음'],val:'있음',src:'ai',conf:95,evi:'뚝 소리가 났어요',checked:true},
-    ]},
+      {id:'q6',no:'Q.6',q:'주로 어느 부위가 아픈가요?',opts:['안쪽','바깥쪽','앞쪽','뒤쪽','전체/잘 모르겠음'],val:['안쪽'],src:'ai',conf:88,evi:'안쪽이 제일 아파요',multi:true,checked:false},
+      {id:'q7',no:'Q.7',q:'이번 증상 때문에 다른 병원에서 검사나 치료를 받은 적이 있나요?',opts:['없음','있음'],val:'있음',src:'ai',conf:93,evi:'동네 병원에서 엑스레이는 찍었는데 괜찮다고…',checked:false},
+      {id:'q8',no:'Q.8',q:'이전에 같은 무릎으로 수술을 받은 적이 있나요?',val:'없음',src:'doc'},
+      {id:'a1',no:'ACL.1',q:"다칠 당시 '뚝/펑' 하는 느낌이나 소리가 있었나요?",opts:['있음','없음','잘 모르겠음'],val:'있음',src:'ai',conf:95,evi:'뚝 소리가 났어요',checked:false},
+      {id:'a2',no:'ACL.2',q:'다친 후 몇 시간 안에 무릎이 많이 부었나요?',opts:['있음','없음','잘 모르겠음'],val:'있음',src:'ai',conf:90,evi:'그날 저녁에 바로 부었어요',checked:false},
+      {id:'a3',no:'ACL.3',q:'현재 무릎이 빠지거나 무너지는 느낌이 있나요?',val:'가끔',src:'doc'},
+    ],
+    imaging:{src:'○○영상의학과',key:'Complete ACL tear',xray:'특이 소견 없음',mri:'ACL rupture\nMM posterior bucket handle tear\nLFC, LTP bone contusion'}},
 };
 /* 표준 용어 사전: t 의료진 표기(별칭 al), p 환자 표현, k dx|surgery|nonsurg|word ; sub: 비수술 유형 */
 const DICT=[
-  {t:'ACL complete rupture',al:['complete ACL rupture','complete ACL tear'],p:'전방십자인대가 완전히 끊어졌습니다',k:'dx'},
-  {t:'ACL rupture',al:['ACL tear'],p:'전방십자인대가 끊어졌습니다',k:'dx'},
-  {t:'medial meniscus tear',al:['MM tear'],p:'안쪽 반월상연골이 찢어졌습니다',k:'dx'},
-  {t:'lateral meniscus tear',al:['LM tear'],p:'바깥쪽 반월상연골이 찢어졌습니다',k:'dx'},
-  {t:'lateral meniscal deficiency',al:['lateral meniscus deficiency','LM deficiency'],p:'바깥쪽 반월상연골이 많이 남아 있지 않습니다',k:'dx'},
-  {t:'lateral compartment cartilage lesion',al:['lateral cartilage lesion'],p:'무릎 바깥쪽 관절 연골이 손상되었습니다',k:'dx'},
-  {t:'cartilage lesion',al:['chondral lesion'],p:'연골이 손상되었습니다',k:'dx'},
-  {t:'LFC bone contusion',al:[],p:'허벅지뼈 바깥쪽 끝에 멍이 들었습니다',k:'dx'},
-  {t:'bone contusion',al:[],p:'뼈에 멍이 들었습니다',k:'dx'},
-  {t:'A/S ACL-R',al:['ACL-R','ACL reconstruction','ACLR'],p:'관절경 전방십자인대 재건술',k:'surgery'},
-  {t:'MM repair',al:['meniscus repair','meniscal repair'],p:'반월상연골 봉합술',k:'surgery'},
+  {t:'ACL complete rupture',al:['complete ACL rupture','complete ACL tear'],p:'전방십자인대가 끊어졌습니다',c:'전방십자인대가 끊어지고',k:'dx'},
+  {t:'ACL rupture',al:['ACL tear'],p:'전방십자인대가 끊어졌습니다',c:'전방십자인대가 끊어지고',k:'dx'},
+  {t:'medial meniscus tear',al:['MM tear'],p:'안쪽 반월상연골이 찢어졌습니다',c:'안쪽 반월상연골이 찢어지고',k:'dx'},
+  {t:'lateral meniscus tear',al:['LM tear'],p:'바깥쪽 반월상연골이 찢어졌습니다',c:'바깥쪽 반월상연골이 찢어지고',k:'dx'},
+  {t:'lateral meniscal deficiency',al:['lateral meniscus deficiency','LM deficiency'],p:'바깥쪽 반월상연골이 많이 남아 있지 않습니다',c:'바깥쪽 반월상연골이 많이 남아 있지 않고',k:'dx'},
+  {t:'lateral compartment cartilage lesion',al:['lateral cartilage lesion'],p:'무릎 바깥쪽 관절 연골이 손상되었습니다',c:'무릎 바깥쪽 관절 연골이 손상되고',k:'dx'},
+  {t:'medial compartment OA',al:['medial OA','MC OA'],p:'안쪽 관절 간격이 좁아진 관절염입니다',c:'안쪽 관절 간격이 좁아진 관절염이고',k:'dx'},
+  {t:'cartilage lesion',al:['chondral lesion'],p:'연골이 손상되었습니다',c:'연골이 손상되고',k:'dx'},
+  {t:'LFC bone contusion',al:[],p:'허벅지뼈 바깥쪽 끝에 멍이 들었습니다',c:'허벅지뼈 바깥쪽 끝에 멍이 들고',k:'dx'},
+  {t:'bone contusion',al:[],p:'뼈에 멍이 들었습니다',c:'뼈에 멍이 들고',k:'dx'},
+  {t:'A/S ACL-R',al:['ACL-R','ACL reconstruction','ACLR'],p:'전방십자인대 재건술',k:'surgery',
+    ds:'끊어진 전방십자인대를 대신할 새로운 인대를 만들어 무릎을 다시 안정적으로 잡아주는 수술입니다.',goal:'무릎이 흔들리거나 비틀리는 불안정성을 줄이고 안정적인 움직임을 회복하는 것이 목표입니다.',after:'재건한 인대를 보호하면서 무릎 움직임과 허벅지 근력을 단계적으로 회복합니다.'},
+  {t:'MM repair',al:['meniscus repair','meniscal repair'],p:'반월상연골 봉합술',k:'surgery',
+    ds:'찢어진 반월상연골을 제거하지 않고 실로 꿰매 다시 붙을 수 있도록 하는 수술입니다.',goal:'반월상연골을 최대한 보존해 무릎의 충격을 흡수하고 관절을 보호하는 기능을 살리는 것이 목표입니다.',after:'봉합한 연골이 잘 붙도록 초기에는 수술 부위를 보호하고 이후 무릎 움직임과 근력을 단계적으로 회복합니다.'},
   {t:'DLM subtotal meniscectomy',al:['subtotal meniscectomy'],p:'원판형 반월상연골 아전절제술',k:'surgery'},
   {t:'PFJ & MFC chondroplasty',al:['chondroplasty'],p:'연골 성형술',k:'surgery'},
-  {t:'LMAT',al:['lateral MAT','lateral meniscus allograft transplantation'],p:'바깥쪽 반월상연골 이식술',k:'surgery'},
+  {t:'LMAT',al:['lateral MAT','lateral meniscus allograft transplantation'],p:'바깥쪽 반월상연골 이식술',k:'surgery',ds:'손상되어 부족해진 바깥쪽 반월상연골 자리에 기증 연골을 이식하는 수술입니다.'},
   {t:'MAT',al:['meniscus transplant'],p:'반월상연골 이식술',k:'surgery'},
-  {t:'cartilage repair',al:['cartilage regeneration'],p:'연골 재생 치료',k:'surgery'},
-  {t:'MPFL reconstruction',al:['MPFL-R'],p:'내측 슬개대퇴인대 재건술',k:'surgery'},
-  {t:'재활운동',al:['재활 운동','rehab','재활'],p:'재활 운동',k:'nonsurg',sub:'운동'},
-  {t:'물리치료',al:['PT'],p:'물리치료',k:'nonsurg',sub:'운동'},
+  {t:'cartilage repair',al:['cartilage regeneration'],p:'연골 재생 치료',k:'surgery',ds:'손상된 연골 부위를 재생시켜 관절 표면을 회복하는 치료입니다.'},
+  {t:'MPFL reconstruction',al:['MPFL-R'],p:'내측 슬개대퇴인대 재건술',k:'surgery',ds:'무릎뼈가 바깥쪽으로 빠지지 않도록 잡아주는 인대를 새로 만드는 수술입니다.'},
+  {t:'재활운동',al:['재활 운동','rehab','재활','기능회복운동'],p:'기능 회복 운동 치료',k:'nonsurg',sub:'운동'},
+  {t:'물리치료',al:['PT'],p:'기능 회복 운동 치료',k:'nonsurg',sub:'운동'},
   {t:'주사치료',al:['주사','injection','HA injection','steroid injection'],p:'주사 치료',k:'nonsurg',sub:'주사'},
-  {t:'약물치료',al:['약물','medication','NSAIDs'],p:'약물 치료',k:'nonsurg',sub:'약물'},
+  {t:'약물치료',al:['약물','medication','NSAIDs','약 처방'],p:'약물 치료',k:'nonsurg',sub:'약물'},
   {t:'brace',al:[],p:'보조기',k:'word'},
   {t:'f/u',al:['F/U','follow up'],p:'다음 진료',k:'word'},
   {t:'ROM',al:[],p:'관절 가동범위',k:'word'},
   {t:'quad setting',al:['quad set'],p:'허벅지 앞 근육 힘주기 운동',k:'word'},
 ];
-/* 4426 비수술 3종 고정 텍스트(자리표시 — 명지병원 v13 원문으로 교체) */
+/* 4426 비수술 3종 고정 텍스트 — 명지병원 실제 리포트(v13) 원문 */
 const NONSURG_TX={
-  '운동':{chip:'운동으로 치료합니다',name:'재활 운동 치료',goal:'수술 없이 무릎 주변 근력과 안정성을 회복해 통증과 불안정감을 줄이는 것이 목표입니다.',how:'통증이 심하지 않은 범위에서 정해진 운동을 꾸준히 이어가고, 경과에 따라 강도를 조절합니다.'},
-  '주사':{chip:'주사로 치료합니다',name:'주사 치료',goal:'관절 안의 염증과 통증을 줄이는 것이 목표입니다.',how:'주사 후 당일은 무리한 활동을 피하고, 통증 변화를 다음 진료에서 확인합니다.'},
-  '약물':{chip:'약으로 치료합니다',name:'약물 치료',goal:'통증과 염증을 조절하면서 일상 활동을 유지하는 것이 목표입니다.',how:'처방된 용법대로 복용하고, 속쓰림 등 불편이 있으면 알려 주세요.'},
+  '운동':{name:'기능 회복 운동 치료',ds:'무릎의 통증과 불편함을 줄이고, 편하게 움직일 수 있도록 기능회복운동치료를 진행합니다.',
+    body:'기능회복운동치료는 무릎이 잘 움직일 수 있도록 돕고, 약해진 근육을 강화하여 걷기, 계단 오르기, 운동 등 일상생활에 필요한 움직임을 회복하는 것을 목표로 합니다.\n다음 진료까지 안내받은 운동을 꾸준히 해주세요. 다음 진료에서는 통증이 줄었는지, 무릎이 잘 움직이는지, 근력과 움직임이 얼마나 좋아졌는지 확인하여 다음 운동·재활 계획을 정합니다.',
+    note:'※ 운동의 종류와 횟수, 강도는 무릎 상태에 따라 달라질 수 있습니다. 의료진과 건강운동관리사가 안내한 방법과 범위에 맞춰 진행해 주세요.'},
+  '주사':{name:'주사 치료',ds:'오늘 무릎의 통증과 불편함을 줄이기 위해 주사 치료를 시행했습니다.',
+    body:'주사 치료는 현재의 통증과 증상을 조절하여 일상생활이나 운동을 보다 편하게 할 수 있도록 돕는 치료입니다.\n치료 후에는 의료진이 안내한 주의사항을 지켜주시고, 다음 진료에서 통증이나 불편감이 어떻게 변화했는지 확인할 예정입니다.',
+    note:'※ 주사의 종류에 따라 치료 목적과 치료 후 주의사항이 다를 수 있으므로, 세부 내용은 오늘 시행한 주사에 맞게 별도로 안내합니다.'},
+  '약물':{name:'약물 치료',ds:'현재 무릎의 통증과 불편한 증상을 조절하기 위해 약물 치료를 시행합니다.',
+    body:'처방된 약은 통증이나 염증 등의 증상을 조절하여 일상생활을 보다 편하게 할 수 있도록 돕기 위한 치료입니다.\n처방받은 복용 방법과 기간을 지켜 복용해 주세요. 복용 후 불편한 증상이나 이상 반응이 있는 경우에는 의료진에게 알려주세요.\n다음 진료에서는 약물 복용 후 통증과 증상의 변화를 확인하여 이후 치료 방향을 결정합니다.',note:''},
 };
 const BUCKET={plan:{l:'진료 계획',c:'plan'},todo:{l:'하실 일',c:'todo'},next:{l:'다음 진료',c:'next'},skip:{l:'미표시',c:'skip'},dx:{l:'진단',c:'dx'},hx:{l:'수술 이력',c:'hx'}};
 const P_ORDER=['plan','todo','next','skip'], A_ORDER=['dx','hx','skip'];
 
-const S={caseKey:'case1',answers:[],ap:{a:'',p:''},override:{a:{},p:{}},confirmed:{a:{},p:{}},active:null,focusBucket:null,focusSeg:null,peek:{},pop:null,ac:null,menu:null,cycle:-1};
+const S={caseKey:'case1',answers:[],ap:{a:'',p:''},override:{a:{},p:{}},confirmed:{a:{},p:{}},active:null,focusBucket:null,focusSeg:null,peek:{},pop:null,ac:null,menu:null,cycle:-1,docOpen:false,imgOpen:false};
 function loadCase(k){ const c=CASES[k]; S.caseKey=k; S.answers=c.answers.map(a=>({...a})); S.ap={a:c.a,p:c.p}; S.override={a:{},p:{}}; S.confirmed={a:{},p:{}}; S.active=null; S.focusBucket=null; S.focusSeg=null; S.pop=null; S.ac=null; S.menu=null; S.cycle=-1; }
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 const norm=s=>s.toLowerCase().replace(/[^a-z0-9가-힣]/g,'');
@@ -406,6 +449,9 @@ function analyze(text){
   return {matches,unknown,spans};
 }
 function convertLine(line){ const an=analyze(line); if(an.unknown.length) return null; let out='',i=0; an.spans.forEach(s=>{ if(s.start<i) return; out+=line.slice(i,s.start)+s.d.p; i=s.end; }); out+=line.slice(i); return out.replace(/\s{2,}/g,' ').trim(); }
+/* 하실 일 문구를 환자 리포트 표기로 다듬기 (v13 문구 규칙: ~받기 / ~착용 / ~피하기) */
+const TODO_RULES=[[/보행\s*시\s*보조기\s*착용/,'걸을 때는 항상 보조기 착용'],[/무릎\s*회전\s*·?\s*쪼그려\s*앉기\s*금지/,'무릎 비틀기, 쪼그려 앉기 피하기'],[/금지$/,'피하기'],[/받기$/,'받기']];
+function todoText(line){ let t=convertLine(line); if(t===null) return null; TODO_RULES.forEach(([rx,to])=>{ t=t.replace(rx,to); }); return t; }
 
 /* =========================================================
    줄 배정 (규칙 1층 → 애매하면 AI 표시)
@@ -480,29 +526,23 @@ function cycleList(){ const l=unchecked().map(a=>({type:'answer',id:a.id})); nee
 function renderChrome(){
   const un=unchecked().length, nc=needConfirm().length, typos=allUnknown().filter(u=>u.state==='typo').length, mutes=allUnknown().filter(u=>u.state==='mute').length;
   const need=un+nc; const block=need>0||dxLines().length===0;
-  const b=document.getElementById('badgeRoot');
-  if(need||typos) b.innerHTML='<div class="badge'+(need?'':' ok')+'"'+(need?'':' style="border-color:#E5E7EC;background:#F3F4F7;color:#454C5A"')+'><span>'+(need?'확인 필요 <span class="n">'+need+'</span>':'확인 완료')+(typos?'<span style="font-weight:600;opacity:.8"> · 오타 의심 '+typos+'</span>':'')+'</span><button class="nx" data-act="next"'+(need?'':' style="background:#6F7683"')+'>다음 →</button></div>';
-  else b.innerHTML='<div class="badge ok">모두 확인됨 · 발송할 수 있습니다</div>';
   const parts=[];
-  if(un) parts.push('<span class="w">AI 답변 '+un+'개 미확인</span>');
-  if(nc) parts.push('<span class="w">AI 배정 항목 '+nc+'개 확인 필요</span>');
-  if(dxLines().length===0) parts.push('<span class="w">진단 문장이 만들어지지 않았습니다</span>');
-  if(typos) parts.push('오타 의심 '+typos+'개');
-  const skips=lineInfo('p').filter(l=>l.bucket==='skip').length+lineInfo('a').filter(l=>l.bucket!=='dx').length+mutes;
-  if(skips) parts.push('리포트에 들어가지 않은 내용 '+skips+'개 (리포트 끝 카드)');
-  document.getElementById('footnote').innerHTML=parts.length?parts.join(' · '):'<span style="color:#137A4B;font-weight:700">모두 확인됨</span>';
-  document.getElementById('btnDone').disabled=block; document.getElementById('btnSend').disabled=block;
+  if(need) parts.push('<span class="st" style="color:#B8700F">확인 필요 '+need+'</span>'); else parts.push('<span class="st" style="color:#1FAE6B">모두 확인됨 · 발송할 수 있습니다</span>');
+  const sub=[]; if(un) sub.push('AI 답변 '+un); if(nc) sub.push('AI 배정 항목 '+nc); if(dxLines().length===0) sub.push('진단 문장 없음'); if(typos) sub.push('오타 의심 '+typos);
+  const skips=lineInfo('p').filter(l=>l.bucket==='skip').length+lineInfo('a').filter(l=>l.bucket!=='dx').length+mutes; if(skips) sub.push('리포트 미포함 '+skips);
+  document.getElementById('footnote').innerHTML=parts.join('')+(sub.length?'<span style="color:var(--ink4);margin-left:10px">'+sub.join(' · ')+'</span>':'');
+  document.getElementById('btnSend').disabled=block;
 }
 
 /* =========================================================
    좌측 렌더
    ========================================================= */
 function answerCard(a){
-  const isArr=Array.isArray(a.val); const display=isArr?a.val.join(', '):a.val; const expanded=!a.checked||!!S.peek[a.id]; const low=a.conf<92;
+  const isArr=Array.isArray(a.val); const low=a.conf<92;
   let h='<div class="qcard'+(a.checked?' done':'')+'" data-answer="'+a.id+'" id="ans-'+a.id+'"><div class="qtop"><span class="qno">'+a.no+'</span><span class="qq">'+esc(a.q)+'</span>';
-  if(!expanded) h+='<span class="qval">'+esc(display)+'</span>';
   h+='<span class="src'+(a.src==='ai'?(low?' low':''):' doc')+'">'+(a.src==='ai'?'AI 선택 '+a.conf+'%':'의사 선택')+'</span><button class="chk'+(a.checked?' done':'')+'" data-chk="'+a.id+'">'+(a.checked?'확인함 · 다시 검토':'확인')+'</button></div>';
-  if(expanded){ h+='<div class="opts">'+a.opts.map(o=>'<button class="opt'+((isArr?a.val.includes(o):a.val===o)?' on':'')+'" data-pick="'+a.id+'" data-o="'+esc(o)+'">'+esc(o)+'</button>').join('')+'</div>'; if(a.evi&&a.src==='ai') h+='<div class="evi">발화 근거 · “'+esc(a.evi)+'”</div>'; }
+  h+='<div class="opts">'+a.opts.map(o=>'<button class="opt'+((isArr?a.val.includes(o):a.val===o)?' on':'')+'" data-pick="'+a.id+'" data-o="'+esc(o)+'">'+esc(o)+'</button>').join('')+'</div>';
+  if(a.evi&&a.src==='ai') h+='<div class="evi">발화 근거 · “'+esc(a.evi)+'”</div>';
   return h+'</div>';
 }
 /* 미러: 줄 span(.ln) 안에 용어 span(.u) — 캐럿 앵커 .cm 삽입 가능 */
@@ -545,10 +585,14 @@ function fieldHtml(field){
   return h+'</div>';
 }
 function renderMain(){
-  const ai=S.answers.filter(a=>a.src==='ai'); const allChecked=ai.every(a=>a.checked);
-  let h='<section><div class="sh"><div><div class="step">STEP 1</div><h2>AI가 고른 답변을 확인해 주세요</h2><p>녹음 발화를 근거로 자동 선택된 '+ai.length+'개입니다.</p></div><button class="act" data-act="checkAll">'+(allChecked?'모두 재검토':'모두 확인')+'</button></div>'+ai.map(answerCard).join('')+'</section>';
-  h+='<section id="step2"><div class="sh"><div><div class="step">STEP 2</div><h2>환자에게 보낼 내용을 확정해 주세요</h2><p>A·P는 평소처럼 쓰시면 됩니다. 어떤 내용이 환자 리포트의 어느 카드로 들어갔는지는 오른쪽에서 바로 보이고, 항목을 누르면 근거가 된 원문이 강조됩니다. 고칠 것이 있으면 A·P를 수정하면 리포트가 바로 바뀝니다. 리포트에 들어가지 않은 내용은 리포트 마지막 카드에 모여 있습니다.</p></div></div>';
+  const c=CASES[S.caseKey]; const ai=S.answers.filter(a=>a.src==='ai'), doc=S.answers.filter(a=>a.src==='doc'); const allChecked=ai.every(a=>a.checked);
+  let h='<section><div class="sh"><div><div class="step">Step 1</div><h2>AI가 고른 답변을 확인해 주세요</h2><p>녹음 발화를 근거로 자동 선택된 '+ai.length+'개입니다. 틀렸으면 다른 답을 눌러 바꾸세요. 확인한 문항도 그대로 남아 있으니 언제든 다시 볼 수 있습니다.</p></div><button class="act" data-act="checkAll">'+(allChecked?'모두 재검토':'모두 확인')+'</button></div>'+ai.map(answerCard).join('')+'</section>';
+  h+='<section id="step2"><div class="sh"><div><div class="step">Step 2</div><h2>환자에게 보낼 내용을 확정해 주세요</h2><p>A·P는 평소처럼 쓰시면 됩니다. 어떤 내용이 환자 리포트의 어느 카드로 들어갔는지는 오른쪽에서 바로 보이고, 항목을 누르면 근거가 된 원문이 강조됩니다. 고칠 것이 있으면 A·P를 수정하면 리포트가 바로 바뀝니다.</p></div></div>';
   h+=fieldHtml('a')+fieldHtml('p')+'</section>';
+  h+='<section><div class="nr">검토가 필요하지 않은 항목</div>';
+  h+='<div class="fold"><button data-act="toggleDoc"><span>직접 선택한 문진 답변 <small>'+doc.length+'개</small></span><span class="tgl">'+(S.docOpen?'접기':'펼치기')+'</span></button>'+(S.docOpen?'<div class="in">'+doc.map(d=>'<div class="drow"><span class="qno">'+d.no+'</span><span class="qq">'+esc(d.q)+'</span><span class="v">'+esc(Array.isArray(d.val)?d.val.join(', '):d.val)+'</span></div>').join('')+'</div>':'')+'</div>';
+  const im=c.imaging;
+  h+='<div class="fold"><button data-act="toggleImg"><span>Imaging Findings <small>직접 작성 · 리포트 미반영</small></span><span class="tgl">'+(S.imgOpen?'접기':'펼치기')+'</span></button>'+(S.imgOpen?'<div class="igrid"><div><div class="k">영상 촬영처</div><div class="v">'+esc(im.src)+'</div></div><div><div class="k">Key Finding</div><div class="v">'+esc(im.key)+'</div></div><div><div class="k">X-ray Findings</div><div class="v">'+esc(im.xray)+'</div></div><div><div class="k">MRI Findings</div><div class="v">'+esc(im.mri)+'</div></div></div>':'')+'</div></section>';
   document.getElementById('main').innerHTML=h; document.querySelectorAll('textarea[data-ta]').forEach(autosize); placeChips();
 }
 function autosize(ta){ ta.style.height='auto'; ta.style.height=ta.scrollHeight+'px'; const ed=ta.parentElement; const m=ed.querySelector('.mirror'); if(m) m.style.height=ta.scrollHeight+'px'; }
@@ -561,37 +605,52 @@ function planItems(){ const out=[]; lineInfo('p').filter(l=>l.bucket==='plan').f
 function dxItems(){ const out=[]; lineInfo('a').filter(l=>l.bucket==='dx').forEach(l=>{ const ms=l.an.matches.filter(m=>m.d.k==='dx'); if(!ms.length) return; ms.forEach(m=>{ if(!out.some(o=>o.p===m.d.p)) out.push({p:m.d.p,seg:l}); }); }); return out; }
 function aiMark(seg,light){ const unsure=!seg.sure&&!seg.overridden&&!seg.confirmed; return unsure?'<span class="aimark"'+(light?' style="background:rgba(255,255,255,.92)"':'')+'><i></i>AI 배정 · 원문 확인</span>':''; }
 function itemAttr(seg){ const hot=S.focusSeg&&S.focusSeg.field===seg.field&&S.focusSeg.i===seg.i; return ' class="ritem'+(hot?' hot':'')+'" data-item="'+seg.field+':'+seg.i+'"'; }
+function figSvg(side){
+  // 다리 실루엣 + 무릎 표시 (side: 오른쪽/왼쪽/양쪽 — 실제 리포트처럼 보는 사람 기준 우/좌)
+  const dot=(x)=>'<circle cx="'+x+'" cy="72" r="16" fill="#E5484D" opacity=".28"/><circle cx="'+x+'" cy="72" r="8" fill="#E5484D"/>';
+  const dots=(side==='양쪽'?dot(52)+dot(88):side==='왼쪽'?dot(52):dot(88));
+  return '<svg class="fig" viewBox="0 0 140 130" aria-hidden="true"><path d="M38 0h64c4 18 6 34 4 52l-4 30c-1 12-2 24-2 36 0 5-4 9-9 9H86c-4 0-7-3-7-7l-2-40-2 40c0 4-3 7-7 7H49c-5 0-9-4-9-9 0-12-1-24-2-36l-4-30c-2-18 0-34 4-52z" fill="#D9DCE3"/><path d="M62 52h16l-3 34-5 0-5 0z" fill="#CFD3DB"/>'+dots+'</svg>';
+}
+function dxSentences(){
+  // A의 진단 개념을 하나의 문장으로: 연결형 … + 마지막은 종결형 (실제 리포트: "전방십자인대가 끊어지고 안쪽 반월상연골이 찢어졌습니다.")
+  const parts=[]; lineInfo('a').filter(l=>l.bucket==='dx').forEach(l=>l.an.matches.filter(m=>m.d.k==='dx').forEach(m=>{ if(!parts.some(p=>p.d===m.d)) parts.push({d:m.d,seg:l}); }));
+  return parts.map((p,i)=>({text:(i===parts.length-1?p.d.p+'.':(p.d.c||p.d.p)),seg:p.seg,last:i===parts.length-1}));
+}
 function renderAside(){
-  const c=CASES[S.caseKey]; const pl=lineInfo('p'); const on=b=>S.focusBucket===b?' on':'';
-  const dxs=dxItems(); const plans=planItems(); const surg=plans.filter(x=>x.kind==='surgery'); const nonsurg=plans.find(x=>x.kind==='nonsurg');
-  const todos=pl.filter(l=>l.bucket==='todo').map(l=>({t:convertLine(l.text)||l.text,seg:l}));
-  const nextL=pl.find(l=>l.bucket==='next'); let nxMain='',nxNote='';
-  if(nextL){ const conv=convertLine(nextL.text)||nextL.text; const m=conv.match(/(\d+\s*(?:주|개월|달|일)\s*(?:후|뒤))/); nxMain=m?m[1]:conv; nxNote=conv.replace(m?m[1]:'', '').replace(/^\s*[—\-–:]\s*/,'').replace(/^다음 진료\s*/,'').trim(); if(/외래\s*추적|추적/.test(nxNote)) nxNote='경과를 확인하는 진료입니다'; }
-  let h='<div class="rcap"><b>환자에게 보이는 리포트</b><span>항목을 누르면 근거 원문 강조</span></div><div class="phone">';
-  // 진단
-  h+='<div class="blk hero'+on('dx')+'" data-block="dx"><div class="c">○○정형외과 · '+c.date+'</div><div class="e">'+esc(c.patient)+' 님, 오늘 진료 결과입니다</div><div class="side">'+esc(sideText())+'</div><div class="dx">';
-  h+=dxs.length?dxs.map(d=>'<div'+itemAttr(d.seg)+'>'+esc(d.p)+aiMark(d.seg,true)+'</div>').join(''):'<div style="opacity:.75;font-size:15px">진단 내용이 아직 없습니다</div>';
-  h+='</div></div><div class="rbody">';
-  // 계획
-  h+='<div class="rcard blk'+on('plan')+'" data-block="plan"><h3>앞으로의 진료 계획</h3>';
-  if(surg.length){ h+='<span class="chip">수술로 치료합니다</span>'+surg.map(x=>'<div class="txn"'+itemAttr(x.seg).replace('class="ritem','class="ritem txn')+'>'+esc(x.p)+aiMark(x.seg)+'</div>').join(''); }
-  else if(nonsurg){ const T=NONSURG_TX[nonsurg.sub]; h+='<div'+itemAttr(nonsurg.seg)+'><span class="chip" style="background:var(--ok)">'+T.chip+'</span>'+aiMark(nonsurg.seg)+'<div class="txn">'+T.name+'</div><div class="fixedtx"><div class="k">치료 목표</div>'+T.goal+'<div class="k">치료 중에는</div>'+T.how+'</div></div>'; }
-  else h+='<div class="txn"><span class="muted">처치 내용이 아직 없습니다</span></div>';
-  plans.filter(x=>x.kind==='raw').forEach(x=>{ h+='<div class="rsub"'+itemAttr(x.seg)+'>'+esc(x.p)+aiMark(x.seg)+'</div>'; });
+  const c=CASES[S.caseKey]; const pl=lineInfo('p');
+  const dxs=dxSentences(); const plans=planItems(); const surg=plans.filter(x=>x.kind==='surgery'); const nonsurg=plans.find(x=>x.kind==='nonsurg');
+  const todos=pl.filter(l=>l.bucket==='todo').map(l=>({t:todoText(l.text)||l.text,seg:l}));
+  const nextL=pl.find(l=>l.bucket==='next');
+  const side=sideText().replace(' 무릎','');
+  let h='<div class="rcap"><b>환자에게 보이는 리포트</b><span>항목을 누르면 근거 원문 강조</span></div>';
+  h+='<div class="dev"><div class="scr">';
+  h+='<div class="rhead"><div class="top"><span>명지병원</span><span>'+esc(c.dateK)+' 진료</span></div><div class="greet">'+esc(c.patient)+'님,<br>오늘 진료 결과입니다</div><div class="pad"></div></div>';
+  h+='<div class="rwrap">';
+  // 진단 카드
+  h+='<div class="dxcard" data-block="dx">'+figSvg(side)+'<div class="dxgroup"><span class="sidechip">'+esc(side)+' 무릎</span>';
+  h+=dxs.length?'<div class="dxs">'+dxs.map(d=>'<span'+itemAttr(d.seg)+' style="display:inline">'+esc(d.text)+aiMark(d.seg)+'</span>').join(' ')+'</div>':'<div class="dxs" style="color:#8B929E;font-size:16px">진단 내용이 아직 없습니다</div>';
+  h+='</div></div>';
+  // 앞으로의 진료 계획
+  h+='<div class="rsec" data-block="plan"><h3>앞으로의 진료 계획</h3>';
+  if(surg.length){ surg.forEach(x=>{ const d=DICT.find(dd=>dd.p===x.p)||{}; h+='<div class="tx"'+itemAttr(x.seg)+'><div class="nm">'+esc(x.p)+aiMark(x.seg)+'</div>'+(d.ds?'<div class="ds">'+esc(d.ds)+'</div>':'')+(d.goal||d.after?'<hr>'+(d.goal?'<div class="k">수술 목표</div><div class="v">'+esc(d.goal)+'</div>':'')+(d.after?'<div class="k">수술 후에는</div><div class="v">'+esc(d.after)+'</div>':''):'')+'</div>'; }); }
+  else if(nonsurg){ const T=NONSURG_TX[nonsurg.sub]; h+='<div class="tx"'+itemAttr(nonsurg.seg)+'><div class="nm">'+T.name+aiMark(nonsurg.seg)+'</div><div class="ds">'+T.ds+'</div><hr><div class="body">'+T.body+'</div>'+(T.note?'<div class="note">'+T.note+'</div>':'')+'</div>'; }
+  else h+='<div class="tx"><div class="ds" style="margin:0;color:#8B929E">치료 계획이 아직 없습니다</div></div>';
+  plans.filter(x=>x.kind==='raw').forEach(x=>{ h+='<div class="tx"'+itemAttr(x.seg)+'><div class="ds" style="margin:0;color:#111">'+esc(x.p)+aiMark(x.seg)+'</div></div>'; });
   h+='</div>';
   // 하실 일
-  h+='<div class="rcard blk'+on('todo')+'" data-block="todo"><h3>다음 진료까지 하실 일</h3><div class="todos">'+(todos.length?todos.map((t,i)=>'<div class="todo"'+itemAttr(t.seg)+'><span class="n">'+(i+1)+'</span><span class="t">'+esc(t.t)+aiMark(t.seg)+'</span></div>').join(''):'<span class="muted">이번 리포트에는 안내할 항목이 없습니다</span>')+'</div></div>';
-  // 다음 진료
-  h+='<div class="rcard blk'+on('next')+'" data-block="next"><h3>다음에 오시는 날</h3>'+(nextL?'<div'+itemAttr(nextL)+'><div class="nxt">'+esc(nxMain)+aiMark(nextL)+'</div>'+(nxNote?'<div class="nxtp">'+esc(nxNote)+'</div>':'')+'</div>':'<span class="muted">다음 진료 안내가 없습니다</span>')+'</div>';
-  h+='<div style="text-align:center;font-size:11.5px;color:var(--ink4);line-height:1.6;padding:4px 8px 0">이 리포트는 ○○정형외과 ○○○ 원장의<br>'+c.date+' 진료 내용을 바탕으로 작성되었습니다.</div></div></div>';
-  // 들어가지 않은 내용 — 환자 화면 밖, 의료진용 카드. 항상 펼침
+  h+='<div class="rsec" data-block="todo"><h3>다음 진료까지 하실 일</h3><div class="tdcard">'+(todos.length?todos.map(t=>'<div class="td"'+itemAttr(t.seg)+'><span class="ck"></span><span>'+esc(t.t)+aiMark(t.seg)+'</span></div>').join(''):'<div class="td" style="color:#8B929E;font-weight:500">안내할 항목이 없습니다</div>')+'</div></div>';
+  // 다음에 오시는 날
+  h+='<div class="rsec" data-block="next"><h3>다음에 오시는 날</h3><div class="nxcard"'+(nextL?itemAttr(nextL):'')+'><div class="d">'+(nextL?esc(c.nextDate)+aiMark(nextL):'<span style="color:#8B929E;font-size:15px;font-weight:500">다음 진료 안내가 없습니다</span>')+'</div></div></div>';
+  h+='<div class="rfoot">이 리포트는 '+esc(c.dateK)+' 명지병원에서 받은 진료 내용을 바탕으로 작성되었습니다.</div>';
+  h+='</div></div></div>';
+  // 들어가지 않은 내용 — 환자 화면 밖, 의료진용 카드
   const hidden=[...lineInfo('a').filter(l=>l.bucket!=='dx').map(l=>({f:'a',l})),...pl.filter(l=>l.bucket==='skip').map(l=>({f:'p',l}))];
   const mutes=allUnknown().filter(u=>u.state==='mute');
-  h+='<div class="xcard" style="max-width:360px;margin:14px auto 0"><div style="font-size:11px;font-weight:800;color:var(--ink4);margin-bottom:6px">의료진만 보는 항목</div><h3>이번 리포트에 들어가지 않은 내용</h3><div class="xs">의사 메모·조건부 계획·과거 이력, 그리고 환자용 표현이 없는 표기입니다. 환자에게는 보이지 않습니다.</div>';
+  h+='<div class="xcard"><div style="font-size:11px;font-weight:800;color:var(--ink4);margin-bottom:6px">의료진만 보는 항목</div><h3>이번 리포트에 들어가지 않은 내용</h3><div class="xs">의사 메모·조건부 계획·과거 이력, 그리고 환자용 표현이 없는 표기입니다. 환자에게는 보이지 않습니다.</div>';
   if(!hidden.length&&!mutes.length) h+='<div class="xempty">없음 — 작성한 내용이 모두 리포트에 담겼습니다</div>';
   hidden.forEach(x=>{ const l=x.l; const why=l.bucket==='hx'?'<span class="why">과거 수술 이력</span>':(RX.hedge.test(l.text)?'<span class="why cond">조건부 계획</span>':'<span class="why">의사 메모</span>');
-    h+='<div class="xrow">'+why+'<span class="tx" data-item="'+x.f+':'+l.i+'">'+esc(l.text)+aiMark(l)+'</span></div>'; });
-  mutes.forEach(u=>{ h+='<div class="xrow"><span class="why term">표기 미등록</span><span class="tx" data-goterm="'+u.field+'" data-start="'+u.start+'" data-end="'+u.end+'"><code>'+esc(u.raw)+'</code> — 환자용 표현이 사전에 없어 해당 부분이 생략됩니다</span></div>'; });
+    h+='<div class="xrow">'+why+'<span class="xtx" data-item="'+x.f+':'+l.i+'">'+esc(l.text)+aiMark(l)+'</span></div>'; });
+  mutes.forEach(u=>{ h+='<div class="xrow"><span class="why term">표기 미등록</span><span class="xtx" data-goterm="'+u.field+'" data-start="'+u.start+'" data-end="'+u.end+'"><code>'+esc(u.raw)+'</code> — 환자용 표현이 사전에 없어 해당 부분이 생략됩니다</span></div>'; });
   h+='</div>';
   document.getElementById('aside').innerHTML=h;
 }
@@ -617,7 +676,7 @@ function openMenu(field,i,anchorEl){
   let h='<div class="src"><span class="lab">원문 · '+(field==='a'?'[A] Assessment':'[P] Plan')+'</span>'+esc(l.text)+'</div>';
   if(unsure){ S.confirmed[field][i]=true; setTimeout(()=>{ renderChrome(); renderAside(); },0); }
   menu.innerHTML=h; menu.classList.add('on');
-  const el=document.querySelector('.rbody [data-item="'+field+':'+i+'"], .hero [data-item="'+field+':'+i+'"]')||document.querySelector('[data-put="'+field+':'+i+'"]'); const r=el?el.getBoundingClientRect():{left:600,right:900,top:300,bottom:320}; const w=menu.offsetWidth,hh=menu.offsetHeight;
+  const el=document.querySelector('.scr [data-item="'+field+':'+i+'"]')||document.querySelector('.xcard [data-item="'+field+':'+i+'"]'); const r=el?el.getBoundingClientRect():{left:600,right:900,top:300,bottom:320}; const w=menu.offsetWidth,hh=menu.offsetHeight;
   let left=Math.min(Math.max(12,r.left-w-14),window.innerWidth-w-12); let top=Math.min(Math.max(12,r.top-10),window.innerHeight-hh-12);
   if(r.left-w-14<12){ left=Math.min(Math.max(12,r.left),window.innerWidth-w-12); top=r.bottom+8; if(top+hh>window.innerHeight-12) top=r.top-hh-8; }
   menu.style.left=left+'px'; menu.style.top=top+'px';
@@ -664,7 +723,7 @@ let lastUndo=null;
 function toast(html,undo){ const t=document.getElementById('toast'); lastUndo=undo||null; t.innerHTML=html+(undo?'<button data-act="undo">실행 취소</button>':''); t.classList.add('on'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('on'),undo?5200:1800); }
 function applyTerm(field,start,end,to){ const before=S.ap[field], raw=before.slice(start,end); S.ap[field]=before.slice(0,start)+to+before.slice(end); closePop(); const ta=document.querySelector('textarea[data-ta="'+field+'"]'); if(ta){ ta.value=S.ap[field]; autosize(ta); } refreshField(field); toast('<span><b>'+esc(raw)+'</b> → <b>'+esc(to)+'</b> 로 바꿨습니다</span>',()=>{ S.ap[field]=before; const t2=document.querySelector('textarea[data-ta="'+field+'"]'); if(t2){t2.value=before;autosize(t2);} refreshField(field); }); }
 function goNext(){ const l=cycleList(); if(!l.length) return; S.cycle=(S.cycle+1)%l.length; const it=l[S.cycle]; closePop(); closeAc(); closeMenu();
-  if(it.type==='answer'){ S.peek[it.id]=true; renderMain(); const el=document.getElementById('ans-'+it.id); if(el){ el.scrollIntoView({block:'center',behavior:'smooth'}); el.classList.add('hot'); setTimeout(()=>el.classList.remove('hot'),1800); } }
+  if(it.type==='answer'){ renderMain(); const el=document.getElementById('ans-'+it.id); if(el){ el.scrollIntoView({block:'center',behavior:'smooth'}); el.classList.add('hot'); setTimeout(()=>el.classList.remove('hot'),1800); } }
   else if(it.type==='line'){ const el=document.querySelector('[data-item="'+it.field+':'+it.i+'"]'); if(el) el.scrollIntoView({block:'center',behavior:'smooth'}); setTimeout(()=>openMenu(it.field,it.i,el),350); }
   else { const card=document.getElementById('field-'+it.field); if(card) card.scrollIntoView({block:'center',behavior:'smooth'}); setTimeout(()=>openPop(it.field,it.start,it.end,true),350); } }
 
@@ -690,14 +749,14 @@ document.addEventListener('click',e=>{ const t=e.target;
   const ap=t.closest('[data-apply]'); if(ap){ applyTerm(ap.dataset.apply,+ap.dataset.start,+ap.dataset.end,ap.dataset.to); return; }
 
   const act=t.closest('[data-act]');
-  if(act){ const a=act.dataset.act; if(a==='next') goNext(); else if(a==='closePop'||a==='keepTerm') closePop(); else if(a==='undo'){ if(lastUndo){ lastUndo(); lastUndo=null; } document.getElementById('toast').classList.remove('on'); } else if(a==='checkAll'){ const ai=S.answers.filter(x=>x.src==='ai'); const all=ai.every(x=>x.checked); ai.forEach(x=>x.checked=!all); S.peek={}; renderAll(); } else if(a==='done') toast('검토가 완료되어 저장되었습니다'); else if(a==='send') toast('검토 내용을 저장하고 환자에게 발송했습니다'); else if(a==='close') toast('(닫기 — 저장하지 않고 닫힙니다)'); return; }
+  if(act){ const a=act.dataset.act; if(a==='next') goNext(); else if(a==='toggleDoc'){ S.docOpen=!S.docOpen; renderMain(); } else if(a==='toggleImg'){ S.imgOpen=!S.imgOpen; renderMain(); } else if(a==='closePop'||a==='keepTerm') closePop(); else if(a==='undo'){ if(lastUndo){ lastUndo(); lastUndo=null; } document.getElementById('toast').classList.remove('on'); } else if(a==='checkAll'){ const ai=S.answers.filter(x=>x.src==='ai'); const all=ai.every(x=>x.checked); ai.forEach(x=>x.checked=!all); S.peek={}; renderAll(); } else if(a==='done') toast('검토가 완료되어 저장되었습니다'); else if(a==='send') toast('검토 내용을 저장하고 환자에게 발송했습니다'); else if(a==='close') toast('(닫기 — 저장하지 않고 닫힙니다)'); return; }
   const chk=t.closest('[data-chk]'); if(chk){ const a=S.answers.find(x=>x.id===chk.dataset.chk); a.checked=!a.checked; S.peek[a.id]=false; renderAll(); return; }
   const pick=t.closest('[data-pick]'); if(pick){ const a=S.answers.find(x=>x.id===pick.dataset.pick); const o=pick.dataset.o; if(Array.isArray(a.val)){ a.val=a.val.includes(o)?a.val.filter(v=>v!==o):[...a.val,o]; if(!a.val.length) a.val=[o]; } else a.val=o; a.src='doc'; a.checked=true; renderAll(); return; }
-  const card=t.closest('[data-answer]'); if(card){ const a=S.answers.find(x=>x.id===card.dataset.answer); if(a.checked){ S.peek[a.id]=!S.peek[a.id]; renderMain(); } return; }
-  const blk=t.closest('[data-block]'); if(blk){ closeMenu(); const b=blk.dataset.block; S.focusBucket=S.focusBucket===b?null:b; const f=b==='dx'?'a':'p'; refreshMirror('a'); refreshMirror('p'); renderAside(); const card=document.getElementById('field-'+f); if(card) card.scrollIntoView({block:'center',behavior:'smooth'}); return; }
+
+  const blk=t.closest('[data-block]'); if(blk){ closeMenu(); const b=blk.dataset.block; S.focusBucket=S.focusBucket===b?null:b; const f=b==='dx'?'a':'p'; refreshMirror('a'); refreshMirror('p'); const card=document.getElementById('field-'+f); if(card) card.scrollIntoView({block:'center',behavior:'smooth'}); return; }
   if(!t.closest('#pop')&&S.pop&&S.pop.pinned) closePop(); if(!t.closest('#menu')&&S.menu) closeMenu(); });
 document.getElementById('modeSeg').addEventListener('click',e=>{ const b=e.target.closest('[data-mode]'); if(!b) return; loadCase(b.dataset.mode); closePop(); closeAc(); closeMenu(); document.querySelectorAll('#modeSeg button').forEach(x=>x.classList.toggle('on',x===b)); renderAll(); });
-document.getElementById('main').addEventListener('scroll',()=>{ positionPop(); if(S.ac) renderAc(); });
+document.querySelector('.mbody').addEventListener('scroll',()=>{ positionPop(); if(S.ac) renderAc(); });
 window.addEventListener('resize',()=>{ document.querySelectorAll('textarea[data-ta]').forEach(autosize); placeChips(); positionPop(); });
 document.fonts&&document.fonts.ready.then(()=>{ document.querySelectorAll('textarea[data-ta]').forEach(autosize); placeChips(); });
 loadCase('case1'); renderAll();
