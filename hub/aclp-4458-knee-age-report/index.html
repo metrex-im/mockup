@@ -1,0 +1,606 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>무릎나이 결과지</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F4F5F7;
+    --card:#FFFFFF;
+    --line:#E5E7EB;
+    --line-strong:#D1D5DB;
+    --text:#111827;
+    --text-sub:#6B7280;
+    --text-mute:#9CA3AF;
+    --blue:#2563EB;
+    --blue-soft:#E8F1FB;
+    --navy:#111C35;
+    --green:#E9F7EF;
+    --green-text:#12805C;
+    --red:#FDECEC;
+    --red-text:#C0392B;
+    --amber:#FEF4E6;
+    --amber-text:#B7791F;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+    font-size:14px;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  button{font-family:inherit;cursor:pointer}
+
+  /* ---------- GNB ---------- */
+  .gnb{
+    background:#fff;border-bottom:1px solid var(--line);
+    height:64px;display:flex;align-items:center;gap:28px;
+    padding:0 28px;position:sticky;top:0;z-index:10;
+  }
+  .logo{display:flex;align-items:center;gap:8px;font-weight:700;font-size:17px;letter-spacing:-.2px}
+  .logo-mark{
+    width:26px;height:26px;border-radius:7px;background:var(--blue);
+    color:#fff;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;
+  }
+  .gnb-divider{width:1px;height:18px;background:var(--line)}
+  .gnb-menu{display:flex;gap:26px;font-size:15px;color:var(--text-sub)}
+  .gnb-menu a{text-decoration:none;color:inherit}
+  .gnb-menu .on{color:var(--blue);font-weight:700}
+  .gnb-right{margin-left:auto;display:flex;align-items:center;gap:14px;font-size:13px;color:var(--text-sub)}
+  .gnb-user{
+    border:1px solid var(--line-strong);border-radius:8px;padding:7px 12px;
+    display:flex;align-items:center;gap:7px;background:#fff;font-size:13px;color:var(--text);
+  }
+
+  /* ---------- 목록 화면 ---------- */
+  .wrap{max-width:1280px;margin:0 auto;padding:28px}
+  .page-head{display:flex;align-items:center;margin-bottom:18px}
+  .page-title{font-size:21px;font-weight:700}
+  .page-head .actions{margin-left:auto;display:flex;gap:8px}
+  .btn{
+    border:1px solid var(--line-strong);background:#fff;border-radius:8px;
+    padding:9px 14px;font-size:13px;color:var(--text);display:inline-flex;align-items:center;gap:6px;
+  }
+  .btn:hover{background:#FAFAFA}
+  .btn-primary{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:500}
+  .btn-primary:hover{background:#1D4FD8}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .btn:disabled:hover{background:#fff}
+
+  .stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+  .stat{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px 20px}
+  .stat.active{background:#EEF5FE;border-color:#CFE0FA}
+  .stat-top{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+  .stat-label{font-size:14px;color:var(--text-sub)}
+  .stat-tag{font-size:11px;color:var(--text-mute);background:#F3F4F6;border-radius:5px;padding:3px 7px}
+  .stat-value{font-size:26px;font-weight:700}
+
+  .seg{display:grid;grid-template-columns:1fr 1fr;background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:18px}
+  .seg div{padding:13px;text-align:center;font-size:15px;color:var(--text-sub)}
+  .seg .on{background:var(--navy);color:#fff;font-weight:700;border-radius:9px}
+
+  .filter{background:#fff;border:1px solid var(--line);border-radius:12px;padding:20px;margin-bottom:18px}
+  .filter-row{display:flex;gap:16px;margin-bottom:16px}
+  .field{display:flex;flex-direction:column;gap:7px;width:230px}
+  .field label{font-size:13px;color:var(--text-sub)}
+  .field input{border:1px solid var(--line-strong);border-radius:8px;padding:10px 12px;font-size:13px;font-family:inherit}
+  .field input::placeholder{color:var(--text-mute)}
+  .filter-actions{display:flex;align-items:center;gap:14px}
+  .btn-dark{background:var(--navy);border-color:var(--navy);color:#fff}
+  .link-reset{font-size:13px;color:var(--text-sub);background:none;border:0;display:inline-flex;gap:5px;align-items:center}
+
+  .result-count{font-size:13px;color:var(--text-sub);margin-bottom:10px}
+  .result-count b{color:var(--text);margin-left:5px}
+  .table-card{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  table{width:100%;border-collapse:collapse}
+  th{
+    text-align:left;font-size:13px;font-weight:500;color:var(--text-sub);
+    padding:14px 16px;border-bottom:1px solid var(--line);background:#fff;
+  }
+  td{padding:14px 16px;border-bottom:1px solid #F1F2F4;font-size:13px}
+  tr:last-child td{border-bottom:0}
+  tr:hover td{background:#FAFBFC}
+  .btn-sm{
+    border:1px solid var(--line-strong);background:#fff;border-radius:7px;
+    padding:7px 11px;font-size:12px;display:inline-flex;align-items:center;gap:5px;
+  }
+  .btn-sm:hover{background:#F3F6FB;border-color:#B8C4D6}
+  .pager{display:flex;justify-content:center;align-items:center;gap:14px;padding:22px 0;color:var(--text-mute);font-size:13px}
+  .pager .cur{background:var(--navy);color:#fff;width:24px;height:24px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:12px}
+
+  /* ---------- 리포트 다이얼로그 ---------- */
+  .overlay{position:fixed;inset:0;background:#fff;z-index:50;overflow:auto;display:none}
+  .overlay.open{display:block}
+  .ov-head{position:relative;padding:18px 24px 0;display:flex;flex-direction:column;align-items:center}
+  .pill{background:#F3F4F6;border-radius:999px;padding:4px;display:inline-flex;gap:4px}
+  .pill button{border:0;background:transparent;border-radius:999px;padding:9px 30px;font-size:14px;color:var(--text-sub)}
+  .pill button.on{background:var(--navy);color:#fff;font-weight:700}
+  .ov-close{position:absolute;right:24px;top:20px;border:0;background:none;font-size:22px;color:var(--text-sub);line-height:1;padding:6px}
+
+  .subtabs{display:flex;justify-content:center;gap:26px;margin-top:16px;border-bottom:1px solid var(--line)}
+  .subtabs button{
+    border:0;background:none;padding:12px 4px;font-size:15px;color:var(--text-sub);
+    border-bottom:2px solid transparent;margin-bottom:-1px;
+  }
+  .subtabs button.on{color:var(--blue);font-weight:700;border-bottom-color:var(--blue)}
+
+  .toolbar{max-width:1120px;margin:20px auto 0;padding:0 24px;display:flex;align-items:center;gap:8px}
+  .datebox{
+    border:1px solid var(--line-strong);border-radius:8px;padding:9px 13px;font-size:13px;
+    display:inline-flex;align-items:center;gap:26px;background:#fff;
+  }
+  .navbtns{display:inline-flex;align-items:center;gap:4px}
+  .navbtns button{border:1px solid var(--line-strong);background:#fff;border-radius:7px;padding:8px 11px;font-size:13px;color:var(--text-sub)}
+  .navbtns button.today{color:var(--text)}
+  .toolbar .right{margin-left:auto;display:flex;gap:8px}
+
+  .report-scroll{max-width:1120px;margin:0 auto;padding:18px 24px 60px;display:flex;justify-content:center}
+
+  /* ---------- A4 결과지 ---------- */
+  .a4{
+    width:794px;min-height:1123px;background:#fff;border:1px solid var(--line);
+    border-radius:10px;padding:26px 28px;display:flex;flex-direction:column;gap:14px;
+  }
+  .rep-head{background:var(--blue-soft);border-radius:8px;padding:16px 18px;display:flex;align-items:flex-start}
+  .rep-org{font-size:12px;color:#4B6A93;margin-bottom:4px}
+  .rep-title{font-size:20px;font-weight:700;letter-spacing:-.3px}
+  .rep-head .right{margin-left:auto;text-align:right}
+  .rep-pt{font-size:15px;font-weight:700}
+  .rep-pt span{font-weight:400;font-size:13px;color:#3F5B80;margin-left:8px}
+  .rep-meta{font-size:12px;color:#4B6A93;margin-top:6px;display:flex;justify-content:flex-end;align-items:center;gap:8px}
+  .chip{background:var(--navy);color:#fff;border-radius:5px;padding:2px 8px;font-size:11px;font-weight:500}
+  .chip-line{background:#fff;color:#3F5B80;border:1px solid #C6D8EF;border-radius:5px;padding:2px 8px;font-size:11px}
+
+  .sec-title{display:flex;align-items:center;gap:9px;margin-bottom:9px}
+  .sec-no{width:21px;height:21px;border-radius:50%;background:var(--navy);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
+  .sec-title h3{margin:0;font-size:15px;font-weight:700}
+  .sec-title .tag{font-size:11px;background:#F3F4F6;color:var(--text-sub);border-radius:5px;padding:3px 7px;font-weight:500}
+
+  .panel{border:1px solid var(--line);border-radius:9px;padding:15px 17px}
+
+  /* 요약 */
+  .summary{display:grid;grid-template-columns:1fr 1.25fr;gap:16px;align-items:center}
+  .kage-main{display:flex;align-items:baseline;gap:10px}
+  .kage-num{font-size:46px;font-weight:700;letter-spacing:-1.5px;line-height:1}
+  .kage-unit{font-size:17px;font-weight:500;color:var(--text-sub)}
+  .kage-sub{margin-top:10px;font-size:13px;color:var(--text-sub);display:flex;gap:16px}
+  .kage-sub b{color:var(--text);font-weight:700}
+  .gap-badge{
+    display:inline-flex;align-items:center;gap:7px;background:var(--red);color:var(--red-text);
+    border-radius:7px;padding:7px 12px;font-size:14px;font-weight:700;
+  }
+  .grade-row{display:flex;align-items:center;gap:9px;margin-bottom:12px}
+  .grade-label{font-size:12px;color:var(--text-sub)}
+  .grade-chip{border-radius:6px;padding:4px 11px;font-size:13px;font-weight:700}
+  .grade-high{background:var(--red);color:var(--red-text)}
+  .gauge{position:relative;height:10px;border-radius:999px;overflow:hidden;display:flex}
+  .gauge i{display:block;height:100%}
+  .g1{background:#BFE3D0;flex:2}
+  .g2{background:#F6DDB0;flex:1.2}
+  .g3{background:#F0B5AE;flex:2}
+  .gauge-mark{position:absolute;top:-4px;width:3px;height:18px;background:var(--navy);border-radius:2px}
+  .gauge-legend{display:flex;justify-content:space-between;font-size:11px;color:var(--text-mute);margin-top:7px}
+
+  /* 지표 카드 */
+  .metrics{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .metric{background:#FAFBFC;border:1px solid #EEF0F3;border-radius:8px;padding:13px 15px}
+  .metric .m-label{font-size:12px;color:var(--text-sub);margin-bottom:7px}
+  .metric .m-value{font-size:22px;font-weight:700}
+  .metric .m-value small{font-size:12px;font-weight:500;color:var(--text-sub);margin-left:3px}
+  .metric .m-ref{font-size:11px;color:var(--text-mute);margin-top:5px}
+
+  /* 위험요인 표 */
+  .rf{width:100%;border-collapse:collapse}
+  .rf th{font-size:11px;color:var(--text-sub);font-weight:500;padding:0 0 8px;border-bottom:1px solid var(--line);background:none}
+  .rf td{padding:8px 0;border-bottom:1px solid #F1F2F4;font-size:12.5px}
+  .rf tr:last-child td{border-bottom:0}
+  .rf .num{text-align:right;white-space:nowrap}
+  .rf .num b{font-size:13px}
+  .rf .sum td{border-top:1px solid var(--line);border-bottom:0;padding-top:10px;font-weight:700;font-size:13px}
+  .rf tr:hover td{background:transparent}
+  .bar{display:inline-block;width:64px;height:6px;background:#EEF0F3;border-radius:999px;overflow:hidden;vertical-align:middle;margin-right:9px}
+  .bar i{display:block;height:100%;background:#7C93B8;border-radius:999px}
+
+  /* 코멘트 */
+  .comment{background:#FAFBFC;border:1px solid #EEF0F3;border-radius:8px;padding:14px 16px;font-size:13px;line-height:1.75;color:#374151}
+  .notice{margin-top:auto;padding-top:14px;border-top:1px solid var(--line);font-size:11px;color:var(--text-mute);display:flex;gap:10px}
+  .notice .ver{margin-left:auto;white-space:nowrap}
+
+  .two-col{display:grid;grid-template-columns:1.35fr 1fr;gap:14px}
+
+  /* 검사 종합 / 검사 경과 탭 */
+  .legacy{width:900px}
+  .legacy .panel{margin-bottom:14px}
+  .emg{display:grid;grid-template-columns:1fr 1.6fr;gap:14px;align-items:center}
+  .emg-diff{background:var(--green);border-radius:8px;padding:13px 15px}
+  .emg-diff .m-label{font-size:12px;color:var(--green-text);margin-bottom:6px}
+  .emg-diff .m-value{font-size:26px;font-weight:700;color:#0F6E4F}
+  .emg-right{background:#FAFBFC;border:1px solid #EEF0F3;border-radius:8px;padding:13px 15px;display:flex;gap:22px;align-items:center}
+  .lr{font-size:12px;color:var(--text-sub)}
+  .lr b{display:block;font-size:16px;color:var(--text);margin-top:3px}
+  .plot{flex:1;height:76px;background:repeating-linear-gradient(90deg,#F3F4F6 0 1px,transparent 1px 34px),#fff;border:1px solid #EEF0F3;border-radius:6px}
+  .row-list div{display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid #F1F2F4;font-size:13px}
+  .row-list div:last-child{border-bottom:0}
+  .row-list span{color:var(--text-sub)}
+
+  @media print{
+    @page{size:A4;margin:0}
+    body{background:#fff}
+    .gnb,.wrap,.ov-head,.subtabs,.toolbar{display:none!important}
+    .overlay{position:static;overflow:visible}
+    .report-scroll{padding:0;max-width:none}
+    .a4{width:auto;border:0;border-radius:0;min-height:auto;padding:12mm 10mm}
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= GNB ================= -->
+<div class="gnb">
+  <div class="logo"><span class="logo-mark">R</span>RISE-K</div>
+  <div class="gnb-divider"></div>
+  <nav class="gnb-menu">
+    <a href="#" class="on">환자 관리</a>
+    <a href="#">오늘의 환자</a>
+    <a href="#">논문 관리</a>
+    <a href="#">연구 에이전트</a>
+  </nav>
+  <div class="gnb-right">
+    연세마스터정형외과의원
+    <button class="gnb-user">⏱ 관리자님 ⌄</button>
+  </div>
+</div>
+
+<!-- ================= 환자 관리 ================= -->
+<div class="wrap">
+  <div class="page-head">
+    <div class="page-title">환자 관리</div>
+    <div class="actions">
+      <button class="btn">＋ 환자 등록</button>
+      <button class="btn btn-primary">＋ 입력 간소화</button>
+    </div>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat active"><div class="stat-top"><span class="stat-label">총 환자</span></div><div class="stat-value">5명</div></div>
+    <div class="stat"><div class="stat-top"><span class="stat-label">기록 완료 환자</span><span class="stat-tag">수술 기록 제외</span></div><div class="stat-value">4명</div></div>
+    <div class="stat"><div class="stat-top"><span class="stat-label">기록 미비 환자</span><span class="stat-tag">정보 및 의료 기록 미입력</span></div><div class="stat-value">1명</div></div>
+    <div class="stat"><div class="stat-top"><span class="stat-label">기록 완료율</span><span class="stat-tag">데이터 입력률</span></div><div class="stat-value">80.0%</div></div>
+  </div>
+
+  <div class="seg"><div class="on">모든 환자</div><div>기록 미비 환자</div></div>
+
+  <div class="filter">
+    <div class="filter-row">
+      <div class="field"><label>등록번호</label><input placeholder="등록번호"></div>
+      <div class="field"><label>이름</label><input placeholder="이름"></div>
+      <div class="field"><label>휴대폰 번호</label><input placeholder="휴대폰 번호"></div>
+    </div>
+    <div class="filter-actions">
+      <button class="btn btn-dark">검색 🔍</button>
+      <button class="link-reset">초기화 ↻</button>
+    </div>
+  </div>
+
+  <div class="result-count">검색 결과 <b>5건</b></div>
+  <div class="table-card">
+    <table>
+      <thead>
+        <tr>
+          <th>등록 번호</th><th>이름</th><th>생년월일</th><th>성별</th><th>담당의</th>
+          <th>수술명</th><th>수술일</th><th>검사 리포트</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>P-10023</td><td>김액티</td><td>1999.11.11</td><td>남성</td><td>-</td>
+          <td>Ligament Surgery</td><td>2026.09.13</td>
+          <td><button class="btn-sm" onclick="openReport()">📋 검사 리포트</button></td>
+        </tr>
+        <tr>
+          <td>T123</td><td>박메디</td><td>-</td><td>남성</td><td>-</td>
+          <td>-</td><td>2026.09.09</td>
+          <td><button class="btn-sm" onclick="openReport()">📋 검사 리포트</button></td>
+        </tr>
+        <tr>
+          <td>19193321</td><td>이하늘</td><td>1995.07.14</td><td>남성</td><td>-</td>
+          <td>Arthroplasty</td><td>2026.09.02</td>
+          <td><button class="btn-sm" onclick="openReport()">📋 검사 리포트</button></td>
+        </tr>
+        <tr>
+          <td>abcd1111</td><td>정우람</td><td>1995.07.10</td><td>남성</td><td>-</td>
+          <td>Extensor Mechanism Surgery</td><td>2026.09.02</td>
+          <td><button class="btn-sm" onclick="openReport()">📋 검사 리포트</button></td>
+        </tr>
+        <tr>
+          <td>T456</td><td>최한결</td><td>1988.01.01</td><td>여성</td><td>-</td>
+          <td>Arthroplasty</td><td>2025.10.02</td>
+          <td><button class="btn-sm" onclick="openReport()">📋 검사 리포트</button></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="pager">« ‹ <span class="cur">1</span> › »</div>
+  </div>
+</div>
+
+<!-- ================= 리포트 다이얼로그 ================= -->
+<div class="overlay" id="overlay">
+  <div class="ov-head">
+    <div class="pill">
+      <button class="on">리포트</button>
+      <button>센터 검사 파일</button>
+    </div>
+    <button class="ov-close" onclick="closeReport()">✕</button>
+  </div>
+
+  <div class="subtabs">
+    <button id="tab-summary" onclick="showTab('summary')">검사 종합</button>
+    <button id="tab-trend" onclick="showTab('trend')">검사 경과</button>
+    <button id="tab-kage" class="on" onclick="showTab('kage')">무릎나이</button>
+  </div>
+
+  <!-- ---------- 검사 종합 ---------- -->
+  <div id="panel-summary" style="display:none">
+    <div class="toolbar">
+      <div class="datebox">2026.09.13. <span>🗓</span></div>
+      <div class="navbtns"><button>‹</button><button class="today">오늘</button><button>›</button></div>
+      <div class="right">
+        <button class="btn">⤓ PDF 내려받기</button>
+        <button class="btn">⤓ 이미지 내려받기</button>
+        <button class="btn">🖨 출력</button>
+        <button class="btn">환자 발송</button>
+      </div>
+    </div>
+    <div class="report-scroll">
+      <div class="legacy">
+        <div class="rep-head" style="margin-bottom:16px">
+          <div>
+            <div class="rep-org">연세마스터정형외과의원</div>
+            <div class="rep-title">무릎 기능 검사 결과지</div>
+          </div>
+          <div class="right">
+            <div class="rep-pt">김액티 <span>010-0000-0000</span></div>
+            <div class="rep-meta">검사일 <b style="color:#1F3B63">2026.09.13.</b> │ 검사 부위 <span class="chip">왼쪽</span></div>
+          </div>
+        </div>
+
+        <div class="sec-title"><span class="sec-no">1</span><h3>역동적 근전도 검사</h3><span class="tag">PRONE Q-SET</span></div>
+        <div class="panel" style="margin-bottom:12px">
+          <div style="font-weight:700;margin-bottom:11px">ST</div>
+          <div class="emg">
+            <div class="emg-diff"><div class="m-label">부위별 건측 - 환측 차이</div><div class="m-value">-39.4%</div></div>
+            <div class="emg-right">
+              <div class="lr">왼쪽<b>0.023</b></div>
+              <div class="lr" style="color:var(--text-mute)">오른쪽<b style="color:var(--text-mute)">0.014</b></div>
+              <div class="plot"></div>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div style="font-weight:700;margin-bottom:11px">BF</div>
+          <div class="emg">
+            <div class="emg-diff"><div class="m-label">부위별 건측 - 환측 차이</div><div class="m-value">-51%</div></div>
+            <div class="emg-right">
+              <div class="lr">왼쪽<b>0.034</b></div>
+              <div class="lr" style="color:var(--text-mute)">오른쪽<b style="color:var(--text-mute)">0.017</b></div>
+              <div class="plot"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sec-title" style="margin-top:20px"><span class="sec-no">2</span><h3>보행분석 검사</h3></div>
+        <div class="panel">
+          <div class="metrics">
+            <div class="metric"><div class="m-label">Static Posture · 선 자세 압력</div><div class="plot" style="height:120px;margin-top:8px"></div></div>
+            <div class="metric"><div class="m-label">Dynamic Gait · 걸을 때 압력</div><div class="plot" style="height:120px;margin-top:8px"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ---------- 검사 경과 ---------- -->
+  <div id="panel-trend" style="display:none">
+    <div class="toolbar">
+      <div class="navbtns"><button>‹</button><button class="today">1차 수술 · 2026.09.13.</button><button>›</button></div>
+      <div class="right">
+        <button class="btn">⤓ PDF 내려받기</button>
+        <button class="btn">⤓ 이미지 내려받기</button>
+      </div>
+    </div>
+    <div class="report-scroll">
+      <div class="legacy">
+        <div class="sec-title"><span class="sec-no">1</span><h3>환자 정보</h3></div>
+        <div class="panel row-list">
+          <div><span>성명</span><b>김액티</b></div>
+          <div><span>등록번호</span><b>010-0000-0000</b></div>
+          <div><span>수술명</span><b>Ligament Surgery</b></div>
+        </div>
+        <div class="sec-title" style="margin-top:20px"><span class="sec-no">2</span><h3>환자 설문조사 결과</h3></div>
+        <div class="panel row-list">
+          <div><span>KOOS</span><b>62점</b></div>
+          <div><span>IKDC</span><b>58점</b></div>
+        </div>
+        <div class="sec-title" style="margin-top:20px"><span class="sec-no">3</span><h3>무릎 기능 검사</h3></div>
+        <div class="panel row-list">
+          <div><span>관절가동범위 (ROM)</span><b>125°</b></div>
+          <div><span>단하지 점프</span><b>84%</b></div>
+        </div>
+        <div class="sec-title" style="margin-top:20px"><span class="sec-no">4</span><h3>무릎 근력 검사</h3></div>
+        <div class="panel row-list">
+          <div><span>신전근 최대 토크</span><b>142 Nm</b></div>
+          <div><span>굴곡근 최대 토크</span><b>96 Nm</b></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ---------- 무릎나이 ---------- -->
+  <div id="panel-kage">
+    <div class="toolbar">
+      <div class="datebox">2026.09.13. <span>🗓</span></div>
+      <div class="navbtns"><button>‹</button><button class="today">오늘</button><button>›</button></div>
+      <div class="right">
+        <button class="btn" onclick="window.print()">🖨 출력</button>
+      </div>
+    </div>
+
+    <div class="report-scroll">
+      <div class="a4">
+
+        <!-- 헤더 + 환자 정보 -->
+        <div class="rep-head">
+          <div>
+            <div class="rep-org">연세마스터정형외과의원</div>
+            <div class="rep-title">무릎나이(K-Age) 검사 결과지</div>
+          </div>
+          <div class="right">
+            <div class="rep-pt">김액티 <span>남성 · 만 46세</span></div>
+            <div class="rep-meta">
+              차트번호 P-10023 │ 검사일 <b style="color:#1F3B63">2026.09.13.</b> │ 검사 부위 <span class="chip">왼쪽</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ① 무릎나이 요약 -->
+        <div>
+          <div class="sec-title"><span class="sec-no">1</span><h3>무릎나이 요약</h3></div>
+          <div class="panel">
+            <div class="summary">
+              <div>
+                <div class="kage-main">
+                  <span class="kage-num">58</span><span class="kage-unit">세</span>
+                </div>
+                <div class="kage-sub">
+                  <div>실제 나이 <b>46세</b></div>
+                </div>
+                <div style="margin-top:12px"><span class="gap-badge">▲ 실제 나이보다 12세 많음</span></div>
+              </div>
+              <div>
+                <div class="grade-row">
+                  <span class="grade-label">위험등급</span>
+                  <span class="grade-chip grade-high">고위험</span>
+                  <span style="font-size:12px;color:var(--text-sub)">격차 +5세 이상</span>
+                </div>
+                <div class="gauge">
+                  <i class="g1"></i><i class="g2"></i><i class="g3"></i>
+                  <span class="gauge-mark" style="left:86%"></span>
+                </div>
+                <div class="gauge-legend">
+                  <span>저위험 &lt; +2세</span><span>중위험 +2~+5세</span><span>고위험 ≥ +5세</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ② 기능 · ③ 자기평가 -->
+        <div class="two-col">
+          <div>
+            <div class="sec-title"><span class="sec-no">2</span><h3>기능 검사</h3></div>
+            <div class="panel">
+              <div class="metrics">
+                <div class="metric">
+                  <div class="m-label">30초 의자 일어서기</div>
+                  <div class="m-value">11<small>회</small></div>
+                  <div class="m-ref">동일 성별·연령 기준 14.2회</div>
+                </div>
+                <div class="metric">
+                  <div class="m-label">TUG</div>
+                  <div class="m-value">9.8<small>초</small></div>
+                  <div class="m-ref">동일 성별·연령 기준 7.4초</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="sec-title"><span class="sec-no">3</span><h3>자기평가</h3></div>
+            <div class="panel">
+              <div class="metric" style="height:100%">
+                <div class="m-label">KOOS-12 총점</div>
+                <div class="m-value">62<small>/ 100점</small></div>
+                <div class="m-ref">점수가 낮을수록 통증·기능 제한이 큽니다</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ④ 위험요인 · ⑤ X-ray -->
+        <div class="two-col">
+          <div>
+            <div class="sec-title"><span class="sec-no">4</span><h3>위험요인</h3></div>
+            <div class="panel">
+              <table class="rf">
+                <thead><tr><th>항목</th><th class="num">점수</th></tr></thead>
+                <tbody>
+                  <tr><td>과거 손상 · 수술력</td><td class="num"><span class="bar"><i style="width:70%"></i></span><b>7</b> / 10</td></tr>
+                  <tr><td>체지방 · 대사부하</td><td class="num"><span class="bar"><i style="width:67%"></i></span><b>6</b> / 9</td></tr>
+                  <tr><td>직업성 무릎 부하</td><td class="num"><span class="bar"><i style="width:60%"></i></span><b>3</b> / 5</td></tr>
+                  <tr><td>고충격 스포츠</td><td class="num"><span class="bar"><i style="width:50%"></i></span><b>1</b> / 2</td></tr>
+                  <tr><td>좌식생활 · 활동부족</td><td class="num"><span class="bar"><i style="width:100%"></i></span><b>2</b> / 2</td></tr>
+                  <tr><td>성별 · 폐경</td><td class="num"><span class="bar"><i style="width:0%"></i></span><b>0</b> / 2</td></tr>
+                  <tr class="sum"><td>합계</td><td class="num">19 / 30</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div>
+            <div class="sec-title"><span class="sec-no">5</span><h3>X-ray</h3></div>
+            <div class="panel">
+              <div class="metric" style="height:100%">
+                <div class="m-label">K-L grade</div>
+                <div class="m-value">2<small>등급</small></div>
+                <div class="m-ref">0~4 등급 · 등급이 높을수록 관절 간격 감소가 뚜렷합니다</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ⑥ 코멘트 -->
+        <div>
+          <div class="sec-title"><span class="sec-no">6</span><h3>건강운동관리사 코멘트</h3></div>
+          <div class="comment">
+            현재 무릎 부담이 큰 단계이므로 통증 없는 범위에서 시작하시는 것이 중요합니다.
+            수중운동·실내자전거 등 충격이 적은 유산소부터 주 3회 가볍게 진행하고,
+            의자에 앉았다 일어서기로 허벅지 근력을 천천히 키워 나가시길 권합니다.
+          </div>
+        </div>
+
+        <!-- 하단 고지 -->
+        <div class="notice">
+          <span>무릎나이는 건강 상태를 이해하기 위한 참고 지표이며 의학적 진단을 대체하지 않습니다.</span>
+          <span class="ver">산정 알고리즘 v0.2 · Reference ref_v0.2</span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  var openReport = function(){
+    document.getElementById('overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    showTab('kage');
+  }
+  var closeReport = function(){
+    document.getElementById('overlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  var showTab = function(name){
+    var tabs = ['summary','trend','kage'];
+    tabs.forEach(function(t){
+      document.getElementById('panel-' + t).style.display = (t === name) ? 'block' : 'none';
+      document.getElementById('tab-' + t).classList.toggle('on', t === name);
+    });
+  }
+</script>
+</body>
+</html>
