@@ -302,7 +302,7 @@
 <div class="ovl">
   <div class="hint">
     <b>진료기록 검토 v3 · v2 구조 + 새 Step 2</b>
-    <span class="d">Step 1·검토 불필요 항목·헤더·푸터는 <b>v2 그대로</b>(확인한 문항도 접지 않음) · Step 2는 A·P 두 칸 자유 서술, 라벨 없음(오타 의심 밑줄만) · 리포트는 <b>실제 환자 리포트(명지병원 v13)</b> 구성으로 그려지고, 항목을 누르면 원문만 강조 · 안 들어간 내용은 리포트 아래 의료진용 카드.</span>
+    <span class="d">Step 1·검토 불필요 항목·헤더·푸터는 <b>v2 그대로</b>(확인하거나 답을 바꿔도 문항은 접히지도 옮겨가지도 않음) · Step 2는 A·P 두 칸 자유 서술, 라벨 없음(오타 의심 밑줄만) · 리포트는 <b>실제 환자 리포트(명지병원 v13)</b> 구성으로 그려지고, 항목을 누르면 원문만 강조 · 안 들어간 내용은 리포트 아래 의료진용 카드.</span>
     <div class="seg" id="modeSeg">
       <button data-mode="case1" class="on">예시 · 재진(비수술)</button>
       <button data-mode="case2">예시 · 초진(수술)</button>
@@ -540,9 +540,9 @@ function renderChrome(){
 function answerCard(a){
   const isArr=Array.isArray(a.val); const low=a.conf<92;
   let h='<div class="qcard'+(a.checked?' done':'')+'" data-answer="'+a.id+'" id="ans-'+a.id+'"><div class="qtop"><span class="qno">'+a.no+'</span><span class="qq">'+esc(a.q)+'</span>';
-  h+='<span class="src'+(a.src==='ai'?(low?' low':''):' doc')+'">'+(a.src==='ai'?'AI 선택 '+a.conf+'%':'의사 선택')+'</span><button class="chk'+(a.checked?' done':'')+'" data-chk="'+a.id+'">'+(a.checked?'확인함 · 다시 검토':'확인')+'</button></div>';
+  h+='<span class="src'+(a.picked?' doc':(low?' low':''))+'">'+(a.picked?'의사 선택':'AI 선택 '+a.conf+'%')+'</span><button class="chk'+(a.checked?' done':'')+'" data-chk="'+a.id+'">'+(a.checked?'확인함 · 다시 검토':'확인')+'</button></div>';
   h+='<div class="opts">'+a.opts.map(o=>'<button class="opt'+((isArr?a.val.includes(o):a.val===o)?' on':'')+'" data-pick="'+a.id+'" data-o="'+esc(o)+'">'+esc(o)+'</button>').join('')+'</div>';
-  if(a.evi&&a.src==='ai') h+='<div class="evi">발화 근거 · “'+esc(a.evi)+'”</div>';
+  if(a.evi) h+='<div class="evi">발화 근거 · “'+esc(a.evi)+'”'+(a.picked?' <span style="color:var(--ink4)">· AI 선택은 ‘'+esc(Array.isArray(a.aiVal)?a.aiVal.join(', '):a.aiVal)+'’</span>':'')+'</div>';
   return h+'</div>';
 }
 /* 미러: 줄 span(.ln) 안에 용어 span(.u) — 캐럿 앵커 .cm 삽입 가능 */
@@ -586,7 +586,7 @@ function fieldHtml(field){
 }
 function renderMain(){
   const c=CASES[S.caseKey]; const ai=S.answers.filter(a=>a.src==='ai'), doc=S.answers.filter(a=>a.src==='doc'); const allChecked=ai.every(a=>a.checked);
-  let h='<section><div class="sh"><div><div class="step">Step 1</div><h2>AI가 고른 답변을 확인해 주세요</h2><p>녹음 발화를 근거로 자동 선택된 '+ai.length+'개입니다. 틀렸으면 다른 답을 눌러 바꾸세요. 확인한 문항도 그대로 남아 있으니 언제든 다시 볼 수 있습니다.</p></div><button class="act" data-act="checkAll">'+(allChecked?'모두 재검토':'모두 확인')+'</button></div>'+ai.map(answerCard).join('')+'</section>';
+  let h='<section><div class="sh"><div><div class="step">Step 1</div><h2>AI가 고른 답변을 확인해 주세요</h2><p>녹음 발화를 근거로 자동 선택된 '+ai.length+'개입니다. 틀렸으면 다른 답을 눌러 바꾸세요. 확인하거나 답을 바꿔도 문항은 이 자리에 그대로 남습니다.</p></div><button class="act" data-act="checkAll">'+(allChecked?'모두 재검토':'모두 확인')+'</button></div>'+ai.map(answerCard).join('')+'</section>';
   h+='<section id="step2"><div class="sh"><div><div class="step">Step 2</div><h2>환자에게 보낼 내용을 확정해 주세요</h2><p>A·P는 평소처럼 쓰시면 됩니다. 어떤 내용이 환자 리포트의 어느 카드로 들어갔는지는 오른쪽에서 바로 보이고, 항목을 누르면 근거가 된 원문이 강조됩니다. 고칠 것이 있으면 A·P를 수정하면 리포트가 바로 바뀝니다.</p></div></div>';
   h+=fieldHtml('a')+fieldHtml('p')+'</section>';
   h+='<section><div class="nr">검토가 필요하지 않은 항목</div>';
@@ -751,7 +751,7 @@ document.addEventListener('click',e=>{ const t=e.target;
   const act=t.closest('[data-act]');
   if(act){ const a=act.dataset.act; if(a==='next') goNext(); else if(a==='toggleDoc'){ S.docOpen=!S.docOpen; renderMain(); } else if(a==='toggleImg'){ S.imgOpen=!S.imgOpen; renderMain(); } else if(a==='closePop'||a==='keepTerm') closePop(); else if(a==='undo'){ if(lastUndo){ lastUndo(); lastUndo=null; } document.getElementById('toast').classList.remove('on'); } else if(a==='checkAll'){ const ai=S.answers.filter(x=>x.src==='ai'); const all=ai.every(x=>x.checked); ai.forEach(x=>x.checked=!all); S.peek={}; renderAll(); } else if(a==='done') toast('검토가 완료되어 저장되었습니다'); else if(a==='send') toast('검토 내용을 저장하고 환자에게 발송했습니다'); else if(a==='close') toast('(닫기 — 저장하지 않고 닫힙니다)'); return; }
   const chk=t.closest('[data-chk]'); if(chk){ const a=S.answers.find(x=>x.id===chk.dataset.chk); a.checked=!a.checked; S.peek[a.id]=false; renderAll(); return; }
-  const pick=t.closest('[data-pick]'); if(pick){ const a=S.answers.find(x=>x.id===pick.dataset.pick); const o=pick.dataset.o; if(Array.isArray(a.val)){ a.val=a.val.includes(o)?a.val.filter(v=>v!==o):[...a.val,o]; if(!a.val.length) a.val=[o]; } else a.val=o; a.src='doc'; a.checked=true; renderAll(); return; }
+  const pick=t.closest('[data-pick]'); if(pick){ const a=S.answers.find(x=>x.id===pick.dataset.pick); const o=pick.dataset.o; if(a.aiVal===undefined) a.aiVal=Array.isArray(a.val)?a.val.slice():a.val; if(Array.isArray(a.val)){ a.val=a.val.includes(o)?a.val.filter(v=>v!==o):[...a.val,o]; if(!a.val.length) a.val=[o]; } else a.val=o; a.picked=JSON.stringify(a.val)!==JSON.stringify(a.aiVal); a.checked=true; renderAll(); return; }
 
   const blk=t.closest('[data-block]'); if(blk){ closeMenu(); const b=blk.dataset.block; S.focusBucket=S.focusBucket===b?null:b; const f=b==='dx'?'a':'p'; refreshMirror('a'); refreshMirror('p'); const card=document.getElementById('field-'+f); if(card) card.scrollIntoView({block:'center',behavior:'smooth'}); return; }
   if(!t.closest('#pop')&&S.pop&&S.pop.pinned) closePop(); if(!t.closest('#menu')&&S.menu) closeMenu(); });
