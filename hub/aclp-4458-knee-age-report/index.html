@@ -18,13 +18,14 @@
     --text-mute:#9CA3AF;
     --blue:#2563EB;
     --blue-soft:#E8F1FB;
+    --blue-line:#C6D8EF;
     --navy:#111C35;
     --green:#E9F7EF;
+    --green-line:#A9DCC2;
     --green-text:#12805C;
     --red:#FDECEC;
+    --red-line:#E9A9A2;
     --red-text:#C0392B;
-    --amber:#FEF4E6;
-    --amber-text:#B7791F;
   }
   *{box-sizing:border-box}
   html,body{margin:0;padding:0}
@@ -35,6 +36,8 @@
     font-size:14px;
     line-height:1.5;
     -webkit-font-smoothing:antialiased;
+    -webkit-print-color-adjust:exact;
+    print-color-adjust:exact;
   }
   button{font-family:inherit;cursor:pointer}
 
@@ -71,8 +74,6 @@
   .btn:hover{background:#FAFAFA}
   .btn-primary{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:500}
   .btn-primary:hover{background:#1D4FD8}
-  .btn:disabled{opacity:.45;cursor:not-allowed}
-  .btn:disabled:hover{background:#fff}
 
   .stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
   .stat{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px 20px}
@@ -144,24 +145,38 @@
   .report-scroll{max-width:1120px;margin:0 auto;padding:18px 24px 60px;display:flex;justify-content:center}
 
   /* ---------- A4 결과지 ---------- */
+  /*
+    인쇄 대화상자의 「배경 그래픽」 체크를 꺼도 같은 그림이 나오도록,
+    의미를 담은 요소는 background 대신 테두리·글자색·SVG 로 그린다.
+    배경색은 있으면 좋은 장식으로만 쓴다.
+  */
   .a4{
     width:794px;min-height:1123px;background:#fff;border:1px solid var(--line);
     border-radius:10px;padding:26px 28px;display:flex;flex-direction:column;gap:14px;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact;
   }
-  .rep-head{background:var(--blue-soft);border-radius:8px;padding:16px 18px;display:flex;align-items:flex-start}
+  .rep-head{
+    background:var(--blue-soft);border:1px solid var(--blue-line);border-radius:8px;
+    padding:16px 18px;display:flex;align-items:flex-start;
+  }
   .rep-org{font-size:12px;color:#4B6A93;margin-bottom:4px}
   .rep-title{font-size:20px;font-weight:700;letter-spacing:-.3px}
   .rep-head .right{margin-left:auto;text-align:right}
   .rep-pt{font-size:15px;font-weight:700}
   .rep-pt span{font-weight:400;font-size:13px;color:#3F5B80;margin-left:8px}
   .rep-meta{font-size:12px;color:#4B6A93;margin-top:6px;display:flex;justify-content:flex-end;align-items:center;gap:8px}
-  .chip{background:var(--navy);color:#fff;border-radius:5px;padding:2px 8px;font-size:11px;font-weight:500}
-  .chip-line{background:#fff;color:#3F5B80;border:1px solid #C6D8EF;border-radius:5px;padding:2px 8px;font-size:11px}
+  .chip{
+    border:1px solid var(--navy);color:var(--navy);border-radius:5px;
+    padding:1px 8px;font-size:11px;font-weight:700;
+  }
 
   .sec-title{display:flex;align-items:center;gap:9px;margin-bottom:9px}
-  .sec-no{width:21px;height:21px;border-radius:50%;background:var(--navy);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
+  .sec-no{
+    width:21px;height:21px;border-radius:50%;border:1.5px solid var(--navy);color:var(--navy);
+    font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;
+  }
   .sec-title h3{margin:0;font-size:15px;font-weight:700}
-  .sec-title .tag{font-size:11px;background:#F3F4F6;color:var(--text-sub);border-radius:5px;padding:3px 7px;font-weight:500}
+  .sec-title .tag{font-size:11px;border:1px solid var(--line-strong);color:var(--text-sub);border-radius:5px;padding:2px 7px;font-weight:500}
 
   .panel{border:1px solid var(--line);border-radius:9px;padding:15px 17px}
 
@@ -173,24 +188,19 @@
   .kage-sub{margin-top:10px;font-size:13px;color:var(--text-sub);display:flex;gap:16px}
   .kage-sub b{color:var(--text);font-weight:700}
   .gap-badge{
-    display:inline-flex;align-items:center;gap:7px;background:var(--red);color:var(--red-text);
-    border-radius:7px;padding:7px 12px;font-size:14px;font-weight:700;
+    display:inline-flex;align-items:center;gap:7px;
+    border:1.5px solid var(--red-line);background:var(--red);color:var(--red-text);
+    border-radius:7px;padding:6px 12px;font-size:14px;font-weight:700;
   }
   .grade-row{display:flex;align-items:center;gap:9px;margin-bottom:12px}
   .grade-label{font-size:12px;color:var(--text-sub)}
-  .grade-chip{border-radius:6px;padding:4px 11px;font-size:13px;font-weight:700}
-  .grade-high{background:var(--red);color:var(--red-text)}
-  .gauge{position:relative;height:10px;border-radius:999px;overflow:hidden;display:flex}
-  .gauge i{display:block;height:100%}
-  .g1{background:#BFE3D0;flex:2}
-  .g2{background:#F6DDB0;flex:1.2}
-  .g3{background:#F0B5AE;flex:2}
-  .gauge-mark{position:absolute;top:-4px;width:3px;height:18px;background:var(--navy);border-radius:2px}
-  .gauge-legend{display:flex;justify-content:space-between;font-size:11px;color:var(--text-mute);margin-top:7px}
+  .grade-chip{border-radius:6px;padding:3px 11px;font-size:13px;font-weight:700}
+  .grade-high{border:1.5px solid var(--red-line);background:var(--red);color:var(--red-text)}
+  .gauge-legend{display:flex;justify-content:space-between;font-size:11px;color:var(--text-mute);margin-top:5px}
 
   /* 지표 카드 */
   .metrics{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-  .metric{background:#FAFBFC;border:1px solid #EEF0F3;border-radius:8px;padding:13px 15px}
+  .metric{background:#FAFBFC;border:1px solid #DFE3E9;border-radius:8px;padding:13px 15px}
   .metric .m-label{font-size:12px;color:var(--text-sub);margin-bottom:7px}
   .metric .m-value{font-size:22px;font-weight:700}
   .metric .m-value small{font-size:12px;font-weight:500;color:var(--text-sub);margin-left:3px}
@@ -205,11 +215,10 @@
   .rf .num b{font-size:13px}
   .rf .sum td{border-top:1px solid var(--line);border-bottom:0;padding-top:10px;font-weight:700;font-size:13px}
   .rf tr:hover td{background:transparent}
-  .bar{display:inline-block;width:64px;height:6px;background:#EEF0F3;border-radius:999px;overflow:hidden;vertical-align:middle;margin-right:9px}
-  .bar i{display:block;height:100%;background:#7C93B8;border-radius:999px}
+  .bar{vertical-align:middle;margin-right:9px}
 
   /* 코멘트 */
-  .comment{background:#FAFBFC;border:1px solid #EEF0F3;border-radius:8px;padding:14px 16px;font-size:13px;line-height:1.75;color:#374151}
+  .comment{background:#FAFBFC;border:1px solid #DFE3E9;border-radius:8px;padding:14px 16px;font-size:13px;line-height:1.75;color:#374151}
   .notice{margin-top:auto;padding-top:14px;border-top:1px solid var(--line);font-size:11px;color:var(--text-mute);display:flex;gap:10px}
   .notice .ver{margin-left:auto;white-space:nowrap}
 
@@ -219,13 +228,13 @@
   .legacy{width:900px}
   .legacy .panel{margin-bottom:14px}
   .emg{display:grid;grid-template-columns:1fr 1.6fr;gap:14px;align-items:center}
-  .emg-diff{background:var(--green);border-radius:8px;padding:13px 15px}
+  .emg-diff{background:var(--green);border:1px solid var(--green-line);border-radius:8px;padding:13px 15px}
   .emg-diff .m-label{font-size:12px;color:var(--green-text);margin-bottom:6px}
   .emg-diff .m-value{font-size:26px;font-weight:700;color:#0F6E4F}
-  .emg-right{background:#FAFBFC;border:1px solid #EEF0F3;border-radius:8px;padding:13px 15px;display:flex;gap:22px;align-items:center}
+  .emg-right{background:#FAFBFC;border:1px solid #DFE3E9;border-radius:8px;padding:13px 15px;display:flex;gap:22px;align-items:center}
   .lr{font-size:12px;color:var(--text-sub)}
   .lr b{display:block;font-size:16px;color:var(--text);margin-top:3px}
-  .plot{flex:1;height:76px;background:repeating-linear-gradient(90deg,#F3F4F6 0 1px,transparent 1px 34px),#fff;border:1px solid #EEF0F3;border-radius:6px}
+  .plot{flex:1;height:76px;border:1px solid #DFE3E9;border-radius:6px}
   .row-list div{display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid #F1F2F4;font-size:13px}
   .row-list div:last-child{border-bottom:0}
   .row-list span{color:var(--text-sub)}
@@ -489,10 +498,16 @@
                   <span class="grade-chip grade-high">고위험</span>
                   <span style="font-size:12px;color:var(--text-sub)">격차 +5세 이상</span>
                 </div>
-                <div class="gauge">
-                  <i class="g1"></i><i class="g2"></i><i class="g3"></i>
-                  <span class="gauge-mark" style="left:86%"></span>
-                </div>
+                <svg viewBox="0 0 260 26" width="100%" height="26" role="img" aria-label="위험등급 게이지 · 고위험">
+                  <defs><clipPath id="gaugeClip"><rect x="0" y="8" width="260" height="10" rx="5"/></clipPath></defs>
+                  <g clip-path="url(#gaugeClip)">
+                    <rect x="0" y="8" width="100" height="10" fill="#7FC9A4"/>
+                    <rect x="100" y="8" width="60" height="10" fill="#EFC06A"/>
+                    <rect x="160" y="8" width="100" height="10" fill="#E58C80"/>
+                  </g>
+                  <rect x="0" y="8" width="260" height="10" rx="5" fill="none" stroke="#C9CFD8"/>
+                  <rect x="222" y="3" width="3" height="20" rx="1.5" fill="#111C35"/>
+                </svg>
                 <div class="gauge-legend">
                   <span>저위험 &lt; +2세</span><span>중위험 +2~+5세</span><span>고위험 ≥ +5세</span>
                 </div>
@@ -540,12 +555,12 @@
               <table class="rf">
                 <thead><tr><th>항목</th><th class="num">점수</th></tr></thead>
                 <tbody>
-                  <tr><td>과거 손상 · 수술력</td><td class="num"><span class="bar"><i style="width:70%"></i></span><b>7</b> / 10</td></tr>
-                  <tr><td>체지방 · 대사부하</td><td class="num"><span class="bar"><i style="width:67%"></i></span><b>6</b> / 9</td></tr>
-                  <tr><td>직업성 무릎 부하</td><td class="num"><span class="bar"><i style="width:60%"></i></span><b>3</b> / 5</td></tr>
-                  <tr><td>고충격 스포츠</td><td class="num"><span class="bar"><i style="width:50%"></i></span><b>1</b> / 2</td></tr>
-                  <tr><td>좌식생활 · 활동부족</td><td class="num"><span class="bar"><i style="width:100%"></i></span><b>2</b> / 2</td></tr>
-                  <tr><td>성별 · 폐경</td><td class="num"><span class="bar"><i style="width:0%"></i></span><b>0</b> / 2</td></tr>
+                  <tr><td>과거 손상 · 수술력</td><td class="num"><svg class="bar" viewBox="0 0 64 6" width="64" height="6"><rect width="64" height="6" rx="3" fill="#E7EAEF"/><rect width="44.8" height="6" rx="3" fill="#7C93B8"/></svg><b>7</b> / 10</td></tr>
+                  <tr><td>체지방 · 대사부하</td><td class="num"><svg class="bar" viewBox="0 0 64 6" width="64" height="6"><rect width="64" height="6" rx="3" fill="#E7EAEF"/><rect width="42.7" height="6" rx="3" fill="#7C93B8"/></svg><b>6</b> / 9</td></tr>
+                  <tr><td>직업성 무릎 부하</td><td class="num"><svg class="bar" viewBox="0 0 64 6" width="64" height="6"><rect width="64" height="6" rx="3" fill="#E7EAEF"/><rect width="38.4" height="6" rx="3" fill="#7C93B8"/></svg><b>3</b> / 5</td></tr>
+                  <tr><td>고충격 스포츠</td><td class="num"><svg class="bar" viewBox="0 0 64 6" width="64" height="6"><rect width="64" height="6" rx="3" fill="#E7EAEF"/><rect width="32" height="6" rx="3" fill="#7C93B8"/></svg><b>1</b> / 2</td></tr>
+                  <tr><td>좌식생활 · 활동부족</td><td class="num"><svg class="bar" viewBox="0 0 64 6" width="64" height="6"><rect width="64" height="6" rx="3" fill="#E7EAEF"/><rect width="64" height="6" rx="3" fill="#7C93B8"/></svg><b>2</b> / 2</td></tr>
+                  <tr><td>성별 · 폐경</td><td class="num"><svg class="bar" viewBox="0 0 64 6" width="64" height="6"><rect width="64" height="6" rx="3" fill="#E7EAEF"/></svg><b>0</b> / 2</td></tr>
                   <tr class="sum"><td>합계</td><td class="num">19 / 30</td></tr>
                 </tbody>
               </table>
