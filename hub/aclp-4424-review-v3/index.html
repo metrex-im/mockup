@@ -342,7 +342,7 @@
 const CASES={
   case1:{ // 도언 제공 실제 예시 · 재진 · 비수술
     title:'재진 · 비수술', dateK:'2026년 9월 8일', patient:'김액티', nextDate:'12월 7일 월요일',
-    a:'S/P DLM subtotal meniscectomy + PFJ & MFC chondroplasty, Rt.\nLateral meniscal deficiency\nLateral compartment cartilage lesion',
+    a:'S/P DLM subtotal meniscectomy + PFJ & MFC chondroplasty, Rt.\nLateral meniscal deficiency\nLateral compartment cartilage lesoin',
     p:'증상 지속 시 LMAT + cartilage repair 고려\n재활운동 지속\n3개월 후 외래 추적',
     answers:[
       {id:'q1',no:'Q.1',q:'어느 무릎이 불편한가요?',opts:['오른쪽','왼쪽','양쪽'],val:'오른쪽',src:'ai',conf:96,evi:'오른쪽이요, 수술한 쪽',checked:false},
@@ -354,7 +354,7 @@ const CASES={
     imaging:{src:'본원',key:'Lateral meniscal deficiency',xray:'특이 소견 없음',mri:'Lateral meniscus deficiency\nLateral compartment cartilage thinning'}},
   case3:{ // 같은 내용을 줄바꿈 없이 이어 쓴 경우
     title:'재진 · 이어 쓴 문장', dateK:'2026년 9월 8일', patient:'김액티', nextDate:'12월 7일 월요일',
-    a:'S/P DLM subtotal meniscectomy + PFJ & MFC chondroplasty, Rt. Lateral meniscal deficiency, lateral compartment cartilage lesion',
+    a:'S/P DLM subtotal meniscectomy + PFJ & MFC chondroplasty, Rt. Lateral meniscal deficiency, lateral compartment cartilage lesoin',
     p:'증상 지속 시 LMAT + cartilage repair 고려, 재활운동 지속하고 3개월 후 외래 추적',
     answers:[
       {id:'q1',no:'Q.1',q:'어느 무릎이 불편한가요?',opts:['오른쪽','왼쪽','양쪽'],val:'오른쪽',src:'ai',conf:96,evi:'오른쪽이요, 수술한 쪽',checked:false},
@@ -473,7 +473,7 @@ function classifyP(line){
   else if(uniq.includes('next')) bucket='next';
   else if(uniq.includes('plan')) bucket='plan';
   else if(uniq.includes('todo')) bucket='todo';
-  else { bucket = an.matches.length?'todo':'skip'; sure=false; reasons.push('규칙에 걸리는 단서 없음'); }
+  else { bucket = an.matches.length?'todo':'skip'; sure=onlyUnknown(an,line); reasons.push(sure?'전체가 미등록·오타 표기':'규칙에 걸리는 단서 없음'); }
   // 상충: 비수술 용어 + 지속/유지 → 계획인지 하실 일인지 사람도 갈림 → AI 표시
   if(kinds.has('nonsurg')&&RX.keep.test(line)) { sure=false; reasons.push('치료 계획과 하실 일 양쪽 가능'); }
   if(uniq.includes('skip')&&kinds.has('surgery')) reasons.push('수술 용어가 있지만 확정 계획이 아님');
@@ -484,8 +484,10 @@ function classifyA(line){
   if(RX.sp.test(line.trim())){ reasons.push('S/P — 과거 수술 이력'); return {bucket:'hx',sure:true,reasons,an}; }
   if(an.matches.some(m=>m.d.k==='dx')){ reasons.push('진단 용어'); return {bucket:'dx',sure:true,reasons,an}; }
   if(an.matches.some(m=>m.d.k==='surgery')){ reasons.push('수술 용어만 있음 — 이력인지 진단인지 불명'); return {bucket:'hx',sure:false,reasons,an}; }
-  reasons.push('진단 용어 없음'); return {bucket:'skip',sure:an.matches.length===0&&an.unknown.length===0,reasons,an};
+  reasons.push('진단 용어 없음'); return {bucket:'skip',sure:an.matches.length===0&&(an.unknown.length===0||onlyUnknown(an,line)),reasons,an};
 }
+/* 줄 전체가 미등록·오타 표기 하나로만 이루어졌으면 배정 질문이 아니라 표기 질문 → 오타 밑줄·미포함 카드만으로 충분 */
+function onlyUnknown(an,line){ return an.unknown.length===1&&an.unknown[0].raw.trim()===line.trim().replace(/[.,;]+$/,''); }
 function lines(field){ const out=[]; let pos=0; S.ap[field].split('\n').forEach((t,i)=>{ out.push({i,text:t,start:pos,end:pos+t.length}); pos+=t.length+1; }); return out; }
 /* 한 줄을 구간으로 나눈다: 마침표·세미콜론(확정) / 연결 어미 ~하고·~하며·~한 뒤(규칙) / 쉼표는 양쪽에 각각 단서가 있을 때만(불확실 → AI 표시). 사전 용어 안에서는 끊지 않는다. */
 function segmentText(text,field){
@@ -644,13 +646,14 @@ function renderAside(){
   h+='<div class="rfoot">이 리포트는 '+esc(c.dateK)+' 명지병원에서 받은 진료 내용을 바탕으로 작성되었습니다.</div>';
   h+='</div></div></div>';
   // 들어가지 않은 내용 — 환자 화면 밖, 의료진용 카드
-  const hidden=[...lineInfo('a').filter(l=>l.bucket!=='dx').map(l=>({f:'a',l})),...pl.filter(l=>l.bucket==='skip').map(l=>({f:'p',l}))];
-  const mutes=allUnknown().filter(u=>u.state==='mute');
-  h+='<div class="xcard"><div style="font-size:11px;font-weight:800;color:var(--ink4);margin-bottom:6px">의료진만 보는 항목</div><h3>이번 리포트에 들어가지 않은 내용</h3><div class="xs">의사 메모·조건부 계획·과거 이력, 그리고 환자용 표현이 없는 표기입니다. 환자에게는 보이지 않습니다.</div>';
+  const notOnlyTerm=l=>!onlyUnknown(l.an,l.text);   // 줄 전체가 오타·미등록 표기면 아래 표기 행으로만 보여 준다
+  const hidden=[...lineInfo('a').filter(l=>l.bucket!=='dx'&&notOnlyTerm(l)).map(l=>({f:'a',l})),...pl.filter(l=>l.bucket==='skip'&&notOnlyTerm(l)).map(l=>({f:'p',l}))];
+  const mutes=allUnknown();
+  h+='<div class="xcard"><div style="font-size:11px;font-weight:800;color:var(--ink4);margin-bottom:6px">의료진만 보는 항목</div><h3>이번 리포트에 들어가지 않은 내용</h3><div class="xs">의사 메모·조건부 계획·과거 이력, 그리고 환자용 표현이 없거나 오타로 보이는 표기입니다. 환자에게는 보이지 않습니다.</div>';
   if(!hidden.length&&!mutes.length) h+='<div class="xempty">없음 — 작성한 내용이 모두 리포트에 담겼습니다</div>';
   hidden.forEach(x=>{ const l=x.l; const why=l.bucket==='hx'?'<span class="why">과거 수술 이력</span>':(RX.hedge.test(l.text)?'<span class="why cond">조건부 계획</span>':'<span class="why">의사 메모</span>');
     h+='<div class="xrow">'+why+'<span class="xtx" data-item="'+x.f+':'+l.i+'">'+esc(l.text)+aiMark(l)+'</span></div>'; });
-  mutes.forEach(u=>{ h+='<div class="xrow"><span class="why term">표기 미등록</span><span class="xtx" data-goterm="'+u.field+'" data-start="'+u.start+'" data-end="'+u.end+'"><code>'+esc(u.raw)+'</code> — 환자용 표현이 사전에 없어 해당 부분이 생략됩니다</span></div>'; });
+  mutes.forEach(u=>{ const typo=u.state==='typo'; h+='<div class="xrow"><span class="why '+(typo?'cond':'term')+'">'+(typo?'오타 의심':'표기 미등록')+'</span><span class="xtx" data-goterm="'+u.field+'" data-start="'+u.start+'" data-end="'+u.end+'"><code>'+esc(u.raw)+'</code> — '+(typo?'사전 용어 <code>'+esc(u.cands[0].t)+'</code>와 비슷합니다. 고치지 않으면 이 부분은 생략됩니다':'환자용 표현이 사전에 없어 해당 부분이 생략됩니다')+'</span></div>'; });
   h+='</div>';
   document.getElementById('aside').innerHTML=h;
 }
@@ -745,6 +748,7 @@ document.addEventListener('mousedown',e=>{ const it=e.target.closest('[data-aci]
 document.addEventListener('click',e=>{ const t=e.target;
   const ri=t.closest('[data-item],[data-put]'); if(ri){ const key=(ri.dataset.item||ri.dataset.put).split(':'); e.stopPropagation(); if(S.menu&&S.menu.field===key[0]&&S.menu.i==+key[1]) closeMenu(); else openMenu(key[0],+key[1],ri); return; }
   const sb=t.closest('[data-setb]'); if(sb){ setBucket(sb.dataset.setb); return; }
+  const gt=t.closest('[data-goterm]'); if(gt){ e.stopPropagation(); closeMenu(); const f=gt.dataset.goterm, st=+gt.dataset.start, en=+gt.dataset.end; const mk=markEl(f,st); if(mk) mk.scrollIntoView({block:'center',behavior:'smooth'}); if(mk&&mk.dataset.state==='typo') setTimeout(()=>openPop(f,st,en,true),300); else if(mk){ mk.style.transition='background .2s'; mk.style.background='rgba(30,90,240,.18)'; setTimeout(()=>{ mk.style.background=''; },1400); } return; }
   const mk=t.closest('.u.typo'); if(mk){ e.preventDefault(); clearTimeout(hoverT); openPop(mk.dataset.field,+mk.dataset.start,+mk.dataset.end,true); return; }
   const ap=t.closest('[data-apply]'); if(ap){ applyTerm(ap.dataset.apply,+ap.dataset.start,+ap.dataset.end,ap.dataset.to); return; }
 
