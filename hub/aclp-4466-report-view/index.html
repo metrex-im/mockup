@@ -51,45 +51,36 @@
   .browserbar .url{flex:1;background:#eef1f5;border-radius:8px;font-size:10.5px;color:var(--sub);padding:5px 10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .browserbar .dot{width:16px;height:16px;color:var(--sub)}
 
-  /* ===== 리포트 열람 페이지 ===== */
-  .report{padding:0 0 24px}
-  .report-hero{background:linear-gradient(160deg,var(--brand) 0%,#166b57 100%);color:#fff;padding:22px 20px 20px}
-  .report-hero .hospital{font-size:12px;opacity:.9;font-weight:600;letter-spacing:.02em}
-  .report-hero .title{font-size:18px;font-weight:800;margin:6px 0 2px;letter-spacing:-.02em}
-  .report-hero .datedoc{font-size:12.5px;opacity:.92;margin-top:8px;display:flex;flex-wrap:wrap;gap:6px 14px}
-  .report-hero .datedoc span{display:inline-flex;align-items:center;gap:5px}
-
-  .report-body{padding:18px 18px 0}
-  .greet{font-size:14px;line-height:1.65;color:var(--ink)}
-  .greet b{color:var(--brand-ink)}
-  .lead{font-size:13px;line-height:1.65;color:var(--sub);margin-top:8px}
-
-  .section{margin-top:20px}
-  .section-h{display:flex;align-items:center;gap:7px;font-size:13.5px;font-weight:800;color:var(--ink);letter-spacing:-.01em;margin-bottom:10px}
-  .section-h .bar{width:4px;height:15px;border-radius:2px;background:var(--brand)}
-
-  .summary{background:var(--brand-soft);border-radius:14px;padding:14px 16px}
-  .summary li{list-style:none;position:relative;padding-left:18px;font-size:13px;line-height:1.7;color:var(--brand-ink)}
-  .summary li::before{content:"";position:absolute;left:2px;top:9px;width:7px;height:7px;border-radius:50%;background:var(--brand)}
-  .summary ul{margin:0;padding:0}
-
-  .memo{border:1px solid var(--line);border-radius:14px;padding:14px 16px}
-  .memo .cat{font-size:11.5px;font-weight:700;color:var(--brand);background:var(--brand-soft);display:inline-block;padding:3px 9px;border-radius:999px;margin-bottom:8px}
-  .memo p{margin:0;font-size:13px;line-height:1.7;color:var(--ink)}
-  .memo + .memo{margin-top:10px}
-
-  .kv{display:flex;flex-direction:column;gap:8px}
-  .kv .row{display:flex;justify-content:space-between;gap:12px;font-size:13px;padding:9px 0;border-bottom:1px dashed var(--line)}
-  .kv .row:last-child{border-bottom:0}
-  .kv .row .k{color:var(--sub)}
-  .kv .row .v{color:var(--ink);font-weight:600;text-align:right}
-
-  .disclaimer{margin-top:18px;font-size:11px;line-height:1.6;color:#9aa2ae;background:#f7f8fa;border-radius:12px;padding:12px 14px}
-
   .cta{position:sticky;bottom:0;background:linear-gradient(to top,#fff 72%,rgba(255,255,255,0));padding:14px 18px 16px;flex:none}
   .btn{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;border:0;border-radius:13px;font-size:14px;font-weight:700;padding:14px;cursor:pointer;font-family:inherit}
   .btn-primary{background:var(--brand);color:#fff}
   .btn-ghost{background:#fff;color:var(--brand-ink);border:1.5px solid var(--brand)}
+
+
+  /* ===== 리포트 열람 페이지 — ACLP-4426 확정 양식(Figma v13) ===== */
+  .rp{--rb:#1447e6;--rb-dark:#0b3bc7;--rsoft:#e9f1fd;--rink:#0f172a;--rsub:#475569;--rmuted:#94a3b8;background:var(--rsoft);padding-bottom:10px;font-family:"Pretendard","Apple SD Gothic Neo","Noto Sans KR",sans-serif}
+  .rp-hero{background:linear-gradient(180deg,var(--rb) 0%,var(--rb-dark) 100%);color:#fff;padding:12px 16px 74px;position:relative;overflow:hidden}
+  .rp-hero::after{content:"";position:absolute;right:-60px;top:-30px;width:220px;height:220px;border-radius:50%;border:26px solid rgba(255,255,255,.08)}
+  .rp-hero .top{display:flex;justify-content:space-between;align-items:center;font-size:11.5px;font-weight:700}
+  .rp-hero .top .date{font-weight:500;opacity:.95}
+  .rp-hero .title{font-size:20px;font-weight:800;line-height:1.3;letter-spacing:-.02em;margin-top:34px;position:relative;z-index:1}
+  .rp-card{background:#fff;border-radius:16px;padding:14px 14px 16px;box-shadow:0 2px 10px rgba(15,23,42,.05)}
+  .rp-dx{margin:-62px 12px 0;position:relative;z-index:2;padding:0 14px 16px;overflow:hidden}
+  .rp-dx .figure{display:flex;justify-content:center;height:150px;overflow:hidden;margin:0 -14px}
+  .rp-dx .chip{display:inline-block;background:var(--rb);color:#fff;font-size:10.5px;font-weight:700;padding:4px 8px;border-radius:7px;margin-top:6px}
+  .rp-dx .dx{font-size:17.5px;font-weight:800;letter-spacing:-.02em;line-height:1.35;color:var(--rink);margin-top:10px}
+  .rp-sec{padding:24px 12px 0}
+  .rp-sec h3{margin:0 0 10px;font-size:14.5px;font-weight:800;letter-spacing:-.02em;color:var(--rink)}
+  .rp-plan .name{font-size:15.5px;font-weight:800;letter-spacing:-.02em;color:var(--rink)}
+  .rp-plan .sum{font-size:12px;line-height:1.65;color:var(--rsub);margin-top:6px}
+  .rp-plan .hr{height:1px;background:#e8edf5;margin:12px 0}
+  .rp-plan .lb{font-size:11.5px;font-weight:700;color:var(--rb);margin-top:10px}
+  .rp-plan .tx{font-size:12px;line-height:1.65;color:var(--rsub);margin-top:3px}
+  .rp-todo{display:flex;flex-direction:column;gap:12px}
+  .rp-todo .it{display:flex;align-items:center;gap:9px;font-size:13px;font-weight:700;color:var(--rink)}
+  .rp-todo .ck{width:18px;height:18px;border-radius:50%;background:#8db2f4;color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center;flex:none}
+  .rp-next{font-size:16.5px;font-weight:800;letter-spacing:-.02em;color:var(--rink)}
+  .rp-foot{padding:22px 16px 20px;font-size:10.5px;line-height:1.6;color:var(--rmuted)}
 
   /* ===== 로딩 ===== */
   .center-state{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:32px 28px;gap:14px}
@@ -178,7 +169,7 @@
 </div>
 
 <div class="note">
-  <b>목업 전제(확정 아님):</b> 리포트 본문 항목 구성은 이 티켓에 정의돼 있지 않아(선행 티켓 ACLP-4426 소관) 알림톡 실물과 유사 티켓을 근거로 <b>임시 텍스트</b>로 채웠습니다. 브랜드 컬러·문자(LMS) 양식(Q-2 미확정)도 가안이며, 실제 리포트 구성·문구 확정 시 교체 대상입니다.
+  <b>③ 본문은 ACLP-4426 확정 리포트 양식(Figma v13 · 단일 수술 케이스) 기준</b>이며, 복합 수술·비수술(주사·약물·운동) 케이스는 4426 목업을 참조합니다. ①⑥ 발송 문구는 GWT 7-1의 알림톡(A)·문자(B) 양식을 그대로 옮겼습니다(진료 요약·원장명 없음). 브랜드 컬러·더미 데이터는 가안입니다.
 </div>
 
 <div class="gallery">
@@ -192,7 +183,7 @@
       <div class="kkt">
         <div class="kkt-top"><span class="back">‹</span><span class="name">액티메디</span><span class="badge"></span></div>
         <div class="kkt-scroll">
-          <p class="kkt-date">2026년 8월 18일 화요일</p>
+          <p class="kkt-date">2026년 9월 8일 화요일</p>
           <div class="kkt-row">
             <div class="kkt-ava">💬</div>
             <div class="kkt-col">
@@ -201,14 +192,7 @@
                 <div class="kkt-head">알림톡 도착</div>
                 <div class="kkt-cont">
                   <p class="subj">[명지병원] 오늘 진료 내용 안내</p>
-                  <p>김도엉님, 안녕하세요.<br>오늘 선릉 테스트 원장님과 진행한 진료 내용을 정리해 보내드려요.</p>
-                  <p>부족한 항목 확인 후 재평가 예정입니다.</p>
-                  <div class="sumbox">
-                    <span class="h">■ 오늘 진료 요약 — 8/18(화)</span><br>
-                    · 다중 인대 손상 확인<br>
-                    · 스트레스 X-ray 5mm 이상<br>
-                    · 추가 확인 후 재평가
-                  </div>
+                  <p>김액티님, 안녕하세요.<br>오늘 진행하신 진료 내용을 정리해 보내드려요.<br>아래 버튼에서 진료 내용을 확인하실 수 있어요.<br>궁금한 점은 AI 챗봇에게 바로 물어보세요.</p>
                 </div>
                 <div class="kkt-btns">
                   <div class="kkt-btn">진료 내용 확인하기</div>
@@ -241,64 +225,60 @@
   <!-- 3. 정상 본문 -->
   <div class="frame-wrap">
     <div class="frame-label">③ 정상 열람 (핵심)</div>
-    <div class="frame-desc">진료 리포트 본문. 인증 없이 링크만으로 열람, 만료 없이 재열람 (AC-1·2·3·6)</div>
+    <div class="frame-desc">진료 리포트 본문 — ACLP-4426 확정 양식(단일 수술). 인증 없이 링크만으로 열람, 만료 없이 재열람 (AC-1·2·3·6)</div>
     <div class="phone"><div class="screen" data-key="진료리포트-열람-페이지-루트">
       <div class="statusbar"><span>9:41</span><span>5G · 66%</span></div>
       <div class="browserbar"><span class="dot">🔒</span><span class="url">report.rise-k.ai/r/8f3a…</span><span class="dot">⋮</span></div>
       <div class="scroll">
-        <div class="report" data-key="진료리포트-열람-본문-영역">
-          <div class="report-hero">
-            <div class="hospital">명지병원 · 정형외과</div>
-            <div class="title">오늘 진료 리포트</div>
-            <div class="datedoc">
-              <span>📅 2026. 8. 18 (화)</span>
-              <span>👤 선릉 테스트 원장</span>
+        <div class="rp" data-key="진료리포트-열람-본문-영역">
+          <div class="rp-hero">
+            <div class="top"><span>명지병원</span><span class="date">2026년 9월 8일 진료</span></div>
+            <div class="title">김액티님,<br>오늘 진료 결과입니다</div>
+          </div>
+
+          <div class="rp-card rp-dx">
+            <div class="figure">
+              <svg viewBox="0 0 160 190" width="160" height="190" aria-hidden="true">
+                <g fill="#d5d9e0">
+                  <path d="M52 0h56l6 40c2 12-2 24-8 34l-4 8 4 40c1 10-1 20-4 30l-6 30c-1 5-5 8-10 8h-6c-4 0-7-3-7-7l2-58-5-10-5 10 2 58c0 4-3 7-7 7h-6c-5 0-9-3-10-8l-6-30c-3-10-5-20-4-30l4-40-4-8c-6-10-10-22-8-34z"/>
+                </g>
+                <circle cx="100" cy="86" r="16" fill="#f04438" opacity=".25"/>
+                <circle cx="100" cy="86" r="9" fill="#f04438" opacity=".9"/>
+              </svg>
+            </div>
+            <span class="chip">오른쪽 무릎</span>
+            <div class="dx">전방십자인대가 끊어졌습니다.</div>
+          </div>
+
+          <div class="rp-sec">
+            <h3>앞으로의 진료 계획</h3>
+            <div class="rp-card rp-plan">
+              <div class="name">전방십자인대 재건술</div>
+              <div class="sum">끊어진 전방십자인대를 대신할 새로운 인대를 만들어 무릎을 다시 안정적으로 잡아주는 수술입니다.</div>
+              <div class="hr"></div>
+              <div class="lb">수술 목표</div>
+              <div class="tx">무릎이 흔들리거나 비틀리는 불안정성을 줄이고 안정적인 움직임을 회복하는 것이 목표입니다.</div>
+              <div class="lb">수술 후에는</div>
+              <div class="tx">재건한 인대를 보호하면서 무릎 움직임과 허벅지 근력을 단계적으로 회복합니다.</div>
             </div>
           </div>
-          <div class="report-body">
-            <p class="greet"><b>김도엉</b>님, 안녕하세요.<br>오늘 진행한 진료 내용을 정리해 드려요.</p>
-            <p class="lead">아래 요약은 진료 기록을 바탕으로 정리한 참고 자료예요. 궁금한 점은 AI 채팅 상담으로 편하게 물어보세요.</p>
 
-            <div class="section">
-              <div class="section-h"><span class="bar"></span>오늘 진료 요약</div>
-              <div class="summary"><ul>
-                <li>다중 인대 손상이 확인되었어요.</li>
-                <li>스트레스 X-ray에서 5mm 이상 벌어짐이 관찰돼요.</li>
-                <li>부족한 검사 항목을 확인한 뒤 재평가할 예정이에요.</li>
-              </ul></div>
+          <div class="rp-sec">
+            <h3>다음 진료까지 하실 일</h3>
+            <div class="rp-card rp-todo">
+              <div class="it"><span class="ck">✓</span>수술 전 검사 받기</div>
+              <div class="it"><span class="ck">✓</span>걸을 때는 항상 보조기 착용</div>
+              <div class="it"><span class="ck">✓</span>무릎 비틀기, 쪼그려 앉기 피하기</div>
             </div>
-
-            <div class="section">
-              <div class="section-h"><span class="bar"></span>진료 상세</div>
-              <div class="memo">
-                <span class="cat">진단</span>
-                <p>무릎 관절의 불안정성이 있어 인대 손상 정도를 정밀하게 살펴봤어요. 여러 인대에 걸친 손상 소견이 있어 추가 확인이 필요해요.</p>
-              </div>
-              <div class="memo">
-                <span class="cat">검사</span>
-                <p>스트레스 X-ray 촬영 결과 정상 범위를 넘는 벌어짐(5mm 이상)이 확인됐어요. 필요 시 MRI 등 정밀 검사를 함께 고려할 수 있어요.</p>
-              </div>
-              <div class="memo">
-                <span class="cat">계획</span>
-                <p>부족한 검사 항목을 보완한 후 치료 방향(보존적 치료 또는 수술)을 다시 상의드릴 예정이에요.</p>
-              </div>
-            </div>
-
-            <div class="section">
-              <div class="section-h"><span class="bar"></span>다음 안내</div>
-              <div class="kv">
-                <div class="row"><span class="k">다음 방문</span><span class="v">재평가 예약 예정</span></div>
-                <div class="row"><span class="k">준비 사항</span><span class="v">이전 검사 자료 지참</span></div>
-                <div class="row"><span class="k">주의</span><span class="v">무리한 관절 사용 자제</span></div>
-              </div>
-            </div>
-
-            <p class="disclaimer">본 리포트는 진료 내용을 이해하기 쉽게 정리한 참고 자료이며, 정식 진단서·소견서를 대체하지 않아요. 증상이 급격히 나빠지면 병원에 문의해 주세요.</p>
           </div>
+
+          <div class="rp-sec">
+            <h3>다음에 오시는 날</h3>
+            <div class="rp-card"><div class="rp-next">9월 14일 월요일</div></div>
+          </div>
+
+          <p class="rp-foot">이 리포트는 2026년 9월 8일 명지병원에서 받은 진료 내용을 바탕으로 작성되었습니다.</p>
         </div>
-      </div>
-      <div class="cta">
-        <button class="btn btn-primary">💬 AI 채팅 상담하기</button>
       </div>
     </div></div>
   </div>
@@ -336,8 +316,8 @@
 
   <!-- 6. 문자(LMS) -->
   <div class="frame-wrap">
-    <div class="frame-label">⑥ 문자(LMS) 대체발송 (가안)</div>
-    <div class="frame-desc">알림톡 실패 시 문자로 대체. 이모지·특수문자 제외, 버튼은 https 링크 텍스트 (AC-7·8) · Q-2 미확정</div>
+    <div class="frame-label">⑥ 문자(LMS) 대체발송</div>
+    <div class="frame-desc">알림톡 실패 시 문자로 대체. 이모지·특수문자 제외, 버튼은 https 링크 텍스트 — GWT 7-1 양식(B) (AC-7·8)</div>
     <div class="phone"><div class="screen">
       <div class="statusbar"><span>9:41</span><span>5G · 66%</span></div>
       <div class="sms">
@@ -345,20 +325,14 @@
         <div class="sms-scroll">
           <div class="sms-bubble">[명지병원] 오늘 진료 내용 안내
 
-김도엉님, 안녕하세요.
-오늘 선릉 테스트 원장님과 진행한 진료 내용을 정리해 보내드려요.
+김액티님, 안녕하세요.
+오늘 진행하신 진료 내용을 정리해 보내드려요.
+진료 내용을 확인하고 궁금한 점은 AI 챗봇에게 물어보세요.
 
-부족한 항목 확인 후 재평가 예정입니다.
-
-오늘 진료 요약 - 8/18(화)
-- 다중 인대 손상 확인
-- 스트레스 X-ray 5mm 이상
-- 추가 확인 후 재평가
-
-진료 내용 확인하기
+진료 내용 확인
 <a href="#">https://report.rise-k.ai/r/8f3a2c</a>
 
-AI 채팅 상담하기
+AI 챗봇 상담
 <a href="#">https://link.actimedi.com/chat</a></div>
           <div class="sms-time">오전 8:51</div>
         </div>
@@ -381,7 +355,7 @@ AI 채팅 상담하기
       <tr><td>링크 오류 안내</td><td><code>진료리포트-열람-링크오류-안내</code></td><td>⑤</td></tr>
     </tbody>
   </table>
-  <p class="legend">발송·대체발송·챗봇 라우팅(AC-7·8·9)은 메시지·백엔드·앱 진입 영역이라 화면 요소 키 대상이 아닙니다. ①⑥은 참고용 발송 화면입니다.</p>
+  <p class="legend">발송·대체발송·챗봇 라우팅(AC-7·8·9)은 메시지·백엔드·앱 진입 영역이라 화면 요소 키 대상이 아닙니다. ①⑥은 참고용 발송 화면입니다. 리포트 본문 내부 요소의 키(리포트-컨테이너 등)는 ACLP-4426에서 관리합니다.</p>
 </div>
 
 <script>
