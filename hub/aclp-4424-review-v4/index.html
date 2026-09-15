@@ -297,6 +297,7 @@
 .legend i{display:inline-block;width:14px;border-bottom:2px dotted #B8700F;vertical-align:middle;margin-right:5px;height:8px}
 .legend s{text-decoration:none;color:#9AA1AD;font-weight:700;margin-right:5px}
 .aci .t{white-space:normal}
+.cand2 .t{flex:1;white-space:normal}
 </style>
 </head>
 <body>
@@ -714,8 +715,8 @@ function acceptAc(i){ if(!S.ac) return; const it=S.ac.items[i==null?S.ac.idx:i];
 let hoverT=null, leaveT=null;
 function markEl(field,start){ return document.querySelector('.u[data-field="'+field+'"][data-start="'+start+'"]'); }
 function openPop(field,start,end,pinned){ const raw=S.ap[field].slice(start,end); const cands=typoCands(raw); if(!cands.length) return; S.pop={field,start,end,raw,pinned:!!pinned}; const pop=document.getElementById('pop');
-  let h='<div class="ph"><span class="term">'+esc(raw)+'</span><span class="st typo">오타 의심</span><button class="x" data-act="closePop" aria-label="닫기">×</button></div><p>사전에 없는 표기인데 아래 용어와 비슷합니다. 그대로 두시면 환자에게는 이 부분이 보이지 않습니다.</p>';
-  h+='<div class="cands">'+cands.map(d=>'<button class="cand2" data-apply="'+field+'" data-start="'+start+'" data-end="'+end+'" data-to="'+esc(d.t)+'"><span class="t">'+esc(d.t)+'</span><span class="p">'+esc(d.p)+'</span><span class="go">바꾸기</span></button>').join('')+'</div><div class="acts"><button data-act="keepTerm">이대로 두기</button></div>';
+  let h='<div class="ph"><span class="term">'+esc(raw)+'</span><span class="st typo">오타 의심</span><button class="x" data-act="closePop" aria-label="닫기">×</button></div><p>사전에 없는 표기인데 아래 표기와 비슷합니다. 그대로 두시면 환자 리포트에서 이 부분만 생략됩니다.</p>';
+  h+='<div class="cands">'+cands.map(d=>'<button class="cand2" data-apply="'+field+'" data-start="'+start+'" data-end="'+end+'" data-to="'+esc(d.t)+'"><span class="t">'+esc(d.t)+'</span><span class="go">바꾸기</span></button>').join('')+'</div><div class="acts"><button data-act="keepTerm">이대로 두기</button></div>';
   pop.innerHTML=h; pop.classList.add('on'); document.querySelectorAll('.u.pin').forEach(e=>e.classList.remove('pin')); const mk=markEl(field,start); if(mk) mk.classList.add('pin'); positionPop(); }
 function positionPop(){ const pop=document.getElementById('pop'); if(!S.pop||!pop.classList.contains('on')) return; const mk=markEl(S.pop.field,S.pop.start); if(!mk){ closePop(); return; } const r=mk.getBoundingClientRect(), pw=pop.offsetWidth, ph=pop.offsetHeight; let left=Math.min(Math.max(12,r.left-20),window.innerWidth-pw-12), top=r.bottom+10, up=false; if(top+ph>window.innerHeight-12){ top=r.top-ph-10; up=true; } pop.style.left=left+'px'; pop.style.top=top+'px'; pop.classList.toggle('up',up); pop.style.setProperty('--ax',Math.max(14,Math.min(pw-26,r.left+r.width/2-left-6))+'px'); }
 function closePop(){ S.pop=null; document.getElementById('pop').classList.remove('on'); document.querySelectorAll('.u.pin').forEach(e=>e.classList.remove('pin')); }
