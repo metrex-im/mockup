@@ -10,7 +10,6 @@
 <style>
   :root{
     --bg:#F4F5F7;
-    --card:#FFFFFF;
     --line:#E5E7EB;
     --line-strong:#D1D5DB;
     --text:#111827;
@@ -23,6 +22,9 @@
     --green:#E9F7EF;
     --green-line:#A9DCC2;
     --green-text:#12805C;
+    --amber:#FDF3E3;
+    --amber-line:#E8C98B;
+    --amber-text:#96690E;
     --red:#FDECEC;
     --red-line:#E9A9A2;
     --red-text:#C0392B;
@@ -72,6 +74,8 @@
     padding:9px 14px;font-size:13px;color:var(--text);display:inline-flex;align-items:center;gap:6px;
   }
   .btn:hover{background:#FAFAFA}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .btn:disabled:hover{background:#fff}
   .btn-primary{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:500}
   .btn-primary:hover{background:#1D4FD8}
 
@@ -107,7 +111,7 @@
   }
   td{padding:14px 16px;border-bottom:1px solid #F1F2F4;font-size:13px}
   tr:last-child td{border-bottom:0}
-  tr:hover td{background:#FAFBFC}
+  tbody tr:hover td{background:#FAFBFC}
   .btn-sm{
     border:1px solid var(--line-strong);background:#fff;border-radius:7px;
     padding:7px 11px;font-size:12px;display:inline-flex;align-items:center;gap:5px;
@@ -140,15 +144,19 @@
   .navbtns{display:inline-flex;align-items:center;gap:4px}
   .navbtns button{border:1px solid var(--line-strong);background:#fff;border-radius:7px;padding:8px 11px;font-size:13px;color:var(--text-sub)}
   .navbtns button.today{color:var(--text)}
+  .navbtns button:disabled{opacity:.4;cursor:not-allowed}
   .toolbar .right{margin-left:auto;display:flex;gap:8px}
 
   .report-scroll{max-width:1120px;margin:0 auto;padding:18px 24px 60px;display:flex;justify-content:center}
+  .sheets{display:flex;flex-direction:column;gap:20px}
 
-  /* ---------- A4 결과지 ---------- */
+  /* ---------- A4 지면 ---------- */
   /*
+    한 지면은 A4 한 장(794 × 1123px = 210 × 297mm)이다.
+    내용이 한 장을 넘으면 지면이 늘어나며, 값을 줄이거나 자르지 않는다.
+
     인쇄 대화상자의 「배경 그래픽」 체크를 꺼도 같은 그림이 나오도록,
     의미를 담은 요소는 background 대신 테두리·글자색·SVG 로 그린다.
-    배경색은 있으면 좋은 장식으로만 쓴다.
   */
   .a4{
     width:794px;min-height:1123px;background:#fff;border:1px solid var(--line);
@@ -159,8 +167,10 @@
     background:var(--blue-soft);border:1px solid var(--blue-line);border-radius:8px;
     padding:16px 18px;display:flex;align-items:flex-start;
   }
+  .rep-head.cont{padding:11px 18px}
   .rep-org{font-size:12px;color:#4B6A93;margin-bottom:4px}
   .rep-title{font-size:20px;font-weight:700;letter-spacing:-.3px}
+  .rep-title.sm{font-size:15px}
   .rep-head .right{margin-left:auto;text-align:right}
   .rep-pt{font-size:15px;font-weight:700}
   .rep-pt span{font-weight:400;font-size:13px;color:#3F5B80;margin-left:8px}
@@ -170,13 +180,13 @@
     padding:1px 8px;font-size:11px;font-weight:700;
   }
 
+  .sec{break-inside:avoid;page-break-inside:avoid}
   .sec-title{display:flex;align-items:center;gap:9px;margin-bottom:9px}
   .sec-no{
     width:21px;height:21px;border-radius:50%;border:1.5px solid var(--navy);color:var(--navy);
-    font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;
+    font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none;
   }
   .sec-title h3{margin:0;font-size:15px;font-weight:700}
-  .sec-title .tag{font-size:11px;border:1px solid var(--line-strong);color:var(--text-sub);border-radius:5px;padding:2px 7px;font-weight:500}
 
   .panel{border:1px solid var(--line);border-radius:9px;padding:15px 17px}
 
@@ -185,17 +195,18 @@
   .kage-main{display:flex;align-items:baseline;gap:10px}
   .kage-num{font-size:46px;font-weight:700;letter-spacing:-1.5px;line-height:1}
   .kage-unit{font-size:17px;font-weight:500;color:var(--text-sub)}
-  .kage-sub{margin-top:10px;font-size:13px;color:var(--text-sub);display:flex;gap:16px}
+  .kage-sub{margin-top:10px;font-size:13px;color:var(--text-sub)}
   .kage-sub b{color:var(--text);font-weight:700}
   .gap-badge{
-    display:inline-flex;align-items:center;gap:7px;
-    border:1.5px solid var(--red-line);background:var(--red);color:var(--red-text);
-    border-radius:7px;padding:6px 12px;font-size:14px;font-weight:700;
+    display:inline-flex;align-items:center;gap:7px;border-radius:7px;
+    padding:6px 12px;font-size:14px;font-weight:700;border-width:1.5px;border-style:solid;
   }
   .grade-row{display:flex;align-items:center;gap:9px;margin-bottom:12px}
   .grade-label{font-size:12px;color:var(--text-sub)}
-  .grade-chip{border-radius:6px;padding:3px 11px;font-size:13px;font-weight:700}
-  .grade-high{border:1.5px solid var(--red-line);background:var(--red);color:var(--red-text)}
+  .grade-chip{border-radius:6px;padding:3px 11px;font-size:13px;font-weight:700;border-width:1.5px;border-style:solid}
+  .tone-high{border-color:var(--red-line);background:var(--red);color:var(--red-text)}
+  .tone-mid{border-color:var(--amber-line);background:var(--amber);color:var(--amber-text)}
+  .tone-low{border-color:var(--green-line);background:var(--green);color:var(--green-text)}
   .gauge-legend{display:flex;justify-content:space-between;font-size:11px;color:var(--text-mute);margin-top:5px}
 
   /* 지표 카드 */
@@ -204,6 +215,7 @@
   .metric .m-label{font-size:12px;color:var(--text-sub);margin-bottom:7px}
   .metric .m-value{font-size:22px;font-weight:700}
   .metric .m-value small{font-size:12px;font-weight:500;color:var(--text-sub);margin-left:3px}
+  .metric .m-value.na{font-size:16px;color:var(--text-sub)}
   .metric .m-ref{font-size:11px;color:var(--text-mute);margin-top:5px}
 
   /* 위험요인 표 */
@@ -214,15 +226,26 @@
   .rf .num{text-align:right;white-space:nowrap}
   .rf .num b{font-size:13px}
   .rf .sum td{border-top:1px solid var(--line);border-bottom:0;padding-top:10px;font-weight:700;font-size:13px}
-  .rf tr:hover td{background:transparent}
+  .rf tbody tr:hover td{background:transparent}
   .bar{vertical-align:middle;margin-right:9px}
 
   /* 코멘트 */
   .comment{background:#FAFBFC;border:1px solid #DFE3E9;border-radius:8px;padding:14px 16px;font-size:13px;line-height:1.75;color:#374151}
+  .comment p{margin:0 0 10px}
+  .comment p:last-child{margin:0}
   .notice{margin-top:auto;padding-top:14px;border-top:1px solid var(--line);font-size:11px;color:var(--text-mute);display:flex;gap:10px}
   .notice .ver{margin-left:auto;white-space:nowrap}
+  .pageno{font-size:11px;color:var(--text-mute);text-align:right;margin-top:6px}
 
   .two-col{display:grid;grid-template-columns:1.35fr 1fr;gap:14px}
+
+  /* 안내 상태 */
+  .empty-sheet{
+    width:794px;background:#fff;border:1px solid var(--line);border-radius:10px;
+    padding:70px 28px;text-align:center;
+  }
+  .empty-title{font-size:16px;font-weight:700;margin-bottom:8px}
+  .empty-desc{font-size:13px;color:var(--text-sub);line-height:1.7}
 
   /* 검사 종합 / 검사 경과 탭 */
   .legacy{width:900px}
@@ -235,6 +258,7 @@
   .lr{font-size:12px;color:var(--text-sub)}
   .lr b{display:block;font-size:16px;color:var(--text);margin-top:3px}
   .plot{flex:1;height:76px;border:1px solid #DFE3E9;border-radius:6px}
+  .tag{font-size:11px;border:1px solid var(--line-strong);color:var(--text-sub);border-radius:5px;padding:2px 7px;font-weight:500}
   .row-list div{display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid #F1F2F4;font-size:13px}
   .row-list div:last-child{border-bottom:0}
   .row-list span{color:var(--text-sub)}
@@ -245,7 +269,13 @@
     .gnb,.wrap,.ov-head,.subtabs,.toolbar{display:none!important}
     .overlay{position:static;overflow:visible}
     .report-scroll{padding:0;max-width:none}
-    .a4{width:auto;border:0;border-radius:0;min-height:auto;padding:12mm 10mm}
+    .sheets{gap:0}
+    /* 지면 하나가 종이 한 장이다. 지면이 늘어나면 종이도 늘어난다. */
+    .a4{
+      width:auto;border:0;border-radius:0;min-height:auto;
+      padding:12mm 10mm;break-after:page;page-break-after:always;
+    }
+    .a4:last-child{break-after:auto;page-break-after:auto}
   }
 </style>
 </head>
@@ -309,29 +339,29 @@
       </thead>
       <tbody>
         <tr>
-          <td>P-10023</td><td>김액티</td><td>1999.11.11</td><td>남성</td><td>-</td>
+          <td>P-10023</td><td>김액티</td><td>1980.03.21</td><td>남성</td><td>-</td>
           <td>Ligament Surgery</td><td>2026.09.13</td>
-          <td><button class="btn-sm" onclick="openReport()">📋 검사 리포트</button></td>
+          <td><button class="btn-sm" onclick="openReport('kim')">📋 검사 리포트</button></td>
         </tr>
         <tr>
-          <td>T123</td><td>박메디</td><td>-</td><td>남성</td><td>-</td>
+          <td>T123</td><td>박메디</td><td>1968.11.02</td><td>여성</td><td>-</td>
           <td>-</td><td>2026.09.09</td>
-          <td><button class="btn-sm" onclick="openReport()">📋 검사 리포트</button></td>
+          <td><button class="btn-sm" onclick="openReport('park')">📋 검사 리포트</button></td>
         </tr>
         <tr>
-          <td>19193321</td><td>이하늘</td><td>1995.07.14</td><td>남성</td><td>-</td>
+          <td>19193321</td><td>이하늘</td><td>1975.07.14</td><td>남성</td><td>-</td>
           <td>Arthroplasty</td><td>2026.09.02</td>
-          <td><button class="btn-sm" onclick="openReport()">📋 검사 리포트</button></td>
+          <td><button class="btn-sm" onclick="openReport('lee')">📋 검사 리포트</button></td>
         </tr>
         <tr>
-          <td>abcd1111</td><td>정우람</td><td>1995.07.10</td><td>남성</td><td>-</td>
+          <td>abcd1111</td><td>정우람</td><td>1990.07.10</td><td>남성</td><td>-</td>
           <td>Extensor Mechanism Surgery</td><td>2026.09.02</td>
-          <td><button class="btn-sm" onclick="openReport()">📋 검사 리포트</button></td>
+          <td><button class="btn-sm" onclick="openReport('jung')">📋 검사 리포트</button></td>
         </tr>
         <tr>
           <td>T456</td><td>최한결</td><td>1988.01.01</td><td>여성</td><td>-</td>
           <td>Arthroplasty</td><td>2025.10.02</td>
-          <td><button class="btn-sm" onclick="openReport()">📋 검사 리포트</button></td>
+          <td><button class="btn-sm" onclick="openReport('choi')">📋 검사 리포트</button></td>
         </tr>
       </tbody>
     </table>
@@ -375,7 +405,7 @@
             <div class="rep-title">무릎 기능 검사 결과지</div>
           </div>
           <div class="right">
-            <div class="rep-pt">김액티 <span>010-0000-0000</span></div>
+            <div class="rep-pt" id="summary-name">김액티</div>
             <div class="rep-meta">검사일 <b style="color:#1F3B63">2026.09.13.</b> │ 검사 부위 <span class="chip">왼쪽</span></div>
           </div>
         </div>
@@ -428,8 +458,8 @@
       <div class="legacy">
         <div class="sec-title"><span class="sec-no">1</span><h3>환자 정보</h3></div>
         <div class="panel row-list">
-          <div><span>성명</span><b>김액티</b></div>
-          <div><span>등록번호</span><b>010-0000-0000</b></div>
+          <div><span>성명</span><b id="trend-name">김액티</b></div>
+          <div><span>등록번호</span><b id="trend-chart">P-10023</b></div>
           <div><span>수술명</span><b>Ligament Surgery</b></div>
         </div>
         <div class="sec-title" style="margin-top:20px"><span class="sec-no">2</span><h3>환자 설문조사 결과</h3></div>
@@ -454,163 +484,287 @@
   <!-- ---------- 무릎나이 ---------- -->
   <div id="panel-kage">
     <div class="toolbar">
-      <div class="datebox">2026.09.13. <span>🗓</span></div>
-      <div class="navbtns"><button>‹</button><button class="today">오늘</button><button>›</button></div>
+      <div class="datebox" id="kage-date">2026.09.13. <span>🗓</span></div>
+      <div class="navbtns">
+        <button id="kage-prev">‹</button>
+        <button class="today">오늘</button>
+        <button id="kage-next" disabled>›</button>
+      </div>
       <div class="right">
-        <button class="btn" onclick="window.print()">🖨 출력</button>
+        <button class="btn" id="kage-print" onclick="window.print()">🖨 출력</button>
       </div>
     </div>
-
-    <div class="report-scroll">
-      <div class="a4">
-
-        <!-- 헤더 + 환자 정보 -->
-        <div class="rep-head">
-          <div>
-            <div class="rep-org">연세마스터정형외과의원</div>
-            <div class="rep-title">무릎나이(K-Age) 검사 결과지</div>
-          </div>
-          <div class="right">
-            <div class="rep-pt">김액티 <span>남성 · 만 46세</span></div>
-            <div class="rep-meta">
-              차트번호 P-10023 │ 검사일 <b style="color:#1F3B63">2026.09.13.</b> │ 검사 부위 <span class="chip">왼쪽</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- ① 무릎나이 요약 -->
-        <div>
-          <div class="sec-title"><span class="sec-no">1</span><h3>무릎나이 요약</h3></div>
-          <div class="panel">
-            <div class="summary">
-              <div>
-                <div class="kage-main">
-                  <span class="kage-num">58</span><span class="kage-unit">세</span>
-                </div>
-                <div class="kage-sub">
-                  <div>실제 나이 <b>46세</b></div>
-                </div>
-                <div style="margin-top:12px"><span class="gap-badge">▲ 실제 나이보다 12세 많음</span></div>
-              </div>
-              <div>
-                <div class="grade-row">
-                  <span class="grade-label">위험등급</span>
-                  <span class="grade-chip grade-high">고위험</span>
-                  <span style="font-size:12px;color:var(--text-sub)">격차 +5세 이상</span>
-                </div>
-                <svg viewBox="0 0 260 26" width="100%" height="26" role="img" aria-label="위험등급 게이지 · 고위험">
-                  <defs><clipPath id="gaugeClip"><rect x="0" y="8" width="260" height="10" rx="5"/></clipPath></defs>
-                  <g clip-path="url(#gaugeClip)">
-                    <rect x="0" y="8" width="100" height="10" fill="#7FC9A4"/>
-                    <rect x="100" y="8" width="60" height="10" fill="#EFC06A"/>
-                    <rect x="160" y="8" width="100" height="10" fill="#E58C80"/>
-                  </g>
-                  <rect x="0" y="8" width="260" height="10" rx="5" fill="none" stroke="#C9CFD8"/>
-                  <rect x="222" y="3" width="3" height="20" rx="1.5" fill="#111C35"/>
-                </svg>
-                <div class="gauge-legend">
-                  <span>저위험 &lt; +2세</span><span>중위험 +2~+5세</span><span>고위험 ≥ +5세</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ② 기능 · ③ 자기평가 -->
-        <div class="two-col">
-          <div>
-            <div class="sec-title"><span class="sec-no">2</span><h3>기능 검사</h3></div>
-            <div class="panel">
-              <div class="metrics">
-                <div class="metric">
-                  <div class="m-label">30초 의자 일어서기</div>
-                  <div class="m-value">11<small>회</small></div>
-                  <div class="m-ref">동일 성별·연령 기준 14.2회</div>
-                </div>
-                <div class="metric">
-                  <div class="m-label">TUG</div>
-                  <div class="m-value">9.8<small>초</small></div>
-                  <div class="m-ref">동일 성별·연령 기준 7.4초</div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div>
-            <div class="sec-title"><span class="sec-no">3</span><h3>자기평가</h3></div>
-            <div class="panel">
-              <div class="metric" style="height:100%">
-                <div class="m-label">KOOS-12 총점</div>
-                <div class="m-value">62<small>/ 100점</small></div>
-                <div class="m-ref">점수가 낮을수록 통증·기능 제한이 큽니다</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ④ 위험요인 · ⑤ X-ray -->
-        <div class="two-col">
-          <div>
-            <div class="sec-title"><span class="sec-no">4</span><h3>위험요인</h3></div>
-            <div class="panel">
-              <table class="rf">
-                <thead><tr><th>항목</th><th class="num">점수</th></tr></thead>
-                <tbody>
-                  <tr><td>과거 손상 · 수술력</td><td class="num"><svg class="bar" viewBox="0 0 64 6" width="64" height="6"><rect width="64" height="6" rx="3" fill="#E7EAEF"/><rect width="44.8" height="6" rx="3" fill="#7C93B8"/></svg><b>7</b> / 10</td></tr>
-                  <tr><td>체지방 · 대사부하</td><td class="num"><svg class="bar" viewBox="0 0 64 6" width="64" height="6"><rect width="64" height="6" rx="3" fill="#E7EAEF"/><rect width="42.7" height="6" rx="3" fill="#7C93B8"/></svg><b>6</b> / 9</td></tr>
-                  <tr><td>직업성 무릎 부하</td><td class="num"><svg class="bar" viewBox="0 0 64 6" width="64" height="6"><rect width="64" height="6" rx="3" fill="#E7EAEF"/><rect width="38.4" height="6" rx="3" fill="#7C93B8"/></svg><b>3</b> / 5</td></tr>
-                  <tr><td>고충격 스포츠</td><td class="num"><svg class="bar" viewBox="0 0 64 6" width="64" height="6"><rect width="64" height="6" rx="3" fill="#E7EAEF"/><rect width="32" height="6" rx="3" fill="#7C93B8"/></svg><b>1</b> / 2</td></tr>
-                  <tr><td>좌식생활 · 활동부족</td><td class="num"><svg class="bar" viewBox="0 0 64 6" width="64" height="6"><rect width="64" height="6" rx="3" fill="#E7EAEF"/><rect width="64" height="6" rx="3" fill="#7C93B8"/></svg><b>2</b> / 2</td></tr>
-                  <tr><td>성별 · 폐경</td><td class="num"><svg class="bar" viewBox="0 0 64 6" width="64" height="6"><rect width="64" height="6" rx="3" fill="#E7EAEF"/></svg><b>0</b> / 2</td></tr>
-                  <tr class="sum"><td>합계</td><td class="num">19 / 30</td></tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-          <div>
-            <div class="sec-title"><span class="sec-no">5</span><h3>X-ray</h3></div>
-            <div class="panel">
-              <div class="metric" style="height:100%">
-                <div class="m-label">K-L grade</div>
-                <div class="m-value">2<small>등급</small></div>
-                <div class="m-ref">0~4 등급 · 등급이 높을수록 관절 간격 감소가 뚜렷합니다</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ⑥ 코멘트 -->
-        <div>
-          <div class="sec-title"><span class="sec-no">6</span><h3>건강운동관리사 코멘트</h3></div>
-          <div class="comment">
-            현재 무릎 부담이 큰 단계이므로 통증 없는 범위에서 시작하시는 것이 중요합니다.
-            수중운동·실내자전거 등 충격이 적은 유산소부터 주 3회 가볍게 진행하고,
-            의자에 앉았다 일어서기로 허벅지 근력을 천천히 키워 나가시길 권합니다.
-          </div>
-        </div>
-
-        <!-- 하단 고지 -->
-        <div class="notice">
-          <span>무릎나이는 건강 상태를 이해하기 위한 참고 지표이며 의학적 진단을 대체하지 않습니다.</span>
-          <span class="ver">산정 알고리즘 v0.2 · Reference ref_v0.2</span>
-        </div>
-
-      </div>
-    </div>
+    <div class="report-scroll"><div class="sheets" id="kage-sheets"></div></div>
   </div>
 </div>
 
 <script>
-  var openReport = function(){
+  var PATIENTS = {
+    kim: {
+      name: '김액티', chart: 'P-10023', sexAge: '남성 · 만 46세',
+      date: '2026.09.13.', side: '왼쪽', state: 'ok', rounds: 2,
+      kage: 58, realAge: 46, gap: 12, grade: '고위험', tone: 'tone-high', mark: 222,
+      sts: '11', tug: '9.8', stsRef: '14.2회', tugRef: '7.4초', koos: 62,
+      risks: [
+        { label: '과거 손상 · 수술력', score: 7, max: 10 },
+        { label: '체지방 · 대사부하', score: 6, max: 9 },
+        { label: '직업성 무릎 부하', score: 3, max: 5 },
+        { label: '고충격 스포츠', score: 1, max: 2 },
+        { label: '좌식생활 · 활동부족', score: 2, max: 2 },
+        { label: '성별 · 폐경', score: 0, max: 2 }
+      ],
+      xray: '2',
+      comment: ['현재 무릎 부담이 큰 단계이므로 통증 없는 범위에서 시작하시는 것이 중요합니다. 수중운동·실내자전거 등 충격이 적은 유산소부터 주 3회 가볍게 진행하고, 의자에 앉았다 일어서기로 허벅지 근력을 천천히 키워 나가시길 권합니다.']
+    },
+    park: {
+      name: '박메디', chart: 'T123', sexAge: '여성 · 만 57세',
+      date: '2026.09.09.', side: '오른쪽', state: 'ok', rounds: 1,
+      kage: 60, realAge: 57, gap: 3, grade: '중위험', tone: 'tone-mid', mark: 130,
+      sts: '13', tug: '8.6', stsRef: '12.8회', tugRef: '8.1초', koos: 71,
+      risks: [
+        { label: '과거 손상 · 수술력', score: 3, max: 10 },
+        { label: '체지방 · 대사부하', score: 5, max: 9 },
+        { label: '직업성 무릎 부하', score: 4, max: 5 },
+        { label: '고충격 스포츠', score: 0, max: 2 },
+        { label: '좌식생활 · 활동부족', score: 1, max: 2 },
+        { label: '성별 · 폐경', score: 2, max: 2 }
+      ],
+      xray: '1',
+      comment: [
+        '무릎에 무리가 적은 유산소(빠르게 걷기·실내자전거)를 주 3~5회 진행하시고, 허벅지 근력운동(스쿼트·레그익스텐션)을 주 2~3회 병행하시길 권합니다. 장시간 앉아 있을 때는 한 시간마다 일어나 가볍게 움직여 주세요.',
+        '직업성 무릎 부하가 항목 중 가장 높게 나왔습니다. 쪼그려 앉는 자세와 중량물을 드는 동작이 반복되면 연골에 실리는 압력이 크게 올라가므로, 가능한 범위에서 무릎 보호대를 착용하시고 한 자세를 오래 유지하지 않도록 중간중간 자세를 바꿔 주시기 바랍니다. 물건을 들 때는 허리를 굽히지 말고 무릎을 살짝 굽혀 몸에 붙여 드는 습관을 들이시면 부담을 줄일 수 있습니다.',
+        '체지방과 대사부하 항목도 함께 높게 나왔습니다. 체중이 1kg 줄면 보행 시 무릎에 실리는 힘은 그보다 크게 줄어들기 때문에, 식사량을 급격히 줄이기보다 저녁 탄수화물을 조금 줄이고 단백질을 늘리는 방향으로 천천히 조절하시길 권합니다. 허리둘레를 함께 기록해 두시면 변화를 확인하기 쉽습니다.',
+        '폐경 이후에는 골밀도와 근육량이 함께 줄어드는 시기이므로, 유산소만 하시기보다 근력운동을 반드시 병행하셔야 합니다. 통증이 생기면 그날은 강도를 낮추고, 통증이 이틀 이상 이어지면 센터로 알려 주시기 바랍니다. 다음 방문 때 같은 항목을 다시 측정해 변화를 함께 확인하겠습니다.'
+      ]
+    },
+    lee: {
+      name: '이하늘', chart: '19193321', sexAge: '남성 · 만 50세',
+      date: '2026.09.02.', side: '왼쪽', state: 'incomplete', rounds: 1
+    },
+    jung: {
+      name: '정우람', chart: 'abcd1111', sexAge: '남성 · 만 35세',
+      date: '2026.09.02.', side: '오른쪽', state: 'ok', rounds: 1,
+      kage: 34, realAge: 35, gap: -1, grade: '저위험', tone: 'tone-low', mark: 58,
+      sts: '18', tug: '6.2', stsRef: '16.4회', tugRef: '6.8초', koos: 88,
+      risks: [
+        { label: '과거 손상 · 수술력', score: 2, max: 10 },
+        { label: '체지방 · 대사부하', score: 1, max: 9 },
+        { label: '직업성 무릎 부하', score: 0, max: 5 },
+        { label: '고충격 스포츠', score: 2, max: 2 },
+        { label: '좌식생활 · 활동부족', score: 0, max: 2 },
+        { label: '성별 · 폐경', score: 0, max: 2 }
+      ],
+      xray: null,
+      comment: ['현재 무릎 상태가 양호하므로 빠르게 걷기·자전거 등 규칙적인 유산소와 하체 근력운동을 주 3회 이상 꾸준히 유지하시면 됩니다. 지금의 활동 습관을 이어가시는 것이 가장 좋은 예방법입니다.']
+    },
+    choi: {
+      name: '최한결', chart: 'T456', sexAge: '여성 · 만 38세',
+      date: '2025.10.02.', side: '왼쪽', state: 'none', rounds: 0
+    }
+  };
+
+  var escapeText = function(value){
+    return String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  var renderHead = function(p){
+    return ''
+      + '<div class="rep-head">'
+      +   '<div>'
+      +     '<div class="rep-org">연세마스터정형외과의원</div>'
+      +     '<div class="rep-title">무릎나이(K-Age) 검사 결과지</div>'
+      +   '</div>'
+      +   '<div class="right">'
+      +     '<div class="rep-pt">' + escapeText(p.name) + ' <span>' + escapeText(p.sexAge) + '</span></div>'
+      +     '<div class="rep-meta">차트번호 ' + escapeText(p.chart) + ' │ 검사일 '
+      +       '<b style="color:#1F3B63">' + escapeText(p.date) + '</b> │ 검사 부위 '
+      +       '<span class="chip">' + escapeText(p.side) + '</span></div>'
+      +   '</div>'
+      + '</div>';
+  }
+
+  var renderContHead = function(p){
+    return ''
+      + '<div class="rep-head cont">'
+      +   '<div><div class="rep-title sm">무릎나이(K-Age) 검사 결과지</div></div>'
+      +   '<div class="right"><div class="rep-meta" style="margin-top:2px">'
+      +     escapeText(p.name) + ' │ 차트번호 ' + escapeText(p.chart) + ' │ 검사일 ' + escapeText(p.date)
+      +   '</div></div>'
+      + '</div>';
+  }
+
+  var renderSummary = function(p){
+    var gapText = p.gap > 0
+      ? '▲ 실제 나이보다 ' + p.gap + '세 많음'
+      : (p.gap < 0 ? '▼ 실제 나이보다 ' + Math.abs(p.gap) + '세 적음' : '실제 나이와 같음');
+    return ''
+      + '<div class="sec">'
+      +   '<div class="sec-title"><span class="sec-no">1</span><h3>무릎나이 요약</h3></div>'
+      +   '<div class="panel"><div class="summary">'
+      +     '<div>'
+      +       '<div class="kage-main"><span class="kage-num">' + p.kage + '</span><span class="kage-unit">세</span></div>'
+      +       '<div class="kage-sub">실제 나이 <b>' + p.realAge + '세</b></div>'
+      +       '<div style="margin-top:12px"><span class="gap-badge ' + p.tone + '">' + gapText + '</span></div>'
+      +     '</div>'
+      +     '<div>'
+      +       '<div class="grade-row"><span class="grade-label">위험등급</span>'
+      +         '<span class="grade-chip ' + p.tone + '">' + p.grade + '</span></div>'
+      +       '<svg viewBox="0 0 260 26" width="100%" height="26" role="img" aria-label="위험등급 게이지">'
+      +         '<defs><clipPath id="gc' + p.chart.replace(/[^A-Za-z0-9]/g, '') + '">'
+      +           '<rect x="0" y="8" width="260" height="10" rx="5"/></clipPath></defs>'
+      +         '<g clip-path="url(#gc' + p.chart.replace(/[^A-Za-z0-9]/g, '') + ')">'
+      +           '<rect x="0" y="8" width="100" height="10" fill="#7FC9A4"/>'
+      +           '<rect x="100" y="8" width="60" height="10" fill="#EFC06A"/>'
+      +           '<rect x="160" y="8" width="100" height="10" fill="#E58C80"/></g>'
+      +         '<rect x="0" y="8" width="260" height="10" rx="5" fill="none" stroke="#C9CFD8"/>'
+      +         '<rect x="' + p.mark + '" y="3" width="3" height="20" rx="1.5" fill="#111C35"/>'
+      +       '</svg>'
+      +       '<div class="gauge-legend"><span>저위험 &lt; +2세</span><span>중위험 +2~+5세</span><span>고위험 ≥ +5세</span></div>'
+      +     '</div>'
+      +   '</div></div>'
+      + '</div>';
+  }
+
+  var renderFunctionAndKoos = function(p){
+    return ''
+      + '<div class="two-col">'
+      +   '<div class="sec">'
+      +     '<div class="sec-title"><span class="sec-no">2</span><h3>기능 검사</h3></div>'
+      +     '<div class="panel"><div class="metrics">'
+      +       '<div class="metric"><div class="m-label">30초 의자 일어서기</div>'
+      +         '<div class="m-value">' + p.sts + '<small>회</small></div>'
+      +         '<div class="m-ref">동일 성별·연령 기준 ' + p.stsRef + '</div></div>'
+      +       '<div class="metric"><div class="m-label">TUG</div>'
+      +         '<div class="m-value">' + p.tug + '<small>초</small></div>'
+      +         '<div class="m-ref">동일 성별·연령 기준 ' + p.tugRef + '</div></div>'
+      +     '</div></div>'
+      +   '</div>'
+      +   '<div class="sec">'
+      +     '<div class="sec-title"><span class="sec-no">3</span><h3>자기평가</h3></div>'
+      +     '<div class="panel"><div class="metric" style="height:100%">'
+      +       '<div class="m-label">KOOS-12 총점</div>'
+      +       '<div class="m-value">' + p.koos + '<small>/ 100점</small></div>'
+      +       '<div class="m-ref">점수가 낮을수록 통증·기능 제한이 큽니다</div>'
+      +     '</div></div>'
+      +   '</div>'
+      + '</div>';
+  }
+
+  var renderRisksAndXray = function(p){
+    var total = 0, max = 0, rows = '';
+    p.risks.forEach(function(r){
+      total += r.score; max += r.max;
+      var w = r.max === 0 ? 0 : (64 * r.score / r.max);
+      rows += '<tr><td>' + r.label + '</td><td class="num">'
+        + '<svg class="bar" viewBox="0 0 64 6" width="64" height="6">'
+        + '<rect width="64" height="6" rx="3" fill="#E7EAEF"/>'
+        + (w > 0 ? '<rect width="' + w.toFixed(1) + '" height="6" rx="3" fill="#7C93B8"/>' : '')
+        + '</svg><b>' + r.score + '</b> / ' + r.max + '</td></tr>';
+    });
+    var xrayBlock = p.xray === null
+      ? '<div class="m-value na">미측정</div><div class="m-ref">X-ray를 제외한 3개 축으로 무릎나이를 산출했습니다</div>'
+      : '<div class="m-value">' + p.xray + '<small>등급</small></div><div class="m-ref">0~4 등급 · 등급이 높을수록 관절 간격 감소가 뚜렷합니다</div>';
+    return ''
+      + '<div class="two-col">'
+      +   '<div class="sec">'
+      +     '<div class="sec-title"><span class="sec-no">4</span><h3>위험요인</h3></div>'
+      +     '<div class="panel"><table class="rf">'
+      +       '<thead><tr><th>항목</th><th class="num">점수</th></tr></thead><tbody>'
+      +       rows
+      +       '<tr class="sum"><td>합계</td><td class="num">' + total + ' / ' + max + '</td></tr>'
+      +     '</tbody></table></div>'
+      +   '</div>'
+      +   '<div class="sec">'
+      +     '<div class="sec-title"><span class="sec-no">5</span><h3>X-ray</h3></div>'
+      +     '<div class="panel"><div class="metric" style="height:100%">'
+      +       '<div class="m-label">K-L grade</div>' + xrayBlock
+      +     '</div></div>'
+      +   '</div>'
+      + '</div>';
+  }
+
+  var renderComment = function(p){
+    var body = p.comment.map(function(paragraph){
+      return '<p>' + escapeText(paragraph) + '</p>';
+    }).join('');
+    return ''
+      + '<div>'
+      +   '<div class="sec-title"><span class="sec-no">6</span><h3>건강운동관리사 코멘트</h3></div>'
+      +   '<div class="comment">' + body + '</div>'
+      + '</div>';
+  }
+
+  var renderNotice = function(page, totalPages){
+    return ''
+      + '<div class="notice">'
+      +   '<span>무릎나이는 건강 상태를 이해하기 위한 참고 지표이며 의학적 진단을 대체하지 않습니다.</span>'
+      +   '<span class="ver">산정 알고리즘 v0.2 · Reference ref_v0.2</span>'
+      + '</div>'
+      + '<div class="pageno">' + page + ' / ' + totalPages + '</div>';
+  }
+
+  var renderReport = function(key){
+    var p = PATIENTS[key];
+
+    if (p.state === 'none') {
+      return '<div class="empty-sheet">'
+        + '<div class="empty-title">무릎나이 검사 결과가 없습니다</div>'
+        + '<div class="empty-desc">이 환자는 아직 무릎나이 검사를 진행하지 않았습니다.</div>'
+        + '</div>';
+    }
+    if (p.state === 'incomplete') {
+      return '<div class="empty-sheet">'
+        + '<div class="empty-title">아직 결과지가 만들어지지 않았습니다</div>'
+        + '<div class="empty-desc">무릎나이 산정에 필요한 항목이 모두 채워지면 결과지가 만들어집니다.<br>'
+        + '무릎나이 검사 폼에서 남은 항목을 입력해 주세요.</div>'
+        + '</div>';
+    }
+
+    /*
+      코멘트가 길어 한 지면에 들어가지 않으면 지면을 늘린다.
+      값을 줄이거나 자르지 않는 것이 이 결과지의 원칙이다.
+    */
+    var isLong = p.comment.join(' ').length > 400;
+
+    if (!isLong) {
+      return '<div class="a4">'
+        + renderHead(p) + renderSummary(p) + renderFunctionAndKoos(p)
+        + renderRisksAndXray(p) + renderComment(p) + renderNotice(1, 1)
+        + '</div>';
+    }
+
+    return ''
+      + '<div class="a4">'
+      +   renderHead(p) + renderSummary(p) + renderFunctionAndKoos(p)
+      +   renderRisksAndXray(p) + renderNotice(1, 2)
+      + '</div>'
+      + '<div class="a4">'
+      +   renderContHead(p) + renderComment(p) + renderNotice(2, 2)
+      + '</div>';
+  }
+
+  var openReport = function(key){
+    var p = PATIENTS[key];
+    document.getElementById('kage-sheets').innerHTML = renderReport(key);
+    document.getElementById('kage-date').innerHTML = p.date + ' <span>🗓</span>';
+    document.getElementById('kage-prev').disabled = p.rounds < 2;
+    document.getElementById('kage-print').disabled = p.state !== 'ok';
+    document.getElementById('summary-name').textContent = p.name;
+    document.getElementById('trend-name').textContent = p.name;
+    document.getElementById('trend-chart').textContent = p.chart;
+
     document.getElementById('overlay').classList.add('open');
     document.body.style.overflow = 'hidden';
     showTab('kage');
   }
+
   var closeReport = function(){
     document.getElementById('overlay').classList.remove('open');
     document.body.style.overflow = '';
   }
+
   var showTab = function(name){
-    var tabs = ['summary','trend','kage'];
+    var tabs = ['summary', 'trend', 'kage'];
     tabs.forEach(function(t){
       document.getElementById('panel-' + t).style.display = (t === name) ? 'block' : 'none';
       document.getElementById('tab-' + t).classList.toggle('on', t === name);
