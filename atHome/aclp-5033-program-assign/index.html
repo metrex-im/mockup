@@ -208,7 +208,7 @@ body.annot .tag{display:inline-flex}
     <div class="note"><span class="tag">B</span><div><b>환측 하나로 통합 <span class="pill del">중복 삭제</span></b><p>수술 분기에서 두 환측 값이 어긋나던 문제를 차단합니다.</p></div></div>
     <div class="note"><span class="tag">C</span><div><b>시작일 하한 = 오늘 <span class="pill chg">변경</span></b><p>수술 분기는 수술 날짜보다 앞으로 설정 가능(수술 전 콘텐츠 구간). 지난 날짜는 선택기에서 비활성.</p></div></div>
     <div class="note"><span class="tag">D</span><div><b>구간 미리보기 <span class="pill chg">추가</span></b><p>시작·수술(0일차)·종료를 타임라인으로. 비수술은 시작 일차를 표기합니다.</p></div></div>
-    <div class="note"><span class="tag">E</span><div><b>「수술 날짜부터 100일」 체크 → 종료일 채움 <span class="pill chg">수술 분기</span></b><p>종료일 아래 체크박스를 켜면 종료일이 수술 날짜부터 100일(수술일 포함)로 채워집니다. 센터도 기본 100일로 배정하는 관행이 있어 패키지 전용이 아닌 공통 프리셋으로 두고 "100일 패키지" 표기는 뺐습니다. 기본은 체크 상태. 필드는 열려 있어 바로 수정할 수 있고, 직접 바꾸면 체크가 자동으로 풀립니다. 체크된 동안 수술 날짜를 바꾸면 종료일이 따라옵니다.</p></div></div>
+    <div class="note"><span class="tag">E</span><div><b>「수술 날짜부터 100일」 체크 → 종료일 채움 <span class="pill chg">수술 분기</span></b><p>종료일 아래 체크박스를 켜면 종료일이 수술 날짜부터 100일(수술일 포함)로 채워집니다. 100일 패키지 플랜은 따로 있지만 센터도 기본 100일로 배정하는 관행이 있어, 프리셋은 "100일 패키지" 표기 없는 공통 컨트롤로 둡니다. 기본은 체크 상태이고, 100일 패키지 플랜을 선택하면 꺼져 있던 체크가 다시 켜집니다(잠금은 아님). 필드는 열려 있어 바로 수정할 수 있고, 직접 바꾸면 체크가 자동으로 풀립니다. 체크된 동안 수술 날짜를 바꾸면 종료일이 따라옵니다.</p></div></div>
     <div class="note"><span class="tag">F</span><div><b>수술명 한글 우선 <span class="pill keep">범위 검토</span></b><p>저장 값은 그대로, 라벨만 변경. 베타 범위에서 제외 가능.</p></div></div>
     <div class="note"><span class="tag">G</span><div><b>"프로그램 기간" 패널 <span class="pill chg">추가</span></b><p>날짜 세 개가 한 구간을 만든다는 관계를 구조로 묶습니다.</p></div></div>
     <div class="note"><span class="tag">H</span><div><b>비수술 기준일 상한 = 오늘 <span class="pill chg">변경</span></b><p>미래 기준일이 만들던 "요청 팝업만 보이는 구간"을 설정 단계에서 차단합니다. 그 결과 시작일 규칙이 두 분기에서 같아집니다.</p></div></div>
@@ -232,7 +232,7 @@ body.annot .tag{display:inline-flex}
   $('surgNames').innerHTML=SURG.map(([k,e],i)=>`<label><input type="checkbox" name="sn" value="${e}" ${i===4?'checked':''}><span>${k}<small>${e} Surgery</small></span></label>`).join('');
 
   const PLANS={
-    surg:[{id:'pstd',name:'반월상연골 봉합술 (방사형 파열) 운동 플랜'},{id:'palt',name:'인공관절 전치환술 운동 플랜'}],
+    surg:[{id:'p100',name:'[100일 패키지] 반월상연골 봉합술 운동 플랜',pkg:true},{id:'pstd',name:'반월상연골 봉합술 (방사형 파열) 운동 플랜'}],
     non:[{id:'pnon',name:'무릎 비수술 관리 운동 플랜'}]
   };
   let plan=PLANS.surg[0];
@@ -243,8 +243,8 @@ body.annot .tag{display:inline-flex}
     const list=PLANS[mode()];
     if(!list.includes(plan))plan=list[0];
     $('planBox').innerHTML=list.map(p=>`<button type="button" class="chip ${p.id===plan.id?'':'alt'}" data-id="${p.id}">${p.name}${p.id===plan.id?' ✕':''}</button>`).join('');
-    $('planBox').querySelectorAll('.chip').forEach(b=>b.onclick=()=>{plan=list.find(p=>p.id===b.dataset.id);renderPlans();update();});
-    $('planHint').textContent='예시 플랜입니다. 칩을 눌러 바꿀 수 있습니다.';
+    $('planBox').querySelectorAll('.chip').forEach(b=>b.onclick=()=>{plan=list.find(p=>p.id===b.dataset.id);if(plan.pkg)$('pkg').checked=true;renderPlans();update();});
+    $('planHint').textContent=mode()==='surg'?'예시 플랜입니다. 100일 패키지 플랜을 고르면 종료일의 「수술 날짜부터 100일」이 다시 켜집니다.':'예시 플랜입니다.';
   }
 
   function setMode(){
