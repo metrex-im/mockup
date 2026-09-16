@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ACLP-4425 EMR 복사</title>
+<style>
+:root{
+  --bg:#f6f7f9; --surface:#fff; --surface-2:#f0f2f5; --line:#dfe3e8;
+  --text:#14181f; --text-2:#5a6472; --text-3:#8b93a1;
+  --accent:#2563eb; --accent-soft:#eaf1ff;
+  --warn:#b45309; --warn-soft:#fef4e6; --warn-line:#f0c88a;
+  --danger:#b42318; --danger-soft:#fdeceb; --danger-line:#f0a9a3;
+  --ok:#0f7a4d; --ok-soft:#e7f6ee; --ok-line:#9ed6bb;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+  --sans:-apple-system,BlinkMacSystemFont,"Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --r:10px;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1116; --surface:#161a21; --surface-2:#1d222b; --line:#2b323d;
+    --text:#e6e9ee; --text-2:#a2acbb; --text-3:#727c8b;
+    --accent:#6f9bff; --accent-soft:#182337;
+    --warn:#e0a44a; --warn-soft:#2a2113; --warn-line:#5a4520;
+    --danger:#f08b82; --danger-soft:#2c1715; --danger-line:#5e2b26;
+    --ok:#5fc796; --ok-soft:#10241b; --ok-line:#24523c;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1116; --surface:#161a21; --surface-2:#1d222b; --line:#2b323d;
+  --text:#e6e9ee; --text-2:#a2acbb; --text-3:#727c8b;
+  --accent:#6f9bff; --accent-soft:#182337;
+  --warn:#e0a44a; --warn-soft:#2a2113; --warn-line:#5a4520;
+  --danger:#f08b82; --danger-soft:#2c1715; --danger-line:#5e2b26;
+  --ok:#5fc796; --ok-soft:#10241b; --ok-line:#24523c;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:15px;line-height:1.65;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin:0 auto;padding:0 16px 80px}
+header.top{border-bottom:1px solid var(--line);background:var(--surface);padding:22px 0 18px;margin-bottom:28px}
+header.top .wrap{padding-bottom:0}
+h1{font-size:21px;margin:0 0 6px;letter-spacing:-.01em}
+.sub{color:var(--text-2);font-size:13.5px;margin:0}
+.sub a{color:var(--accent)}
+h2{font-size:17px;margin:44px 0 6px;letter-spacing:-.01em}
+h2 .n{color:var(--text-3);font-weight:600;margin-right:8px}
+h3{font-size:14.5px;margin:22px 0 8px}
+p{margin:8px 0}
+.lede{color:var(--text-2);font-size:14px;margin:0 0 18px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:760px){.grid2{grid-template-columns:1fr}}
+
+/* callouts */
+.note{border:1px solid var(--line);border-left-width:3px;border-radius:var(--r);padding:14px 16px;margin:14px 0;background:var(--surface);font-size:14px}
+.note.warn{border-left-color:var(--warn);background:var(--warn-soft)}
+.note.danger{border-left-color:var(--danger);background:var(--danger-soft)}
+.note.ok{border-left-color:var(--ok);background:var(--ok-soft)}
+.note b{font-weight:650}
+.note p:first-child{margin-top:0}.note p:last-child{margin-bottom:0}
+
+/* tags */
+.tag{display:inline-block;font-size:11.5px;font-weight:650;padding:2px 7px;border-radius:5px;border:1px solid;vertical-align:middle;line-height:1.5;white-space:nowrap}
+.t-ok{color:var(--ok);border-color:var(--ok-line);background:var(--ok-soft)}
+.t-warn{color:var(--warn);border-color:var(--warn-line);background:var(--warn-soft)}
+.t-danger{color:var(--danger);border-color:var(--danger-line);background:var(--danger-soft)}
+.t-plain{color:var(--text-2);border-color:var(--line);background:var(--surface-2)}
+
+/* screen mock */
+.screen{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;font-size:12.5px}
+.screen .bar{background:var(--surface-2);border-bottom:1px solid var(--line);padding:7px 12px;color:var(--text-2);font-size:11.5px;display:flex;justify-content:space-between;align-items:center}
+.screen .body{padding:12px;display:grid;grid-template-columns:120px 1fr;gap:10px;min-height:190px}
+.pane{background:var(--surface-2);border:1px solid var(--line);border-radius:7px;padding:9px}
+.pane .ph{color:var(--text-3);font-size:11px;margin-bottom:6px;font-weight:600}
+.line{height:7px;background:var(--line);border-radius:4px;margin:5px 0}
+.line.s{width:55%}.line.m{width:75%}
+.chips{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px}
+.chip{font-size:10.5px;padding:1px 6px;border-radius:99px;border:1px solid var(--line);color:var(--text-2);background:var(--surface)}
+.actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
+.btn{font-size:11.5px;padding:5px 10px;border-radius:6px;border:1px solid var(--line);background:var(--surface);color:var(--text-2);white-space:nowrap}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.new{border-color:var(--accent);color:var(--accent);background:var(--accent-soft);font-weight:650;box-shadow:0 0 0 3px var(--accent-soft)}
+.btn.ghost{opacity:.45}
+.callout-num{display:inline-flex;width:17px;height:17px;border-radius:50%;background:var(--accent);color:#fff;font-size:11px;font-weight:700;align-items:center;justify-content:center;margin-right:6px;flex:none}
+
+/* emr text */
+.emr{font-family:var(--mono);font-size:12.5px;line-height:1.85;white-space:pre-wrap;background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:14px;overflow-x:auto;margin:0}
+.emr .lab{color:var(--accent);font-weight:700}
+.emr .est{border-bottom:1px dashed var(--warn);color:var(--text)}
+.emr .keep{background:var(--ok-soft);border-radius:3px;padding:0 2px;box-shadow:inset 0 -1px 0 var(--ok-line)}
+
+.io{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+@media(max-width:760px){.io{grid-template-columns:1fr}}
+.io .h{font-size:12px;font-weight:650;color:var(--text-2);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+
+/* tabs */
+.tabs{display:flex;gap:6px;margin:0 0 12px;border-bottom:1px solid var(--line)}
+.tab{appearance:none;border:0;background:none;font:inherit;font-size:13.5px;font-weight:600;color:var(--text-3);padding:8px 12px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent)}
+[role=tabpanel][hidden]{display:none}
+
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin:10px 0}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;color:var(--text-2);font-weight:650;background:var(--surface-2)}
+td code,p code,li code{font-family:var(--mono);font-size:12.5px;background:var(--surface-2);padding:1px 5px;border-radius:4px;border:1px solid var(--line)}
+ul{margin:8px 0;padding-left:20px}li{margin:4px 0}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--text-2);margin:10px 0 0}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:22px;height:11px;border-radius:3px;flex:none}
+hr{border:0;border-top:1px solid var(--line);margin:36px 0}
+.q{font-weight:650;color:var(--text)}
+footer{margin-top:52px;padding-top:20px;border-top:1px solid var(--line);color:var(--text-3);font-size:12.5px}
+</style>
+</head>
+<body>
+
+<header class="top"><div class="wrap">
+<h1>ACLP-4425 · EMR 기록용 요약 복사</h1>
+<p class="sub">배치안 + 복사 결과 텍스트 검토용 · 2026-09-16 · 허브 rise-k</p>
+</div></header>
+
+<div class="wrap">
+
+<div class="note danger">
+<p><b>먼저 결정해야 할 것 — 복사 시점.</b> 이 목업은 답을 정해두지 않았습니다. 시점이 정해져야 버튼 위치·경고 UI·GWT가 모두 따라옵니다.</p>
+<p style="margin-top:8px">현재 <b>티켓·C-3·PRD 세 문서가 서로 다른 시점을 가리킵니다.</b> 아래 <a href="#s3">3장</a>에서 2안을 비교했습니다.</p>
+</div>
+
+<h2 id="s1"><span class="n">1</span>복사 버튼을 어디에 두는가</h2>
+<p class="lede">티켓·Jira 본문 어디에도 화면 위치가 없습니다. 매니페스트(<code>test-ids.json</code>)로 확인한 녹음 화면 구조 기준으로 붙일 수 있는 자리는 두 곳입니다.</p>
+
+<div class="grid2">
+
+<div>
+  <h3><span class="callout-num">A</span>녹음 화면 액션 영역 <span class="tag t-ok">권장</span></h3>
+  <div class="screen">
+    <div class="bar"><span>허브 · 진료 녹음</span><span>김OO / 12345</span></div>
+    <div class="body">
+      <div class="pane">
+        <div class="ph">환자 패널</div>
+        <div class="line m"></div><div class="line s"></div>
+        <div class="line"></div>
+      </div>
+      <div>
+        <div class="pane">
+          <div class="chips">
+            <span class="chip">초진</span>
+            <span class="chip">10/17</span>
+            <span class="chip">작성중</span>
+          </div>
+          <div class="ph">문진 답안 패널</div>
+          <div class="line"></div><div class="line m"></div><div class="line s"></div>
+          <div class="ph" style="margin-top:10px">임상노트 · A / P</div>
+          <div class="line"></div><div class="line m"></div>
+        </div>
+        <div class="actions">
+          <span class="btn">진료기록 검토</span>
+          <span class="btn new">EMR 복사</span>
+          <span class="btn">환자 발송</span>
+          <span class="btn">새 진료 시작</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <ul>
+    <li>기존 <code>녹음-진료기록검토-버튼</code> · <code>녹음-환자발송-버튼</code> 옆. 같은 성격의 산출 액션이 한 줄에 모입니다.</li>
+    <li>EMR이 <b>별도 창</b>이라(티켓 배경), 창 전환 직전에 누르는 동선과 맞습니다.</li>
+    <li>검토 모달을 닫은 뒤에도 그 자리에 있어 <b>다시 열 필요가 없습니다.</b></li>
+    <li>잠정키 <code>녹음-EMR복사-버튼</code></li>
+  </ul>
+</div>
+
+<div>
+  <h3><span class="callout-num">B</span>검토 및 발송 모달 안</h3>
+  <div class="screen">
+    <div class="bar"><span>검토 및 발송</span><span>✕</span></div>
+    <div class="body" style="grid-template-columns:1fr 1fr">
+      <div class="pane">
+        <div class="ph">Step 1 · AI 제안 답변 확인</div>
+        <div class="line"></div><div class="line m"></div>
+        <div class="ph" style="margin-top:10px">Step 2 · [A] / [P]</div>
+        <div class="line"></div><div class="line s"></div>
+      </div>
+      <div class="pane">
+        <div class="ph">환자 리포트 미리보기</div>
+        <div class="line m"></div><div class="line"></div><div class="line s"></div>
+      </div>
+    </div>
+    <div style="padding:9px 12px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap">
+      <span style="font-size:11px;color:var(--text-3)">모두 확인됨 · 발송할 수 있습니다</span>
+      <span style="display:flex;gap:6px">
+        <span class="btn new">EMR 복사</span>
+        <span class="btn">검토 완료</span>
+        <span class="btn primary">검토 완료 후 환자에게 발송</span>
+      </span>
+    </div>
+  </div>
+  <div class="note warn" style="margin-top:10px">
+    <p><b>푸터에는 못 넣습니다.</b> ACLP-4424 시나리오 2-19가 <i>“오른쪽에 ‘검토 완료’와 ‘검토 완료 후 환자에게 발송’ 두 버튼만 표시되고 별도 버튼은 없다”</i>로 확정돼 있습니다. 위 그림은 그 시나리오를 깨는 형태입니다 — B안을 고르면 <b>4424 GWT 2-19를 함께 수정</b>해야 합니다.</p>
+  </div>
+  <ul>
+    <li>모달을 닫으면 복사하려고 다시 열어야 합니다 → PRD <b>V1</b>(조작 수가 늘면 안 쓴다)에 불리.</li>
+    <li>헤더나 [P] 입력 칸 옆이면 2-19를 건드리지 않지만, 발견성이 떨어집니다.</li>
+  </ul>
+</div>
+</div>
+
+<div class="note">
+<p><b>참고 —</b> 현재 구현된 검토 모달과 4424 목업은 다른 화면입니다. 매니페스트는 <code>확정 / 재편집 / 임시저장 / 인사이트</code> 구조인데, 4424가 <code>Step 1·Step 2 + 검토 완료 / 발송</code> 구조로 갈아엎는 중입니다. B안을 고르면 목업을 4424 v4.1 위에 얹어야 합니다.</p>
+</div>
+
+<hr>
+
+<h2 id="s2"><span class="n">2</span>복사하면 이런 텍스트가 나온다</h2>
+<p class="lede">이 티켓의 유일한 실패 지점입니다. <b>붙인 뒤 손대야 하면 쓰지 않습니다</b>(원칙 1). 아래를 의료진이 직접 고쳐주시는 것이 가장 빠릅니다.</p>
+
+<div class="legend card" style="padding:12px 16px">
+  <span><span class="sw" style="background:var(--ok-soft);border:1px solid var(--ok-line)"></span> 원문 그대로 유지되는 표기 (AC-2)</span>
+  <span><span class="sw" style="border-bottom:2px dashed var(--warn);height:8px"></span> <b>추정 — 검수 필요</b></span>
+  <span><span class="sw" style="background:var(--accent);opacity:.8"></span> 필드 라벨</span>
+</div>
+
+<div class="tabs" role="tablist">
+  <button class="tab" role="tab" aria-selected="true" aria-controls="p1" id="t1">초진 · H&amp;P 필드 나열형</button>
+  <button class="tab" role="tab" aria-selected="false" aria-controls="p2" id="t2">재진 · SOAP형</button>
+</div>
+
+<div role="tabpanel" id="p1" aria-labelledby="t1">
+<div class="io">
+  <div>
+    <div class="h">허브 입력값 <span class="tag t-plain">문진 + 임상노트</span></div>
+    <div class="card" style="font-size:13px">
+      <p style="margin:0 0 6px"><b>진료 유형</b> 초진 / ACL 수술군</p>
+      <p style="margin:0 0 6px"><b>문진 답변</b> 주 증상·발생 시점·외상력·통증 정도·이전 평가·무릎 병력</p>
+      <p style="margin:0 0 6px"><b>Imaging Findings</b> 직접 작성</p>
+      <p style="margin:0 0 6px"><b>[A]</b> <code>ACL complete rupture with MM tear, Rt. knee</code></p>
+      <p style="margin:0"><b>[P]</b> <code>OP &gt; A/S ACL-R(auto) + MM repair, knee, Rt.</code></p>
+    </div>
+  </div>
+  <div>
+    <div class="h">복사 결과 <span class="tag t-plain">클립보드 · 평문</span></div>
+<pre class="emr"><span class="lab">C.C)</span> <span class="keep">Rt.</span> knee pain
+<span class="lab">Onset)</span> <span class="est">3주 전</span>
+<span class="lab">Trauma Hx)</span> <span class="est">축구 중 pivoting injury (+)</span>
+<span class="lab">Pain)</span> <span class="est">NRS 6/10, 계단 하행 시 악화</span>
+<span class="lab">Previous evaluation)</span> <span class="est">외부 X-ray (-), 물리치료 2주</span>
+<span class="lab">Knee Hx)</span> <span class="est">instability (+), locking (-), swelling (+)</span>
+<span class="lab">Imaging Findings)</span> MRI - ACL complete rupture,
+  MM tear, <span class="keep">LFC</span> bone contusion, <span class="keep">Rt.</span>
+<span class="lab">A)</span> ACL complete rupture with <span class="keep">MM</span> tear, <span class="keep">Rt.</span> knee
+<span class="lab">P)</span> <span class="keep">OP &gt; A/S ACL-R(auto) + MM repair, knee, Rt.</span></pre>
+  </div>
+</div>
+</div>
+
+<div role="tabpanel" id="p2" aria-labelledby="t2" hidden>
+<div class="io">
+  <div>
+    <div class="h">허브 입력값 <span class="tag t-plain">문진 + 임상노트</span></div>
+    <div class="card" style="font-size:13px">
+      <p style="margin:0 0 6px"><b>진료 유형</b> 재진 / 술후 경과 확인</p>
+      <p style="margin:0 0 6px"><b>문진 답변</b> 남은 증상·통증 변화·보조기 착용·야간통</p>
+      <p style="margin:0 0 6px"><b>Imaging Findings</b> 없음</p>
+      <p style="margin:0 0 6px"><b>[A]</b> <code>s/p A/S ACL-R + MM repair, Rt. knee, POD#14</code></p>
+      <p style="margin:0"><b>[P]</b> <code>재활운동 지속, brace 착용 유지 / F/U 4주 후</code></p>
+    </div>
+  </div>
+  <div>
+    <div class="h">복사 결과 <span class="tag t-plain">클립보드 · 평문</span></div>
+<pre class="emr"><span class="lab">S)</span> <span class="est">통증 감소, NRS 3/10. 보행 시 brace 착용 중.</span>
+  <span class="est">야간통 (-)</span>
+<span class="lab">O)</span> <span class="est">ROM 0-90°, swelling mild, wound clean &amp; dry</span>
+  <span class="est">quadriceps setting 가능</span>
+<span class="lab">A)</span> <span class="keep">s/p A/S ACL-R + MM repair, Rt.</span> knee, <span class="keep">POD#14</span>
+<span class="lab">P)</span> 재활운동 지속, <span class="keep">brace</span> 착용 유지
+  ROM exercise 강화
+  <span class="keep">F/U</span> 4주 후</pre>
+  </div>
+</div>
+</div>
+
+<div class="note warn">
+<p><b>이 텍스트에서 확인된 것과 추정한 것</b></p>
+<ul style="margin-bottom:0">
+<li><span class="tag t-ok">확인</span> A·P 원문 표기 형식 — 백주연님 「의료 표현 표준화 및 변환 과정」(2026-09-09)의 실제 EMR 사례. <code>OP &gt; ACL-R(auto + BioBrace) + MM repair, knee, Rt.</code> 형식입니다. <b>4424 목업에서 쓰던 <code>A/S ACL-R + MM repair 시행 예정</code>과 표기가 다릅니다</b> — 어느 쪽이 실제인지 확인이 필요합니다.</li>
+<li><span class="tag t-ok">확인</span> 초진 필드 목록 — C-2(도언, 09-16). 초진 H&amp;P / 재진 SOAP 분기는 ACLP-4464 본문에도 있습니다.</li>
+<li><span class="tag t-ok">확인</span> 유지 대상 Modifier — <code>Rt./Lt.</code> <code>s/p</code> <code>r/o</code> <code>A/S</code> <code>KL G2</code> <code>POD</code> (PRD V7 · 티켓 원칙 5)</li>
+<li><span class="tag t-danger">추정</span> <b>각 필드의 실제 값·문장 형태, 라벨 표기(<code>C.C)</code> vs <code>C.C:</code>), 줄바꿈·들여쓰기.</b> ACLP-4464 산출물 ②(“원하는 정리 형태”)가 아직 안 나왔습니다 — PRD T3에도 <i>“남은 산출물은 ②다”</i>로 적혀 있습니다.</li>
+</ul>
+</div>
+
+<hr>
+
+<h2 id="s3"><span class="n">3</span>복사 시점 — 2안 비교</h2>
+<p class="lede">세 문서가 서로 다른 시점을 가리킵니다. 목업으로 풀 수 없고 <b>완희님과 정해야 하는 사안</b>입니다.</p>
+
+<table>
+<thead><tr><th style="width:26%">출처</th><th style="width:22%">복사 시점</th><th>문장</th></tr></thead>
+<tbody>
+<tr><td>Jira 4425 <b>원칙 4</b></td><td><span class="tag t-plain">확정 후만</span></td><td>“확정된 기록을 대상으로 한다 — 확정 전 내용이 복사되면 안 된다”</td></tr>
+<tr><td>PRD <b>1장 · V3 · S9</b></td><td><span class="tag t-plain">확정 후만</span></td><td>“EMR 요약과 환자 리포트는 그 확정의 결과로 나간다” · “사람이 확정하기 전에 <b>기록으로 남거나</b> 환자에게 도달해서는 안 된다” · S9 “<b>확정된</b> 진료 기록의 요약을”</td></tr>
+<tr><td><b>C-3</b> (도언, 09-16)</td><td><span class="tag t-warn">전·후 모두</span></td><td>“복사 가능 시점 = 검토 완료 전·후 모두”</td></tr>
+</tbody>
+</table>
+
+<div class="grid2" style="margin-top:18px">
+
+<div class="card">
+<h3 style="margin-top:0">1안 · 확정 후에만 <span class="tag t-plain">PRD 현행</span></h3>
+<div class="screen" style="margin:10px 0">
+  <div class="bar"><span>진료 녹음</span><span>확정 전</span></div>
+  <div style="padding:12px">
+    <div class="actions" style="margin-top:0;padding-top:0;border-top:0">
+      <span class="btn">진료기록 검토</span>
+      <span class="btn ghost">EMR 복사</span>
+      <span class="btn ghost">환자 발송</span>
+    </div>
+    <p style="font-size:11.5px;color:var(--text-3);margin:8px 0 0">검토 완료 전에는 비활성 · 사유 문구 노출</p>
+  </div>
+</div>
+<ul>
+<li>PRD·원칙 4·S9와 그대로 맞습니다. <b>추가 UI가 없어 V1(조작 수)에 유리.</b></li>
+<li>대신 <b>C-3을 철회</b>해야 합니다.</li>
+<li>기존 <code>녹음-환자발송불가사유-텍스트</code>와 같은 패턴을 쓸 수 있습니다.</li>
+</ul>
+</div>
+
+<div class="card">
+<h3 style="margin-top:0">2안 · 전·후 모두 + 미확인 시 경고 <span class="tag t-warn">도언님 선택</span></h3>
+<div class="screen" style="margin:10px 0">
+  <div class="bar"><span>진료 녹음</span><span>확정 전</span></div>
+  <div style="padding:12px">
+    <div class="actions" style="margin-top:0;padding-top:0;border-top:0">
+      <span class="btn">진료기록 검토</span>
+      <span class="btn new">EMR 복사</span>
+    </div>
+    <div style="margin-top:10px;border:1px solid var(--warn-line);background:var(--warn-soft);border-radius:7px;padding:10px">
+      <div style="font-size:12px;font-weight:650;color:var(--warn);margin-bottom:4px">아직 확인하지 않은 항목이 2개 있습니다</div>
+      <div style="font-size:11.5px;color:var(--text-2);margin-bottom:8px">확인하지 않은 AI 제안 답변이 그대로 복사됩니다.</div>
+      <div style="display:flex;gap:6px"><span class="btn">검토하러 가기</span><span class="btn primary">그대로 복사</span></div>
+    </div>
+    <p style="font-size:11.5px;color:var(--text-3);margin:8px 0 0">잠정키 <code style="font-size:11px">녹음-EMR복사-미확인경고-다이얼로그</code></p>
+  </div>
+</div>
+<div class="note danger" style="margin:0">
+<p style="font-size:13px"><b>PRD 3곳과 충돌합니다.</b></p>
+<ul style="margin-bottom:0;font-size:13px">
+<li><b>V3</b> — 확정 전 문서가 “기록으로 남아서는 안 된다”. EMR에 붙이는 것이 바로 기록으로 남는 행위입니다.</li>
+<li><b>1장</b> — “EMR 요약과 환자 리포트는 그 확정의 결과로 나간다”는 구조 서술.</li>
+<li><b>V1</b> — 경고 다이얼로그가 붙으면 “클릭 한 번”(원칙 2)이 두 번이 되고, 확정 전 복사가 상시 경로가 되면 매번 뜹니다.</li>
+</ul>
+</div>
+<p style="font-size:13px;margin-bottom:0"><b>그래도 2안을 택한다면</b> PRD V3·1장·S9와 티켓 원칙 4를 함께 고쳐야 하고, 그건 완희님 소관입니다.</p>
+</div>
+</div>
+
+<div class="note">
+<p><b>앞서 제가 과하게 말한 것을 정정합니다.</b> “배경(진료 중 타이핑 제거)과 원칙 4(확정 후)가 서로를 부정한다”고 했는데, PRD <b>V1</b>이 <i>“진료 후 기록 작업도 조작 수가 늘면 직접 타이핑하는 것과 다르지 않아 쓰이지 않는다”</i>로 <b>진료 후 기록 작업을 명시적으로 범위에 넣고</b> 있습니다. 배경은 문제 서술이고, 해결 시점은 진료 후입니다. 충돌은 배경이 아니라 <b>C-3과 PRD 사이</b>에만 있습니다.</p>
+</div>
+
+<hr>
+
+<h2 id="s4"><span class="n">4</span>남은 확인 필요</h2>
+<table>
+<thead><tr><th style="width:34%">항목</th><th style="width:18%">담당</th><th>영향</th></tr></thead>
+<tbody>
+<tr><td><b>복사 시점</b> — C-3 유지 vs PRD 유지</td><td>완희님</td><td>버튼 위치·경고 UI·GWT 1-9 전부</td></tr>
+<tr><td><b>4464 산출물 ②</b> — 원하는 정리 형태 (필드 라벨·순서·개조식 여부)</td><td>의료진</td><td>2장 복사 텍스트 전체가 추정 상태</td></tr>
+<tr><td><b>A·P 표기 형식</b> — <code>OP &gt; …</code>(백주연 문서) vs <code>… 시행 예정</code>(4424 목업)</td><td>의료진 / 도언</td><td>4425 GWT Outline · 4426 변환 입력</td></tr>
+<tr><td><b>재진 S/O 구간</b> — 현재 재진 문진 필드에서 조립 가능한지</td><td>개발</td><td>GWT 1-2 성립 여부</td></tr>
+<tr><td><b>빈 구간 표기</b> — 라벨만 남길지, 통째로 뺄지</td><td>의료진</td><td>GWT 1-10 ~ 1-12</td></tr>
+<tr><td><b>버튼 위치 A / B</b></td><td>도언</td><td>B 선택 시 4424 GWT 2-19 수정</td></tr>
+</tbody>
+</table>
+
+<footer>
+근거 — Jira ACLP-4425 · ACLP-4464 · ACLP-4424 GWT v4.1 · PRD 「진료 녹음 및 리포트」 v21(1장·V1·V3·V7·S9·T3) · 「의료 표현 표준화 및 변환 과정」(백주연, 2026-09-09) · <code>dev.rise-k.ai/test-ids.json</code><br>
+화면은 배치 논의용 개략도입니다. 실제 녹음 화면 레이아웃과 다를 수 있습니다.
+</footer>
+
+</div>
+
+<script>
+document.querySelectorAll('.tab').forEach(function(t){
+  t.addEventListener('click',function(){
+    document.querySelectorAll('.tab').forEach(function(x){
+      x.setAttribute('aria-selected', x===t ? 'true':'false');
+      document.getElementById(x.getAttribute('aria-controls')).hidden = (x!==t);
+    });
+  });
+});
+</script>
+</body>
+</html>
