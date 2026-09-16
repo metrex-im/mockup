@@ -1,9 +1,4 @@
-<!doctype html>
-<html lang="ko">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>프로그램 배정 프로토타입</title>
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>프로그램 배정 프로토타입</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap">
 <style>
 :root{
@@ -80,15 +75,12 @@ body.annot .tag{display:inline-flex}
 .preview{margin-top:20px;border:1.5px solid var(--accent-line);background:var(--accent-soft);border-radius:10px;padding:16px 18px;color:var(--accent-deep)}
 .preview .head{font-weight:700;font-size:14px;display:flex;gap:10px;flex-wrap:wrap;align-items:baseline}
 .preview .head span{font-weight:400;font-size:13px}
-.tl{position:relative;height:84px;margin-top:12px}
-.tl .bar{position:absolute;top:22px;height:28px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;padding:0 8px}
-.tl .bar:first-of-type{border-radius:7px 0 0 7px}.tl .bar.last{border-radius:0 7px 7px 0}.tl .bar.only{border-radius:7px}
-.tl .above{position:absolute;top:0;font-size:12px;font-weight:700;white-space:nowrap;line-height:1.3}
-.tl .tick{position:absolute;top:56px;font-size:12px;white-space:nowrap;line-height:1.2;font-variant-numeric:tabular-nums}
-.tl .tick::before{content:"";display:block;width:2px;height:6px;background:currentColor;margin-bottom:2px}
-.tl .tick.r{transform:translateX(-100%)}.tl .tick.r::before{margin-left:auto}
-.tl .tick.c{transform:translateX(-50%)}.tl .tick.c::before{margin-inline:auto}
-.tl .tick b{font-weight:700}
+.preview .head{justify-content:space-between}
+.preview .head .sum{font-weight:500;font-size:13px}
+.tl{display:flex;gap:8px;height:34px;margin-top:12px}
+.tl .bar{border-radius:8px;display:flex;align-items:center;padding:0 12px;font-size:12.5px;font-weight:700;white-space:nowrap;overflow:hidden;color:#fff}
+.tl .bar.pre{background:var(--pre);min-width:14px;flex:none}
+.tl .bar.post{background:var(--accent);flex:1}
 .preview.warn{border-color:var(--warn);background:var(--warn-soft);color:var(--text)}
 .side{position:sticky;top:16px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px}
 .side h4{margin:0 0 4px;font-size:15px}
@@ -106,9 +98,7 @@ body.annot .tag{display:inline-flex}
 .btn.primary:disabled{opacity:.45;cursor:not-allowed}
 .toast{margin-top:12px;font-size:13px;color:var(--accent-deep);background:var(--accent-soft);border:1px solid var(--accent-line);border-radius:8px;padding:10px 12px}
 @media (prefers-reduced-motion:no-preference){.seg label,.cards label,input[type=date]{transition:border-color .12s,background .12s}}
-</style>
-</head>
-<body>
+</style></head><body>
 
 <div class="wrap">
   <div class="top">
@@ -135,7 +125,7 @@ body.annot .tag{display:inline-flex}
       <div class="field" style="margin-top:16px">
         <div class="label">수술 날짜 <span class="badge">프로그램 기준일</span><span class="tag">A</span></div>
         <input type="date" id="surgDate">
-        <div class="hint">수술 날짜가 기준일(0일차)이 됩니다. 수술 다음 날부터 운동 프로그램 1일차로 진행됩니다.</div>
+        <div class="hint">수술 날짜가 기준일(0일차)이 됩니다. 수술 당일부터 운동 프로그램 0일차로 진행됩니다.</div>
       </div>
       <div class="field">
         <div class="label">환측 <span class="tag">B</span></div>
@@ -206,10 +196,10 @@ body.annot .tag{display:inline-flex}
   <aside class="side">
     <h4>변경 사항</h4>
     <div class="sub">HCI 원칙 기준 · 9/17 베타 최소 범위 표시</div>
-    <div class="note"><span class="tag">A</span><div><b>기준일 필드 정리 <span class="pill del">수술 삭제</span><span class="pill keep">비수술 유지</span></b><p>수술 분기는 별도 기준일 필드를 없애고 수술 날짜에 「프로그램 기준일」 배지를 붙여 개념은 남깁니다. 캡션은 결과(다음 날이 1일차)만 말합니다. 비수술은 기준일이 유일한 기준이므로 첫 패널의 첫 필드로 둡니다.</p></div></div>
+    <div class="note"><span class="tag">A</span><div><b>기준일 필드 정리 <span class="pill del">수술 삭제</span><span class="pill keep">비수술 유지</span></b><p>수술 분기는 별도 기준일 필드를 없애고 수술 날짜에 「프로그램 기준일」 배지를 붙여 개념은 남깁니다. 캡션은 결과(수술 당일이 0일차)만 말합니다. 비수술은 기준일이 유일한 기준이므로 첫 패널의 첫 필드로 둡니다.</p></div></div>
     <div class="note"><span class="tag">B</span><div><b>환측 하나로 통합 <span class="pill del">중복 삭제</span></b><p>수술 분기에서 두 환측 값이 어긋나던 문제를 차단합니다.</p></div></div>
     <div class="note"><span class="tag">C</span><div><b>시작일 하한 = 오늘 <span class="pill chg">변경</span></b><p>수술 분기는 수술 날짜보다 앞으로 설정 가능(수술 전 콘텐츠 구간). 지난 날짜는 선택기에서 비활성.</p></div></div>
-    <div class="note"><span class="tag">D</span><div><b>구간 미리보기 <span class="pill chg">추가</span></b><p>수술 전 콘텐츠 / 수술 후 운동 프로그램 두 구간을 막대 안에 이름·일수로 직접 표기하고, 시작·수술(0일차)·종료 날짜를 아래 눈금으로 둡니다. 구간이 좁으면 라벨을 막대 위로 올립니다. 비수술은 단일 구간에 시작 일차를 표기합니다.</p></div></div>
+    <div class="note"><span class="tag">D</span><div><b>구간 미리보기 <span class="pill chg">추가</span></b><p>헤더에 총 일수와 구간 합(수술 전 N일 + 수술 후 M일)을, 막대는 연한 필(수술 전 콘텐츠, 라벨 없음·최소 폭 14px)과 진한 필(「수술 후 운동 프로그램 N일차부터」) 두 개만 둡니다. 시작·종료 날짜는 위 필드에 있으므로 반복하지 않습니다. 수술 전 구간이 없으면 필 하나에 헤더는 일차 범위로, 비수술은 「운동 프로그램 N일차부터」로 표기합니다.</p></div></div>
     <div class="note"><span class="tag">E</span><div><b>「수술 날짜부터 100일」 체크 → 종료일 채움 <span class="pill chg">수술 분기</span></b><p>종료일 아래 체크박스를 켜면 종료일이 수술 날짜부터 100일(수술일 포함)로 채워집니다. 100일 패키지 플랜은 따로 있지만 센터도 기본 100일로 배정하는 관행이 있어, 프리셋은 "100일 패키지" 표기 없는 공통 컨트롤로 둡니다. 기본은 체크 상태이고, 100일 패키지 플랜을 선택하면 꺼져 있던 체크가 다시 켜집니다(잠금은 아님). 필드는 열려 있어 바로 수정할 수 있고, 직접 바꾸면 체크가 자동으로 풀립니다. 체크된 동안 수술 날짜를 바꾸면 종료일이 따라옵니다.</p></div></div>
     <div class="note"><span class="tag">F</span><div><b>수술명 한글 우선 <span class="pill keep">범위 검토</span></b><p>저장 값은 그대로, 라벨만 변경. 베타 범위에서 제외 가능.</p></div></div>
     <div class="note"><span class="tag">G</span><div><b>"프로그램 기간" 패널 <span class="pill chg">추가</span></b><p>날짜 세 개가 한 구간을 만든다는 관계를 구조로 묶습니다.</p></div></div>
@@ -255,17 +245,8 @@ body.annot .tag{display:inline-flex}
     renderPlans();update();
   }
 
-  function tl(segs,ticks){
-    const n=segs.length;
-    const bars=segs.map((g,i)=>{
-      const wide=g.w>=22;
-      const cls=(n===1?'only':(i===n-1?'last':''));
-      const inside=wide?`${g.label} · ${g.days}일`:'';
-      const above=wide?'':`<div class="above" style="left:${g.l}%;color:var(--accent-deep)">${g.label} · ${g.days}일${g.next?` → <b>${g.next}</b>`:''}</div>`;
-      return above+`<div class="bar ${cls}" style="left:${g.l}%;width:${g.w}%;background:${g.c};${g.c==='var(--pre)'?'color:var(--accent-deep)':''}">${inside}</div>`;
-    }).join('');
-    const tk=ticks.map(t=>`<div class="tick ${t.a||''}" style="left:${t.p}%"><b>${t.d}</b> ${t.n}</div>`).join('');
-    return `<div class="tl">${bars}${tk}</div>`;
+  function tl(preW,label){
+    return `<div class="tl">${preW>0?`<div class="bar pre" style="width:${preW}%"></div>`:''}<div class="bar post">${label}</div></div>`;
   }
 
   function update(){
@@ -322,20 +303,16 @@ body.annot .tag{display:inline-flex}
     }
     $('save').disabled=false;
     const total=diff(start.value,end.value)+1;
+    const head=(sum)=>`<div class="head">배정 구간 · 총 ${total}일 <span class="sum">${sum}</span></div>`;
     if(s){
       const pre=Math.max(0,diff(start.value,anchor));
       const post=total-pre;
-      const p=pre/total*100;
-      const ticks=[{p:0,d:fmt(start.value),n:start.value===today?'시작 · 오늘':'시작'}];
-      if(pre>0&&p>=22)ticks.push({p:p,d:fmt(anchor),n:'수술 (0일차)',a:'c'});
-      ticks.push({p:100,d:fmt(end.value),n:'종료',a:'r'});
-      const startDay=pre>0?null:diff(anchor,start.value);
-      pv.innerHTML=`<div class="head">배정 구간 · 총 ${total}일 <span>${pre>0?`수술 전 ${pre}일 + 수술 후 ${post}일`:`수술 후 운동 프로그램 ${startDay}일차부터 시작 · 수술 전 구간 없음`}</span></div>`
-        +tl(pre>0?[{l:0,w:p,c:'var(--pre)',label:'수술 전 콘텐츠',days:pre,next:`${fmt(anchor)} 수술 (0일차)`},{l:p,w:100-p,c:'var(--accent)',label:'수술 후 운동 프로그램',days:post}]:[{l:0,w:100,c:'var(--accent)',label:'수술 후 운동 프로그램',days:total}],ticks);
+      const startDay=pre>0?0:diff(anchor,start.value);
+      const sum=pre>0?`수술 전 ${pre}일 + 수술 후 ${post}일`:`수술 후 ${startDay}일차 ~ ${startDay+total-1}일차`;
+      pv.innerHTML=head(sum)+tl(pre/total*100,`수술 후 운동 프로그램 ${startDay}일차부터`);
     }else{
       const startDay=diff(anchor,start.value);
-      pv.innerHTML=`<div class="head">배정 구간 · 총 ${total}일 <span>운동 프로그램 ${startDay}일차부터 시작 (기준일 ${fmt(anchor)})</span></div>`
-        +tl([{l:0,w:100,c:'var(--accent)',label:'운동 프로그램',days:total}],[{p:0,d:fmt(start.value),n:`시작${start.value===today?' · 오늘':''} · ${startDay}일차`},{p:100,d:fmt(end.value),n:'종료',a:'r'}]);
+      pv.innerHTML=head(`${startDay}일차 ~ ${startDay+total-1}일차`)+tl(0,`운동 프로그램 ${startDay}일차부터`);
     }
   }
 
@@ -356,6 +333,4 @@ body.annot .tag{display:inline-flex}
   setMode();
 })();
 </script>
-
-</body>
-</html>
+</body></html>
