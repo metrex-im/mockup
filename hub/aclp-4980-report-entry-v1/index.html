@@ -1,0 +1,761 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ACLP-4980 진료 녹음 화면 내 진입점</title>
+<style>
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  :root {
+    --blue: #2563eb;
+    --blue-dark: #1d4ed8;
+    --blue-50: #eff6ff;
+    --ink: #1f2937;
+    --ink-2: #4b5563;
+    --mute: #6b7280;
+    --mute-2: #9ca3af;
+    --line: #e5e7eb;
+    --line-2: #f1f3f5;
+    --bg: #f4f6f8;
+    --new: #d946a0;
+  }
+  body {
+    margin: 0;
+    background: var(--bg);
+    font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Apple SD Gothic Neo",
+                 "Malgun Gothic", sans-serif;
+    color: var(--ink);
+    font-size: 14px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ───────── 목업 컨트롤 바 ───────── */
+  .mock-bar {
+    position: sticky; top: 0; z-index: 100;
+    background: #111827; color: #fff;
+    padding: 10px 20px;
+    display: flex; flex-wrap: wrap; align-items: center; gap: 14px;
+  }
+  .mock-bar .tag {
+    font-size: 11px; font-weight: 700; letter-spacing: .04em;
+    background: var(--new); padding: 3px 7px; border-radius: 4px;
+  }
+  .mock-bar .title { font-size: 13px; font-weight: 600; }
+  .mock-bar .spacer { flex: 1 1 auto; }
+  .mock-states { display: flex; gap: 4px; }
+  .mock-states button {
+    font: inherit; font-size: 12px;
+    background: rgba(255,255,255,.1); color: #d1d5db;
+    border: 1px solid rgba(255,255,255,.14);
+    padding: 5px 11px; border-radius: 6px; cursor: pointer;
+  }
+  .mock-states button[aria-pressed="true"] {
+    background: #fff; color: #111827; border-color: #fff; font-weight: 600;
+  }
+  .mock-note {
+    background: #fffbeb; border-bottom: 1px solid #fde68a;
+    color: #92400e; font-size: 12.5px; line-height: 1.6;
+    padding: 9px 20px;
+  }
+  .mock-note b { color: #78350f; }
+
+  /* ───────── 앱 헤더 ───────── */
+  .gnb {
+    background: #fff; border-bottom: 1px solid var(--line);
+    height: 56px; display: flex; align-items: center; gap: 22px;
+    padding: 0 22px;
+  }
+  .logo { display: flex; align-items: center; gap: 7px; font-weight: 800; font-size: 16px; letter-spacing: -.01em; }
+  .logo .mark {
+    width: 22px; height: 22px; border-radius: 6px; background: var(--blue);
+    color: #fff; font-size: 12px; font-weight: 800;
+    display: grid; place-items: center;
+  }
+  .gnb .divider { width: 1px; height: 18px; background: var(--line); }
+  .gnb nav { display: flex; gap: 20px; font-size: 14px; font-weight: 600; color: var(--mute); }
+  .gnb nav a { text-decoration: none; color: inherit; }
+  .gnb nav a.on { color: var(--blue); }
+  .gnb .right { margin-left: auto; display: flex; align-items: center; gap: 12px; font-size: 13px; }
+  .gnb .hosp { color: var(--mute); }
+  .acct {
+    border: 1px solid var(--line); border-radius: 8px;
+    padding: 6px 12px; display: flex; align-items: center; gap: 6px;
+    font-weight: 600; font-size: 13px;
+  }
+  .acct .dot { color: #f59e0b; }
+
+  /* ───────── 페이지 ───────── */
+  .page { padding: 20px 22px 40px; }
+  .page > h1 { font-size: 19px; font-weight: 700; margin: 0 0 14px; }
+  .body-grid { display: flex; gap: 18px; align-items: flex-start; }
+
+  .side { width: 282px; flex: 0 0 282px; display: flex; flex-direction: column; gap: 14px; }
+  .card {
+    background: #fff; border: 1px solid var(--line);
+    border-radius: 12px; padding: 16px;
+  }
+  .card .label { font-size: 13px; color: var(--ink-2); margin-bottom: 8px; }
+
+  select.ui {
+    width: 100%; font: inherit; font-size: 14px;
+    padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px;
+    background: #fff; color: var(--ink);
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%236b7280' stroke-width='1.6'%3E%3Cpath d='M4 6.5 8 10.5 12 6.5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 11px center;
+  }
+
+  /* 환자 선택 카드 */
+  .pt-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
+  .pt-head .t { font-weight: 600; font-size: 14px; }
+  .pt-empty {
+    min-height: 150px; display: grid; place-items: center;
+    color: var(--mute-2); font-size: 13px;
+  }
+  .pt-name-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+  .pt-name { font-size: 17px; font-weight: 700; line-height: 1.3; }
+  .pt-meta { font-size: 12.5px; color: var(--mute); margin-top: 3px; }
+  .x-btn {
+    border: 0; background: none; cursor: pointer; color: var(--mute);
+    font-size: 17px; line-height: 1; padding: 2px 3px;
+  }
+  .visit-row { display: flex; align-items: center; gap: 10px; margin-top: 14px; }
+  .visit-cnt { font-size: 13px; color: var(--ink-2); white-space: nowrap; }
+  .visit-cnt b { color: var(--blue); font-size: 15px; margin: 0 2px; }
+
+  /* 버튼 */
+  .btn {
+    font: inherit; font-size: 13px; font-weight: 600;
+    border-radius: 8px; padding: 9px 12px; cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    border: 1px solid transparent; white-space: nowrap;
+  }
+  .btn.sm { font-size: 12.5px; padding: 6px 10px; }
+  .btn.full { width: 100%; }
+  .btn.outline { background: #fff; border-color: var(--line); color: var(--ink); }
+  .btn.outline:hover { background: #f9fafb; }
+  .btn.fill { background: var(--blue); color: #fff; }
+  .btn.fill:hover { background: var(--blue-dark); }
+  .btn.ghost-off {
+    background: #fff; border-color: var(--line-2); color: var(--mute-2); cursor: not-allowed;
+  }
+  .btn.dark { background: #111827; color: #fff; }
+  .stack { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+
+  /* 신규 진입점 강조 */
+  .divide { height: 1px; background: var(--line-2); margin: 13px -4px 0; }
+  .new-slot { position: relative; margin-top: 12px; }
+  .new-slot.hl::after {
+    content: "NEW"; position: absolute; top: -7px; right: -6px;
+    background: var(--new); color: #fff; font-size: 9.5px; font-weight: 800;
+    letter-spacing: .05em; padding: 2px 5px; border-radius: 4px;
+  }
+  .new-slot.hl > .btn {
+    outline: 2px dashed var(--new); outline-offset: 3px;
+  }
+
+  /* 녹음 패널 */
+  .rec-live { display: flex; flex-direction: column; gap: 10px; }
+  .rec-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .live-chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: #fef2f2; color: #dc2626; border: 1px solid #fecaca;
+    font-size: 11.5px; font-weight: 700; padding: 3px 8px; border-radius: 999px;
+  }
+  .live-chip i { width: 6px; height: 6px; border-radius: 50%; background: #dc2626; animation: pulse 1.2s infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1 } 50% { opacity: .25 } }
+  .timer { font-variant-numeric: tabular-nums; font-size: 20px; font-weight: 700; letter-spacing: .02em; }
+  .wave { display: flex; align-items: flex-end; gap: 2px; height: 30px; }
+  .wave span {
+    flex: 1; background: #bfdbfe; border-radius: 1px;
+    animation: w 1s ease-in-out infinite alternate;
+  }
+  @keyframes w { from { height: 15% } to { height: 100% } }
+  .stt-title { font-size: 13px; font-weight: 600; margin-top: 2px; }
+  .stt-box {
+    background: #f9fafb; border: 1px solid var(--line-2); border-radius: 8px;
+    padding: 11px 12px; font-size: 12.5px; color: var(--ink-2); line-height: 1.65;
+    min-height: 92px;
+  }
+  .stt-box .seg { font-weight: 600; color: var(--ink); font-size: 12.5px; }
+  .stt-box .none { color: var(--mute-2); }
+
+  /* 우측 본문 */
+  .main { flex: 1 1 auto; min-width: 0; }
+  .sheet {
+    background: #fff; border: 1px solid var(--line); border-radius: 12px;
+    min-height: 560px; display: flex; flex-direction: column;
+  }
+  .sheet-head {
+    display: flex; align-items: center; gap: 10px;
+    padding: 15px 18px; border-bottom: 1px solid var(--line-2);
+  }
+  .sheet-head .t { font-weight: 700; font-size: 15px; }
+  .chip {
+    font-size: 11.5px; font-weight: 600; border-radius: 999px;
+    padding: 3px 8px; background: #f3f4f6; color: var(--ink-2);
+  }
+  .chip.b { background: var(--blue-50); color: var(--blue); }
+  .sheet-head .r { margin-left: auto; display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--mute); }
+  .sheet-body { padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; }
+  .q {
+    border: 1px solid var(--line); border-radius: 10px; padding: 13px 15px;
+  }
+  .q-t { display: flex; gap: 8px; align-items: baseline; font-size: 13.5px; font-weight: 600; }
+  .q-n { font-size: 11px; font-weight: 700; color: var(--mute); background: #f3f4f6; padding: 2px 6px; border-radius: 5px; }
+  .opts { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 10px; }
+  .opt { border: 1px solid var(--line); border-radius: 7px; padding: 6px 11px; font-size: 12.5px; color: var(--ink-2); }
+  .sheet-empty {
+    flex: 1; display: grid; place-items: center; text-align: center;
+    color: var(--mute-2); font-size: 13px; gap: 10px;
+  }
+  .sheet-foot {
+    margin-top: auto; border-top: 1px solid var(--line-2);
+    padding: 14px 18px; text-align: center;
+  }
+  .foot-row { display: flex; gap: 10px; }
+  .foot-row > .btn { flex: 1; }
+  .foot-note { font-size: 12px; color: var(--mute-2); margin-top: 8px; }
+
+  /* ───────── 검사 리포트 모달 ───────── */
+  .dim {
+    position: fixed; inset: 0; background: rgba(17,24,39,.45);
+    z-index: 200; display: grid; place-items: start center;
+    overflow: auto; padding: 0;
+  }
+  .modal {
+    background: var(--bg); width: 100%; min-height: 100vh;
+    display: flex; flex-direction: column;
+  }
+  .modal-head {
+    background: #fff; position: relative;
+    display: flex; align-items: center; justify-content: center;
+    min-height: 68px; padding: 0 22px;
+  }
+  .seg {
+    display: inline-flex; border: 1px solid var(--line); border-radius: 9px; overflow: hidden;
+  }
+  .seg button {
+    font: inherit; font-size: 13.5px; font-weight: 600;
+    background: #fff; color: var(--ink-2); border: 0; cursor: pointer;
+    padding: 9px 30px;
+  }
+  .seg button.on { background: #111827; color: #fff; }
+  .modal-close {
+    position: absolute; right: 20px; top: 50%; transform: translateY(-50%);
+    border: 0; background: none; cursor: pointer; font-size: 24px; color: var(--ink-2);
+    line-height: 1; padding: 4px 6px;
+  }
+  .subtabs {
+    background: #fff; display: flex; justify-content: center; gap: 22px;
+    border-bottom: 1px solid var(--line);
+  }
+  .subtabs button {
+    font: inherit; font-size: 13.5px; font-weight: 600;
+    background: none; border: 0; cursor: pointer; color: var(--mute);
+    padding: 11px 4px 12px; border-bottom: 2px solid transparent;
+  }
+  .subtabs button.on { color: var(--blue); border-bottom-color: var(--blue); }
+
+  .rp-toolbar {
+    display: flex; align-items: center; gap: 9px;
+    padding: 16px 24px; flex-wrap: wrap;
+  }
+  .date-pick {
+    display: flex; align-items: center; gap: 8px;
+    background: #fff; border: 1px solid var(--line); border-radius: 8px;
+    padding: 8px 12px; font-size: 13.5px; font-weight: 600;
+  }
+  .nav-btn {
+    width: 32px; height: 32px; border-radius: 7px; border: 1px solid var(--line);
+    background: #fff; color: var(--ink-2); cursor: pointer; font: inherit;
+    display: grid; place-items: center;
+  }
+  .nav-btn.off { color: var(--mute-2); cursor: not-allowed; }
+  .today-btn { border: 1px solid var(--line); background: #fff; color: var(--mute-2); border-radius: 7px; padding: 7px 12px; font: inherit; font-size: 13px; }
+  .rp-actions { margin-left: auto; display: flex; gap: 9px; flex-wrap: wrap; }
+
+  .rp-sheet {
+    background: #fff; border: 1px solid var(--line); border-radius: 12px;
+    max-width: 960px; margin: 0 24px 40px; padding: 0 0 22px;
+    overflow: hidden;
+  }
+  .rp-hd { background: #eff6ff; padding: 18px 22px; display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .rp-hd .org { font-size: 12.5px; color: var(--ink-2); }
+  .rp-hd .ttl { font-size: 19px; font-weight: 700; margin-top: 2px; }
+  .rp-hd .r { text-align: right; font-size: 12.5px; color: var(--ink-2); }
+  .rp-hd .r .nm { font-size: 14px; font-weight: 700; color: var(--ink); }
+  .rp-hd .side-badge { background: #111827; color: #fff; font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 5px; }
+
+  .rp-sec { padding: 18px 22px 0; }
+  .rp-sec-t { display: flex; align-items: center; gap: 9px; font-size: 14.5px; font-weight: 700; }
+  .rp-sec-n { width: 20px; height: 20px; border-radius: 50%; background: #111827; color: #fff; font-size: 11px; font-weight: 700; display: grid; place-items: center; }
+  .rp-tag { background: #f3f4f6; color: var(--ink-2); font-size: 10.5px; font-weight: 700; letter-spacing: .03em; padding: 3px 7px; border-radius: 5px; }
+  .muscle { border: 1px solid var(--line); border-radius: 10px; padding: 14px; margin-top: 12px; }
+  .muscle > .nm { font-size: 15px; font-weight: 700; margin-bottom: 11px; }
+  .muscle .cols { display: flex; gap: 12px; flex-wrap: wrap; }
+  .diff { flex: 0 0 210px; border-radius: 9px; padding: 12px 13px; }
+  .diff.warn { background: #fff4ed; }
+  .diff.ok { background: #eaf9f0; }
+  .diff .cap { font-size: 11.5px; color: var(--ink-2); }
+  .diff .val { font-size: 25px; font-weight: 700; margin: 4px 0 9px; }
+  .bar { height: 6px; border-radius: 999px; background: #e5e7eb; position: relative; }
+  .bar i { position: absolute; top: 50%; width: 11px; height: 11px; border-radius: 50%; transform: translate(-50%,-50%); }
+  .bar .fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 999px; background: #d1d5db; }
+  .scale { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--mute); margin-top: 5px; }
+  .emg { flex: 1 1 320px; border: 1px solid var(--line-2); border-radius: 9px; padding: 12px; display: flex; gap: 14px; flex-wrap: wrap; }
+  .emg .k { font-size: 11.5px; color: var(--ink-2); }
+  .emg .lr { display: flex; gap: 22px; margin-top: 7px; }
+  .emg .lr div { font-size: 11px; color: var(--mute); }
+  .emg .lr b { display: block; font-size: 14px; color: var(--ink); font-weight: 600; margin-top: 2px; }
+  .emg .lr .dim2 b { color: var(--mute-2); }
+  .emg .lsi { font-size: 11.5px; color: var(--ink-2); margin-top: 11px; }
+  .emg .lsi b { font-size: 13px; }
+  .plot { flex: 1 1 200px; min-width: 170px; height: 78px; border: 1px solid var(--line-2); border-radius: 6px; background:
+     linear-gradient(90deg, #fafafa 0 100%); display: grid; place-items: center; }
+  .plot svg { width: 100%; height: 100%; }
+  .legend { font-size: 11px; color: var(--mute); padding: 11px 22px 0; display: flex; gap: 13px; flex-wrap: wrap; }
+  .legend i { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 4px; }
+
+  .rp-empty {
+    background: #fff; border: 1px solid var(--line); border-radius: 12px;
+    max-width: 960px; margin: 0 24px 40px; min-height: 380px;
+    display: grid; place-items: center; text-align: center; padding: 30px;
+  }
+  .rp-empty .msg { font-size: 14px; color: var(--mute); }
+  .rp-empty .sub { font-size: 12.5px; color: var(--mute-2); margin-top: 8px; line-height: 1.7; }
+
+  /* 녹음 유지 안내 배너 (모달 안) */
+  .keep {
+    background: #111827; color: #fff; display: flex; align-items: center; gap: 10px;
+    padding: 9px 24px; font-size: 12.5px;
+  }
+  .keep .live-chip { background: rgba(220,38,38,.15); border-color: rgba(252,165,165,.4); color: #fca5a5; }
+  .keep .t { font-variant-numeric: tabular-nums; font-weight: 700; }
+  .keep .memo { color: #9ca3af; margin-left: auto; }
+
+  @media (max-width: 900px) {
+    .body-grid { flex-direction: column; }
+    .side { width: 100%; flex: 1 1 auto; }
+    .gnb nav { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="mock-bar">
+  <span class="tag">ACLP-4980</span>
+  <span class="title">진료 녹음 화면 내 검사 리포트 진입점</span>
+  <span class="spacer"></span>
+  <div class="mock-states" role="group" aria-label="화면 상태">
+    <button type="button" data-state="empty">① 환자 미선택</button>
+    <button type="button" data-state="selected" aria-pressed="true">② 환자 선택</button>
+    <button type="button" data-state="recording">③ 녹음 중</button>
+  </div>
+</div>
+
+<div class="mock-note">
+  <b>새로 만드는 것은 좌측 환자 선택 카드 안의 <span style="color:#d946a0">[검사 리포트]</span> 버튼 하나뿐입니다.</b>
+  버튼을 누르면 환자 관리에서 쓰는 기존 검사 리포트 다이얼로그가 그대로 열립니다 —
+  리포트 쪽 코드는 수정하지 않습니다. 녹음 중에 열어도 페이지 이동이 아니라 다이얼로그이므로 녹음이 유지됩니다.
+</div>
+
+<!-- ───────── 앱 헤더 ───────── -->
+<header class="gnb">
+  <div class="logo"><span class="mark">R</span>RISE-K</div>
+  <span class="divider"></span>
+  <nav>
+    <a href="#">환자 관리</a>
+    <a href="#">오늘의 환자</a>
+    <a href="#" class="on">진료 녹음</a>
+    <a href="#">논문 관리</a>
+    <a href="#">연구 에이전트</a>
+  </nav>
+  <div class="right">
+    <span class="hosp">명지병원</span>
+    <span class="acct"><span class="dot">!</span>명지병원 공유계정님 <span style="color:var(--mute)">⌄</span></span>
+  </div>
+</header>
+
+<div class="page">
+  <h1>진료 녹음</h1>
+
+  <div class="body-grid">
+    <!-- ───────── 좌측 패널 ───────── -->
+    <aside class="side">
+      <div class="card">
+        <div class="label">진료실 선택</div>
+        <select class="ui"><option>진료실1</option></select>
+      </div>
+
+      <!-- 환자 선택 카드 -->
+      <div class="card">
+        <div class="pt-head">
+          <span class="t">환자 선택</span>
+          <button class="btn outline sm" type="button" id="searchBtn">🔍 검색</button>
+        </div>
+
+        <!-- 환자 미선택 -->
+        <div class="pt-empty" id="ptEmpty" hidden>환자를 선택해 주세요.</div>
+
+        <!-- 환자 선택됨 -->
+        <div id="ptBody">
+          <div class="pt-name-row">
+            <div>
+              <div class="pt-name">윤병일</div>
+              <div class="pt-meta">남성 · 차트 abcd123</div>
+            </div>
+            <button class="x-btn" type="button" title="환자 선택 해제">✕</button>
+          </div>
+
+          <div class="visit-row">
+            <span class="visit-cnt">진료 <b>2</b> 회</span>
+            <button class="btn outline sm" type="button" style="flex:1">🗓 진료 선택</button>
+          </div>
+
+          <div class="stack">
+            <button class="btn ghost-off full" type="button" disabled>▶ 진료 이어하기</button>
+            <button class="btn fill full" type="button">＋ 새 진료 시작</button>
+          </div>
+
+          <!-- ▼▼▼ 이 티켓이 추가하는 유일한 요소 ▼▼▼ -->
+          <div class="divide"></div>
+          <div class="new-slot hl">
+            <button class="btn outline full" type="button" id="reportBtn">검사 리포트</button>
+          </div>
+          <!-- ▲▲▲ 잠정키: 녹음-환자_패널-검사리포트-버튼 ▲▲▲ -->
+        </div>
+      </div>
+
+      <!-- 녹음 제어 / 실시간 STT -->
+      <div class="card" id="recCard">
+        <div id="recIdle">
+          <button class="btn fill full" type="button" id="startBtn">🎙 녹음 시작</button>
+          <div class="stt-title" style="margin-top:14px">실시간 STT</div>
+          <div class="stt-box">
+            <div class="seg">녹음 1</div>
+            <div class="none">STT 결과가 없습니다.</div>
+            <div class="seg" style="margin-top:9px">녹음 2</div>
+            <div class="none">STT 결과가 없습니다.</div>
+          </div>
+        </div>
+
+        <div id="recLive" class="rec-live" hidden>
+          <div class="rec-top">
+            <span class="live-chip"><i></i>LIVE</span>
+            <button class="btn outline sm" type="button" id="stopBtn">■ 녹음 종료</button>
+          </div>
+          <div class="timer" id="timer">00:00</div>
+          <div class="wave" id="wave"></div>
+          <div class="stt-title">실시간 STT</div>
+          <div class="stt-box">
+            <div class="seg">녹음 3</div>
+            <div id="sttText">왼쪽 무릎 근력이 오른쪽보다 많이 떨어져 있습니다. 오늘 검사 결과를 같이 보시겠습니다.</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ───────── 우측 본문 ───────── -->
+    <main class="main">
+      <div class="sheet">
+        <!-- 환자 미선택 -->
+        <div class="sheet-empty" id="sheetEmpty" hidden>
+          <div style="font-size:30px">🗒</div>
+          <div>새 진료 시작 버튼을 눌러서 진료를 시작해 주세요.</div>
+        </div>
+
+        <!-- 문진 답안 -->
+        <div id="sheetBody" style="display:flex;flex-direction:column;flex:1">
+          <div class="sheet-head">
+            <span class="t">문진 답안</span>
+            <span class="chip" id="countChip">0/13</span>
+            <div class="r">
+              <span class="chip b">초진</span>
+              <span class="chip b">작성중</span>
+              <span>2026.09.16 14:37</span>
+            </div>
+          </div>
+
+          <div class="sheet-body">
+            <div class="q">
+              <div class="q-t"><span class="q-n">Q.1</span><span>언제쯤 다치셨나요?</span></div>
+              <div class="opts">
+                <span class="opt">1주 전</span><span class="opt">1–6주 전</span>
+                <span class="opt">6주–3개월 전</span><span class="opt">3개월–1년 전</span><span class="opt">1년 이상</span>
+              </div>
+            </div>
+            <div class="q">
+              <div class="q-t"><span class="q-n">Q.2</span><span>어떤 동작에서 다치셨나요?</span></div>
+              <div class="opts">
+                <span class="opt">방향 전환 중 (비접촉)</span><span class="opt">무릎이 뒤로 꺾임 (과신전)</span>
+                <span class="opt">상대와 부딪힘 (접촉·충돌)</span><span class="opt">잘 모르겠음</span>
+              </div>
+            </div>
+            <div class="q">
+              <div class="q-t"><span class="q-n">Q.3</span><span>수상 당시 신호를 모두 선택해주세요.</span></div>
+              <div class="opts">
+                <span class="opt">"뚝/펑" 소리 (Pop)</span><span class="opt">수 시간 내 부종 (혈관절증)</span><span class="opt">해당 없음</span>
+              </div>
+            </div>
+            <div class="q">
+              <div class="q-t"><span class="q-n">Q.4</span><span>이전 ACL 또는 같은 쪽 무릎 손상/수술 이력이 있나요?</span></div>
+              <div class="opts">
+                <span class="opt">없음 (초발)</span><span class="opt">ACL 진단만 (수술 안 함)</span><span class="opt">ACL 재건술 이력 (Revision)</span>
+              </div>
+            </div>
+            <div class="q">
+              <div class="q-t"><span class="q-n">Q.5</span><span>평소 활동 수준은 어느 정도인가요?</span></div>
+              <div class="opts">
+                <span class="opt">Level I — 선수/피벗 주2회↑</span><span class="opt">Level II — 방향전환 레저</span>
+                <span class="opt">Level III — 직선 운동</span><span class="opt">Level IV — 일상생활 위주</span>
+              </div>
+            </div>
+            <div style="text-align:center;color:var(--mute-2);font-size:12.5px;padding:6px 0 2px">
+              ⋯ Q.6 – Q.13 생략 (목업)
+            </div>
+          </div>
+
+          <div class="sheet-foot">
+            <div class="foot-row">
+              <button class="btn ghost-off" type="button" disabled>📨 진료 내용 발송</button>
+              <button class="btn outline" type="button">📋 진료기록 검토</button>
+            </div>
+            <div class="foot-note">진료기록 검토를 완료해야 발송할 수 있습니다.</div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ───────── 검사 리포트 다이얼로그 (기존 화면 그대로) ───────── -->
+<div class="dim" id="reportModal" hidden>
+  <div class="modal">
+    <!-- 녹음 중일 때만 보이는 유지 안내 -->
+    <div class="keep" id="keepBar" hidden>
+      <span class="live-chip"><i></i>LIVE</span>
+      <span class="t" id="keepTimer">00:00</span>
+      <span>리포트를 보는 동안에도 녹음과 받아쓰기가 계속됩니다.</span>
+      <span class="memo">검토 사항 — 이 표시를 넣을지는 별도 결정</span>
+    </div>
+
+    <div class="modal-head">
+      <div class="seg">
+        <button type="button" class="on">리포트</button>
+        <button type="button">센터 검사 파일</button>
+      </div>
+      <button class="modal-close" type="button" id="closeModal" title="닫기">✕</button>
+    </div>
+
+    <div class="subtabs">
+      <button type="button" class="on">검사 종합</button>
+      <button type="button">검사 경과</button>
+    </div>
+
+    <div class="rp-toolbar">
+      <span class="date-pick">2026.09.16. <span style="color:var(--mute)">🗓</span></span>
+      <button class="nav-btn" type="button" title="이전 날짜">‹</button>
+      <button class="today-btn" type="button">오늘</button>
+      <button class="nav-btn off" type="button" title="다음 날짜">›</button>
+      <div class="rp-actions">
+        <button class="btn outline" type="button">⤓ PDF 내려받기</button>
+        <button class="btn outline" type="button">⤓ 이미지 내려받기</button>
+        <button class="btn outline" type="button">🖨 출력</button>
+        <button class="btn outline" type="button">환자 발송</button>
+      </div>
+    </div>
+
+    <!-- 검사 결과가 있는 경우 -->
+    <div class="rp-sheet" id="rpHas">
+      <div class="rp-hd">
+        <div>
+          <div class="org">명지병원</div>
+          <div class="ttl">무릎 기능 검사 결과지</div>
+        </div>
+        <div class="r">
+          <div><span class="nm">윤병일</span> &nbsp;010-2290-8925</div>
+          <div style="margin-top:4px">검사일 <b>2026.09.16.</b> &nbsp;|&nbsp; 검사 부위 <span class="side-badge">왼쪽</span></div>
+        </div>
+      </div>
+
+      <div class="rp-sec">
+        <div class="rp-sec-t"><span class="rp-sec-n">1</span>역동적 근전도 검사 <span class="rp-tag">Q-SET</span></div>
+
+        <div class="muscle">
+          <div class="nm">VMO</div>
+          <div class="cols">
+            <div class="diff warn">
+              <div class="cap">부위별 건측 - 환측 차이</div>
+              <div class="val">68.2%</div>
+              <div class="bar"><span class="fill" style="width:68%"></span><i style="left:68%;background:#f97316"></i></div>
+              <div class="scale"><span>0</span><span>100</span></div>
+            </div>
+            <div class="emg">
+              <div style="flex:1 1 130px">
+                <div class="k">평균 근육 활동량 (mV)</div>
+                <div class="lr">
+                  <div>왼쪽<b>0.088</b></div>
+                  <div class="dim2">오른쪽<b>0.277</b></div>
+                </div>
+                <div class="lsi">좌우 대칭 지수 LSI(%) <b>31.705</b></div>
+              </div>
+              <div class="plot">
+                <svg viewBox="0 0 200 70" preserveAspectRatio="none">
+                  <polyline fill="none" stroke="#f59e0b" stroke-width="1.2"
+                    points="0,52 20,50 40,53 60,49 80,51 100,48 120,52 140,45 160,50 180,47 200,44"/>
+                  <polyline fill="none" stroke="#9ca3af" stroke-width="1" opacity=".5"
+                    points="0,60 40,59 80,60 120,58 160,59 200,58"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="muscle">
+          <div class="nm">VL</div>
+          <div class="cols">
+            <div class="diff ok">
+              <div class="cap">부위별 건측 - 환측 차이</div>
+              <div class="val">-36.2%</div>
+              <div class="bar"><i style="left:3%;background:#10b981"></i></div>
+              <div class="scale"><span>0</span><span>100</span></div>
+            </div>
+            <div class="emg">
+              <div style="flex:1 1 130px">
+                <div class="k">평균 근육 활동량 (mV)</div>
+                <div class="lr">
+                  <div>왼쪽<b>0.298</b></div>
+                  <div class="dim2">오른쪽<b>0.19</b></div>
+                </div>
+                <div class="lsi">좌우 대칭 지수 LSI(%) <b>157.082</b></div>
+              </div>
+              <div class="plot">
+                <svg viewBox="0 0 200 70" preserveAspectRatio="none">
+                  <polyline fill="none" stroke="#34d399" stroke-width="1.2"
+                    points="0,40 20,44 40,38 60,42 80,39 100,43 120,37 140,41 160,38 180,42 200,39"/>
+                  <polyline fill="none" stroke="#f59e0b" stroke-width="1" opacity=".6"
+                    points="0,48 40,46 80,49 120,47 160,48 200,46"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="legend">
+          <span>* 부위별 건측-환측 차이</span>
+          <span><i style="background:#10b981"></i>-20~20%</span>
+          <span><i style="background:#f59e0b"></i>20.1~40%</span>
+          <span><i style="background:#f97316"></i>40.1~80%</span>
+          <span><i style="background:#ef4444"></i>80.1~100%</span>
+        </div>
+      </div>
+
+      <div class="rp-sec">
+        <div class="rp-sec-t"><span class="rp-sec-n">2</span>역동적 근전도 검사 <span class="rp-tag">PRONE Q-SET</span></div>
+        <div style="text-align:center;color:var(--mute-2);font-size:12.5px;padding:18px 0 4px">
+          ⋯ ST · BF 이하 섹션 생략 (목업)
+        </div>
+      </div>
+    </div>
+
+    <!-- 당일 검사 결과가 없는 경우 -->
+    <div class="rp-empty" id="rpNone" hidden>
+      <div>
+        <div class="msg">해당 날짜의 검사 종합이 없습니다.</div>
+        <div class="sub">
+          버튼은 그대로 활성입니다 — 날짜 이동(‹ ›)으로 지난 검사를 볼 수 있고,<br>
+          상단 탭으로 검사 경과·센터 검사 파일도 그대로 열립니다.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+
+  /* 파형 막대 생성 */
+  var wave = $('wave');
+  for (var i = 0; i < 46; i++) {
+    var b = document.createElement('span');
+    b.style.animationDelay = (i % 11) * 0.09 + 's';
+    b.style.animationDuration = (0.7 + (i % 5) * 0.12) + 's';
+    wave.appendChild(b);
+  }
+
+  /* 녹음 타이머 — 모달을 열어도 계속 돌아간다(AC-2를 눈으로 보여주는 부분) */
+  var sec = 0, tick = null;
+  function fmt(s) {
+    var m = Math.floor(s / 60), r = s % 60;
+    return (m < 10 ? '0' : '') + m + ':' + (r < 10 ? '0' : '') + r;
+  }
+  function paintTimer() {
+    $('timer').textContent = fmt(sec);
+    $('keepTimer').textContent = fmt(sec);
+  }
+  function startTimer() {
+    if (tick) return;
+    tick = setInterval(function () { sec++; paintTimer(); }, 1000);
+  }
+  function stopTimer() { clearInterval(tick); tick = null; }
+
+  /* 화면 상태 전환 */
+  var state = 'selected';
+  function render() {
+    var isEmpty = state === 'empty';
+    var isRec = state === 'recording';
+
+    $('ptEmpty').hidden = !isEmpty;
+    $('ptBody').hidden = isEmpty;
+    $('sheetEmpty').hidden = !isEmpty;
+    $('sheetBody').style.display = isEmpty ? 'none' : 'flex';
+    $('recCard').hidden = isEmpty;
+
+    $('recIdle').hidden = isRec;
+    $('recLive').hidden = !isRec;
+    $('keepBar').hidden = !isRec;
+    $('countChip').textContent = isRec ? '3/13' : '0/13';
+    $('searchBtn').disabled = isRec;
+
+    if (isRec) { if (sec === 0) { sec = 201; } paintTimer(); startTimer(); }
+    else { stopTimer(); }
+
+    Array.prototype.forEach.call(document.querySelectorAll('.mock-states button'), function (b) {
+      b.setAttribute('aria-pressed', String(b.dataset.state === state));
+    });
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('.mock-states button'), function (b) {
+    b.addEventListener('click', function () { state = b.dataset.state; render(); });
+  });
+
+  $('startBtn').addEventListener('click', function () { state = 'recording'; render(); });
+  $('stopBtn').addEventListener('click', function () { state = 'selected'; sec = 0; render(); });
+
+  /* 검사 리포트 다이얼로그 — 타이머를 멈추지 않는다 */
+  var modal = $('reportModal');
+  $('reportBtn').addEventListener('click', function () {
+    var hasResult = !window.confirm(
+      '목업 전환\n\n[확인] 당일 검사 결과가 없는 환자로 보기\n[취소] 당일 검사 결과가 있는 환자로 보기'
+    );
+    $('rpHas').hidden = !hasResult;
+    $('rpNone').hidden = hasResult;
+    modal.hidden = false;
+    document.body.style.overflow = 'hidden';
+  });
+  function closeModal() {
+    modal.hidden = true;
+    document.body.style.overflow = '';
+  }
+  $('closeModal').addEventListener('click', closeModal);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !modal.hidden) closeModal();
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
