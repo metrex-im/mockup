@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ACLP-5010 · 허브 운동 리포트 진입점 목업</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+:root{--blue:#3B6CF6;--blue-bg:#EEF3FF;--navy:#111827;--text:#1F2937;--sub:#6B7280;--line:#E5E7EB;--bg:#F5F6F8;--card:#fff;--orange:#F97316;--radius:12px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Pretendard,-apple-system,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.45}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+/* ── 목업 컨트롤 바 ── */
+.ctl{position:sticky;top:0;z-index:50;background:#1E293B;color:#E2E8F0;display:flex;align-items:center;gap:20px;padding:10px 20px;font-size:13px;flex-wrap:wrap}
+.ctl b{color:#fff;font-weight:600}
+.ctl .grp{display:flex;align-items:center;gap:6px}
+.ctl .grp span{color:#94A3B8}
+.seg{display:inline-flex;background:#0F172A;border-radius:8px;padding:3px}
+.seg button{padding:5px 12px;border-radius:6px;color:#CBD5E1}
+.seg button.on{background:var(--blue);color:#fff}
+.ctl .note{margin-left:auto;color:#94A3B8}
+/* ── 앱 헤더 ── */
+.top{background:#fff;border-bottom:1px solid var(--line);height:64px;display:flex;align-items:center;padding:0 32px;gap:28px}
+.logo{display:flex;align-items:center;gap:8px;font-weight:800;font-size:18px;letter-spacing:-.3px;padding-right:22px;border-right:1px solid var(--line)}
+.logo i{width:24px;height:24px;border-radius:6px;background:linear-gradient(135deg,#3B6CF6,#1D4ED8);display:inline-block}
+.nav{display:flex;gap:28px;font-size:16px;font-weight:500;color:#374151}
+.nav a.on{color:var(--blue);font-weight:700}
+.top .right{margin-left:auto;display:flex;align-items:center;gap:14px;color:var(--sub)}
+.who{border:1px solid var(--line);border-radius:8px;padding:8px 14px;color:var(--text);font-weight:500}
+.who em{color:var(--orange);font-style:normal;margin-right:6px}
+.page{max-width:1500px;margin:0 auto;padding:28px 32px 60px}
+.screen{display:none}.screen.on{display:block}
+h1{font-size:22px;font-weight:700;margin-bottom:18px;letter-spacing:-.4px}
+.card{background:var(--card);border-radius:var(--radius);padding:20px;border:1px solid #EEF0F3}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:38px;padding:0 14px;border-radius:8px;font-weight:600;font-size:14px;border:1px solid var(--line);background:#fff;color:var(--text);position:relative}
+.btn.primary{background:var(--blue);color:#fff;border-color:var(--blue)}
+.btn.block{width:100%;height:44px;font-size:15px}
+.btn.dis{color:#B0B7C3;background:#F3F4F6;border-color:#E5E7EB;cursor:not-allowed}
+.btn svg{width:16px;height:16px}
+/* 신규 요소 강조 */
+.new{outline:2px dashed #F97316;outline-offset:3px}
+.tag{position:absolute;top:calc(100% + 5px);left:0;font-size:10px;font-weight:700;color:#fff;background:#F97316;border-radius:4px;padding:2px 6px;white-space:nowrap;letter-spacing:.2px}
+/* 툴팁 */
+.tip{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:#1F2937;color:#fff;font-size:12px;font-weight:500;padding:7px 10px;border-radius:6px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .12s}
+.tip:after{content:"";position:absolute;top:100%;left:50%;margin-left:-5px;border:5px solid transparent;border-top-color:#1F2937}
+.btn.dis:hover .tip{opacity:1}
+td.rp .tip{left:auto;right:0;transform:none}td.rp .tip:after{left:auto;right:18px}
+table{overflow:visible}
+/* ── 환자 관리 목록 ── */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:22px}
+.stat{background:#fff;border:1px solid #EEF0F3;border-radius:var(--radius);padding:22px 24px}
+.stat.on{background:var(--blue-bg);border-color:#DCE6FF}
+.stat .l{color:var(--sub);font-size:15px;margin-bottom:12px;display:flex;justify-content:space-between}
+.stat .l small{background:#F3F4F6;color:#6B7280;border-radius:6px;padding:2px 8px;font-size:12px}
+.stat .v{font-size:32px;font-weight:800;letter-spacing:-.5px}
+.tabs{display:flex;background:#fff;border:1px solid var(--line);border-radius:10px;padding:4px;margin-bottom:22px}
+.tabs div{flex:1;text-align:center;padding:14px;font-weight:600;color:#4B5563;border-radius:8px}
+.tabs div.on{background:#5B6B8C;color:#fff}
+.filter{display:grid;grid-template-columns:repeat(3,260px);gap:24px;margin-bottom:16px}
+.filter label{display:block;font-weight:600;margin-bottom:8px}
+.filter input{width:100%;height:42px;border:1px solid var(--line);border-radius:8px;padding:0 12px;font:inherit}
+.filter .acts{grid-column:1/-1;display:flex;align-items:center;gap:22px}
+.btn.dark{background:#1F2937;color:#fff;border-color:#1F2937;height:42px;padding:0 20px}
+.res{margin:22px 0 10px;color:var(--sub)}.res b{color:var(--text);margin-left:6px}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:var(--radius);overflow:hidden;border:1px solid #EEF0F3}
+th{text-align:left;font-weight:600;color:#374151;padding:18px 16px;border-bottom:1px solid var(--line);font-size:14px;white-space:nowrap}
+td{padding:14px 16px;border-bottom:1px solid #F1F2F4;color:#374151;white-space:nowrap}
+tr:last-child td{border-bottom:0}
+th.rp,td.rp{text-align:right;width:140px}
+th.ex{background:#FFF7ED;padding-top:26px}
+/* ── 환자 상세 ── */
+.detail{display:grid;grid-template-columns:520px 1fr;gap:34px;align-items:start}
+.kv{display:grid;grid-template-columns:200px 1fr;row-gap:16px;margin:22px 0}
+.kv span{color:#6B7280}
+.hd{display:flex;justify-content:space-between;align-items:center}
+.hd h2{font-size:22px;font-weight:700}
+.btn.sm{height:34px;padding:0 12px;font-size:13px;font-weight:600}
+.stack{display:flex;flex-direction:column;gap:10px;margin-top:6px;padding-bottom:16px}
+.warn{color:var(--orange);font-weight:600;display:flex;gap:10px;align-items:center;font-size:16px}
+.warn i{width:20px;height:20px;border:2px solid var(--orange);border-radius:4px;display:inline-block}
+.rec{padding:22px 32px}
+.rec .row{display:flex;align-items:center;gap:12px;padding:16px 0;border-bottom:1px solid #F1F2F4;font-size:17px}
+.rec .row:last-child{border-bottom:0}
+.chip{font-size:12px;padding:5px 9px;border-radius:6px;font-weight:600}
+.chip.o{background:#FFF1E6;color:#F97316}.chip.b{background:#EAF1FF;color:#3B6CF6}
+.rec .d{margin-left:auto;color:#6B7280;font-size:15px}
+.rec .plus{color:#9CA3AF;font-size:15px;padding:8px 0}
+/* ── 진료 녹음 ── */
+.recg{display:grid;grid-template-columns:400px 1fr;gap:26px;align-items:start}
+.recg .card{margin-bottom:22px}
+.lbl{font-weight:600;margin-bottom:10px}
+.sel{height:48px;border:1px solid var(--line);border-radius:8px;display:flex;align-items:center;padding:0 18px;justify-content:space-between;font-size:15px}
+.pt{display:flex;justify-content:space-between;align-items:flex-start;margin:18px 0 14px}
+.pt b{font-size:18px;display:block;margin-bottom:6px}
+.pt span{color:var(--sub);font-size:15px}
+.pt .x{color:#9CA3AF;font-size:22px;line-height:1}
+.cnt{display:flex;align-items:center;gap:14px;margin:14px 0}
+.cnt .n{font-size:16px}.cnt .n b{color:var(--blue);font-size:26px;margin:0 6px}
+.empty{min-height:720px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#6B7280;font-size:16px;gap:14px}
+.empty i{width:56px;height:56px;border:3px solid #C7CCD6;border-radius:8px;display:block;opacity:.7}
+.stt{background:#F3F4F6;border-radius:8px;min-height:180px;padding:16px;color:#9CA3AF}
+.nopt{padding:12px 0 6px;color:#9CA3AF;font-size:14px}
+/* ── 다이얼로그 ── */
+.ov{position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;align-items:flex-start;justify-content:center;padding:40px 20px;z-index:100;overflow:auto}
+.ov.on{display:flex}
+.dlg{background:#fff;border-radius:18px;width:920px;max-width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.dlg .h{display:flex;justify-content:space-between;align-items:center;padding:26px 32px 10px;font-size:18px;font-weight:700}
+.dlg .h button{font-size:26px;color:#374151;line-height:1}
+.dlg .b{padding:10px 32px 34px}
+.rh{display:flex;justify-content:space-between;align-items:flex-end;padding-bottom:18px;border-bottom:2px solid #111}
+.hosp{display:flex;gap:12px;align-items:center}
+.hosp i{width:48px;height:48px;border-radius:50%;background:#DBEAFE;display:inline-block}
+.hosp b{font-size:17px;display:block}.hosp span{color:#6B7280;font-size:13px}
+.rh .t{text-align:right}.rh .t b{font-size:22px;display:block}.rh .t span{color:#6B7280;font-size:13px}
+.meta{display:flex;justify-content:space-between;margin:16px 0 18px;font-size:15px}
+.meta .id{background:#F3F4F6;border-radius:6px;padding:3px 8px;color:#374151;font-weight:600;margin-right:8px}
+.meta .nm{color:var(--blue);font-weight:800;font-size:20px}
+.meta .who{border:0;padding:0;display:block;text-align:right;color:#6B7280;font-size:13px;margin-top:6px;font-weight:400}
+.sum{background:#EEF3FF;border-radius:10px;padding:18px 24px;font-size:15px;line-height:1.7;margin-bottom:22px}
+.kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:18px}
+.kpi div{border:1px solid var(--line);border-radius:12px;padding:20px;text-align:center}
+.kpi span{color:#6B7280;font-size:14px;display:block;margin-bottom:10px}
+.kpi b{font-size:34px;letter-spacing:-.5px}
+.fq{font-size:15px;margin-bottom:6px}.fq b{margin:0 4px}
+.fn{color:#6B7280;font-size:12px;margin-bottom:22px}
+.sec{border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:18px}
+.sec .sh{background:#F8F9FB;padding:14px 22px;font-weight:700;font-size:16px;border-bottom:1px solid var(--line)}
+.sec .sb{padding:22px}
+.bar{display:grid;grid-template-columns:120px 1fr 50px;align-items:center;gap:16px;margin:10px 0;font-size:14px;color:#374151}
+.bar .tr{height:10px;background:#EEF0F3;border-radius:5px;overflow:hidden}
+.bar .tr i{display:block;height:100%;background:#A9C1FF;border-radius:5px}
+.bar .pc{text-align:right;color:#6B7280}
+svg text{font-family:inherit;font-size:11px;fill:#9CA3AF}
+</style>
+</head>
+<body>
+
+<div class="ctl">
+  <b>ACLP-5010 · 허브 운동 리포트 진입점 목업</b>
+  <div class="grp"><span>화면</span>
+    <div class="seg" id="segScreen">
+      <button data-s="list" class="on">환자 관리 목록</button>
+      <button data-s="detail">환자 상세</button>
+      <button data-s="rec">진료 녹음</button>
+    </div>
+  </div>
+  <div class="grp"><span>로그인 권한</span>
+    <div class="seg" id="segRole">
+      <button data-r="doctor" class="on">의사</button>
+      <button data-r="other">건강운동사</button>
+    </div>
+  </div>
+  <div class="grp"><span>진료 녹음 · 환자</span>
+    <div class="seg" id="segPt">
+      <button data-p="joined" class="on">가입 환자 선택</button>
+      <button data-p="none">미가입 환자 선택</button>
+      <button data-p="unsel">미선택</button>
+    </div>
+  </div>
+  <span class="note">주황 점선 = 이번 티켓 신규 요소 · 더미 데이터</span>
+</div>
+
+<header class="top">
+  <div class="logo"><i></i>RISE-K</div>
+  <nav class="nav">
+    <a id="nav-list">환자 관리</a><a>오늘의 환자</a><a id="nav-rec">진료 녹음</a><a>논문 관리</a><a>연구 에이전트</a>
+  </nav>
+  <div class="right"><span>명지병원</span><span class="who"><em>ⓘ</em>홍길동님 ⌄</span></div>
+</header>
+
+<!-- ═══ 화면 1 · 환자 관리 목록 ═══ -->
+<main class="page screen on" id="s-list">
+  <div class="hd" style="margin-bottom:18px"><h1 style="margin:0">환자 관리</h1>
+    <div style="display:flex;gap:12px"><button class="btn">＋ 환자 등록</button><button class="btn primary">＋ 입력 간소화</button></div></div>
+  <div class="stats">
+    <div class="stat on"><div class="l">총 환자</div><div class="v">697명</div></div>
+    <div class="stat"><div class="l">기록 완료 환자<small>수술 기록 제외</small></div><div class="v">612명</div></div>
+    <div class="stat"><div class="l">기록 미비 환자<small>정보 및 의료 기록 미입력</small></div><div class="v">85명</div></div>
+    <div class="stat"><div class="l">기록 완료율<small>데이터 입력률</small></div><div class="v">87.8%</div></div>
+  </div>
+  <div class="tabs"><div class="on">모든 환자</div><div>기록 미비 환자</div></div>
+  <div class="card">
+    <div class="filter">
+      <div><label>등록번호</label><input placeholder="등록번호"></div>
+      <div><label>이름</label><input placeholder="이름"></div>
+      <div><label>휴대폰 번호</label><input placeholder="휴대폰 번호"></div>
+      <div class="acts"><button class="btn dark">검색 🔍</button><span style="font-weight:600;font-size:16px">초기화 ↻</span></div>
+    </div>
+  </div>
+  <div class="res">검색 결과<b>697건</b></div>
+  <table>
+    <thead><tr>
+      <th>등록 번호</th><th>이름 ⇅</th><th>생년월일</th><th>성별</th><th>담당의</th><th style="width:38%">수술명</th><th>수술일</th>
+      <th class="rp">검사 리포트</th>
+      <th class="rp ex role-doctor" style="position:relative">운동 리포트<span class="tag" style="top:2px;bottom:auto;left:auto;right:16px">신규 · 환자-목록-{patientId}-운동리포트-버튼</span></th>
+    </tr></thead>
+    <tbody id="rows"></tbody>
+  </table>
+</main>
+
+<!-- ═══ 화면 2 · 환자 상세 ═══ -->
+<main class="page screen" id="s-detail">
+  <div class="detail">
+    <section>
+      <h1>환자 정보</h1>
+      <div class="card" style="padding:26px 32px">
+        <div class="hd"><h2>김민수</h2><button class="btn sm">✎ 수정</button></div>
+        <div class="kv">
+          <span>등록번호</span><div>01000001</div>
+          <span>생년월일 (만 나이)</span><div>1990.03.15 (36)</div>
+          <span>성별</span><div>남성</div>
+          <span>키 / 몸무게 (BMI)</span><div>175 / 72 (23.51)</div>
+          <span>연락처</span><div>010-0000-0001</div>
+        </div>
+        <div class="stack">
+          <button class="btn primary block">📋 검사 리포트</button>
+          <button class="btn block new role-doctor" data-open="joined"><span class="tag">신규 · 환자-상세-운동리포트-버튼</span>🏃 운동 리포트</button>
+        </div>
+      </div>
+      <div class="card" style="margin-top:18px;padding:22px 32px"><div class="warn"><i></i>서비스 이용약관 서명이 필요합니다.</div></div>
+      <div class="card" style="margin-top:18px;padding:22px 32px"><div class="hd"><h2 style="font-size:19px">메모</h2><button class="btn sm">✎ 수정</button></div><p style="color:#9CA3AF;margin-top:14px">입력된 메모가 없습니다.</p></div>
+    </section>
+    <section>
+      <div class="hd" style="margin-bottom:18px"><h1 style="margin:0">진료 기록</h1><button class="btn">＋ 진단 추가</button></div>
+      <div class="card rec">
+        <div class="row"><span class="chip o">무릎</span><span class="chip b">좌측</span><b>ACL rupture</b><span class="d">2026.09.04 &nbsp;⋮</span></div>
+        <div class="row" style="padding-left:32px">⌄&nbsp; Conservative Treatment<span class="d">2026.09.09 &nbsp;⋮</span></div>
+        <div class="row" style="padding-left:64px;font-size:15px">⌄&nbsp; 보존적 평가 <span class="chip" style="background:#F3F4F6;color:#6B7280;margin-left:auto">작성중</span><span class="d" style="margin-left:14px">2026.09.10 &nbsp;＋ &nbsp;⋮</span></div>
+        <div class="plus" style="padding-left:32px">＋ 보존적 평가</div>
+        <div class="plus">＋ 기록 추가</div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<!-- ═══ 화면 3 · 진료 녹음 ═══ -->
+<main class="page screen" id="s-rec">
+  <h1>진료 녹음</h1>
+  <div class="recg">
+    <aside>
+      <div class="card"><div class="lbl">진료실 선택</div><div class="sel">진료실3 <span>⌄</span></div></div>
+      <div class="card">
+        <div class="hd"><div class="lbl" style="margin:0;font-size:16px">환자 선택</div><button class="btn sm">🔍 검색</button></div>
+        <div id="ptcard">
+          <div class="pt"><div><b id="ptName">김민수</b><span>남성 · 차트 01000001</span></div><span class="x">×</span></div>
+          <div id="recBtnWrap" style="margin-bottom:28px">
+            <button class="btn block new role-doctor" id="recBtn" data-open="joined"><span class="tag">신규 · 녹음-환자_패널-운동리포트-버튼</span>🏃 운동 리포트</button>
+          </div>
+          <div class="cnt"><span class="n">진료<b>0</b>회</span><button class="btn" style="flex:1">📅 진료 선택</button></div>
+          <button class="btn block dis" style="margin-bottom:10px;position:static">▶ 진료 이어하기</button>
+          <button class="btn primary block">＋ 새 진료 시작</button>
+        </div>
+        <div id="ptnone" class="nopt" style="display:none">환자를 선택해 주세요. (운동 리포트 버튼은 환자 카드와 함께 미노출)</div>
+      </div>
+      <div class="card">
+        <button class="btn primary block" style="margin-bottom:18px">🎙 녹음 시작</button>
+        <div class="lbl">실시간 STT</div>
+        <div class="stt">녹음을 시작하면 STT 결과가 여기에 표시됩니다.</div>
+      </div>
+    </aside>
+    <div class="card empty"><i></i>새 진료 시작 버튼을 눌러서 진료를 시작해 주세요.</div>
+  </div>
+</main>
+
+<!-- ═══ 운동 통합 리포트 다이얼로그 (ACLP-4480 재사용) ═══ -->
+<div class="ov" id="ov">
+  <div class="dlg">
+    <div class="h">운동 통합 리포트<button id="close">×</button></div>
+    <div class="b">
+      <div class="rh">
+        <div class="hosp"><i></i><div><b>명지병원</b><span>무릎 기능 관리 프로그램 · 골관절염 2기 운동 플랜</span></div></div>
+        <div class="t"><b>운동 통합 리포트</b><span>생성일 2026.09.16</span></div>
+      </div>
+      <div class="meta">
+        <div>리포트 기간 <b>2025.11.19 ~ 2026.09.16</b> · 현재 43주차</div>
+        <div style="text-align:right"><span class="id">01000001</span><span class="nm" id="dlgName">김민수</span><span class="who">남성 / 175cm · 72kg / 1990.03.15 (만 36세)</span></div>
+      </div>
+      <div class="sum" id="dlgSum"></div>
+      <div class="kpi">
+        <div><span>진행률</span><b id="kProg">44%</b></div>
+        <div><span>통증점수 (VAS, 최근 2주 평균)</span><b>-</b></div>
+        <div><span>운동시간 (일별 평균)</span><b id="kMin">29분</b></div>
+      </div>
+      <div class="fq" id="dlgFq"></div>
+      <div class="fn">집계 기준: 프로그램 기준일 2025.11.19부터 오늘까지 302일 · 진행률은 일별 진행률의 평균 · 운동시간은 운동한 날의 수행 시간 평균</div>
+      <div class="sec"><div class="sh">주차별 진행률 추세</div><div class="sb">
+        <svg viewBox="0 0 800 220" width="100%" id="chart">
+          <g stroke="#EEF0F3"><line x1="50" x2="790" y1="20" y2="20"/><line x1="50" x2="790" y1="65" y2="65"/><line x1="50" x2="790" y1="110" y2="110"/><line x1="50" x2="790" y1="155" y2="155"/><line x1="50" x2="790" y1="200" y2="200"/></g>
+          <text x="10" y="24">100%</text><text x="18" y="69">75%</text><text x="18" y="114">50%</text><text x="18" y="159">25%</text><text x="24" y="204">0%</text>
+          <polyline id="pl" fill="none" stroke="#3B6CF6" stroke-width="3" stroke-linejoin="round"/>
+          <g id="dots" fill="#3B6CF6"></g>
+          <g id="xl"></g>
+        </svg>
+        <div class="fn" style="margin:12px 0 0">세로축 진행률 0~100% · 가로축 주차 (조회일 기준 최근 15주) · 주차별 진행률 = 해당 주차 일별 진행률의 합 ÷ 그 주차에 수행해야 했던 운동 일수</div>
+      </div></div>
+      <div class="sec"><div class="sh">운동 종류별 비중</div><div class="sb" id="bars"></div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── 더미 환자 데이터 (실데이터 아님) ──
+const P=[
+ {id:'01000001',nm:'김민수',b:'1990.03.15',s:'남성',op:'Arthroplasty',d:'2026.09.16',j:true},
+ {id:'01000002',nm:'이서연',b:'1974.01.18',s:'여성',op:'Ligament Surgery',d:'2026.09.13',j:true},
+ {id:'01000003',nm:'박지훈',b:'1988.07.02',s:'남성',op:'Arthroplasty',d:'2026.09.23',j:false},
+ {id:'01000004',nm:'최수아',b:'1966.12.02',s:'여성',op:'HTO',d:'2026.08.30',j:true,zero:true},
+ {id:'01000005',nm:'정우진',b:'1981.05.21',s:'남성',op:'Arthroplasty',d:'2026.09.05',j:false}
+];
+const TIP='앱을 사용중이지 않은 환자입니다.';
+function exBtn(p,key){
+  if(!p.j) return `<button class="btn dis new role-doctor">🏃 운동 리포트<span class="tip">${TIP}</span></button>`;
+  return `<button class="btn new role-doctor" data-open="${p.zero?'zero':'joined'}" data-nm="${p.nm}">🏃 운동 리포트</button>`;
+}
+document.getElementById('rows').innerHTML=P.map(p=>`<tr>
+ <td>${p.id}</td><td>${p.nm}</td><td>${p.b}</td><td>${p.s}</td><td>-</td><td>${p.op}</td><td>${p.d}</td>
+ <td class="rp"><button class="btn">📋 검사 리포트</button></td>
+ <td class="rp role-doctor">${exBtn(p,'환자-목록-{patientId}-운동리포트-버튼')}</td></tr>`).join('');
+
+// ── 컨트롤: 화면 ──
+function seg(id,attr,cb){document.getElementById(id).addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+ [...b.parentNode.children].forEach(x=>x.classList.toggle('on',x===b));cb(b.dataset[attr]);});}
+seg('segScreen','s',s=>{document.querySelectorAll('.screen').forEach(x=>x.classList.toggle('on',x.id==='s-'+s));
+ document.getElementById('nav-list').className=s==='rec'?'':'on';document.getElementById('nav-rec').className=s==='rec'?'on':'';});
+// ── 컨트롤: 권한 (의사 외 권한은 진입점 미노출) ──
+seg('segRole','r',r=>{document.querySelectorAll('.role-doctor').forEach(x=>x.style.display=r==='doctor'?'':'none');});
+// ── 컨트롤: 녹음 화면 환자 상태 ──
+seg('segPt','p',p=>{
+ document.getElementById('ptcard').style.display=p==='unsel'?'none':'';
+ document.getElementById('ptnone').style.display=p==='unsel'?'':'none';
+ const w=document.getElementById('recBtnWrap');
+ if(p==='none'){document.getElementById('ptName').textContent='박지훈';
+   w.innerHTML=`<button class="btn block dis new role-doctor"><span class="tag">신규 · 녹음-환자_패널-운동리포트-버튼</span>🏃 운동 리포트<span class="tip">${TIP}</span></button>`;}
+ else{document.getElementById('ptName').textContent='김민수';
+   w.innerHTML=`<button class="btn block new role-doctor" data-open="joined"><span class="tag">신규 · 녹음-환자_패널-운동리포트-버튼</span>🏃 운동 리포트</button>`;}
+ const doc=document.querySelector('#segRole .on').dataset.r==='doctor';document.querySelectorAll('.role-doctor').forEach(x=>x.style.display=doc?'':'none');
+});
+
+// ── 다이얼로그 ──
+const W=[70,67,79,0,0,0,0,0,0,0,0,0,0,0,0], W0=Array(15).fill(0);
+function draw(w){const pts=w.map((v,i)=>[60+i*52,200-v*1.8]);
+ document.getElementById('pl').setAttribute('points',pts.map(p=>p.join(',')).join(' '));
+ document.getElementById('dots').innerHTML=pts.map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="4"/>`).join('');
+ document.getElementById('xl').innerHTML=pts.map((p,i)=>`<text x="${p[0]-14}" y="218">${29+i}주차</text>`).join('');}
+function openDlg(mode,nm){
+ const z=mode==='zero';
+ document.getElementById('dlgName').textContent=nm||'김민수';
+ document.getElementById('kProg').textContent=z?'0%':'44%';
+ document.getElementById('kMin').textContent=z?'-':'29분';
+ document.getElementById('dlgSum').innerHTML=z
+  ?'프로그램 기준일부터 오늘까지 302일(43주차) 동안 진행률은 0%, 통증점수는 최근 2주 평균 VAS -, 일별 평균 운동시간은 -입니다.<br>최근 2주간 VAS 5 이상 레드사인은 0건 발생했습니다.'
+  :'프로그램 기준일부터 오늘까지 302일(43주차) 동안 진행률은 44%, 통증점수는 최근 2주 평균 VAS -, 일별 평균 운동시간은 29분입니다.<br>최근 2주간 VAS 5 이상 레드사인은 0건 발생했습니다.';
+ document.getElementById('dlgFq').innerHTML=z?'운동빈도 <b>0회/주</b> · 미수행 <b>302일</b> / 전체 <b>302일</b>':'운동빈도 <b>3.5회/주</b> · 미수행 <b>149일</b> / 전체 <b>302일</b>';
+ draw(z?W0:W);
+ const bars=z?[['근력(OKC)',0],['근력(CKC)',0],['유연성',0],['균형',0]]:[['근력(OKC)',6],['근력(CKC)',39],['유연성',31],['균형',24]];
+ document.getElementById('bars').innerHTML=bars.map(b=>`<div class="bar"><span>${b[0]}</span><div class="tr"><i style="width:${b[1]}%"></i></div><span class="pc">${b[1]}%</span></div>`).join('');
+ document.getElementById('ov').classList.add('on');
+}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-open]');if(b&&!b.classList.contains('dis'))openDlg(b.dataset.open,b.dataset.nm);});
+document.getElementById('close').onclick=()=>document.getElementById('ov').classList.remove('on');
+document.getElementById('ov').addEventListener('click',e=>{if(e.target.id==='ov')document.getElementById('ov').classList.remove('on');});
+</script>
+</body>
+</html>
