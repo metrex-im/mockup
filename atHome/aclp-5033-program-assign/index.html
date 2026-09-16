@@ -72,7 +72,7 @@ body.annot .tag{display:inline-flex}
 .chip{background:var(--accent);color:#fff;border-radius:7px;padding:4px 10px;font-size:13px;font-weight:700;border:0;font:inherit;cursor:pointer}
 .chip.alt{background:transparent;color:var(--accent);border:1.5px dashed var(--accent-line)}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:16px}
-.preset{display:inline-flex;align-items:center;gap:10px;margin-top:16px;border:1.5px solid var(--accent-line);background:var(--card);border-radius:9px;padding:10px 14px;font-size:14px;font-weight:500;cursor:pointer}
+.preset{display:inline-flex;align-items:center;gap:10px;margin-top:10px;border:1.5px solid var(--accent-line);background:var(--card);border-radius:9px;padding:8px 12px;font-size:13.5px;font-weight:500;cursor:pointer}
 .preset input{accent-color:var(--accent);width:18px;height:18px;margin:0}
 .preset:has(input:checked){background:var(--accent-soft);border-color:var(--accent);font-weight:700}
 .preset small{color:var(--muted);font-weight:400;font-size:12.5px}
@@ -176,7 +176,6 @@ body.annot .tag{display:inline-flex}
     <section class="panel">
       <h3>프로그램 기간 <span class="tag">G</span></h3>
       <div class="sub" id="periodSub"></div>
-      <label class="preset" id="pkgWrap"><input type="checkbox" id="pkg" checked> 100일 패키지 기준 <small>수술 날짜부터 100일로 종료일을 채우고 고정합니다</small></label>
       <div class="two">
         <div class="field" id="fStart" style="margin-top:0">
           <div class="label">프로그램 시작일 <span class="tag">C</span></div>
@@ -187,6 +186,7 @@ body.annot .tag{display:inline-flex}
         <div class="field" id="fEnd" style="margin-top:0">
           <div class="label">프로그램 종료일 <span class="badge" id="autoBadge" hidden>자동 설정</span><span class="tag">E</span></div>
           <input type="date" id="endDate">
+          <label class="preset" id="pkgWrap"><input type="checkbox" id="pkg" checked> 100일 패키지 기준 <small>수술 날짜부터 100일</small></label>
           <div class="hint" id="endHint"></div>
           <div class="errmsg" id="endErr"></div>
         </div>
@@ -208,7 +208,7 @@ body.annot .tag{display:inline-flex}
     <div class="note"><span class="tag">B</span><div><b>환측 하나로 통합 <span class="pill del">중복 삭제</span></b><p>수술 분기에서 두 환측 값이 어긋나던 문제를 차단합니다.</p></div></div>
     <div class="note"><span class="tag">C</span><div><b>시작일 하한 = 오늘 <span class="pill chg">변경</span></b><p>수술 분기는 수술 날짜보다 앞으로 설정 가능(수술 전 콘텐츠 구간). 지난 날짜는 선택기에서 비활성.</p></div></div>
     <div class="note"><span class="tag">D</span><div><b>구간 미리보기 <span class="pill chg">추가</span></b><p>시작·수술(0일차)·종료를 타임라인으로. 비수술은 시작 일차를 표기합니다.</p></div></div>
-    <div class="note"><span class="tag">E</span><div><b>「100일 패키지 기준」 체크 → 종료일 고정 <span class="pill chg">수술 분기</span></b><p>프로그램 기간 안의 체크박스를 켜면 종료일이 수술 날짜부터 100일(수술일 포함)로 채워지고 잠깁니다. 수술 날짜를 바꾸면 따라 움직이고, 해제하면 직접 수정할 수 있습니다. 플랜 종류와 무관하게 동작합니다.</p></div></div>
+    <div class="note"><span class="tag">E</span><div><b>「100일 패키지 기준」 체크 → 종료일 고정 <span class="pill chg">수술 분기</span></b><p>종료일 필드 아래 체크박스를 켜면 종료일이 수술 날짜부터 100일(수술일 포함)로 채워지고 잠깁니다. 수술 날짜를 바꾸면 따라 움직이고, 해제하면 직접 수정할 수 있습니다. 플랜 종류와 무관하게 동작합니다.</p></div></div>
     <div class="note"><span class="tag">F</span><div><b>수술명 한글 우선 <span class="pill keep">범위 검토</span></b><p>저장 값은 그대로, 라벨만 변경. 베타 범위에서 제외 가능.</p></div></div>
     <div class="note"><span class="tag">G</span><div><b>"프로그램 기간" 패널 <span class="pill chg">추가</span></b><p>날짜 세 개가 한 구간을 만든다는 관계를 구조로 묶습니다.</p></div></div>
     <div class="note"><span class="tag">H</span><div><b>비수술 기준일 상한 = 오늘 <span class="pill chg">변경</span></b><p>미래 기준일이 만들던 "요청 팝업만 보이는 구간"을 설정 단계에서 차단합니다. 그 결과 시작일 규칙이 두 분기에서 같아집니다.</p></div></div>
