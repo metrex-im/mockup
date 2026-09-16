@@ -131,9 +131,9 @@ body.annot .tag{display:inline-flex}
     <section class="panel" id="secSurg">
       <h3>수술 정보 <span class="req">*</span></h3>
       <div class="field" style="margin-top:16px">
-        <div class="label">수술 날짜 <span class="badge">0일차 기준</span><span class="tag">A</span></div>
+        <div class="label">수술 날짜 <span class="badge">프로그램 기준일</span><span class="tag">A</span></div>
         <input type="date" id="surgDate">
-        <div class="hint">수술 후 운동 프로그램의 일차는 이 날짜를 0일차로 계산합니다.</div>
+        <div class="hint">수술 날짜가 기준일(0일차)이 됩니다. 수술 다음 날부터 운동 프로그램 1일차로 진행됩니다.</div>
       </div>
       <div class="field">
         <div class="label">환측 <span class="tag">B</span></div>
@@ -153,9 +153,9 @@ body.annot .tag{display:inline-flex}
     <section class="panel" id="secNon" hidden>
       <h3>기준 정보</h3>
       <div class="field" style="margin-top:16px">
-        <div class="label">프로그램 기준일 <span class="badge">0일차 기준</span><span class="tag">A</span><span class="tag">H</span></div>
+        <div class="label">프로그램 기준일 <span class="badge">0일차</span><span class="tag">A</span><span class="tag">H</span></div>
         <input type="date" id="baseDate">
-        <div class="hint">기본값은 오늘이며, 오늘 이후 날짜는 선택할 수 없습니다. 과거로 설정하면 그만큼 진행된 일차부터 시작됩니다.</div>
+        <div class="hint">이 날짜가 0일차입니다. 과거로 두면 그만큼 진행된 일차부터 시작합니다. 오늘 이후는 선택할 수 없습니다.</div>
         <div class="errmsg" id="baseErr"></div>
       </div>
       <div class="field">
@@ -204,7 +204,7 @@ body.annot .tag{display:inline-flex}
   <aside class="side">
     <h4>변경 사항</h4>
     <div class="sub">HCI 원칙 기준 · 9/17 베타 최소 범위 표시</div>
-    <div class="note"><span class="tag">A</span><div><b>기준일 필드 정리 <span class="pill del">수술 삭제</span><span class="pill keep">비수술 유지</span></b><p>수술 분기는 수술 날짜가 곧 0일차라 별도 기준일을 없앴습니다. 비수술은 기준일이 유일한 기준이므로 첫 패널의 첫 필드로 둡니다.</p></div></div>
+    <div class="note"><span class="tag">A</span><div><b>기준일 필드 정리 <span class="pill del">수술 삭제</span><span class="pill keep">비수술 유지</span></b><p>수술 분기는 별도 기준일 필드를 없애고 수술 날짜에 「프로그램 기준일」 배지를 붙여 개념은 남깁니다. 캡션은 결과(다음 날이 1일차)만 말합니다. 비수술은 기준일이 유일한 기준이므로 첫 패널의 첫 필드로 둡니다.</p></div></div>
     <div class="note"><span class="tag">B</span><div><b>환측 하나로 통합 <span class="pill del">중복 삭제</span></b><p>수술 분기에서 두 환측 값이 어긋나던 문제를 차단합니다.</p></div></div>
     <div class="note"><span class="tag">C</span><div><b>시작일 하한 = 오늘 <span class="pill chg">변경</span></b><p>수술 분기는 수술 날짜보다 앞으로 설정 가능(수술 전 콘텐츠 구간). 지난 날짜는 선택기에서 비활성.</p></div></div>
     <div class="note"><span class="tag">D</span><div><b>구간 미리보기 <span class="pill chg">추가</span></b><p>시작·수술(0일차)·종료를 타임라인으로. 비수술은 시작 일차를 표기합니다.</p></div></div>
