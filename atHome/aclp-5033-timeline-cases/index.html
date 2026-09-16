@@ -1,0 +1,57 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ACLP-5033 배정 구간 케이스</title><style>
+*{box-sizing:border-box}body{margin:0;padding:32px;background:#fff;font-family:"Pretendard","Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;color:#1c2430;max-width:1100px}
+h2{font-size:15px;color:#66707d;font-weight:600;margin:28px 0 8px}h2 b{color:#1c2430;margin-right:8px}
+.pv{border:1px solid #cfe1fb;background:#eaf3ff;border-radius:12px;padding:16px 20px}
+.hd{display:flex;justify-content:space-between;align-items:baseline;font-size:14px;color:#1c2430}
+.hd .t{font-weight:700;font-size:15px}
+.hd .r{font-weight:500;color:#374151}
+.row{display:flex;gap:8px;margin-top:12px;height:34px}
+.s{border-radius:9px;display:flex;align-items:center;padding:0 14px;font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden}
+.pre{background:#a3ccff;color:#0f3f8e}.post{background:#0f3f8e;color:#fff}
+.warn{border-color:#f3d37a;background:#fff8e1}.warn .hd .r{color:#b45309}
+.note{font-size:12.5px;color:#66707d;margin-top:8px;line-height:1.55}
+.note b{color:#b91c1c;font-weight:600}
+.x{color:#b91c1c;font-size:12px;font-weight:700;margin-left:8px;background:#fee2e2;padding:2px 8px;border-radius:6px}
+</style></head><body>
+<h1 style="font-size:20px;margin:0 0 4px">ACLP-5033 · 배정 구간 미리보기 케이스</h1><p style="font-size:13px;color:#66707d;margin:0">2차 디자인(헤더 요약 + 두 색 필) 기준 · 일차는 수술 당일 0일차 기산 · 2026-09-16</p>
+
+<h2><b>A</b> 수술 전 + 수술 후 · 수술 전 구간이 넉넉함</h2>
+<div class="pv"><div class="hd"><span class="t">배정 구간 총 165일</span><span class="r">수술 전 65일 + 수술 후 100일</span></div>
+<div class="row"><div class="s pre" style="width:39%">수술 전 콘텐츠</div><div class="s post" style="flex:1">수술 후 운동 0일차부터</div></div></div>
+<div class="note">폭이 충분하면(약 20% 이상) 왼쪽 필에도 이름을 넣는 쪽을 권합니다. 비워 두면 A와 B 사이에서 라벨이 나타났다 사라지는 규칙이 하나 더 생기지만, 항상 비우면 넉넉한 구간에서 정보를 버리는 셈입니다.</div>
+
+<h2><b>B</b> 수술 전 + 수술 후 · 수술 전 구간이 짧음 (오늘 배정, 수술 2주 뒤) — 가장 흔한 케이스</h2>
+<div class="pv"><div class="hd"><span class="t">배정 구간 총 114일</span><span class="r">수술 전 14일 + 수술 후 100일</span></div>
+<div class="row"><div class="s pre" style="width:12%"></div><div class="s post" style="flex:1">수술 후 운동 0일차부터</div></div></div>
+<div class="note">왼쪽 필은 비우고, 의미는 오른쪽 "수술 전 14일"이 맡습니다. 오른쪽 필의 "0일차부터"는 A~C에서 항상 같은 값이라 정보량이 없습니다. 대안: 필 안은 "수술 후 운동 프로그램"으로 고정하고 일차는 D에서만 붙이기.</div>
+
+<h2><b>B′</b> 수술 전 구간이 아주 짧음 (수술 1~2일 전 배정)</h2>
+<div class="pv"><div class="hd"><span class="t">배정 구간 총 102일</span><span class="r">수술 전 2일 + 수술 후 100일</span></div>
+<div class="row"><div class="s pre" style="width:2%;min-width:14px"></div><div class="s post" style="flex:1">수술 후 운동 0일차부터</div></div></div>
+<div class="note">비율대로면 2%는 점이 됩니다. <b>최소 폭 14px</b>을 두어야 구간이 있다는 사실이 보입니다.</div>
+
+<h2><b>C</b> 수술 전 구간 없음 · 시작일 = 수술 날짜</h2>
+<div class="pv"><div class="hd"><span class="t">배정 구간 총 100일</span><span class="r">수술 후 100일</span></div>
+<div class="row"><div class="s post" style="flex:1">수술 후 운동 0일차부터</div></div></div>
+<div class="note">필이 하나면 "수술 전 구간 없음"은 이미 보이므로 적지 않습니다. 오른쪽 요약은 "수술 후 100일"만 남습니다(총 일수와 같은 값이라 이것도 생략 가능).</div>
+
+<h2><b>D</b> 수술 전 구간 없음 · 수술이 이미 지난 회원 — "N일차부터"가 필요한 유일한 케이스</h2>
+<div class="pv"><div class="hd"><span class="t">배정 구간 총 70일</span><span class="r">수술 후 30일차 ~ 99일차</span></div>
+<div class="row"><div class="s post" style="flex:1">수술 후 운동 30일차부터</div></div></div>
+<div class="note">시작일이 수술일보다 뒤일 때만 0이 아닌 일차가 나옵니다. 운영자가 확인해야 할 정보는 이 숫자 하나이므로 필 안에 넣는 위치는 적절합니다. 오른쪽 요약을 "30일차 ~ 99일차"로 두면 종료 시점도 함께 보입니다.</div>
+
+<h2><b>E</b> 비수술 · 기준일이 과거</h2>
+<div class="pv"><div class="hd"><span class="t">배정 구간 총 90일</span><span class="r">15일차 ~ 104일차</span></div>
+<div class="row"><div class="s post" style="flex:1">운동 프로그램 15일차부터</div></div></div>
+
+<h2><b>F</b> 비수술 · 기준일 = 오늘</h2>
+<div class="pv"><div class="hd"><span class="t">배정 구간 총 90일</span><span class="r">0일차 ~ 89일차</span></div>
+<div class="row"><div class="s post" style="flex:1">운동 프로그램 0일차부터</div></div></div>
+<div class="note">비수술은 "수술 후"를 빼야 합니다. C·D·E·F는 모두 필 하나로 같은 형태여서, 이 디자인에서 필은 "구간이 하나"라는 것만 말하고 나머지 정보는 문구가 전부 맡습니다. 단일 필 케이스는 필 없이 한 줄 텍스트로 줄여도 잃는 정보가 없습니다.</div>
+
+<h2><b>G</b> 계산 불가 · 수술 날짜 미입력 또는 날짜 규칙 위반</h2>
+<div class="pv warn"><div class="hd"><span class="t">배정 구간 총 —</span><span class="r">수술 날짜를 입력하면 구간이 계산됩니다</span></div>
+<div class="row"><div class="s" style="flex:1;background:#f1e4b8"></div></div></div>
+<div class="note">빈 필을 유지해 레이아웃이 튀지 않게 합니다. 오류 사유는 해당 필드 아래에 이미 표시되므로 여기서는 한 줄만.</div>
+
+</body></html>
