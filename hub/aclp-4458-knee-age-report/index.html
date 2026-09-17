@@ -263,6 +263,34 @@
   .row-list div:last-child{border-bottom:0}
   .row-list span{color:var(--text-sub)}
 
+  /* ---------- 환자 상세 ---------- */
+  .breadcrumb{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-sub);margin-bottom:14px}
+  .breadcrumb button{border:0;background:none;color:var(--text-sub);font-size:13px;padding:0}
+  .breadcrumb button:hover{color:var(--blue)}
+  .detail-grid{display:grid;grid-template-columns:320px 1fr;gap:18px;align-items:start}
+  .info-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:20px}
+  .info-card h3{margin:0 0 14px;font-size:15px;font-weight:700}
+  .info-rows div{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #F1F2F4;font-size:13px}
+  .info-rows div:last-child{border-bottom:0}
+  .info-rows span{color:var(--text-sub)}
+  .info-card .btn{width:100%;justify-content:center;margin-top:16px}
+  .detail-panel{background:#fff;border:1px solid var(--line);border-radius:12px;padding:20px;margin-bottom:18px}
+  .detail-panel h3{margin:0 0 14px;font-size:15px;font-weight:700}
+  .tx-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #F1F2F4;font-size:13px}
+  .tx-row:last-child{border-bottom:0}
+  .tx-row .date{color:var(--text-sub);width:100px;flex:none}
+  .tx-row .name{font-weight:500}
+  .tx-row .state{margin-left:auto;font-size:12px;color:var(--text-sub);border:1px solid var(--line-strong);border-radius:5px;padding:2px 8px}
+
+  /* ---------- 오늘의 환자 ---------- */
+  .today-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:12px}
+  .today-head{display:flex;align-items:center;gap:10px}
+  .pt-link{font-size:15px;font-weight:700;color:var(--blue);background:none;border:0;padding:0;text-decoration:underline}
+  .today-head .sub{font-size:12px;color:var(--text-sub)}
+  .today-head .right{margin-left:auto;display:flex;gap:6px}
+  .today-body{display:flex;gap:26px;margin-top:14px;padding-top:14px;border-top:1px solid #F1F2F4;font-size:13px}
+  .today-body div span{color:var(--text-sub);margin-right:8px}
+
   @media print{
     @page{size:A4;margin:0}
     body{background:#fff}
@@ -286,8 +314,8 @@
   <div class="logo"><span class="logo-mark">R</span>RISE-K</div>
   <div class="gnb-divider"></div>
   <nav class="gnb-menu">
-    <a href="#" class="on">환자 관리</a>
-    <a href="#">오늘의 환자</a>
+    <a href="#" id="nav-list" class="on" onclick="showPage('list'); return false;">환자 관리</a>
+    <a href="#" id="nav-today" onclick="showPage('today'); return false;">오늘의 환자</a>
     <a href="#">논문 관리</a>
     <a href="#">연구 에이전트</a>
   </nav>
@@ -298,7 +326,7 @@
 </div>
 
 <!-- ================= 환자 관리 ================= -->
-<div class="wrap">
+<div class="wrap" id="page-list">
   <div class="page-head">
     <div class="page-title">환자 관리</div>
     <div class="actions">
@@ -339,33 +367,127 @@
       </thead>
       <tbody>
         <tr>
-          <td>P-10023</td><td>김액티</td><td>1980.03.21</td><td>남성</td><td>-</td>
+          <td>P-10023</td><td><button class="pt-link" onclick="showPage('detail', 'kim')">김액티</button></td><td>1980.03.21</td><td>남성</td><td>-</td>
           <td>Ligament Surgery</td><td>2026.09.13</td>
           <td><button class="btn-sm" onclick="openReport('kim')">📋 검사 리포트</button></td>
         </tr>
         <tr>
-          <td>T123</td><td>박메디</td><td>1968.11.02</td><td>여성</td><td>-</td>
+          <td>T123</td><td><button class="pt-link" onclick="showPage('detail', 'park')">박메디</button></td><td>1968.11.02</td><td>여성</td><td>-</td>
           <td>-</td><td>2026.09.09</td>
           <td><button class="btn-sm" onclick="openReport('park')">📋 검사 리포트</button></td>
         </tr>
         <tr>
-          <td>19193321</td><td>이하늘</td><td>1975.07.14</td><td>남성</td><td>-</td>
+          <td>19193321</td><td><button class="pt-link" onclick="showPage('detail', 'lee')">이하늘</button></td><td>1975.07.14</td><td>남성</td><td>-</td>
           <td>Arthroplasty</td><td>2026.09.02</td>
           <td><button class="btn-sm" onclick="openReport('lee')">📋 검사 리포트</button></td>
         </tr>
         <tr>
-          <td>abcd1111</td><td>정우람</td><td>1990.07.10</td><td>남성</td><td>-</td>
+          <td>abcd1111</td><td><button class="pt-link" onclick="showPage('detail', 'jung')">정우람</button></td><td>1990.07.10</td><td>남성</td><td>-</td>
           <td>Extensor Mechanism Surgery</td><td>2026.09.02</td>
           <td><button class="btn-sm" onclick="openReport('jung')">📋 검사 리포트</button></td>
         </tr>
         <tr>
-          <td>T456</td><td>최한결</td><td>1988.01.01</td><td>여성</td><td>-</td>
+          <td>T456</td><td><button class="pt-link" onclick="showPage('detail', 'choi')">최한결</button></td><td>1988.01.01</td><td>여성</td><td>-</td>
           <td>Arthroplasty</td><td>2025.10.02</td>
           <td><button class="btn-sm" onclick="openReport('choi')">📋 검사 리포트</button></td>
         </tr>
       </tbody>
     </table>
     <div class="pager">« ‹ <span class="cur">1</span> › »</div>
+  </div>
+</div>
+
+<!-- ================= 환자 상세 ================= -->
+<div class="wrap" id="page-detail" style="display:none">
+  <div class="breadcrumb">
+    <button onclick="showPage('list')">환자 관리</button> › <span id="detail-crumb">환자 상세</span>
+  </div>
+  <div class="page-head">
+    <div class="page-title" id="detail-title">환자 상세</div>
+    <div class="actions"><button class="btn">환자 정보 수정</button></div>
+  </div>
+
+  <div class="detail-grid">
+    <div class="info-card">
+      <h3>환자 정보</h3>
+      <div class="info-rows">
+        <div><span>이름</span><b id="detail-name">김액티</b></div>
+        <div><span>등록번호</span><b id="detail-chart">P-10023</b></div>
+        <div><span>생년월일</span><b id="detail-birth">1980.03.21</b></div>
+        <div><span>성별 · 나이</span><b id="detail-sexage">남성 · 만 46세</b></div>
+        <div><span>휴대폰 번호</span><b>010-0000-0000</b></div>
+      </div>
+      <button class="btn" id="detail-report-button">📋 검사 리포트</button>
+    </div>
+
+    <div>
+      <div class="detail-panel">
+        <h3>진단 · 치료</h3>
+        <div class="tx-row"><span class="date">2026.08.28.</span><span class="name">무릎 관절염 2기 · 보존적 치료</span><span class="state">진행 중</span></div>
+        <div class="tx-row"><span class="date">2026.06.11.</span><span class="name">전방십자인대 재건술</span><span class="state">종료</span></div>
+      </div>
+      <div class="detail-panel">
+        <h3>검사 기록</h3>
+        <div class="tx-row"><span class="date" id="detail-exam-date">2026.09.13.</span><span class="name">무릎나이 검사</span><span class="state">완료</span></div>
+        <div class="tx-row"><span class="date">2026.09.13.</span><span class="name">역동적 근전도 검사</span><span class="state">완료</span></div>
+        <div class="tx-row"><span class="date">2026.09.13.</span><span class="name">보행분석 검사</span><span class="state">완료</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= 오늘의 환자 ================= -->
+<div class="wrap" id="page-today" style="display:none">
+  <div class="page-head">
+    <div class="page-title">오늘의 환자</div>
+  </div>
+
+  <div class="today-card">
+    <div class="today-head">
+      <button class="pt-link" onclick="showPage('detail', 'kim')">김액티</button>
+      <span class="sub">P-10023 · 남성 만 46세</span>
+      <div class="right">
+        <button class="btn-sm">환자 정보 수정</button>
+        <button class="btn-sm" onclick="openReport('kim')">📋 검사 리포트</button>
+      </div>
+    </div>
+    <div class="today-body">
+      <div><span>내원 시각</span>09:20</div>
+      <div><span>담당</span>-</div>
+      <div><span>오늘 검사</span>무릎나이 · 역동적 근전도 · 보행분석</div>
+    </div>
+  </div>
+
+  <div class="today-card">
+    <div class="today-head">
+      <button class="pt-link" onclick="showPage('detail', 'park')">박메디</button>
+      <span class="sub">T123 · 여성 만 57세</span>
+      <div class="right">
+        <button class="btn-sm">환자 정보 수정</button>
+        <button class="btn-sm" onclick="openReport('park')">📋 검사 리포트</button>
+      </div>
+    </div>
+    <div class="today-body">
+      <div><span>내원 시각</span>10:05</div>
+      <div><span>담당</span>-</div>
+      <div><span>오늘 검사</span>무릎나이</div>
+    </div>
+  </div>
+
+  <div class="today-card">
+    <div class="today-head">
+      <button class="pt-link" onclick="showPage('detail', 'lee')">이하늘</button>
+      <span class="sub">19193321 · 남성 만 50세</span>
+      <div class="right">
+        <button class="btn-sm">환자 정보 수정</button>
+        <button class="btn-sm" onclick="openReport('lee')">📋 검사 리포트</button>
+      </div>
+    </div>
+    <div class="today-body">
+      <div><span>내원 시각</span>11:40</div>
+      <div><span>담당</span>-</div>
+      <div><span>오늘 검사</span>무릎나이</div>
+    </div>
   </div>
 </div>
 
@@ -501,7 +623,7 @@
 <script>
   var PATIENTS = {
     kim: {
-      name: '김액티', chart: 'P-10023', sexAge: '남성 · 만 46세',
+      name: '김액티', chart: 'P-10023', birth: '1980.03.21', sexAge: '남성 · 만 46세',
       date: '2026.09.13.', side: '왼쪽', state: 'ok', rounds: 2,
       kage: 58, realAge: 46, gap: 12, grade: '고위험', tone: 'tone-high', mark: 222,
       sts: '11', tug: '9.8', stsRef: '14.2회', tugRef: '7.4초', koos: 62,
@@ -517,7 +639,7 @@
       comment: ['현재 무릎 부담이 큰 단계이므로 통증 없는 범위에서 시작하시는 것이 중요합니다. 수중운동·실내자전거 등 충격이 적은 유산소부터 주 3회 가볍게 진행하고, 의자에 앉았다 일어서기로 허벅지 근력을 천천히 키워 나가시길 권합니다.']
     },
     park: {
-      name: '박메디', chart: 'T123', sexAge: '여성 · 만 57세',
+      name: '박메디', chart: 'T123', birth: '1968.11.02', sexAge: '여성 · 만 57세',
       date: '2026.09.09.', side: '오른쪽', state: 'ok', rounds: 1,
       kage: 60, realAge: 57, gap: 3, grade: '중위험', tone: 'tone-mid', mark: 130,
       sts: '13', tug: '8.6', stsRef: '12.8회', tugRef: '8.1초', koos: 71,
@@ -538,11 +660,11 @@
       ]
     },
     lee: {
-      name: '이하늘', chart: '19193321', sexAge: '남성 · 만 50세',
+      name: '이하늘', chart: '19193321', birth: '1975.07.14', sexAge: '남성 · 만 50세',
       date: '2026.09.02.', side: '왼쪽', state: 'incomplete', rounds: 1
     },
     jung: {
-      name: '정우람', chart: 'abcd1111', sexAge: '남성 · 만 35세',
+      name: '정우람', chart: 'abcd1111', birth: '1990.07.10', sexAge: '남성 · 만 35세',
       date: '2026.09.02.', side: '오른쪽', state: 'ok', rounds: 1,
       kage: 34, realAge: 35, gap: -1, grade: '저위험', tone: 'tone-low', mark: 58,
       sts: '18', tug: '6.2', stsRef: '16.4회', tugRef: '6.8초', koos: 88,
@@ -558,7 +680,7 @@
       comment: ['현재 무릎 상태가 양호하므로 빠르게 걷기·자전거 등 규칙적인 유산소와 하체 근력운동을 주 3회 이상 꾸준히 유지하시면 됩니다. 지금의 활동 습관을 이어가시는 것이 가장 좋은 예방법입니다.']
     },
     choi: {
-      name: '최한결', chart: 'T456', sexAge: '여성 · 만 38세',
+      name: '최한결', chart: 'T456', birth: '1988.01.01', sexAge: '여성 · 만 38세',
       date: '2025.10.02.', side: '왼쪽', state: 'none', rounds: 0
     }
   };
@@ -769,6 +891,27 @@
       document.getElementById('panel-' + t).style.display = (t === name) ? 'block' : 'none';
       document.getElementById('tab-' + t).classList.toggle('on', t === name);
     });
+  }
+
+  var showPage = function(name, patientKey){
+    ['list', 'detail', 'today'].forEach(function(id){
+      document.getElementById('page-' + id).style.display = (id === name) ? 'block' : 'none';
+    });
+    document.getElementById('nav-list').classList.toggle('on', name !== 'today');
+    document.getElementById('nav-today').classList.toggle('on', name === 'today');
+    window.scrollTo(0, 0);
+
+    if (name !== 'detail') return;
+
+    var p = PATIENTS[patientKey];
+    document.getElementById('detail-title').textContent = p.name;
+    document.getElementById('detail-crumb').textContent = p.name;
+    document.getElementById('detail-name').textContent = p.name;
+    document.getElementById('detail-chart').textContent = p.chart;
+    document.getElementById('detail-birth').textContent = p.birth;
+    document.getElementById('detail-sexage').textContent = p.sexAge;
+    document.getElementById('detail-exam-date').textContent = p.date;
+    document.getElementById('detail-report-button').onclick = function(){ openReport(patientKey); };
   }
 </script>
 </body>
