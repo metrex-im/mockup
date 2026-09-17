@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ACLP-4425 EMR 기록 복사</title>
+<style>
+:root{
+  --bg:#f4f6fa; --surface:#fff; --surface-2:#f7f9fc; --line:#e3e8ef; --line-2:#cdd5e0;
+  --text:#101828; --text-2:#5a6679; --text-3:#98a2b3;
+  --brand:#2f4ce0; --brand-soft:#eef1fe; --brand-line:#c3cdfa;
+  --warn:#b54708; --warn-soft:#fff6ed; --warn-line:#f2c39a;
+  --ok:#067647; --ok-soft:#ecfdf3; --ok-line:#a6e6c4;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+  --sans:-apple-system,BlinkMacSystemFont,"Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0c0f14; --surface:#151a22; --surface-2:#1b212b; --line:#293040; --line-2:#3a4354;
+  --text:#e7eaf0; --text-2:#a0aabb; --text-3:#6e7889;
+  --brand:#7e95ff; --brand-soft:#171f38; --brand-line:#2e3e6e;
+  --warn:#e3a35c; --warn-soft:#2a2013; --warn-line:#56421f;
+  --ok:#5ecb99; --ok-soft:#0f2319; --ok-line:#23503a;
+}}
+:root[data-theme="dark"]{
+  --bg:#0c0f14; --surface:#151a22; --surface-2:#1b212b; --line:#293040; --line-2:#3a4354;
+  --text:#e7eaf0; --text-2:#a0aabb; --text-3:#6e7889;
+  --brand:#7e95ff; --brand-soft:#171f38; --brand-line:#2e3e6e;
+  --warn:#e3a35c; --warn-soft:#2a2013; --warn-line:#56421f;
+  --ok:#5ecb99; --ok-soft:#0f2319; --ok-line:#23503a;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
+button,input,textarea,select{font:inherit;color:inherit}
+
+.banner{background:var(--warn-soft);border-bottom:1px solid var(--warn-line);padding:10px 20px;font-size:12.5px;color:var(--warn)}
+.banner b{font-weight:700}
+
+.app{display:grid;grid-template-columns:232px minmax(0,1fr) 400px;gap:16px;max-width:1560px;margin:0 auto;padding:16px 20px 60px;align-items:start}
+@media(max-width:1200px){.app{grid-template-columns:1fr;max-width:780px}.rail{position:static !important}.side{display:none}}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.pad{padding:16px}
+
+.side{display:flex;flex-direction:column;gap:12px;position:sticky;top:16px}
+.lbl{font-size:11.5px;font-weight:700;color:var(--text-3);letter-spacing:.02em;margin-bottom:6px}
+select.room{width:100%;padding:9px 11px;border:1px solid var(--line-2);border-radius:8px;background:var(--surface)}
+.pt-name{font-size:17px;font-weight:700;margin:2px 0 1px}
+.pt-meta{font-size:12px;color:var(--text-2)}
+.pill{display:inline-block;font-size:11px;font-weight:700;padding:2px 9px;border-radius:99px;background:var(--brand-soft);color:var(--brand);border:1px solid var(--brand-line);margin-top:8px}
+.cta{width:100%;margin-top:12px;padding:11px;border:0;border-radius:9px;background:var(--brand);color:#fff;font-weight:700;cursor:pointer}
+nav.nav{padding:8px}
+nav.nav a{display:block;padding:9px 12px;border-radius:8px;color:var(--text-2);font-weight:650;text-decoration:none;font-size:13.5px}
+nav.nav a.on{background:var(--brand-soft);color:var(--brand)}
+nav.nav a:hover{background:var(--surface-2)}
+
+.head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin:2px 0 14px;flex-wrap:wrap}
+h1{font-size:21px;margin:0 0 2px;letter-spacing:-.01em}
+.head .d{font-size:13px;color:var(--text-2);margin:0}
+.seg{display:inline-flex;background:var(--surface-2);border:1px solid var(--line);border-radius:9px;padding:3px}
+.seg button{border:0;background:none;padding:6px 14px;border-radius:6px;font-size:13px;font-weight:650;color:var(--text-2);cursor:pointer}
+.seg button.on{background:var(--surface);color:var(--brand);box-shadow:0 1px 3px rgba(16,24,40,.09)}
+
+.sec{padding:20px;border-bottom:1px solid var(--line)}
+.sec:last-child{border-bottom:0}
+.sec h2{font-size:16px;margin:0;display:flex;align-items:center;gap:9px;letter-spacing:-.01em}
+.sec .hint{font-size:12.5px;color:var(--text-2);margin:5px 0 16px}
+.dot{width:25px;height:25px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;flex:none}
+.dS{background:#5570ea}.dO{background:#3aa06a}.dA{background:#d9891f}.dP{background:#8258d4}.dI{background:#2f8fa8}.dD{background:#c4567d}
+
+.q{margin:18px 0 0;padding-left:0}
+.q:first-child{margin-top:0}
+.q.sub{margin-left:16px;padding-left:12px;border-left:2px solid var(--brand-line)}
+.qt{font-size:13.5px;font-weight:700;margin:0 0 9px}
+.qt .n{color:var(--brand);margin-right:6px}
+.qt em{font-style:normal;font-size:11.5px;font-weight:600;color:var(--text-3);margin-left:6px}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{padding:7px 14px;border:1px solid var(--line-2);border-radius:9px;background:var(--surface);color:var(--text-2);font-size:13px;cursor:pointer}
+.chip[aria-pressed="true"]{border-color:var(--brand);background:var(--brand-soft);color:var(--brand);font-weight:700}
+.rowline{display:flex;align-items:center;gap:10px}
+input.nrsin{width:110px;padding:10px 12px;border:1px solid var(--line-2);border-radius:9px;background:var(--surface);font-family:var(--mono);font-size:14px;text-align:center}
+.mini{border:1px solid var(--line-2);background:var(--surface);color:var(--text-2);font-size:11.5px;padding:4px 9px;border-radius:7px;cursor:pointer}
+textarea,input[type=text]{width:100%;padding:10px 12px;border:1px solid var(--line-2);border-radius:9px;background:var(--surface);resize:vertical}
+textarea{min-height:70px;line-height:1.6}
+textarea.mono,input.mono{font-family:var(--mono);font-size:12.5px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:640px){.two{grid-template-columns:1fr}}
+.foot-note{margin-top:16px;border:1px dashed var(--line-2);border-radius:9px;padding:11px 13px;font-size:12.5px;color:var(--text-2);background:var(--surface-2)}
+.demobar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 12px;padding:11px 14px;border:1px solid var(--brand-line);background:var(--brand-soft);border-radius:10px;font-size:12.5px;color:var(--text-2)}
+.demobar b{color:var(--brand);font-weight:700;flex:none}
+.demobar .sp{flex:1;min-width:0}
+.mini.pri{background:var(--brand);border-color:var(--brand);color:#fff;font-weight:700}
+.ask{margin-top:14px;border:1px solid var(--warn-line);background:var(--warn-soft);border-radius:9px;padding:11px 13px;font-size:12.5px;color:var(--warn)}
+.ask b{font-weight:700}
+
+.rail{position:sticky;top:16px;display:flex;flex-direction:column;gap:12px}
+.panel{display:flex;flex-direction:column;max-height:calc(100vh - 32px)}
+.ph{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line);gap:8px}
+.ph h3{margin:0;font-size:14.5px}
+.live{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;color:var(--ok);background:var(--ok-soft);border:1px solid var(--ok-line);padding:3px 9px;border-radius:99px}
+.live i{width:6px;height:6px;border-radius:50%;background:var(--ok);display:block}
+.live.flash i{animation:bp .5s ease}
+@keyframes bp{0%{transform:scale(1)}50%{transform:scale(2.1)}100%{transform:scale(1)}}
+.scriptbox{margin:12px 16px 0;border:1px solid var(--line);border-radius:9px;background:var(--surface-2);padding:13px;overflow:auto;flex:1;min-height:280px}
+pre.script{margin:0;font-family:var(--mono);font-size:12.5px;line-height:1.85;white-space:pre-wrap;word-break:break-word}
+.script .lab{color:var(--brand);font-weight:700}
+.pfoot{padding:12px 16px 14px}
+.btn{width:100%;padding:11px;border-radius:9px;border:1px solid var(--brand);background:var(--brand);color:#fff;font-weight:700;cursor:pointer}
+.btn:disabled{background:var(--surface-2);border-color:var(--line);color:var(--text-3);cursor:not-allowed}
+.btn.done{background:var(--ok);border-color:var(--ok)}
+.why{font-size:11.5px;color:var(--warn);margin:8px 0 0;text-align:center}
+.why.hide{display:none}
+
+/* 복사 완료 토스트 (우측 상단, 공용 컴포넌트) */
+.toast-area{position:fixed;top:16px;right:20px;z-index:60;display:flex;flex-direction:column;gap:8px;align-items:flex-end;pointer-events:none}
+.toast{display:flex;align-items:center;gap:9px;background:var(--surface);border:1px solid var(--ok-line);border-left:3px solid var(--ok);
+  border-radius:10px;padding:11px 15px;font-size:13px;font-weight:650;color:var(--text);
+  box-shadow:0 8px 24px rgba(16,24,40,.14);opacity:0;transform:translateY(-8px);animation:toastIn .18s ease forwards}
+.toast .ic{width:18px;height:18px;border-radius:50%;background:var(--ok);color:#fff;font-size:11px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.toast.out{animation:toastOut .2s ease forwards}
+@keyframes toastIn{to{opacity:1;transform:translateY(0)}}
+@keyframes toastOut{to{opacity:0;transform:translateY(-8px)}}
+</style>
+</head>
+<body>
+
+<div class="toast-area" id="toasts"></div>
+
+<div class="banner"><b>ACLP-4425 목업</b> · 우측 EMR 기록 미리보기 패널 · 문진 구성과 EMR 기록 형태는 <b>「초진 진료 문진 구성안」·「재진 진료 문진 구성안」(ACLP-4464)</b>을 따릅니다. 입력하면 우측이 즉시 갱신되고 <b>EMR 기록 복사</b>가 클립보드에 씁니다.</div>
+
+<div class="app">
+
+  <aside class="side">
+    <div class="card pad">
+      <div class="lbl">진료실 선택</div>
+      <select class="room"><option>진료실 4</option><option>진료실 1</option><option>진료실 2</option></select>
+    </div>
+    <div class="card pad">
+      <div class="lbl">환자</div>
+      <div class="pt-name">음채메테스트</div>
+      <div class="pt-meta">여성 · 차트 01325571</div>
+      <span class="pill" id="ptType">재진</span>
+      <button class="cta">진료 이어하기</button>
+    </div>
+    <nav class="nav card" id="nav"></nav>
+  </aside>
+
+  <main>
+    <div class="head">
+      <div>
+        <h1 id="scrTitle">재진 SOAP 진료 화면</h1>
+        <p class="d" id="scrDesc">재진 공통 문진 · Objective/P.E/Imaging · Assessment · Plan</p>
+      </div>
+      <div class="seg" role="tablist">
+        <button id="tFirst" role="tab" aria-selected="false">초진</button>
+        <button id="tFollow" class="on" role="tab" aria-selected="true">재진</button>
+      </div>
+    </div>
+    <div class="demobar">
+      <b>테스트해 보세요</b>
+      <span>구성안의 기록 예시를 그대로 채웁니다. 입력을 바꾸면 우측 EMR 기록이 바로 따라옵니다.</span>
+      <span class="sp"></span>
+      <button class="mini pri" id="demo">구성안 예시 채우기</button>
+      <button class="mini" id="clear">전부 비우기</button>
+    </div>
+    <div class="card" id="form"></div>
+  </main>
+
+  <aside class="rail">
+    <div class="card panel">
+      <div class="ph">
+        <h3>EMR 기록 미리보기</h3>
+        <span class="live" id="live"><i></i>자동 생성</span>
+      </div>
+      <div class="scriptbox"><pre class="script" id="script"></pre></div>
+      <div class="pfoot">
+        <button class="btn" id="btnCopy">EMR 기록 복사</button>
+        <p class="why hide" id="why">복사할 내용이 아직 없습니다</p>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<script>
+(function(){
+var $=function(i){return document.getElementById(i)};
+var esc=function(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')};
+var V={}, mode='follow';
+
+/* ---------- 문진 정의 (ACLP-4464 구성안) ---------- */
+var COMMON=[
+ {id:'q1',n:'1',q:'어느 무릎이 불편한가요?',t:'single',o:['오른쪽','왼쪽','양쪽']},
+ {id:'q2',n:'2',q:'현재 가장 불편한 증상은 무엇인가요?',t:'multi',e:'복수 선택',o:['통증','붓기','걸림·잠김','무릎이 빠지거나 힘이 빠지는 느낌','움직임 제한','기타']},
+ {id:'q3',n:'3',q:'증상은 언제부터 시작되었나요?',t:'single',o:['1주 이내','1–6주','6주–3개월','3개월–1년','1년 이상']},
+ {id:'q4',n:'4',q:'증상은 어떻게 시작되었나요?',t:'single',o:['다친 후 갑자기','서서히','오래전부터 반복됨','잘 모르겠음']},
+ {id:'q4a',n:'4-1',q:'어떻게 다쳤나요?',t:'single',o:['걷거나 뛰다가','계단·내리막길','운동 중','넘어짐','직접 부딪힘','교통사고','기타'],c:{id:'q4',v:'다친 후 갑자기'}},
+ {id:'q4b',n:'',q:'손상 상황',e:'선택 입력',t:'text',p:'내리막길에서 무릎이 꺾임',c:{id:'q4',v:'다친 후 갑자기'}},
+ {id:'q5',n:'5',q:'현재 통증은 어느 정도인가요?',t:'nrs'},
+ {id:'q6',n:'6',q:'주로 어느 부위가 아픈가요?',t:'multi',e:'복수 선택',o:['안쪽','바깥쪽','앞쪽','뒤쪽','전체·잘 모르겠음']},
+ {id:'q7',n:'7',q:'이번 증상 때문에 다른 병원에서 검사나 치료를 받은 적이 있나요?',t:'single',o:['없음','있음']},
+ {id:'q7a',n:'7-1',q:'어떤 검사를 받았나요?',t:'multi',o:['X-ray','MRI','CT','기타'],c:{id:'q7',v:'있음'}},
+ {id:'q7b',n:'7-2',q:'이전 병원에서 어떤 설명을 들으셨나요?',t:'text',p:'ACL 파열 및 반월상연골 손상, 수술 권유',c:{id:'q7',v:'있음'}},
+ {id:'q8',n:'8',q:'이전에 같은 무릎으로 수술을 받은 적이 있나요? (다리 수술 hx.)',t:'single',o:['없음','있음','잘 모르겠음']},
+ {id:'q8a',n:'8-1',q:'수술명 / 시기',t:'text',p:'ACL 재건술 / 2019',c:{id:'q8',v:'있음'}},
+ {id:'q9',n:'9',q:'선수이신가요?',t:'single',o:['유','무']},
+ {id:'q9a',n:'',q:'직업',t:'text',p:'사무직'}
+];
+
+var DIS={
+ 'ACL':[{q:'다칠 당시 ‘뚝/펑’ 하는 느낌이나 소리가 있었나요?',o:['있음','없음','잘 모르겠음'],en:'Pop sensation'},
+        {q:'다친 후 몇 시간 안에 무릎이 많이 부었나요?',o:['있음','없음','잘 모르겠음'],en:'Acute swelling'},
+        {q:'현재 무릎이 빠지거나 무너지는 느낌이 있나요?',o:['자주','가끔','없음'],en:'Giving way'}],
+ 'PCL':[{q:'다칠 때 무릎 앞쪽을 강하게 부딪히거나 심하게 굽혀진 적이 있나요?',o:['있음','없음','잘 모르겠음']},
+        {q:'현재 무릎이 불안정하거나 힘이 빠지는 느낌이 있나요?',o:['자주','가끔','없음']},
+        {q:'계단이나 내리막길을 걸을 때 무릎이 불편한가요?',o:['자주','가끔','없음']}],
+ 'OA':[{q:'쉬고 있거나 밤에도 무릎이 아픈가요?',o:['있음','없음']},
+       {q:'걷기·계단·쪼그리기 등 일상생활에 어느 정도 불편함이 있나요?',o:['거의 없음','조금 불편함','많이 불편함','매우 어려움']},
+       {q:'약·주사·물리치료·운동치료 등을 받아본 적이 있나요?',o:['없음','있음-효과 있었음','있음-효과 적거나 없음']}],
+ 'Meniscus':[{q:'현재 무릎이 걸리거나 잠기는 증상이 있나요?',o:['자주','가끔','없음']},
+       {q:'무릎을 비틀거나 쪼그릴 때 통증이 심해지나요?',o:['있음','없음']},
+       {q:'이전에 같은 무릎의 반월상연골 수술을 받은 적이 있나요?',o:['없음','봉합술','절제술','기타·잘 모르겠음']}],
+ 'Root tear':[{q:'걷거나 계단·쪼그리기 중 갑자기 ‘뚝’ 하는 느낌과 함께 통증이 시작된 적이 있나요?',o:['있음','없음','잘 모르겠음']},
+       {q:'체중을 싣거나 걸을 때 무릎 안쪽 통증이 심해지나요?',o:['있음','없음']},
+       {q:'쪼그려 앉거나 계단 이용 시 통증이 심해지나요?',o:['있음','없음']}],
+ 'MAT':[{q:'이전에 반월상연골을 제거하는 수술을 받은 적이 있나요?',o:['있음','없음','잘 모르겠음']},
+       {q:'수술 이후 해당 무릎의 안쪽 또는 바깥쪽 통증이 계속되고 있나요?',o:['있음','없음']},
+       {q:'통증 때문에 걷기·운동 등 활동에 제한이 있나요?',o:['많이 있음','조금 있음','없음']}],
+ 'Cartilage':[{q:'걷기·운동 등 활동할 때 무릎 통증이 심해지나요?',o:['있음','없음']},
+       {q:'무릎이 반복적으로 붓거나 걸리는 증상이 있나요?',o:['있음','없음']},
+       {q:'이전에 무릎 연골 치료나 수술을 받은 적이 있나요?',o:['있음','없음','잘 모르겠음']}],
+ 'MPFL':[{q:'슬개골이 실제로 빠진 적이 있나요?',o:['없음','1회','2회 이상']},
+       {q:'현재 슬개골이 빠질 것 같은 불안정한 느낌이 있나요?',o:['자주','가끔','없음']},
+       {q:'반대쪽 무릎도 슬개골이 빠진 경험이 있나요?',o:['있음','없음']}]
+};
+
+var FOLLOW=[
+ {id:'r1',n:'1',q:'지난 진료와 비교해서 무릎 상태는 어떠신가요?',t:'single',o:['많이 좋아짐','조금 좋아짐','비슷함','조금 나빠짐','많이 나빠짐']},
+ {id:'r2',n:'2',q:'현재 가장 불편한 증상은 무엇인가요?',t:'multi',e:'복수 선택',o:['통증','붓기','걸림·잠김','불안정감·힘 빠짐','움직임 제한','소리·마찰감','기타']},
+ {id:'r3',n:'3',q:'현재 통증은 어느 정도인가요?',t:'nrs'},
+ {id:'r4',n:'4',q:'지난 진료 이후 새롭게 생기거나 달라진 증상이 있나요?',t:'area',p:'통증은 많이 줄었으나 무릎 앞쪽에서 그득거리는 소리가 남'}
+];
+
+/* ---------- 렌더 ---------- */
+function field(f){
+  var cond = f.c ? ' class="q sub" data-cond="'+f.c.id+'|'+f.c.v+'"' : ' class="q"';
+  var h='<div'+cond+' id="w_'+f.id+'">';
+  h+='<p class="qt">'+(f.n?'<span class="n">'+f.n+'.</span>':'')+esc(f.q)+(f.e?'<em>'+f.e+'</em>':'')+'</p>';
+  if(f.t==='single'||f.t==='multi'){
+    h+='<div class="chips" data-f="'+f.id+'" data-t="'+f.t+'">';
+    f.o.forEach(function(o){h+='<button class="chip" aria-pressed="false">'+esc(o)+'</button>'});
+    h+='</div>';
+  } else if(f.t==='nrs'){
+    h+='<div class="rowline"><input type="text" inputmode="numeric" class="nrsin" data-f="'+f.id+'" placeholder="0–10"></div>'+
+       '<p style="font-size:11.5px;color:var(--warn);margin:7px 0 0">비워 두면 <b>Pain 줄을 만들지 않습니다.</b> 미응답과 “통증 없음(0)”은 다른 사실이고, <b>0은 미응답이 아니라 값입니다.</b><br>범위·형식 검증(0–10 밖, 소수, 비숫자)은 이 티켓 범위가 아니라 <b>문항 설계 티켓 소관</b>입니다. 여기서는 입력된 값을 그대로 조립합니다.</p>';
+  } else if(f.t==='text'){
+    h+='<input type="text" data-f="'+f.id+'" placeholder="'+esc(f.p||'')+'">';
+  } else if(f.t==='area'){
+    h+='<textarea data-f="'+f.id+'" placeholder="'+esc(f.p||'')+'"></textarea>';
+  } else if(f.t==='mono'){
+    h+='<textarea class="mono" data-f="'+f.id+'" placeholder="'+esc(f.p||'')+'"></textarea>';
+  }
+  return h+'</div>';
+}
+
+function renderForm(){
+  var h='';
+  if(mode==='first'){
+    h+='<section class="sec" id="s1"><h2><span class="dot dS">H</span> 공통 초진 문진</h2>'+
+       '<p class="hint">모든 초진 환자에게 확인하는 최소 공통 항목 (구성안 2장)</p>';
+    COMMON.forEach(function(f){h+=field(f)});
+    h+='<div class="ask"><b>확인 필요</b> — 문항 8(이전 수술력)·9(선수·직업)는 구성안의 EMR 연계 예시에 반영돼 있지 않습니다. 어느 라벨 아래 들어가는지 정해지기 전까지 EMR 기록에서 제외했습니다.</div>';
+    h+='</section>';
+
+    h+='<section class="sec" id="s2"><h2><span class="dot dD">D</span> 질환별 핵심 질문</h2>'+
+       '<p class="hint">의료진이 질환을 선택하면 해당 질환의 질문만 노출됩니다 (구성안 3장)</p>'+
+       '<div class="chips" data-f="dis" data-t="single" style="margin-bottom:6px">';
+    Object.keys(DIS).forEach(function(k){h+='<button class="chip" aria-pressed="false">'+esc(k)+'</button>'});
+    h+='</div><div id="disQs"></div></section>';
+
+    h+='<section class="sec" id="s3"><h2><span class="dot dI">I</span> Imaging Findings</h2>'+
+       '<p class="hint">X-ray / MRI를 확인한 의료진이 직접 작성합니다 (구성안 4장)</p>'+
+       field({id:'im0',n:'',q:'영상 촬영처',t:'single',o:['원내','타병원','원내 + 타병원']})+
+       field({id:'im1',n:'',q:'Key Finding',t:'text',p:'Complete ACL tear'})+
+       field({id:'im2',n:'',q:'X-ray Findings',t:'mono',p:'Medial joint space narrowing, KL grade 3'})+
+       field({id:'im3',n:'',q:'MRI Findings',t:'mono',p:'ACL rupture\nMM posterior bucket handle tear'})+
+       '</section>';
+  } else {
+    h+='<section class="sec" id="s1"><h2><span class="dot dS">S</span> 재진 공통 문진 · Subjective</h2>'+
+       '<p class="hint">지난 진료 이후 환자가 느끼는 변화와 현재 증상 (구성안 2장)</p>';
+    FOLLOW.forEach(function(f){h+=field(f)});
+    h+='<div class="foot-note">향후 진료 녹음/STT를 적용하면 위 내용은 의료진이 직접 모두 체크하지 않고 대화에서 자동 추출하는 방식으로 확장할 수 있습니다.</div></section>';
+
+    h+='<section class="sec" id="s2"><h2><span class="dot dO">O</span> Objective · P.E · Imaging</h2>'+
+       '<p class="hint">의료진이 직접 확인한 객관적 진찰·기능/회복 상태·영상 소견 (구성안 3장)</p>'+
+       '<div class="two">'+
+       field({id:'o1',n:'',q:'Physical Examination',t:'mono',p:'ROM 0–130, effusion(-), joint line tenderness(+), McMurray(+)'})+
+       field({id:'o2',n:'',q:'기능 / 회복 상태',t:'mono',p:'보행 양호, 계단 하행 시 경미한 불편감'})+
+       '</div><div class="two">'+
+       field({id:'o3',n:'',q:'X-ray Findings',t:'mono',p:'WNL'})+
+       field({id:'o4',n:'',q:'MRI Findings',t:'mono',p:'Lateral meniscal deficiency, MFC cartilage lesion'})+
+       '</div></section>';
+  }
+
+  h+='<section class="sec" id="s4"><h2><span class="dot dA">A</span> Assessment</h2>'+
+     '<p class="hint">의료진 표기는 <b>풀어쓰지 않고 원문 그대로</b> 복사됩니다 — <code style="font-family:var(--mono)">Rt./Lt.</code> <code style="font-family:var(--mono)">s/p</code> <code style="font-family:var(--mono)">r/o</code> <code style="font-family:var(--mono)">A/S</code> <code style="font-family:var(--mono)">KL G2</code></p>'+
+     '<textarea class="mono" data-f="A" style="min-height:88px" placeholder="S/P DLM subtotal meniscectomy + PFJ &amp; MFC chondroplasty, Rt.&#10;Lateral meniscal deficiency"></textarea></section>';
+  h+='<section class="sec" id="s5"><h2><span class="dot dP">P</span> Plan</h2>'+
+     '<p class="hint">한 줄에 하나씩 씁니다. 환자용 표현으로의 변환은 진료 리포트(ACLP-4426)에서만 이루어집니다.</p>'+
+     '<textarea class="mono" data-f="P" style="min-height:88px" placeholder="증상 지속 시 LMAT + cartilage repair 고려&#10;재활운동 지속&#10;3개월 후 외래 추적"></textarea></section>';
+
+  $('form').innerHTML=h;
+  $('nav').innerHTML = (mode==='first'
+    ? [['s1','공통 초진 문진'],['s2','질환별 핵심 질문'],['s3','Imaging Findings'],['s4','A · Assessment'],['s5','P · Plan']]
+    : [['s1','S · Subjective'],['s2','O · Objective'],['s4','A · Assessment'],['s5','P · Plan']]
+   ).map(function(x,i){return '<a href="#'+x[0]+'"'+(i===0?' class="on"':'')+'>'+x[1]+'</a>'}).join('');
+  bind(); applyCond(); renderDis(); refresh();
+}
+
+function renderDis(){
+  var box=$('disQs'); if(!box) return;
+  var d=V.dis;
+  if(!d){box.innerHTML='<p style="font-size:12.5px;color:var(--text-3);margin:0">질환을 선택하면 핵심 질문이 나타납니다.</p>';return}
+  var h='';
+  DIS[d].forEach(function(q,i){
+    h+='<div class="q"><p class="qt"><span class="n">'+(i+1)+'.</span>'+esc(q.q)+'</p><div class="chips" data-f="d_'+i+'" data-t="single">';
+    q.o.forEach(function(o){h+='<button class="chip"'+(V['d_'+i]===o?' aria-pressed="true"':' aria-pressed="false"')+'>'+esc(o)+'</button>'});
+    h+='</div></div>';
+  });
+  if(d==='ACL'){
+    h+='<div class="ask"><b>확인 필요</b> — 구성안 ACL 문항 2는 <i>“다친 후 몇 시간 안에 부었나요? 어떤 동작에서 다쳤나요?”</i> 두 질문이 한 행에 합쳐져 있고, 손상 동작(태클·점프·발차기·방향전환·넘어짐)은 공통 문항 4-1과 겹칩니다. 여기서는 Acute swelling만 두었습니다.</div>';
+  } else {
+    h+='<div class="ask"><b>확인 필요</b> — 구성안의 EMR 연계 예시가 ACL 하나뿐이라, '+esc(d)+'의 영문 약칭(ACL의 <code>Pop sensation</code>·<code>Acute swelling</code>·<code>Giving way</code>에 해당)이 정해지지 않았습니다. EMR 기록에는 임시로 한글 질문을 그대로 씁니다.</div>';
+  }
+  box.innerHTML=h; bind(box);
+}
+
+/* ---------- 바인딩 ---------- */
+function bind(root){
+  root=root||document;
+  root.querySelectorAll('.chips').forEach(function(g){
+    if(g.dataset.bound) return; g.dataset.bound='1';
+    g.addEventListener('click',function(e){
+      var b=e.target.closest('.chip'); if(!b) return;
+      var f=g.dataset.f, on=b.getAttribute('aria-pressed')==='true';
+      if(g.dataset.t==='single'){
+        g.querySelectorAll('.chip').forEach(function(c){c.setAttribute('aria-pressed','false')});
+        b.setAttribute('aria-pressed',on?'false':'true');
+        V[f]= on?null:b.textContent.trim();
+        if(f==='dis'){ Object.keys(V).forEach(function(k){if(k.indexOf('d_')===0)delete V[k]}); renderDis(); }
+      }else{
+        b.setAttribute('aria-pressed',on?'false':'true');
+        V[f]=[]; g.querySelectorAll('.chip[aria-pressed="true"]').forEach(function(c){V[f].push(c.textContent.trim())});
+      }
+      applyCond(); refresh();
+    });
+  });
+  root.querySelectorAll('input.nrsin[data-f]').forEach(function(e){
+    if(e.dataset.bound) return; e.dataset.bound='1';
+    e.addEventListener('input',function(){ V[e.dataset.f]=e.value; refresh(); });
+  });
+  root.querySelectorAll('input[type=text]:not(.nrsin)[data-f],textarea[data-f]').forEach(function(e){
+    if(e.dataset.bound) return; e.dataset.bound='1';
+    e.addEventListener('input',function(){V[e.dataset.f]=e.value; refresh()});
+  });
+}
+
+function applyCond(){
+  document.querySelectorAll('[data-cond]').forEach(function(w){
+    var p=w.dataset.cond.split('|');
+    w.hidden = V[p[0]]!==p[1];
+  });
+}
+
+/* ---------- 스크립트 조립 ---------- */
+function ln(t){return t.split('\n').map(function(x){return x.trim()}).filter(Boolean)}
+var SIDE={'오른쪽':'Rt.','왼쪽':'Lt.','양쪽':'Both'};
+// NRS: 빈 칸 = 미응답, 그 외는 입력값을 그대로 쓴다.
+// 범위·형식 검증은 문항 설계 티켓 소관이라 여기서 판정하지 않는다.
+function nrs(f){
+  var v=(V[f]==null?'':String(V[f])).trim();
+  return v===''?null:v;
+}
+
+function build(){
+  var S=[];
+  function blk(lab,body){S.push({lab:lab,body:body||[]})}
+  function gap(){S.push({gap:true})}
+
+  if(mode==='first'){
+    var cc=[];
+    if(V.q1) cc.push(SIDE[V.q1]+' knee');
+    if(V.q2&&V.q2.length) cc.push(V.q2.join(', '));
+    blk('[C.C]',cc.length?[cc.join(' - ')]:[],true);
+    blk('[Onset]',V.q3?[V.q3]:[],true);
+    var tr=[];
+    if(V.q4==='다친 후 갑자기'){ tr.push('(+)'+(V.q4a?' '+V.q4a:'')); if(V.q4b) tr.push(V.q4b); }
+    else if(V.q4) tr.push(V.q4);
+    blk('[Trauma Hx]',tr,true);
+    var pn=[];
+    if(nrs('q5')!==null) pn.push('NRS '+nrs('q5')+'/10');
+    if(V.q6&&V.q6.length) pn.push(V.q6.join(', '));
+    blk('[Pain]',pn,true);
+    var pe=[];
+    if(V.q7) pe.push('Outside visit '+(V.q7==='있음'?'(+)':'(-)'));
+    if(V.q7a&&V.q7a.length) pe.push(V.q7a.join(', '));
+    if(V.q7b) pe.push(V.q7b);
+    blk('[Previous evaluation]',pe,true);
+    gap();
+    var db=[];
+    if(V.dis) DIS[V.dis].forEach(function(q,i){
+      if(V['d_'+i]) db.push('- '+(q.en||q.q)+': '+V['d_'+i]);
+    });
+    blk('['+(V.dis||'질환 미선택')+' specific history]',db);
+    gap();
+    var im=[];
+    if(V.im0) im.push(V.im0);
+    if(V.im1) im.push(V.im1);
+    if(V.im2){ im.push('XR>'); ln(V.im2).forEach(function(l){im.push(l)}) }
+    if(V.im3){ im.push('MRI>'); ln(V.im3).forEach(function(l){im.push(l)}) }
+    blk('[Imaging Findings]',im);
+    gap();
+    blk('[Assessment]',ln(V.A||''));
+    gap();
+    blk('[Plan]',ln(V.P||''));
+  } else {
+    var s=[];
+    if(V.r1) s.push('지난 진료 대비 '+V.r1+'.');
+    if(V.r2&&V.r2.length) s.push('현재 증상: '+V.r2.join(', ')+'.');
+    if(nrs('r3')!==null) s.push('Pain NRS '+nrs('r3')+'/10.');
+    ln(V.r4||'').forEach(function(l){s.push(l)});
+    blk('[S] Subjective',s);
+    gap();
+    var o=[];
+    if(V.o1) o.push('P/E: '+ln(V.o1).join(' '));
+    if(V.o2) o.push('Function: '+ln(V.o2).join(' '));
+    if(V.o3) o.push('XR> '+ln(V.o3).join(' '));
+    if(V.o4) o.push('MRI> '+ln(V.o4).join(' '));
+    blk('[O] Objective',o);
+    gap();
+    blk('[A] Assessment',ln(V.A||''));
+    gap();
+    blk('[P] Plan',ln(V.P||''));
+  }
+  return S;
+}
+
+function render(){
+  var S=build(), H=[], C=[], any=false;
+  S.forEach(function(b){
+    if(b.gap){H.push('');C.push('');return}
+    if(b.body.length) any=true;
+    if(mode==='first' && b.lab.indexOf('[C.C]')===0 || (mode==='first'&&['[Onset]','[Trauma Hx]','[Pain]','[Previous evaluation]'].indexOf(b.lab)>=0)){
+      // 인라인 라벨 (구성안 예시 형태)
+      if(b.body.length){
+        H.push('<span class="lab">'+esc(b.lab)+'</span> '+esc(b.body[0]));
+        C.push(b.lab+' '+b.body[0]);
+        b.body.slice(1).forEach(function(l){H.push(esc(l));C.push(l)});
+      }else{ H.push('<span class="lab">'+esc(b.lab)+'</span>'); C.push(b.lab); }
+      return;
+    }
+    H.push('<span class="lab">'+esc(b.lab)+'</span>'); C.push(b.lab);
+    b.body.forEach(function(l){H.push(esc(l));C.push(l)});
+  });
+  $('script').innerHTML=H.join('\n');
+  $('btnCopy').disabled=!any;
+  $('why').className=any?'why hide':'why';
+  var lv=$('live'); lv.classList.remove('flash'); void lv.offsetWidth; lv.classList.add('flash');
+  return C.join('\n').replace(/\n{3,}/g,'\n\n').trim();
+}
+function refresh(){render()}
+
+/* ---------- 모드 ---------- */
+function setMode(m){
+  mode=m; V={};
+  $('tFirst').classList.toggle('on',m==='first');
+  $('tFollow').classList.toggle('on',m==='follow');
+  $('tFirst').setAttribute('aria-selected',m==='first');
+  $('tFollow').setAttribute('aria-selected',m==='follow');
+  $('ptType').textContent=m==='first'?'초진':'재진';
+  $('scrTitle').textContent=m==='first'?'초진 진료 화면':'재진 SOAP 진료 화면';
+  $('scrDesc').textContent=m==='first'
+    ? '공통 초진 문진 · 질환별 핵심 질문 · Imaging Findings · Assessment · Plan'
+    : '재진 공통 문진 · Objective/P.E/Imaging · Assessment · Plan';
+  renderForm();
+}
+$('tFirst').addEventListener('click',function(){setMode('first')});
+$('tFollow').addEventListener('click',function(){setMode('follow')});
+
+/* ---------- 복사 ---------- */
+$('btnCopy').addEventListener('click',function(){
+  var t=render(), b=$('btnCopy');
+  var done=function(){toast('EMR 기록이 복사되었습니다')};
+  try{
+    if(navigator.clipboard&&navigator.clipboard.writeText)
+      navigator.clipboard.writeText(t).then(done,function(){fb(t,done)});
+    else fb(t,done);
+  }catch(e){fb(t,done)}
+});
+function toast(msg){
+  var wrap=document.getElementById('toasts');
+  var el=document.createElement('div');
+  el.className='toast';
+  el.innerHTML='<span class="ic">✓</span>'+msg;
+  wrap.appendChild(el);
+  setTimeout(function(){
+    el.classList.add('out');
+    setTimeout(function(){el.remove()},220);
+  },2000);
+}
+
+function fb(t,cb){
+  var ta=document.createElement('textarea');
+  ta.value=t; ta.style.position='fixed'; ta.style.opacity='0';
+  document.body.appendChild(ta); ta.select();
+  try{document.execCommand('copy');cb()}catch(e){alert('복사에 실패했습니다.')}
+  document.body.removeChild(ta);
+}
+
+/* ---------- 예시 ---------- */
+function setChip(f,vals){
+  var g=document.querySelector('.chips[data-f="'+f+'"]'); if(!g) return;
+  var arr=[].concat(vals);
+  g.querySelectorAll('.chip').forEach(function(c){
+    c.setAttribute('aria-pressed', arr.indexOf(c.textContent.trim())>=0?'true':'false')});
+  V[f]= g.dataset.t==='single' ? arr[0] : arr.slice();
+}
+function setTxt(f,v){var e=document.querySelector('[data-f="'+f+'"]'); if(e){e.value=v;V[f]=v}}
+function setNrs(f,n){
+  var e=document.querySelector('input.nrsin[data-f="'+f+'"]'); if(!e) return;
+  e.value=String(n); V[f]=String(n);
+}
+$('demo').addEventListener('click',function(){
+  if(mode==='first'){
+    setChip('q1','오른쪽'); setChip('q2',['통증','붓기']); setChip('q3','1–6주');
+    setChip('q4','다친 후 갑자기'); applyCond();
+    setChip('q4a','계단·내리막길'); setTxt('q4b','내리막길에서 무릎이 꺾임');
+    setNrs('q5',3); setChip('q6','안쪽'); setChip('q7','있음'); applyCond();
+    setChip('q7a','MRI'); setTxt('q7b','ACL 파열 및 반월상연골 손상, 수술 권유');
+    setChip('dis','ACL'); renderDis();
+    setChip('d_0','있음'); setChip('d_1','있음'); setChip('d_2','가끔');
+    setChip('im0','타병원'); setTxt('im3','ACL rupture\nMM posterior bucket handle tear');
+    setTxt('A',''); setTxt('P','');
+  }else{
+    setChip('r1','조금 좋아짐'); setChip('r2',['통증','소리·마찰감']); setNrs('r3',2);
+    setTxt('r4','통증은 많이 줄었으나 무릎 앞쪽에서 그득거리는 소리가 남.');
+    setTxt('o1','ROM 0-130, effusion(-), joint line tenderness(+)');
+    setTxt('o2','보행 양호, 계단 하행 시 경미한 불편감');
+    setTxt('o3','WNL'); setTxt('o4','Lateral meniscal deficiency, MFC cartilage lesion');
+    setTxt('A','S/P DLM subtotal meniscectomy + PFJ & MFC chondroplasty, Rt.\nLateral meniscal deficiency\nLateral compartment cartilage lesion');
+    setTxt('P','증상 지속 시 LMAT + cartilage repair 고려\n재활운동 지속\n3개월 후 외래 추적');
+  }
+  applyCond(); refresh();
+});
+$('clear').addEventListener('click',function(){setMode(mode)});
+
+setMode('follow');
+})();
+</script>
+</body>
+</html>
