@@ -13,12 +13,11 @@ h1.page{font-size:26px;font-weight:800;color:#0C1E6B;margin-bottom:8px}
 .phone{width:390px;height:844px;background:#fff;border-radius:44px;border:8px solid #101010;overflow:hidden;position:relative;display:flex;flex-direction:column;box-shadow:0 20px 50px rgba(12,30,107,.12)}
 .statusbar{display:flex;justify-content:space-between;padding:14px 26px 0;font-weight:600;font-size:14px}
 .scroll{flex:1;overflow:hidden;padding:0 16px}
-/* 락업 — 병원 로고 높이 32px 고정, 가로는 가용 폭이 상한 */
+/* 락업 — 병원 로고 높이 3.2rem 고정, 가로는 가용 폭이 상한 */
 .lockup{display:flex;align-items:center;gap:10px;min-width:0}
 .lockup .sym{height:32px;width:auto;flex:none;display:block}
 .hosp{max-height:32px;max-width:100%;width:auto;height:auto;flex:0 1 auto;min-width:0;display:block}
 .lk-x{color:#A8ADBA;font-size:16px;font-weight:300;flex:none}
-.lk-hosp{font-size:15px;font-weight:700;color:#101010;flex:0 1 auto;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .home-head{display:flex;align-items:center;gap:12px;padding:14px 0;min-height:64px}
 .home-head .lockup{flex:1 1 auto}
 .icon-btn{width:40px;height:40px;flex:none;border-radius:50%;border:0;background:#EEF3FF;display:grid;place-items:center;cursor:pointer}
@@ -54,7 +53,6 @@ h2{font-size:20px;font-weight:800;margin:30px 0 12px}
 .pf-hosp{background:#fff;border:1px solid #E5E7EC;border-radius:18px;padding:16px;margin-bottom:14px;display:flex;align-items:center;gap:12px;min-height:64px}
 .pf-hosp-label{font-size:15px;font-weight:500;color:#3A3F4B;flex:none}
 .pf-hosp-slot{flex:1 1 auto;min-width:0;display:flex;justify-content:flex-end}
-.pf-hosp-text{font-size:17px;font-weight:800;color:#0C1E6B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pf-group{background:#F3F4F7;border-radius:20px;padding:4px 16px;margin-bottom:12px}
 .pf-row{display:flex;justify-content:space-between;align-items:center;padding:16px 0;font-size:16px;font-weight:500}.pf-row span{color:#3A3F4B}
 .pf-badge{background:#C5D5FF;color:#1E5AF0;font-size:12px;border-radius:99px;padding:4px 10px;font-weight:700}
@@ -110,7 +108,7 @@ th{color:#555B68;font-weight:700;background:#F8F9FB}
   </div>
 </div></div>
 
-  <div class="opt"><div class="opt-h"><span class="n">F</span><b>프로필 · 「내 병원」</b></div>
+  <div class="opt"><div class="opt-h"><span class="n">A</span><b>프로필 · 「내 병원」</b></div>
 <div class="phone"><div class="statusbar"><span>09:41</span><span>▮▮▮ ◠ ▭</span></div>
   <div class="scroll pf">
     <div class="pf-head"><h1>홍길동</h1><span>›</span></div>
@@ -124,10 +122,10 @@ th{color:#555B68;font-weight:700;background:#F8F9FB}
   </div><div class="tabbar"><span>홈</span><span>운동</span><span>기록</span><span class="on">프로필</span></div>
 </div></div>
 
-  <div class="opt"><div class="opt-h"><span class="n">D</span><b>홈 · 긴 로고 (가용 폭 축소)</b></div>
+  <div class="opt"><div class="opt-h"><span class="n">D</span><b>홈 · 가용 폭 초과 로고 (축소)</b></div>
 <div class="phone"><div class="statusbar"><span>09:41</span><span>▮▮▮ ◠ ▭</span></div>
   <div class="scroll">
-    <div class="home-head"><div class="lockup"><img class="sym" data-src="sym" alt="액티메디"><span class="lk-x">×</span><span class="longlogo">LONG HOSPITAL LOGO 8:1</span></div><button class="icon-btn" aria-label="나의 회복 로드맵"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1E5AF0" stroke-width="1.8" stroke-linejoin="round"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/></svg></button></div>
+    <div class="home-head"><div class="lockup"><img class="sym" data-src="sym" alt="액티메디"><span class="lk-x">×</span><span class="longlogo">LONG HOSPITAL LOGO</span></div><button class="icon-btn" aria-label="나의 회복 로드맵"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1E5AF0" stroke-width="1.8" stroke-linejoin="round"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/></svg></button></div>
     <div class="hero">
       <div class="hero-top"><span class="tag">3일차 프로그램</span></div>
       <p class="hero-title">#부기 감소 #혈액 순환 촉진<br>#압통 최소화</p>
@@ -144,79 +142,7 @@ th{color:#555B68;font-weight:700;background:#F8F9FB}
 </div></div>
 </div>
 
-<div class="sec"><h3>AC-2 텍스트 폴백</h3></div>
-<div class="grid">
-  <div class="opt"><div class="opt-h"><span class="n">A′</span><b>홈 · 폴백</b></div>
-<div class="phone"><div class="statusbar"><span>09:41</span><span>▮▮▮ ◠ ▭</span></div>
-  <div class="scroll">
-    <div class="home-head"><div class="lockup"><img class="sym" data-src="sym" alt="액티메디"><span class="lk-x">×</span><span class="lk-hosp">서울점프정형외과</span></div><button class="icon-btn" aria-label="나의 회복 로드맵"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1E5AF0" stroke-width="1.8" stroke-linejoin="round"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/></svg></button></div>
-    <div class="hero">
-      <div class="hero-top"><span class="tag">3일차 프로그램</span></div>
-      <p class="hero-title">#부기 감소 #혈액 순환 촉진<br>#압통 최소화</p>
-      <p class="hero-sub">준비물 : 긴 막대기, 수건</p>
-      <div class="hero-foot"><span class="pill">◷ 약 32분</span><span class="cnt"><b>0</b>/7 완료</span><span class="go">→</span></div>
-    </div>
-    <h2>함께 챙겨보기</h2>
-    <div class="row"><span>상처 소독하기</span><em>1/12 일 완료</em><i>›</i></div>
-    <div class="row col"><span>보행 시 보조기 0° 고정하기</span><small>21일 남음</small><i>›</i></div>
-    <div class="row"><span>목발 사용하기 <small>21일 남음</small></span><i>›</i></div>
-    <div class="row"><span>오늘의 프로그램 운동하기</span><em><b>1</b>/7 개</em><i>›</i></div>
-    <div class="row"><span>식단 관리하기</span><em><b>100</b>/1600 Kcal</em><i>›</i></div>
-  </div><div class="tabbar"><span class="on">홈</span><span>운동</span><span>기록</span><span>프로필</span></div>
-</div></div>
-
-  <div class="opt"><div class="opt-h"><span class="n">E′</span><b>온보딩 · 폴백</b></div>
-<div class="phone"><div class="statusbar"><span>09:41</span><span>▮▮▮ ◠ ▭</span></div>
-  <div class="scroll ob">
-    <div class="ob-lock"><div class="lockup"><img class="sym" data-src="sym" alt="액티메디"><span class="lk-x">×</span><span class="lk-hosp">서울점프정형외과</span></div></div>
-    <h1 class="ob-title">○○○님, 환영해요 👋<br>정보를 확인해주세요</h1>
-    <label class="ob-label">휴대폰 번호</label><p class="ob-val">010-1234-5678</p>
-    <div class="ob-card">
-      <span class="ob-tag">● 진행할 프로그램</span>
-      <h3>무릎 기능 회복 프로그램</h3>
-      <hr><p class="ob-desc">반월상연골 봉합술 (방사형 파열) + 경골대퇴 관절 연골 수복술 운동 복합 플랜</p>
-      <div class="ob-grid"><div><small>시작일</small><b>2026.05.10</b></div><div><small>종료 예정일</small><b>2026.09.10</b></div><div><small>경과일</small><b>0일차 (D-day)</b></div><div><small>환측</small><b>오른쪽</b></div></div>
-    </div>
-    <div class="spacer"></div>
-    <button class="btn">확인</button>
-  </div>
-</div></div>
-
-  <div class="opt"><div class="opt-h"><span class="n">F′</span><b>프로필 · 폴백</b></div>
-<div class="phone"><div class="statusbar"><span>09:41</span><span>▮▮▮ ◠ ▭</span></div>
-  <div class="scroll pf">
-    <div class="pf-head"><h1>홍길동</h1><span>›</span></div>
-    <div class="pf-hosp"><span class="pf-hosp-label">내 병원</span><span class="pf-hosp-slot"><span class="pf-hosp-text">서울점프정형외과</span></span></div>
-    <div class="pf-group">
-      <div class="pf-row">북마크<span>›</span></div><div class="pf-row">공지사항<span>›</span></div><div class="pf-row">앱 사용 가이드<span>›</span></div><div class="pf-row">알림 설정<span>›</span></div>
-      <div class="pf-row">앱 버전 0.0.18<span class="pf-badge">최신 버전</span></div>
-    </div>
-    <div class="pf-group"><div class="pf-row">QR코드 스캔<span>›</span></div><div class="pf-row">로그아웃<span>›</span></div></div>
-    <p class="pf-foot">약관 및 정책 &nbsp;|&nbsp; 문의하기</p>
-  </div><div class="tabbar"><span>홈</span><span>운동</span><span>기록</span><span class="on">프로필</span></div>
-</div></div>
-
-  <div class="opt"><div class="opt-h"><span class="n">G′</span><b>홈 · 긴 병원명 말줄임</b></div>
-<div class="phone"><div class="statusbar"><span>09:41</span><span>▮▮▮ ◠ ▭</span></div>
-  <div class="scroll">
-    <div class="home-head"><div class="lockup"><img class="sym" data-src="sym" alt="액티메디"><span class="lk-x">×</span><span class="lk-hosp">서울점프정형외과의원 강남역센터</span></div><button class="icon-btn" aria-label="나의 회복 로드맵"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1E5AF0" stroke-width="1.8" stroke-linejoin="round"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/></svg></button></div>
-    <div class="hero">
-      <div class="hero-top"><span class="tag">3일차 프로그램</span></div>
-      <p class="hero-title">#부기 감소 #혈액 순환 촉진<br>#압통 최소화</p>
-      <p class="hero-sub">준비물 : 긴 막대기, 수건</p>
-      <div class="hero-foot"><span class="pill">◷ 약 32분</span><span class="cnt"><b>0</b>/7 완료</span><span class="go">→</span></div>
-    </div>
-    <h2>함께 챙겨보기</h2>
-    <div class="row"><span>상처 소독하기</span><em>1/12 일 완료</em><i>›</i></div>
-    <div class="row col"><span>보행 시 보조기 0° 고정하기</span><small>21일 남음</small><i>›</i></div>
-    <div class="row"><span>목발 사용하기 <small>21일 남음</small></span><i>›</i></div>
-    <div class="row"><span>오늘의 프로그램 운동하기</span><em><b>1</b>/7 개</em><i>›</i></div>
-    <div class="row"><span>식단 관리하기</span><em><b>100</b>/1600 Kcal</em><i>›</i></div>
-  </div><div class="tabbar"><span class="on">홈</span><span>운동</span><span>기록</span><span>프로필</span></div>
-</div></div>
-</div>
-
-<div class="sec"><h3>AC-3 심볼 단독 표시 — 로고 미등록 · 병원 정보 없음</h3></div>
+<div class="sec"><h3>AC-2 심볼 단독 표시 — 로고 미등록 · 로고 표시 불가</h3></div>
 <div class="grid">
   <div class="opt"><div class="opt-h"><span class="n">C</span><b>홈 · 심볼만</b></div>
 <div class="phone"><div class="statusbar"><span>09:41</span><span>▮▮▮ ◠ ▭</span></div>
@@ -273,19 +199,16 @@ th{color:#555B68;font-weight:700;background:#F8F9FB}
   <div class="spec-row">
     <div class="swatch"><label>로고 (AC-1)</label><div class="lockup"><img class="sym" data-src="sym" alt="액티메디"><span class="lk-x">×</span><img class="hosp" data-src="jump" alt="서울점프정형외과"></div></div>
     <div class="swatch"><label>로고 (AC-1)</label><div class="lockup"><img class="sym" data-src="sym" alt="액티메디"><span class="lk-x">×</span><img class="hosp" data-src="mjs" alt="명지병원 스포츠의학센터"></div></div>
-    <div class="swatch"><label>텍스트 폴백 (AC-2)</label><div class="lockup"><img class="sym" data-src="sym" alt="액티메디"><span class="lk-x">×</span><span class="lk-hosp">서울점프정형외과</span></div></div>
-    <div class="swatch"><label>심볼 단독 (AC-3)</label><div class="lockup"><img class="sym" data-src="sym" alt="액티메디 앳홈"></div></div>
+    <div class="swatch"><label>심볼 단독 (AC-2)</label><div class="lockup"><img class="sym" data-src="sym" alt="액티메디 앳홈"></div></div>
   </div>
   <table>
     <tr><th style="width:150px">항목</th><th>규칙</th></tr>
     <tr><td>구성</td><td>액티메디 심볼(공식 SVG, 무변형) + 「×」 + 병원 가로형 로고. 세 화면 동일. 앳홈 워드마크 없음.</td></tr>
-    <tr><td>높이</td><td>심볼·병원 로고 모두 32px. 홈·정보 확인·프로필 동일.</td></tr>
-    <tr><td>가로</td><td>고정 최대 폭 없음. 가용 폭이 상한.<br>홈·정보 확인 = 화면 폭 − (좌우 여백 + 심볼 + 「×」 + 간격 + 로드맵 아이콘 40px)<br>프로필 = 카드 폭 − (카드 좌우 여백 + 「내 병원」 라벨)</td></tr>
-    <tr><td>축소</td><td>가용 폭을 넘으면 비율을 유지한 채 축소. 이때 높이는 32px보다 작아진다.</td></tr>
-    <tr><td>텍스트 폴백</td><td>AC-2. 같은 자리에 병원명 텍스트, 「×」 유지. 가용 폭을 넘으면 한 줄 말줄임(…). 홈·온보딩 15px/700, 프로필 17px/800 네이비.</td></tr>
-    <tr><td>심볼 단독</td><td>AC-3. 로고 미등록 또는 병원 정보 확인 불가. 「×」·병원명 텍스트 없이 심볼 하나. 프로필은 「내 병원」 영역 미표시. 홈은 로드맵 아이콘·헤더 높이 유지.</td></tr>
-    <tr><td>로딩 중</td><td>로고 자리 확보. 도착 전 텍스트·심볼만으로 전환하지 않음.</td></tr>
-    <tr><td>홈 헤더</td><td>좌측 락업 + 우측 40px 원형 로드맵 아이콘 버튼. 「오늘」 제목·「나의 회복 로드맵 ›」 칩 삭제 (AC-4).</td></tr>
+    <tr><td>높이</td><td>심볼·병원 로고 모두 3.2rem. 홈·정보 확인·프로필 동일.</td></tr>
+    <tr><td>가로</td><td>고정 최대 폭 없음. 가용 폭이 상한.<br>홈·정보 확인 = 화면 폭 − (좌우 여백 + 심볼 + 「×」 + 간격 + 로드맵 아이콘 4.0rem)<br>프로필 = 카드 폭 − (카드 좌우 여백 + 「내 병원」 라벨)</td></tr>
+    <tr><td>축소</td><td>가용 폭을 넘으면 비율을 유지한 채 축소. 이때 높이는 3.2rem보다 작아진다.</td></tr>
+    <tr><td>심볼 단독</td><td>AC-2. 로고 미등록 또는 로고 표시 불가. 「×」·병원명 텍스트 없이 심볼 하나. 프로필은 「내 병원」 영역 미표시. 홈은 로드맵 아이콘·헤더 높이 유지.</td></tr>
+    <tr><td>홈 헤더</td><td>좌측 락업 + 우측 4.0rem 원형 로드맵 아이콘 버튼. 「오늘」 제목·「나의 회복 로드맵 ›」 칩 삭제 (AC-3).</td></tr>
   </table>
 </div>
 <script src="assets.js"></script>
