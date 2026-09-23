@@ -326,6 +326,23 @@
   .rp-empty .msg { font-size: 14px; color: var(--mute); }
   .rp-empty .sub { font-size: 12.5px; color: var(--mute-2); margin-top: 8px; line-height: 1.7; }
 
+  /* 불러오기 실패 — 환자용 공개 페이지의 오류 화면 구성을 따른다(제목 + 안내 + 다시 시도) */
+  .rp-error .ttl { font-size: 17px; font-weight: 700; color: var(--ink); }
+  .rp-error .desc { font-size: 13px; color: var(--mute); margin-top: 9px; line-height: 1.7; }
+  .rp-error .retry { margin-top: 18px; }
+  .rp-error .note {
+    margin-top: 22px; font-size: 12px; color: var(--new);
+    border-top: 1px dashed #f3d3e8; padding-top: 12px; line-height: 1.7;
+  }
+
+  /* 불러오는 중 */
+  .spin {
+    width: 30px; height: 30px; border-radius: 50%;
+    border: 3px solid var(--line); border-top-color: var(--blue);
+    animation: spin 0.8s linear infinite; margin: 0 auto 14px;
+  }
+  @keyframes spin { to { transform: rotate(360deg) } }
+
   /* 녹음 유지 안내 배너 (모달 안) */
   .keep {
     background: #111827; color: #fff; display: flex; align-items: center; gap: 10px;
@@ -353,12 +370,23 @@
     <button type="button" data-state="selected" aria-pressed="true">② 환자 선택</button>
     <button type="button" data-state="recording">③ 녹음 중</button>
   </div>
+  <span style="width:1px;height:20px;background:rgba(255,255,255,.18)"></span>
+  <span style="font-size:12px;color:#9ca3af">리포트 응답</span>
+  <div class="mock-states" role="group" aria-label="리포트 응답 상태">
+    <button type="button" data-report="ok" aria-pressed="true">정상</button>
+    <button type="button" data-report="none">검사 없음</button>
+    <button type="button" data-report="loading">불러오는 중</button>
+    <button type="button" data-report="error">불러오기 실패</button>
+  </div>
 </div>
 
 <div class="mock-note">
   <b>새로 만드는 것은 좌측 환자 선택 카드 안의 <span style="color:#d946a0">[검사 리포트]</span> 버튼 하나뿐입니다.</b>
   버튼을 누르면 환자 관리에서 쓰는 기존 검사 리포트 다이얼로그가 그대로 열립니다 —
   리포트 쪽 코드는 수정하지 않습니다. 녹음 중에 열어도 페이지 이동이 아니라 다이얼로그이므로 녹음이 유지됩니다.
+  <br>
+  <b>QA 의견 Q1 반영 — 우측 「리포트 응답」으로 4가지 상태를 확인할 수 있습니다.</b>
+  이 중 <span style="color:#d946a0;font-weight:700">불러오기 실패</span>는 현재 화면에 없는 상태로, 이번에 새로 만들자는 제안입니다.
 </div>
 
 <!-- ───────── 앱 헤더 ───────── -->
@@ -670,6 +698,29 @@
         </div>
       </div>
     </div>
+
+    <!-- 불러오는 중 -->
+    <div class="rp-empty" id="rpLoading" hidden>
+      <div>
+        <div class="spin"></div>
+        <div class="msg">불러오는 중입니다</div>
+      </div>
+    </div>
+
+    <!-- 불러오기 실패 (신규 제안) -->
+    <div class="rp-empty rp-error" id="rpError" hidden>
+      <div>
+        <div class="ttl">리포트를 불러올 수 없습니다</div>
+        <div class="desc">일시적인 오류일 수 있습니다. 잠시 후 다시 시도해 주세요.</div>
+        <div class="retry">
+          <button class="btn outline" type="button" id="retryBtn">다시 시도</button>
+        </div>
+        <div class="note">
+          지금은 이 화면이 없어 서버가 실패해도 <b>“해당 날짜의 검사 종합이 없습니다”</b>로 보입니다.<br>
+          의사가 서버 문제를 <b>“이 환자는 검사를 안 했다”</b>로 읽게 되는 것이 이번 제안의 이유입니다.
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -723,25 +774,50 @@
     if (isRec) { if (sec === 0) { sec = 201; } paintTimer(); startTimer(); }
     else { stopTimer(); }
 
-    Array.prototype.forEach.call(document.querySelectorAll('.mock-states button'), function (b) {
+    Array.prototype.forEach.call(document.querySelectorAll('.mock-states button[data-state]'), function (b) {
       b.setAttribute('aria-pressed', String(b.dataset.state === state));
     });
   }
-  Array.prototype.forEach.call(document.querySelectorAll('.mock-states button'), function (b) {
+  Array.prototype.forEach.call(document.querySelectorAll('.mock-states button[data-state]'), function (b) {
     b.addEventListener('click', function () { state = b.dataset.state; render(); });
   });
 
   $('startBtn').addEventListener('click', function () { state = 'recording'; render(); });
   $('stopBtn').addEventListener('click', function () { state = 'selected'; sec = 0; render(); });
 
+  /* 리포트 응답 상태 — 정상 / 검사 없음 / 불러오는 중 / 불러오기 실패 */
+  var reportState = 'ok';
+  function paintReport() {
+    $('rpHas').hidden = reportState !== 'ok';
+    $('rpNone').hidden = reportState !== 'none';
+    $('rpLoading').hidden = reportState !== 'loading';
+    $('rpError').hidden = reportState !== 'error';
+
+    // 리포트를 못 그리는 상태에서는 툴바 액션이 비활성이다(기존 화면 동작).
+    Array.prototype.forEach.call(document.querySelectorAll('.rp-actions button'), function (b) {
+      b.disabled = reportState !== 'ok';
+      b.className = reportState === 'ok' ? 'btn outline' : 'btn ghost-off';
+    });
+
+    Array.prototype.forEach.call(document.querySelectorAll('.mock-states button[data-report]'), function (b) {
+      b.setAttribute('aria-pressed', String(b.dataset.report === reportState));
+    });
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('.mock-states button[data-report]'), function (b) {
+    b.addEventListener('click', function () { reportState = b.dataset.report; paintReport(); });
+  });
+
+  /* 다시 시도 — 불러오는 중을 거쳐 다시 실패로(목업이므로 성공하지 않는다) */
+  $('retryBtn').addEventListener('click', function () {
+    reportState = 'loading';
+    paintReport();
+    setTimeout(function () { reportState = 'error'; paintReport(); }, 1200);
+  });
+
   /* 검사 리포트 다이얼로그 — 타이머를 멈추지 않는다 */
   var modal = $('reportModal');
   $('reportBtn').addEventListener('click', function () {
-    var hasResult = !window.confirm(
-      '목업 전환\n\n[확인] 당일 검사 결과가 없는 환자로 보기\n[취소] 당일 검사 결과가 있는 환자로 보기'
-    );
-    $('rpHas').hidden = !hasResult;
-    $('rpNone').hidden = hasResult;
+    paintReport();
     modal.hidden = false;
     document.body.style.overflow = 'hidden';
   });
@@ -755,6 +831,7 @@
   });
 
   render();
+  paintReport();
 })();
 </script>
 </body>
