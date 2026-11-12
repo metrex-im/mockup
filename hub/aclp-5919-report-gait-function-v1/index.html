@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>보행 기능 검사 — 종합 리포트 목업 v1</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/sun-typeface/SUIT@2/fonts/static/woff2/SUIT.css">
+<style>
+/* 피그마 「2026.11 Sprint 34」 종합 리포트(등척성 Humac · 동작분석 Exbody) 기준. 캔버스 1280px, 본문 1120px. FE 는 794px 로 비율 축소한다. */
+:root{--p50:#EBF5FF;--p100:#CCE5FF;--p500:#1467FF;--p600:#0651DB;--p700:#0D3F9C;--m50:#F6F7F8;--m100:#E8E9ED;--m200:#D2D4DA;--m300:#B4B7C0;--m400:#9398A5;--m500:#6F7685;--m700:#393C47;--m800:#24262E}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:SUIT,-apple-system,sans-serif;background:#E9EBEF;color:var(--m800);padding:32px 16px 96px}
+/* 검토 안내 영역 (리포트 밖) */
+.plan{max-width:1700px;margin:0 auto 24px;background:#fff;border-radius:20px;padding:28px 32px}
+.plan h1{font-size:26px;font-weight:800;margin-bottom:10px}.plan h3{font-size:16px;margin:16px 0 6px}
+.plan p,.plan li,.plan td,.plan th{font-size:14px;line-height:1.7;color:var(--m700)}.plan ul{padding-left:18px}
+.plan table{border-collapse:collapse;margin-top:6px}.plan th,.plan td{border:1px solid var(--m100);padding:4px 10px;text-align:left}.plan th{background:var(--m50)}
+.tag{display:inline-block;background:var(--p50);color:var(--p600);font-weight:700;font-size:12px;border-radius:6px;padding:2px 8px;margin-right:6px}
+.part{max-width:1700px;margin:28px auto 12px;font-size:18px;font-weight:800;color:var(--m700)}
+.row{display:flex;gap:24px;justify-content:center;align-items:flex-start;max-width:1700px;margin:0 auto 28px}
+.notes{width:360px;display:flex;flex-direction:column;gap:12px;position:sticky;top:16px}
+.note{background:#FFF8D6;border:1px solid #F1DE86;border-radius:12px;padding:12px 14px;font-size:13px;line-height:1.6;color:#4A3F12}
+.note b{display:block;margin-bottom:4px}.note.q{background:#FDECEC;border-color:#F3C2BF;color:#5A1F1B}
+/* A4 페이지 */
+.page{width:1280px;background:#fff;flex-shrink:0;padding:0 80px;display:flex;flex-direction:column}
+.page.a4{min-height:1770px}
+.ph{display:flex;justify-content:space-between;align-items:center;height:88px;border-bottom:1px solid var(--m100);font-size:15px}
+.ph .h{font-weight:700;color:var(--m800)}.ph .h span{font-weight:500;color:var(--m500);margin-left:8px}.ph .p{color:var(--m700)}
+.pbody{flex:1;display:flex;flex-direction:column;gap:40px;padding:32px 0}
+.pf{display:flex;justify-content:space-between;border-top:1px solid var(--m100);padding:24px 10px 32px;font-size:13px;color:var(--m400)}
+/* 섹션 제목 줄 */
+.sh{display:flex;justify-content:space-between;align-items:center;padding:0 10px;margin-bottom:16px}
+.sh .l{display:flex;align-items:center;gap:12px}.num{width:30px;height:30px;border-radius:8px;background:var(--p500);color:#fff;font-weight:700;font-size:18px;display:flex;align-items:center;justify-content:center}
+.sh .name{font-size:24px;font-weight:800}.sh .desc{font-size:15px;color:var(--m400)}
+/* 회색 블록 + 블록 머리 */
+.blk{background:var(--m50);border-radius:20px;padding:20px;display:flex;flex-direction:column;gap:16px}
+.blk+.blk{margin-top:12px}
+.bh{display:flex;align-items:center;gap:10px;padding:0 4px}.badge{background:var(--p700);color:#fff;font-weight:700;font-size:17px;border-radius:7px;padding:3px 8px}
+.bh .t{font-size:19px;font-weight:800}.bh .s{font-size:15px;color:var(--m400)}
+.wcard{background:#fff;border-radius:16px;padding:20px 22px;display:flex;flex-direction:column;gap:16px}
+.cols{display:flex;gap:24px}.cols>*{flex:1}
+/* 차이 상자 + 왼쪽/오른쪽 */
+.dr{display:flex;align-items:flex-end;gap:20px}
+.diff{background:var(--p50);border:1px solid var(--p100);border-radius:14px;padding:12px 16px 8px;min-width:150px}
+.diff.plain{background:none;border:0;padding:0;min-width:120px}
+.diff .lb{font-size:15px;font-weight:700;color:var(--p600)}.diff .v{font-size:36px;font-weight:800;color:var(--p600)}.diff .u{font-size:20px;font-weight:700;color:var(--p600);margin-left:4px}
+.diff.plain .v{font-size:28px}
+.sv{display:flex;gap:24px;padding-bottom:6px}.sv .lb{font-size:15px;font-weight:500;display:block}.sv .v{font-size:28px;font-weight:800}.sv .u{font-size:16px;color:var(--m300);margin-left:4px;font-weight:500}
+.aff{color:var(--m700)}.una{color:var(--m400)}.na{color:var(--m300)}
+/* 파란 강조 카드 (체성분 · 무릎 나이 왼쪽 카드) */
+.hero{background:var(--p50);border-radius:20px;padding:22px 24px;display:flex;flex-direction:column;gap:10px}
+.hero .t{font-size:20px;font-weight:800}.hero .k{display:flex;gap:40px}.hero .k .lb{font-size:16px;font-weight:700;display:block}.hero .k .v{font-size:40px;font-weight:800}.hero .k .u{font-size:20px;color:var(--m400);margin-left:4px}
+.blue{color:var(--p600)}.gray{color:var(--m400)}
+/* 굵은 값 묶음 (Exbody 「기울기」 줄) */
+.kv{display:flex;gap:48px}.kv .lb{font-size:16px;font-weight:700;color:var(--p600);display:block}.kv .v{font-size:36px;font-weight:800;color:var(--p600)}.kv .u{font-size:18px;color:var(--m400);margin-left:4px}
+/* 상세 표 */
+.tb{width:100%;border-collapse:collapse;font-size:16px}.tb th{font-size:14px;font-weight:600;color:var(--m500);text-align:left;padding:8px 12px;border-bottom:1px solid var(--m200)}
+.tb td{padding:12px;border-bottom:1px solid var(--m100);font-weight:700;color:var(--m800)}.tb td:first-child{font-weight:500;color:var(--m700)}.tb td .u{font-size:13px;color:var(--m400);font-weight:500;margin-left:4px}
+.tb td.d{color:var(--p600)}.tb td.g{color:var(--m400)}.tb tr:last-child td{border-bottom:0}
+/* 표지 요약 줄 */
+.cover-row{display:flex;border-bottom:1px solid var(--m100);padding:22px 0}
+.cover-row .o{width:60px;padding-left:20px;font-size:20px;font-weight:800;color:var(--p500)}
+.cover-row .mid{flex:1}.cover-row .nm{display:flex;gap:8px;align-items:center}.cover-row .nm b{font-size:20px}
+.rb{font-size:15px;font-weight:700;color:#fff;border-radius:4px;padding:1px 6px}.rb.m{background:var(--m400)}.rb.d{background:var(--p700)}
+.cover-row .ds{font-size:15px;color:var(--m400);margin-top:4px}
+.cover-row .vals{width:660px;display:flex;flex-direction:column;gap:14px}
+.line{display:flex;justify-content:flex-end}.cell{width:165px;display:flex;flex-direction:column;align-items:flex-end;padding:0 4px}
+.cell .lb{font-size:15px;color:var(--m400)}.cell .lb b{color:var(--m500)}.cell .v{font-size:28px;font-weight:800}.cell .u{font-size:18px;color:var(--m300);margin-left:4px;font-weight:500}
+.cell .v.d{color:var(--p600)}.cell .v.m{color:var(--m700)}.cell .v.g{color:var(--m400)}
+/* 헤드라인 카드 */
+.hc{background:var(--p50);border-radius:20px;padding:18px 24px 22px}.hc .top{display:flex;justify-content:space-between;font-size:16px;color:var(--m500);font-weight:700}.hc .top span{font-weight:500;color:var(--m400)}
+.hc p{font-size:21px;font-weight:800;color:var(--m700);margin-top:6px}.hc .b{color:var(--p600)}
+/* 추가 규칙 (보행 기능 · Hop·민첩성 목업) */
+.ct{font-size:18px;font-weight:800;color:var(--m800)}.ct span{font-size:14px;font-weight:500;color:var(--m400);margin-left:6px}
+.stk{display:flex;flex-direction:column;gap:14px;align-items:flex-start}
+.tb th.r,.tb td.r{text-align:right}.tb td.l{color:var(--m700)}.tb td.e{color:var(--m300);font-weight:500}
+.one .lb{font-size:15px;font-weight:700;color:var(--m700);display:block}.one .v{font-size:36px;font-weight:800;color:var(--m700)}.one .u{font-size:18px;color:var(--m400);margin-left:4px;font-weight:500}
+.cap{font-size:14px;color:var(--m400);line-height:1.5}
+</style>
+</head>
+<body>
+<section class="plan">
+<h1>보행 기능 검사 (OptoGait) — 종합 리포트 반영 목업</h1>
+<p><span class="tag">ACLP-5919</span><span class="tag">더미 데이터</span><span class="tag">메디스포</span>OptoGait Gait Report: 일정 거리를 걸을 때 양쪽 보폭 · 딛는 구간 비율 · 걸음 시간 · 속도를 Left/Right 평균과 결과지 Diff(%)로 기록합니다.</p>
+<h3>폼 → 리포트 지표</h3>
+<table><tr><th>폼 질문</th><th>리포트 위치</th><th>표시</th></tr>
+<tr><td>Step length · Stance phase · Speed — Left/Right Average, Diff</td><td>표지 + 상세</td><td>표지: Diff(%) 3칸 / 상세: 「핵심 지표」 카드 3장 (차이 상자 + 왼쪽·오른쪽)</td></tr>
+<tr><td>Swing phase · Single support · Load response · Pre-swing · Step time — Left/Right Average, Diff</td><td>상세</td><td>「구간별 지표」 표 (왼쪽 · 오른쪽 · 차이 %)</td></tr>
+<tr><td>Stride length · Total double support · Gait cycle · Cadence · Average speed — Average</td><td>상세</td><td>「보행 주기 지표」 표 (측정값 1열)</td></tr>
+<tr><td>모든 SD · CV</td><td>싣지 않음</td><td>-</td></tr></table>
+<h3>디자인 결정</h3><ul>
+<li>기존 「보행 분석」(Humac 등척성 카드와 같은 문법) 구성을 따라 <b>차이 카드 3장 + 표</b>로 했습니다. 카드 3장 = 표지 핵심 지표와 동일 항목이라 표지 → 상세가 바로 이어집니다.</li>
+<li>차이는 결과지 Diff(%)를 그대로 씁니다. Step length(cm)처럼 단위가 다른 지표도 차이는 %라서, 카드·표 모두 차이 옆에 % 단위를 붙였습니다.</li>
+<li>카드에 나온 3개는 표에서 뺐습니다(중복 제거). 표는 나머지 좌우 지표 5개만.</li>
+<li>OptoGait 용어(영문)를 그대로 쓰고, 옆에 회색으로 짧은 우리말 풀이를 붙였습니다.</li>
+<li>Load response 차이 칸은 빈 값 예시(회색 「-」, 단위 없음)입니다.</li></ul>
+<h3>헤드라인 문장 제안 (미정)</h3><ul><li>「한 걸음 길이는 왼쪽과 오른쪽이 <b>10.0%</b> 차이 납니다.」 — 기존 문장표 체계(건측보다 N 적습니다)와 달리 방향이 없는 문장입니다.</li></ul>
+</section>
+<div class="part">표지 — 종합 결과 요약 줄</div>
+<div class="row"><div class="page"><div style="padding:24px 0">
+<div class="cover-row"><span class="o">10</span><div class="mid"><div class="nm"><b>보행 기능 검사</b><span class="rb d">건측과 차이</span></div><p class="ds">걸을 때 양쪽 보폭 · 딛는 시간 · 속도를 봅니다</p></div>
+<div class="vals"><div class="line"><div class="cell"><span class="lb">Step length</span><span class="v d">10.0<span class="u">%</span></span></div><div class="cell"><span class="lb">Stance phase</span><span class="v d">4.1<span class="u">%</span></span></div><div class="cell"><span class="lb">Speed</span><span class="v d">6.7<span class="u">%</span></span></div></div></div></div>
+</div></div>
+<div class="notes"><div class="note"><b>표지 칸</b>정의(is_summary) 그대로 Step length · Stance phase · Speed의 Diff(%) 3칸. 값이 모두 %라 단위만으로는 지표 구분이 안 되어 라벨을 영문 원어로 두었습니다.</div>
+<div class="note q"><b>확인 — 섹션 번호</b>표지 번호 10은 임시입니다. 「보행 분석」 · 「인솔형」 뒤에 둘지 정해 주세요.</div></div></div>
+<div class="part">상세면</div>
+<div class="row"><div class="page a4"><div class="ph"><div class="h">메디스포<span>무릎 기능 검사 결과 리포트</span></div><div class="p">김액티 123456 · 왼쪽 · 2026-11-12</div></div><div class="pbody">
+<section>
+<div class="sh"><div class="l"><span class="num">10</span><span class="name">보행 기능 검사 (OptoGait)</span></div><span class="desc">걸을 때 양쪽 보폭 · 딛는 시간 · 속도를 봅니다</span></div>
+<div class="blk"><div class="bh"><span class="badge">좌우</span><span class="t">핵심 지표</span><span class="s">여러 걸음의 평균 · 차이는 결과지 Diff</span></div>
+<div class="cols"><div class="wcard"><div class="ct">Step length<span>한 걸음 길이</span></div><div class="stk"><div class="diff"><span class="lb">건측 · 환측 차이</span><div><span class="v">10.0</span><span class="u">%</span></div></div><div class="sv"><div><span class="lb aff">왼쪽</span><span class="v aff">52.3<span class="u">cm</span></span></div><div><span class="lb una">오른쪽</span><span class="v una">58.1<span class="u">cm</span></span></div></div></div></div><div class="wcard"><div class="ct">Stance phase<span>발을 딛고 있는 구간</span></div><div class="stk"><div class="diff"><span class="lb">건측 · 환측 차이</span><div><span class="v">4.1</span><span class="u">%</span></div></div><div class="sv"><div><span class="lb aff">왼쪽</span><span class="v aff">61.2<span class="u">%</span></span></div><div><span class="lb una">오른쪽</span><span class="v una">63.8<span class="u">%</span></span></div></div></div></div><div class="wcard"><div class="ct">Speed<span>걷는 속도</span></div><div class="stk"><div class="diff"><span class="lb">건측 · 환측 차이</span><div><span class="v">6.7</span><span class="u">%</span></div></div><div class="sv"><div><span class="lb aff">왼쪽</span><span class="v aff">0.98<span class="u">m/s</span></span></div><div><span class="lb una">오른쪽</span><span class="v una">1.05<span class="u">m/s</span></span></div></div></div></div></div></div>
+<div class="blk"><div class="bh"><span class="badge">좌우</span><span class="t">구간별 지표</span><span class="s">한 주기(100%) 안에서 각 구간이 차지하는 비율과 걸음 시간</span></div>
+<div class="wcard"><table class="tb"><tr><th>항목</th><th class="r">왼쪽</th><th class="r">오른쪽</th><th class="r">건측 · 환측 차이</th></tr><tr><td>Swing phase<span class="u">%</span><span class="u">· 발이 떠 있는 구간</span></td><td class="r l">38.8</td><td class="r g">36.2</td><td class="r d">6.9<span class="u">%</span></td></tr><tr><td>Single support<span class="u">%</span><span class="u">· 한 발로 지지하는 구간</span></td><td class="r l">36.0</td><td class="r g">38.9</td><td class="r d">7.7<span class="u">%</span></td></tr><tr><td>Load response<span class="u">%</span><span class="u">· 딛고 체중을 받는 구간</span></td><td class="r l">12.4</td><td class="r g">12.9</td><td class="r e">-</td></tr><tr><td>Pre-swing<span class="u">%</span><span class="u">· 발을 떼기 직전 구간</span></td><td class="r l">12.9</td><td class="r g">12.4</td><td class="r d">3.9<span class="u">%</span></td></tr><tr><td>Step time<span class="u">sec</span><span class="u">· 한 걸음 시간</span></td><td class="r l">0.61</td><td class="r g">0.56</td><td class="r d">8.2<span class="u">%</span></td></tr></table></div></div>
+<div class="blk"><div class="bh"><span class="badge">전체</span><span class="t">보행 주기 지표</span><span class="s">양쪽을 나누지 않은 평균</span></div>
+<div class="wcard"><table class="tb"><tr><th>항목</th><th class="r">측정값</th></tr><tr><td>Stride length<span class="u">cm</span><span class="u">· 두 걸음(한 주기) 길이</span></td><td class="r">110.4</td></tr><tr><td>Total double support<span class="u">%</span><span class="u">· 두 발로 지지하는 구간 합</span></td><td class="r">25.3</td></tr><tr><td>Gait cycle<span class="u">sec</span><span class="u">· 한 주기 시간</span></td><td class="r">1.16</td></tr><tr><td>Cadence<span class="u">steps/min</span><span class="u">· 분당 걸음 수</span></td><td class="r">103.4</td></tr><tr><td>Average speed<span class="u">m/s</span><span class="u">· 평균 속도</span></td><td class="r">1.01</td></tr></table></div></div>
+</section>
+</div><div class="pf"><span>본 리포트는 각 기기 측정값의 대표 지표를 정리한 참고 자료로, 의학적 진단을 대체하지 않습니다.</span><span>8 | 9</span></div></div>
+<div class="notes">
+<div class="note"><b>색 · 순서</b>OptoGait는 Left/Right로 저장됩니다. 순서는 항상 왼쪽 → 오른쪽, 색은 환측 쪽을 진하게(#393C47), 건측 쪽을 회색(#9398A5). 환측이 오른쪽인 환자는 색만 바뀝니다.</div>
+<div class="note"><b>구성 근거</b>핵심 3개는 카드, 나머지 좌우 5개와 전체 5개는 표로 나눠 한 페이지(A4)에 들어갑니다. SD · CV · 시기별 값은 싣지 않습니다.</div>
+<div class="note q"><b>확인 1 — Diff 정의</b>결과지 Diff(%)를 그대로 싣습니다. 장비가 부호(+/−)를 붙여 주는 경우 절댓값으로 보여 줄지 확인이 필요합니다(현재 규칙: 부호 없음).</div>
+<div class="note q"><b>확인 2 — 우리말 풀이</b>「발을 딛고 있는 구간」 등 풀이 문구를 임상팀이 검수해 주세요. 원어만 둘지도 결정 필요.</div>
+<div class="note q"><b>확인 3 — 중복 항목</b>Speed(좌우)와 Average speed(전체)가 함께 나옵니다. 둘 다 둘지, 표지의 Speed 하나로 충분한지.</div>
+<div class="note q"><b>확인 4 — 카드 지표 표 제외</b>카드 3개를 표에서 뺐습니다. 표 하나에서 8개를 모두 보고 싶다면 카드 아래 표에 다시 넣어도 페이지 안에 들어갑니다.</div></div></div>
+</body>
+</html>
