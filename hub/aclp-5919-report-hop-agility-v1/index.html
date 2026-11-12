@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hop·민첩성 검사 — 종합 리포트 목업 v1</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/sun-typeface/SUIT@2/fonts/static/woff2/SUIT.css">
+<style>
+/* 피그마 「2026.11 Sprint 34」 종합 리포트(등척성 Humac · 동작분석 Exbody) 기준. 캔버스 1280px, 본문 1120px. FE 는 794px 로 비율 축소한다. */
+:root{--p50:#EBF5FF;--p100:#CCE5FF;--p500:#1467FF;--p600:#0651DB;--p700:#0D3F9C;--m50:#F6F7F8;--m100:#E8E9ED;--m200:#D2D4DA;--m300:#B4B7C0;--m400:#9398A5;--m500:#6F7685;--m700:#393C47;--m800:#24262E}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:SUIT,-apple-system,sans-serif;background:#E9EBEF;color:var(--m800);padding:32px 16px 96px}
+/* 검토 안내 영역 (리포트 밖) */
+.plan{max-width:1700px;margin:0 auto 24px;background:#fff;border-radius:20px;padding:28px 32px}
+.plan h1{font-size:26px;font-weight:800;margin-bottom:10px}.plan h3{font-size:16px;margin:16px 0 6px}
+.plan p,.plan li,.plan td,.plan th{font-size:14px;line-height:1.7;color:var(--m700)}.plan ul{padding-left:18px}
+.plan table{border-collapse:collapse;margin-top:6px}.plan th,.plan td{border:1px solid var(--m100);padding:4px 10px;text-align:left}.plan th{background:var(--m50)}
+.tag{display:inline-block;background:var(--p50);color:var(--p600);font-weight:700;font-size:12px;border-radius:6px;padding:2px 8px;margin-right:6px}
+.part{max-width:1700px;margin:28px auto 12px;font-size:18px;font-weight:800;color:var(--m700)}
+.row{display:flex;gap:24px;justify-content:center;align-items:flex-start;max-width:1700px;margin:0 auto 28px}
+.notes{width:360px;display:flex;flex-direction:column;gap:12px;position:sticky;top:16px}
+.note{background:#FFF8D6;border:1px solid #F1DE86;border-radius:12px;padding:12px 14px;font-size:13px;line-height:1.6;color:#4A3F12}
+.note b{display:block;margin-bottom:4px}.note.q{background:#FDECEC;border-color:#F3C2BF;color:#5A1F1B}
+/* A4 페이지 */
+.page{width:1280px;background:#fff;flex-shrink:0;padding:0 80px;display:flex;flex-direction:column}
+.page.a4{min-height:1770px}
+.ph{display:flex;justify-content:space-between;align-items:center;height:88px;border-bottom:1px solid var(--m100);font-size:15px}
+.ph .h{font-weight:700;color:var(--m800)}.ph .h span{font-weight:500;color:var(--m500);margin-left:8px}.ph .p{color:var(--m700)}
+.pbody{flex:1;display:flex;flex-direction:column;gap:40px;padding:32px 0}
+.pf{display:flex;justify-content:space-between;border-top:1px solid var(--m100);padding:24px 10px 32px;font-size:13px;color:var(--m400)}
+/* 섹션 제목 줄 */
+.sh{display:flex;justify-content:space-between;align-items:center;padding:0 10px;margin-bottom:16px}
+.sh .l{display:flex;align-items:center;gap:12px}.num{width:30px;height:30px;border-radius:8px;background:var(--p500);color:#fff;font-weight:700;font-size:18px;display:flex;align-items:center;justify-content:center}
+.sh .name{font-size:24px;font-weight:800}.sh .desc{font-size:15px;color:var(--m400)}
+/* 회색 블록 + 블록 머리 */
+.blk{background:var(--m50);border-radius:20px;padding:20px;display:flex;flex-direction:column;gap:16px}
+.blk+.blk{margin-top:12px}
+.bh{display:flex;align-items:center;gap:10px;padding:0 4px}.badge{background:var(--p700);color:#fff;font-weight:700;font-size:17px;border-radius:7px;padding:3px 8px}
+.bh .t{font-size:19px;font-weight:800}.bh .s{font-size:15px;color:var(--m400)}
+.wcard{background:#fff;border-radius:16px;padding:20px 22px;display:flex;flex-direction:column;gap:16px}
+.cols{display:flex;gap:24px}.cols>*{flex:1}
+/* 차이 상자 + 왼쪽/오른쪽 */
+.dr{display:flex;align-items:flex-end;gap:20px}
+.diff{background:var(--p50);border:1px solid var(--p100);border-radius:14px;padding:12px 16px 8px;min-width:150px}
+.diff.plain{background:none;border:0;padding:0;min-width:120px}
+.diff .lb{font-size:15px;font-weight:700;color:var(--p600)}.diff .v{font-size:36px;font-weight:800;color:var(--p600)}.diff .u{font-size:20px;font-weight:700;color:var(--p600);margin-left:4px}
+.diff.plain .v{font-size:28px}
+.sv{display:flex;gap:24px;padding-bottom:6px}.sv .lb{font-size:15px;font-weight:500;display:block}.sv .v{font-size:28px;font-weight:800}.sv .u{font-size:16px;color:var(--m300);margin-left:4px;font-weight:500}
+.aff{color:var(--m700)}.una{color:var(--m400)}.na{color:var(--m300)}
+/* 파란 강조 카드 (체성분 · 무릎 나이 왼쪽 카드) */
+.hero{background:var(--p50);border-radius:20px;padding:22px 24px;display:flex;flex-direction:column;gap:10px}
+.hero .t{font-size:20px;font-weight:800}.hero .k{display:flex;gap:40px}.hero .k .lb{font-size:16px;font-weight:700;display:block}.hero .k .v{font-size:40px;font-weight:800}.hero .k .u{font-size:20px;color:var(--m400);margin-left:4px}
+.blue{color:var(--p600)}.gray{color:var(--m400)}
+/* 굵은 값 묶음 (Exbody 「기울기」 줄) */
+.kv{display:flex;gap:48px}.kv .lb{font-size:16px;font-weight:700;color:var(--p600);display:block}.kv .v{font-size:36px;font-weight:800;color:var(--p600)}.kv .u{font-size:18px;color:var(--m400);margin-left:4px}
+/* 상세 표 */
+.tb{width:100%;border-collapse:collapse;font-size:16px}.tb th{font-size:14px;font-weight:600;color:var(--m500);text-align:left;padding:8px 12px;border-bottom:1px solid var(--m200)}
+.tb td{padding:12px;border-bottom:1px solid var(--m100);font-weight:700;color:var(--m800)}.tb td:first-child{font-weight:500;color:var(--m700)}.tb td .u{font-size:13px;color:var(--m400);font-weight:500;margin-left:4px}
+.tb td.d{color:var(--p600)}.tb td.g{color:var(--m400)}.tb tr:last-child td{border-bottom:0}
+/* 표지 요약 줄 */
+.cover-row{display:flex;border-bottom:1px solid var(--m100);padding:22px 0}
+.cover-row .o{width:60px;padding-left:20px;font-size:20px;font-weight:800;color:var(--p500)}
+.cover-row .mid{flex:1}.cover-row .nm{display:flex;gap:8px;align-items:center}.cover-row .nm b{font-size:20px}
+.rb{font-size:15px;font-weight:700;color:#fff;border-radius:4px;padding:1px 6px}.rb.m{background:var(--m400)}.rb.d{background:var(--p700)}
+.cover-row .ds{font-size:15px;color:var(--m400);margin-top:4px}
+.cover-row .vals{width:660px;display:flex;flex-direction:column;gap:14px}
+.line{display:flex;justify-content:flex-end}.cell{width:165px;display:flex;flex-direction:column;align-items:flex-end;padding:0 4px}
+.cell .lb{font-size:15px;color:var(--m400)}.cell .lb b{color:var(--m500)}.cell .v{font-size:28px;font-weight:800}.cell .u{font-size:18px;color:var(--m300);margin-left:4px;font-weight:500}
+.cell .v.d{color:var(--p600)}.cell .v.m{color:var(--m700)}.cell .v.g{color:var(--m400)}
+/* 헤드라인 카드 */
+.hc{background:var(--p50);border-radius:20px;padding:18px 24px 22px}.hc .top{display:flex;justify-content:space-between;font-size:16px;color:var(--m500);font-weight:700}.hc .top span{font-weight:500;color:var(--m400)}
+.hc p{font-size:21px;font-weight:800;color:var(--m700);margin-top:6px}.hc .b{color:var(--p600)}
+/* 추가 규칙 (보행 기능 · Hop·민첩성 목업) */
+.ct{font-size:18px;font-weight:800;color:var(--m800)}.ct span{font-size:14px;font-weight:500;color:var(--m400);margin-left:6px}
+.stk{display:flex;flex-direction:column;gap:14px;align-items:flex-start}
+.tb th.r,.tb td.r{text-align:right}.tb td.l{color:var(--m700)}.tb td.e{color:var(--m300);font-weight:500}
+.one .lb{font-size:15px;font-weight:700;color:var(--m700);display:block}.one .v{font-size:36px;font-weight:800;color:var(--m700)}.one .u{font-size:18px;color:var(--m400);margin-left:4px;font-weight:500}
+.cap{font-size:14px;color:var(--m400);line-height:1.5}
+</style>
+</head>
+<body>
+<section class="plan">
+<h1>Hop·민첩성 검사 — 종합 리포트 반영 목업</h1>
+<p><span class="tag">ACLP-5919</span><span class="tag">더미 데이터</span><span class="tag">서울인화스포츠마취통증의학과의원</span>한 발 뛰기 거리(Hop 3종) · 30초 좌우 뛰기 횟수 · 방향 전환 달리기 시간으로 양쪽 다리의 기능 차이를 봅니다.</p>
+<h3>폼 → 리포트 지표</h3>
+<table><tr><th>폼 질문</th><th>리포트 위치</th><th>표시</th></tr>
+<tr><td>Single / Triple / Crossover Hop for Distance — 환측 최고값 · 건측 최고값 (cm)</td><td>표지 + 상세</td><td>표지: |건측 − 환측| cm 3칸 / 상세: 카드 3장 (차이 상자 + 왼쪽·오른쪽)</td></tr>
+<tr><td>Hop 1·2·3차</td><td>싣지 않음</td><td>-</td></tr>
+<tr><td>Side Hop (30초) — 반복 횟수 환측 · 건측 (회)</td><td>상세</td><td>Hop 블록 안 가로 카드 (차이 회 + 왼쪽·오른쪽)</td></tr>
+<tr><td>Pro Agility (5-10-5) — 환측 방향 · 건측 방향 회전 시간 (초)</td><td>상세</td><td>민첩성 블록 가로 카드 (차이 초 + 왼쪽 방향·오른쪽 방향)</td></tr>
+<tr><td>T-test 완주 시간 · Side Step 시간 (초)</td><td>상세</td><td>단일 값 카드 2장 (양쪽 구분 없음, 진한 회색)</td></tr></table>
+<h3>디자인 결정</h3><ul>
+<li>정의서의 표 2개(「Hop 검사」 · 「민첩성 검사」)를 그대로 블록 2개로 옮겼습니다.</li>
+<li>Hop 3종은 같은 단위(cm) · 같은 구조라 카드 3장을 나란히, Side Hop은 단위(회)가 달라 같은 블록 안 가로 카드로 분리했습니다.</li>
+<li>민첩성 블록 머리에 「시간이 짧을수록 빨리 마친 기록입니다」만 중립적으로 적었습니다(판정 문구 없음).</li>
+<li>Pro Agility는 폼이 「환측 방향 / 건측 방향 회전」이라 리포트에선 환측 = 왼쪽으로 바꿔 「왼쪽 방향 회전 · 오른쪽 방향 회전」으로 표기했습니다.</li></ul>
+<h3>헤드라인 문장 제안 (미정)</h3><ul><li>「한 발로 멀리 뛴 거리는 건측보다 <b>21cm</b> 짧습니다.」 — 표지 피그마의 「근육이 걷고 뛰는 힘」 카드 문장 형식과 같습니다.</li></ul>
+</section>
+<div class="part">표지 — 종합 결과 요약 줄</div>
+<div class="row"><div class="page"><div style="padding:24px 0">
+<div class="cover-row"><span class="o">9</span><div class="mid"><div class="nm"><b>Hop·민첩성 검사</b><span class="rb d">건측과 차이</span></div><p class="ds">한 발로 뛴 거리와 방향을 바꾸며 움직인 기록을 봅니다</p></div>
+<div class="vals"><div class="line"><div class="cell"><span class="lb">Single Hop</span><span class="v d">21<span class="u">cm</span></span></div><div class="cell"><span class="lb">Triple Hop</span><span class="v d">48<span class="u">cm</span></span></div><div class="cell"><span class="lb">Crossover Hop</span><span class="v d">35<span class="u">cm</span></span></div></div></div></div>
+</div></div>
+<div class="notes"><div class="note"><b>표지 칸</b>Hop 3종의 |건측 − 환측| (cm). Side Hop · 민첩성은 표지에 싣지 않습니다(is_summary 없음).</div>
+<div class="note q"><b>확인 — 섹션 번호</b>번호 9는 임시입니다.</div></div></div>
+<div class="part">상세면</div>
+<div class="row"><div class="page a4"><div class="ph"><div class="h">서울인화스포츠마취통증의학과의원<span>무릎 기능 검사 결과 리포트</span></div><div class="p">김액티 123456 · 왼쪽 · 2026-11-12</div></div><div class="pbody">
+<section>
+<div class="sh"><div class="l"><span class="num">9</span><span class="name">Hop·민첩성 검사</span></div><span class="desc">한 발로 뛴 거리와 방향을 바꾸며 움직인 기록을 봅니다</span></div>
+<div class="blk"><div class="bh"><span class="badge">Hop</span><span class="t">한 발 뛰기 거리</span><span class="s">3회 중 최고값</span></div>
+<div class="cols"><div class="wcard"><div class="ct">Single Hop<span>한 발로 한 번 멀리 뛰기</span></div><div class="stk"><div class="diff"><span class="lb">건측 · 환측 차이</span><div><span class="v">21</span><span class="u">cm</span></div></div><div class="sv"><div><span class="lb aff">왼쪽</span><span class="v aff">148<span class="u">cm</span></span></div><div><span class="lb una">오른쪽</span><span class="v una">169<span class="u">cm</span></span></div></div></div></div><div class="wcard"><div class="ct">Triple Hop<span>한 발로 세 번 이어 뛰기</span></div><div class="stk"><div class="diff"><span class="lb">건측 · 환측 차이</span><div><span class="v">48</span><span class="u">cm</span></div></div><div class="sv"><div><span class="lb aff">왼쪽</span><span class="v aff">452<span class="u">cm</span></span></div><div><span class="lb una">오른쪽</span><span class="v una">500<span class="u">cm</span></span></div></div></div></div><div class="wcard"><div class="ct">Crossover Hop<span>선을 가로지르며 세 번 뛰기</span></div><div class="stk"><div class="diff"><span class="lb">건측 · 환측 차이</span><div><span class="v">35</span><span class="u">cm</span></div></div><div class="sv"><div><span class="lb aff">왼쪽</span><span class="v aff">410<span class="u">cm</span></span></div><div><span class="lb una">오른쪽</span><span class="v una">445<span class="u">cm</span></span></div></div></div></div></div>
+<div class="wcard"><div class="ct">Side Hop (30초)<span>30초 동안 한 발로 좌우로 뛴 횟수</span></div><div class="dr"><div class="diff"><span class="lb">건측 · 환측 차이</span><div><span class="v">8</span><span class="u">회</span></div></div><div class="sv"><div><span class="lb aff">왼쪽</span><span class="v aff">28<span class="u">회</span></span></div><div><span class="lb una">오른쪽</span><span class="v una">36<span class="u">회</span></span></div></div></div></div></div>
+<div class="blk"><div class="bh"><span class="badge">민첩성</span><span class="t">방향 전환 시간</span><span class="s">시간이 짧을수록 빨리 마친 기록입니다</span></div>
+<div class="wcard"><div class="ct">Pro Agility (5-10-5)<span>방향을 바꿔 왕복한 시간</span></div><div class="dr"><div class="diff"><span class="lb">건측 · 환측 차이</span><div><span class="v">0.34</span><span class="u">초</span></div></div><div class="sv"><div><span class="lb aff">왼쪽 방향 회전</span><span class="v aff">5.42<span class="u">초</span></span></div><div><span class="lb una">오른쪽 방향 회전</span><span class="v una">5.08<span class="u">초</span></span></div></div></div></div>
+<div class="cols"><div class="wcard"><div class="ct">T-test<span>T자 코스를 앞 · 옆 · 뒤로 이동</span></div><div class="one"><span class="lb">완주 시간</span><span class="v">11.36</span><span class="u">초</span></div></div><div class="wcard"><div class="ct">Side Step<span>옆으로 딛는 이동</span></div><div class="one"><span class="lb">완주 시간</span><span class="v">9.82</span><span class="u">초</span></div></div></div></div>
+</section>
+</div><div class="pf"><span>본 리포트는 각 기기 측정값의 대표 지표를 정리한 참고 자료로, 의학적 진단을 대체하지 않습니다.</span><span>7 | 9</span></div></div>
+<div class="notes">
+<div class="note"><b>값 규칙</b>Hop은 3회 중 최고값만(폼 계산값) 싣고 시기별 값은 싣지 않습니다. 차이는 결과지 비교값이 없어 |건측 − 환측|을 같은 단위로 계산합니다.</div>
+<div class="note"><b>시간 지표</b>Pro Agility · T-test · Side Step은 값이 작을수록 빨리 마친 기록이라 블록 설명에만 그 사실을 적고, 어느 쪽이 나은지 판정하지 않습니다.</div>
+<div class="note q"><b>확인 1 — LSI 표기</b>Hop 검사는 임상에서 LSI(환측 ÷ 건측 × 100%)로 보는 경우가 많습니다(예: Single Hop 148 ÷ 169 = 87.6%). 현재 정책상 리포트 계산값을 늘리지 않아 본 설계에서는 뺐습니다. 넣는다면 차이 상자 아래 작은 값으로 붙이는 방식을 제안합니다.</div>
+<div class="note q"><b>확인 2 — Pro Agility 방향 표기</b>「환측 방향 회전」을 「왼쪽 방향 회전」으로 바꿔 적었습니다. 회전하는 쪽(딛고 도는 발)의 기준이 폼 입력자마다 같은지 확인이 필요합니다.</div>
+<div class="note q"><b>확인 3 — T-test · Side Step</b>양쪽 구분이 없는 값이라 차이가 없습니다. 카드 2장 대신 한 줄 표로 줄여도 됩니다.</div>
+<div class="note q"><b>확인 4 — 빈 값</b>한쪽만 기록되면 그 칸은 회색 「-」(단위 없음), 차이도 「-」. 검사 전체를 하지 않았으면 해당 카드 자체를 뺍니다.</div></div></div>
+</body>
+</html>
