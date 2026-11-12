@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>정적 균형 검사 (HUMAC) — 종합 리포트 목업 v1</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/sun-typeface/SUIT@2/fonts/static/woff2/SUIT.css">
+<style>
+/* 피그마 「2026.11 Sprint 34」 종합 리포트(등척성 Humac · 동작분석 Exbody) 기준. 캔버스 1280px, 본문 1120px. FE 는 794px 로 비율 축소한다. */
+:root{--p50:#EBF5FF;--p100:#CCE5FF;--p500:#1467FF;--p600:#0651DB;--p700:#0D3F9C;--m50:#F6F7F8;--m100:#E8E9ED;--m200:#D2D4DA;--m300:#B4B7C0;--m400:#9398A5;--m500:#6F7685;--m700:#393C47;--m800:#24262E}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:SUIT,-apple-system,sans-serif;background:#E9EBEF;color:var(--m800);padding:32px 16px 96px}
+/* 검토 안내 영역 (리포트 밖) */
+.plan{max-width:1700px;margin:0 auto 24px;background:#fff;border-radius:20px;padding:28px 32px}
+.plan h1{font-size:26px;font-weight:800;margin-bottom:10px}.plan h3{font-size:16px;margin:16px 0 6px}
+.plan p,.plan li,.plan td,.plan th{font-size:14px;line-height:1.7;color:var(--m700)}.plan ul{padding-left:18px}
+.plan table{border-collapse:collapse;margin-top:6px}.plan th,.plan td{border:1px solid var(--m100);padding:4px 10px;text-align:left}.plan th{background:var(--m50)}
+.tag{display:inline-block;background:var(--p50);color:var(--p600);font-weight:700;font-size:12px;border-radius:6px;padding:2px 8px;margin-right:6px}
+.part{max-width:1700px;margin:28px auto 12px;font-size:18px;font-weight:800;color:var(--m700)}
+.row{display:flex;gap:24px;justify-content:center;align-items:flex-start;max-width:1700px;margin:0 auto 28px}
+.notes{width:360px;display:flex;flex-direction:column;gap:12px;position:sticky;top:16px}
+.note{background:#FFF8D6;border:1px solid #F1DE86;border-radius:12px;padding:12px 14px;font-size:13px;line-height:1.6;color:#4A3F12}
+.note b{display:block;margin-bottom:4px}.note.q{background:#FDECEC;border-color:#F3C2BF;color:#5A1F1B}
+/* A4 페이지 */
+.page{width:1280px;background:#fff;flex-shrink:0;padding:0 80px;display:flex;flex-direction:column}
+.page.a4{min-height:1770px}
+.ph{display:flex;justify-content:space-between;align-items:center;height:88px;border-bottom:1px solid var(--m100);font-size:15px}
+.ph .h{font-weight:700;color:var(--m800)}.ph .h span{font-weight:500;color:var(--m500);margin-left:8px}.ph .p{color:var(--m700)}
+.pbody{flex:1;display:flex;flex-direction:column;gap:40px;padding:32px 0}
+.pf{display:flex;justify-content:space-between;border-top:1px solid var(--m100);padding:24px 10px 32px;font-size:13px;color:var(--m400)}
+/* 섹션 제목 줄 */
+.sh{display:flex;justify-content:space-between;align-items:center;padding:0 10px;margin-bottom:16px}
+.sh .l{display:flex;align-items:center;gap:12px}.num{width:30px;height:30px;border-radius:8px;background:var(--p500);color:#fff;font-weight:700;font-size:18px;display:flex;align-items:center;justify-content:center}
+.sh .name{font-size:24px;font-weight:800}.sh .desc{font-size:15px;color:var(--m400)}
+/* 회색 블록 + 블록 머리 */
+.blk{background:var(--m50);border-radius:20px;padding:20px;display:flex;flex-direction:column;gap:16px}
+.blk+.blk{margin-top:12px}
+.bh{display:flex;align-items:center;gap:10px;padding:0 4px}.badge{background:var(--p700);color:#fff;font-weight:700;font-size:17px;border-radius:7px;padding:3px 8px}
+.bh .t{font-size:19px;font-weight:800}.bh .s{font-size:15px;color:var(--m400)}
+.wcard{background:#fff;border-radius:16px;padding:20px 22px;display:flex;flex-direction:column;gap:16px}
+.cols{display:flex;gap:24px}.cols>*{flex:1}
+/* 차이 상자 + 왼쪽/오른쪽 */
+.dr{display:flex;align-items:flex-end;gap:20px}
+.diff{background:var(--p50);border:1px solid var(--p100);border-radius:14px;padding:12px 16px 8px;min-width:150px}
+.diff.plain{background:none;border:0;padding:0;min-width:120px}
+.diff .lb{font-size:15px;font-weight:700;color:var(--p600)}.diff .v{font-size:36px;font-weight:800;color:var(--p600)}.diff .u{font-size:20px;font-weight:700;color:var(--p600);margin-left:4px}
+.diff.plain .v{font-size:28px}
+.sv{display:flex;gap:24px;padding-bottom:6px}.sv .lb{font-size:15px;font-weight:500;display:block}.sv .v{font-size:28px;font-weight:800}.sv .u{font-size:16px;color:var(--m300);margin-left:4px;font-weight:500}
+.aff{color:var(--m700)}.una{color:var(--m400)}.na{color:var(--m300)}
+/* 파란 강조 카드 (체성분 · 무릎 나이 왼쪽 카드) */
+.hero{background:var(--p50);border-radius:20px;padding:22px 24px;display:flex;flex-direction:column;gap:10px}
+.hero .t{font-size:20px;font-weight:800}.hero .k{display:flex;gap:40px}.hero .k .lb{font-size:16px;font-weight:700;display:block}.hero .k .v{font-size:40px;font-weight:800}.hero .k .u{font-size:20px;color:var(--m400);margin-left:4px}
+.blue{color:var(--p600)}.gray{color:var(--m400)}
+/* 굵은 값 묶음 (Exbody 「기울기」 줄) */
+.kv{display:flex;gap:48px}.kv .lb{font-size:16px;font-weight:700;color:var(--p600);display:block}.kv .v{font-size:36px;font-weight:800;color:var(--p600)}.kv .u{font-size:18px;color:var(--m400);margin-left:4px}
+/* 상세 표 */
+.tb{width:100%;border-collapse:collapse;font-size:16px}.tb th{font-size:14px;font-weight:600;color:var(--m500);text-align:left;padding:8px 12px;border-bottom:1px solid var(--m200)}
+.tb td{padding:12px;border-bottom:1px solid var(--m100);font-weight:700;color:var(--m800)}.tb td:first-child{font-weight:500;color:var(--m700)}.tb td .u{font-size:13px;color:var(--m400);font-weight:500;margin-left:4px}
+.tb td.d{color:var(--p600)}.tb td.g{color:var(--m400)}.tb tr:last-child td{border-bottom:0}
+/* 표지 요약 줄 */
+.cover-row{display:flex;border-bottom:1px solid var(--m100);padding:22px 0}
+.cover-row .o{width:60px;padding-left:20px;font-size:20px;font-weight:800;color:var(--p500)}
+.cover-row .mid{flex:1}.cover-row .nm{display:flex;gap:8px;align-items:center}.cover-row .nm b{font-size:20px}
+.rb{font-size:15px;font-weight:700;color:#fff;border-radius:4px;padding:1px 6px}.rb.m{background:var(--m400)}.rb.d{background:var(--p700)}
+.cover-row .ds{font-size:15px;color:var(--m400);margin-top:4px}
+.cover-row .vals{width:660px;display:flex;flex-direction:column;gap:14px}
+.line{display:flex;justify-content:flex-end}.cell{width:165px;display:flex;flex-direction:column;align-items:flex-end;padding:0 4px}
+.cell .lb{font-size:15px;color:var(--m400)}.cell .lb b{color:var(--m500)}.cell .v{font-size:28px;font-weight:800}.cell .u{font-size:18px;color:var(--m300);margin-left:4px;font-weight:500}
+.cell .v.d{color:var(--p600)}.cell .v.m{color:var(--m700)}.cell .v.g{color:var(--m400)}
+/* 헤드라인 카드 */
+.hc{background:var(--p50);border-radius:20px;padding:18px 24px 22px}.hc .top{display:flex;justify-content:space-between;font-size:16px;color:var(--m500);font-weight:700}.hc .top span{font-weight:500;color:var(--m400)}
+.hc p{font-size:21px;font-weight:800;color:var(--m700);margin-top:6px}.hc .b{color:var(--p600)}
+/* ---- 이 검사 전용 추가 규칙 ---- */
+.it{display:flex;align-items:baseline;gap:8px}.it b{font-size:18px;font-weight:800;color:var(--m800)}.it span{font-size:15px;color:var(--m400)}
+.vsplit{display:flex}.vsplit>*{flex:1;display:flex;flex-direction:column;gap:14px}.vsplit>*+*{border-left:1px solid var(--m100);padding-left:28px;margin-left:28px}
+.diff.na{background:var(--m50);border-color:var(--m100)}.diff.na .v{color:var(--m300)}
+.ex{font-size:14px;color:var(--m400);line-height:1.5}
+.tb.sm td{padding:9px 12px;font-size:15px}.tb.sm th{padding:6px 12px;font-size:13px}.tb th.r,.tb td.r{text-align:right}
+.tb td.na{color:var(--m300)}
+.cols>.blk+.blk,.cols>.wcard{margin-top:0}
+</style>
+</head>
+<body>
+<section class="plan">
+  <h1>정적 균형 검사 (HUMAC) — 종합 리포트 반영 목업</h1>
+  <p><span class="tag">ACLP-5919</span><span class="tag">더미 데이터</span><span class="tag">메디스포</span>한 발로 서 있는 동안 몸 중심이 움직인 정도를 눈 뜸/감음 × 발판 고정/움직임 4가지 조건에서 양쪽 다리로 비교합니다.</p>
+  <h3>폼 → 리포트 지표</h3>
+  <table>
+    <tr><th>폼 질문 (조건 4개 각각)</th><th>리포트 위치</th><th>표시</th></tr>
+    <tr><td>Involved / UnInvolved · Stability Score (%)</td><td>상세</td><td>왼쪽 진회색 · 오른쪽 회색 큰 값</td></tr>
+    <tr><td>└ |건측 − 환측| (계산, %)</td><td>표지 + 상세</td><td>「건측·환측 차이」 파란 값, 표지는 조건별 1칸씩 4칸</td></tr>
+    <tr><td>Involved / UnInvolved · Path Length (cm)</td><td>상세</td><td>카드 아래 표 1행 (왼쪽 · 오른쪽 · 차이)</td></tr>
+    <tr><td>Involved / UnInvolved · Average Velocity (cm/s)</td><td>상세</td><td>카드 아래 표 1행</td></tr>
+  </table>
+  <h3>디자인 결정</h3>
+  <ul>
+    <li>눈 조건으로 회색 블록 2개(배지 「눈 뜸」 「눈 감음」), 블록 안에 발판 조건 흰 카드 2장을 좌우로 둡니다 → 2×2 가 한눈에 보입니다.</li>
+    <li>카드마다 Humac 확정 패턴(차이 상자 + 왼쪽/오른쪽)으로 Stability Score 를 크게, Path Length · Average Velocity 는 「상세 지표」 표로 작게 둡니다(Exbody 상세 패턴).</li>
+    <li>한쪽 값이 없는 조건은 그 칸만 회색 「-」, 차이 상자도 회색 「-」. 조건 자체를 안 했으면 카드째 없음(남은 카드는 반 폭 유지).</li>
+    <li>「Stability Score」는 영문 그대로 둡니다. 한글 번역어가 금지어(「안정」)와 겹칩니다.</li>
+  </ul>
+  <h3>헤드라인 문장 제안 (미정)</h3>
+  <ul><li>「눈을 뜨고 고정 발판에 한 발로 섰을 때 Stability Score 는 건측보다 <b>6%</b> 낮습니다.」 — 4조건 중 어느 것을 쓸지, 4개를 다 쓸지 결정 필요.</li></ul>
+</section>
+
+<div class="part">표지 — 종합 결과 요약 줄</div>
+<div class="row">
+  <div class="page"><div style="padding:24px 0">
+    <div class="cover-row">
+      <span class="o">1</span>
+      <div class="mid"><div class="nm"><b>정적 균형 검사</b><span class="rb d">건측과 차이</span></div><p class="ds">한 발로 서 있는 동안 몸 중심이 움직인 정도를 봅니다</p></div>
+      <div class="vals"><div class="line">
+        <div class="cell"><span class="lb"><b>눈 뜸</b> 고정</span><span class="v d">6<span class="u">%</span></span></div>
+        <div class="cell"><span class="lb"><b>눈 뜸</b> 움직임</span><span class="v d">8<span class="u">%</span></span></div>
+        <div class="cell"><span class="lb"><b>눈 감음</b> 고정</span><span class="v d">5<span class="u">%</span></span></div>
+        <div class="cell"><span class="lb"><b>눈 감음</b> 움직임</span><span class="v na">-</span></div>
+      </div></div>
+    </div>
+  </div></div>
+  <div class="notes">
+    <div class="note"><b>표지 값</b>조건별 Stability Score 차이 4칸(한 줄 최대 4칸). 칸 이름은 「눈 조건(굵게) + 발판 조건」으로 Exbody 「정면 어깨」 표기를 따릅니다. 「눈 감음 · 움직임」은 건측 값이 없어 「-」.</div>
+    <div class="note q"><b>확인 — 차이 단위</b>Stability Score 가 % 라 차이도 「%」로 두었습니다(같은 단위 원칙). 확정 표지의 보행분석은 %끼리의 차이를 「%p」로 씁니다. 맞출지 결정 필요.</div>
+  </div>
+</div>
+
+<div class="part">상세면</div>
+<div class="row">
+  <div class="page a4">
+    <div class="ph"><div class="h">메디스포<span>무릎 기능 검사 결과 리포트</span></div><div class="p">김액티 123456 · 왼쪽 · 2026-11-12</div></div>
+    <div class="pbody">
+      <section>
+        <div class="sh"><div class="l"><span class="num">1</span><span class="name">정적 균형 검사</span></div><span class="desc">한 발로 서 있는 동안 몸 중심이 움직인 정도를 봅니다</span></div>
+        <div class="blk">
+          <div class="bh"><span class="badge">눈 뜸</span><span class="t">Eyes Open</span><span class="s">눈을 뜨고 한 발로 서기</span></div>
+          <div class="cols">
+            <div class="wcard">
+              <div class="it"><b>고정 발판</b><span>Stable</span></div>
+              <div class="dr">
+                <div class="diff"><span class="lb">Stability Score 차이</span><div><span class="v">6</span><span class="u">%</span></div></div>
+                <div class="sv"><div><span class="lb aff">왼쪽</span><span class="v aff">84</span><span class="u">%</span></div><div><span class="lb una">오른쪽</span><span class="v una">90</span><span class="u">%</span></div></div>
+              </div>
+              <table class="tb sm"><tr><th>상세 지표</th><th class="r">왼쪽</th><th class="r">오른쪽</th><th class="r">차이</th></tr>
+                <tr><td>Path Length<span class="u">cm</span></td><td class="r">24.36</td><td class="r g">21.08</td><td class="r d">3.28</td></tr>
+                <tr><td>Average Velocity<span class="u">cm/s</span></td><td class="r">0.81</td><td class="r g">0.70</td><td class="r d">0.11</td></tr></table>
+            </div>
+            <div class="wcard">
+              <div class="it"><b>움직이는 발판</b><span>Unstable</span></div>
+              <div class="dr">
+                <div class="diff"><span class="lb">Stability Score 차이</span><div><span class="v">8</span><span class="u">%</span></div></div>
+                <div class="sv"><div><span class="lb aff">왼쪽</span><span class="v aff">71</span><span class="u">%</span></div><div><span class="lb una">오른쪽</span><span class="v una">79</span><span class="u">%</span></div></div>
+              </div>
+              <table class="tb sm"><tr><th>상세 지표</th><th class="r">왼쪽</th><th class="r">오른쪽</th><th class="r">차이</th></tr>
+                <tr><td>Path Length<span class="u">cm</span></td><td class="r">41.52</td><td class="r g">33.90</td><td class="r d">7.62</td></tr>
+                <tr><td>Average Velocity<span class="u">cm/s</span></td><td class="r">1.38</td><td class="r g">1.13</td><td class="r d">0.25</td></tr></table>
+            </div>
+          </div>
+        </div>
+        <div class="blk">
+          <div class="bh"><span class="badge">눈 감음</span><span class="t">Eyes Closed</span><span class="s">눈을 감고 한 발로 서기</span></div>
+          <div class="cols">
+            <div class="wcard">
+              <div class="it"><b>고정 발판</b><span>Stable</span></div>
+              <div class="dr">
+                <div class="diff"><span class="lb">Stability Score 차이</span><div><span class="v">5</span><span class="u">%</span></div></div>
+                <div class="sv"><div><span class="lb aff">왼쪽</span><span class="v aff">63</span><span class="u">%</span></div><div><span class="lb una">오른쪽</span><span class="v una">68</span><span class="u">%</span></div></div>
+              </div>
+              <table class="tb sm"><tr><th>상세 지표</th><th class="r">왼쪽</th><th class="r">오른쪽</th><th class="r">차이</th></tr>
+                <tr><td>Path Length<span class="u">cm</span></td><td class="r">58.20</td><td class="r g">51.04</td><td class="r d">7.16</td></tr>
+                <tr><td>Average Velocity<span class="u">cm/s</span></td><td class="r">1.94</td><td class="r g">1.70</td><td class="r d">0.24</td></tr></table>
+            </div>
+            <div class="wcard">
+              <div class="it"><b>움직이는 발판</b><span>Unstable</span></div>
+              <div class="dr">
+                <div class="diff na"><span class="lb">Stability Score 차이</span><div><span class="v">-</span></div></div>
+                <div class="sv"><div><span class="lb aff">왼쪽</span><span class="v aff">42</span><span class="u">%</span></div><div><span class="lb una">오른쪽</span><span class="v na">-</span></div></div>
+              </div>
+              <table class="tb sm"><tr><th>상세 지표</th><th class="r">왼쪽</th><th class="r">오른쪽</th><th class="r">차이</th></tr>
+                <tr><td>Path Length<span class="u">cm</span></td><td class="r">96.80</td><td class="r na">-</td><td class="r na">-</td></tr>
+                <tr><td>Average Velocity<span class="u">cm/s</span></td><td class="r">3.23</td><td class="r na">-</td><td class="r na">-</td></tr></table>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+    <div class="pf"><span>본 리포트는 각 기기 측정값의 대표 지표를 정리한 참고 자료로, 의학적 진단을 대체하지 않습니다.</span><span>2 | 2</span></div>
+  </div>
+  <div class="notes">
+    <div class="note"><b>2×2 배치</b>눈 조건 = 회색 블록, 발판 조건 = 흰 카드. 같은 발판끼리 위아래로 맞춰져 눈 뜸/감음 비교가 세로로 읽힙니다.</div>
+    <div class="note"><b>상세 지표 표</b>Exbody 「상세 지표」 표 형식. 왼쪽 진회색 · 오른쪽 회색 · 차이 파랑, 숫자는 오른쪽 정렬. 차이는 |건측 − 환측| 을 같은 단위로 계산(소수 둘째 자리).</div>
+    <div class="note"><b>한쪽 값 없음</b>「눈 감음 · 움직이는 발판」은 건측 기록이 없는 예시입니다. 값 칸 · 차이 모두 회색 「-」, 단위 없음.</div>
+    <div class="note q"><b>확인 1 — 조건 이름과 순서</b>결과지에는 조건 이름이 인쇄되지 않아 페이지 순서(EO-Stable → EO-Unstable → EC-Stable → EC-Unstable)로 추정해 저장합니다. 이 순서가 메디스포 실제 측정 순서와 맞는지, 한글 표기(「눈 뜸 / 눈 감음」, 「고정 발판 / 움직이는 발판」)가 장비 실제 조건과 맞는지 확인이 필요합니다.</div>
+    <div class="note q"><b>확인 2 — 환측 기준</b>폼 Involved / UnInvolved 는 결과지 Involved Side 기준, 리포트 왼쪽/오른쪽은 진단 환측 기준입니다. 둘이 다르면 좌우가 뒤바뀌어 보입니다.</div>
+    <div class="note q"><b>확인 3 — 상세 지표 차이 열</b>Path Length · Average Velocity 에도 차이 열을 둘지(지금은 표시), 왼쪽/오른쪽만 둘지 디자인 확인이 필요합니다.</div>
+  </div>
+</div>
+
+</body>
+</html>
