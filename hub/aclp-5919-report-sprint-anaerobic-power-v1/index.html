@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>스프린트·무산소 파워 — 종합 리포트 목업 v1</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/sun-typeface/SUIT@2/fonts/static/woff2/SUIT.css">
+<style>
+/* 피그마 「2026.11 Sprint 34」 종합 리포트(등척성 Humac · 동작분석 Exbody) 기준. 캔버스 1280px, 본문 1120px. FE 는 794px 로 비율 축소한다. */
+:root{--p50:#EBF5FF;--p100:#CCE5FF;--p500:#1467FF;--p600:#0651DB;--p700:#0D3F9C;--m50:#F6F7F8;--m100:#E8E9ED;--m200:#D2D4DA;--m300:#B4B7C0;--m400:#9398A5;--m500:#6F7685;--m700:#393C47;--m800:#24262E}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:SUIT,-apple-system,sans-serif;background:#E9EBEF;color:var(--m800);padding:32px 16px 96px}
+/* 검토 안내 영역 (리포트 밖) */
+.plan{max-width:1700px;margin:0 auto 24px;background:#fff;border-radius:20px;padding:28px 32px}
+.plan h1{font-size:26px;font-weight:800;margin-bottom:10px}.plan h3{font-size:16px;margin:16px 0 6px}
+.plan p,.plan li,.plan td,.plan th{font-size:14px;line-height:1.7;color:var(--m700)}.plan ul{padding-left:18px}
+.plan table{border-collapse:collapse;margin-top:6px}.plan th,.plan td{border:1px solid var(--m100);padding:4px 10px;text-align:left}.plan th{background:var(--m50)}
+.tag{display:inline-block;background:var(--p50);color:var(--p600);font-weight:700;font-size:12px;border-radius:6px;padding:2px 8px;margin-right:6px}
+.part{max-width:1700px;margin:28px auto 12px;font-size:18px;font-weight:800;color:var(--m700)}
+.row{display:flex;gap:24px;justify-content:center;align-items:flex-start;max-width:1700px;margin:0 auto 28px}
+.notes{width:360px;display:flex;flex-direction:column;gap:12px;position:sticky;top:16px}
+.note{background:#FFF8D6;border:1px solid #F1DE86;border-radius:12px;padding:12px 14px;font-size:13px;line-height:1.6;color:#4A3F12}
+.note b{display:block;margin-bottom:4px}.note.q{background:#FDECEC;border-color:#F3C2BF;color:#5A1F1B}
+/* A4 페이지 */
+.page{width:1280px;background:#fff;flex-shrink:0;padding:0 80px;display:flex;flex-direction:column}
+.page.a4{min-height:1770px}
+.ph{display:flex;justify-content:space-between;align-items:center;height:88px;border-bottom:1px solid var(--m100);font-size:15px}
+.ph .h{font-weight:700;color:var(--m800)}.ph .h span{font-weight:500;color:var(--m500);margin-left:8px}.ph .p{color:var(--m700)}
+.pbody{flex:1;display:flex;flex-direction:column;gap:40px;padding:32px 0}
+.pf{display:flex;justify-content:space-between;border-top:1px solid var(--m100);padding:24px 10px 32px;font-size:13px;color:var(--m400)}
+/* 섹션 제목 줄 */
+.sh{display:flex;justify-content:space-between;align-items:center;padding:0 10px;margin-bottom:16px}
+.sh .l{display:flex;align-items:center;gap:12px}.num{width:30px;height:30px;border-radius:8px;background:var(--p500);color:#fff;font-weight:700;font-size:18px;display:flex;align-items:center;justify-content:center}
+.sh .name{font-size:24px;font-weight:800}.sh .desc{font-size:15px;color:var(--m400)}
+/* 회색 블록 + 블록 머리 */
+.blk{background:var(--m50);border-radius:20px;padding:20px;display:flex;flex-direction:column;gap:16px}
+.blk+.blk{margin-top:12px}
+.bh{display:flex;align-items:center;gap:10px;padding:0 4px}.badge{background:var(--p700);color:#fff;font-weight:700;font-size:17px;border-radius:7px;padding:3px 8px}
+.bh .t{font-size:19px;font-weight:800}.bh .s{font-size:15px;color:var(--m400)}
+.wcard{background:#fff;border-radius:16px;padding:20px 22px;display:flex;flex-direction:column;gap:16px}
+.cols{display:flex;gap:24px}.cols>*{flex:1}
+/* 차이 상자 + 왼쪽/오른쪽 */
+.dr{display:flex;align-items:flex-end;gap:20px}
+.diff{background:var(--p50);border:1px solid var(--p100);border-radius:14px;padding:12px 16px 8px;min-width:150px}
+.diff.plain{background:none;border:0;padding:0;min-width:120px}
+.diff .lb{font-size:15px;font-weight:700;color:var(--p600)}.diff .v{font-size:36px;font-weight:800;color:var(--p600)}.diff .u{font-size:20px;font-weight:700;color:var(--p600);margin-left:4px}
+.diff.plain .v{font-size:28px}
+.sv{display:flex;gap:24px;padding-bottom:6px}.sv .lb{font-size:15px;font-weight:500;display:block}.sv .v{font-size:28px;font-weight:800}.sv .u{font-size:16px;color:var(--m300);margin-left:4px;font-weight:500}
+.aff{color:var(--m700)}.una{color:var(--m400)}.na{color:var(--m300)}
+/* 파란 강조 카드 (체성분 · 무릎 나이 왼쪽 카드) */
+.hero{background:var(--p50);border-radius:20px;padding:22px 24px;display:flex;flex-direction:column;gap:10px}
+.hero .t{font-size:20px;font-weight:800}.hero .k{display:flex;gap:40px}.hero .k .lb{font-size:16px;font-weight:700;display:block}.hero .k .v{font-size:40px;font-weight:800}.hero .k .u{font-size:20px;color:var(--m400);margin-left:4px}
+.blue{color:var(--p600)}.gray{color:var(--m400)}
+/* 굵은 값 묶음 (Exbody 「기울기」 줄) */
+.kv{display:flex;gap:48px}.kv .lb{font-size:16px;font-weight:700;color:var(--p600);display:block}.kv .v{font-size:36px;font-weight:800;color:var(--p600)}.kv .u{font-size:18px;color:var(--m400);margin-left:4px}
+/* 상세 표 */
+.tb{width:100%;border-collapse:collapse;font-size:16px}.tb th{font-size:14px;font-weight:600;color:var(--m500);text-align:left;padding:8px 12px;border-bottom:1px solid var(--m200)}
+.tb td{padding:12px;border-bottom:1px solid var(--m100);font-weight:700;color:var(--m800)}.tb td:first-child{font-weight:500;color:var(--m700)}.tb td .u{font-size:13px;color:var(--m400);font-weight:500;margin-left:4px}
+.tb td.d{color:var(--p600)}.tb td.g{color:var(--m400)}.tb tr:last-child td{border-bottom:0}
+/* 표지 요약 줄 */
+.cover-row{display:flex;border-bottom:1px solid var(--m100);padding:22px 0}
+.cover-row .o{width:60px;padding-left:20px;font-size:20px;font-weight:800;color:var(--p500)}
+.cover-row .mid{flex:1}.cover-row .nm{display:flex;gap:8px;align-items:center}.cover-row .nm b{font-size:20px}
+.rb{font-size:15px;font-weight:700;color:#fff;border-radius:4px;padding:1px 6px}.rb.m{background:var(--m400)}.rb.d{background:var(--p700)}
+.cover-row .ds{font-size:15px;color:var(--m400);margin-top:4px}
+.cover-row .vals{width:660px;display:flex;flex-direction:column;gap:14px}
+.line{display:flex;justify-content:flex-end}.cell{width:165px;display:flex;flex-direction:column;align-items:flex-end;padding:0 4px}
+.cell .lb{font-size:15px;color:var(--m400)}.cell .lb b{color:var(--m500)}.cell .v{font-size:28px;font-weight:800}.cell .u{font-size:18px;color:var(--m300);margin-left:4px;font-weight:500}
+.cell .v.d{color:var(--p600)}.cell .v.m{color:var(--m700)}.cell .v.g{color:var(--m400)}
+/* 헤드라인 카드 */
+.hc{background:var(--p50);border-radius:20px;padding:18px 24px 22px}.hc .top{display:flex;justify-content:space-between;font-size:16px;color:var(--m500);font-weight:700}.hc .top span{font-weight:500;color:var(--m400)}
+.hc p{font-size:21px;font-weight:800;color:var(--m700);margin-top:6px}.hc .b{color:var(--p600)}
+/* 추가 규칙 (스프린트·컨디셔닝·평가 요약) */
+.split{display:flex;gap:20px;align-items:stretch}.split>.hero{width:340px;flex:none}.split>.blk{flex:1;margin-top:0}
+.hero .s{font-size:15px;color:var(--m400);margin-top:-6px}.hero hr{border:0;border-top:1px solid var(--p100);margin:6px 0}
+.cols>.blk{margin-top:0}.cols .wcard{flex:1}
+.kv .v.m{color:var(--m800)}.kv .lb.m{color:var(--m700)}
+.memo{font-size:18px;line-height:1.85;font-weight:500;color:var(--m800);white-space:pre-line;word-break:keep-all}
+.ghost{border:2px dashed var(--m200);border-radius:20px;padding:18px 22px;color:var(--m400);font-size:15px}
+.wt{font-size:18px;font-weight:800;color:var(--m800)}
+.tb.sub{border-top:1px solid var(--m100)}
+</style>
+</head>
+<body>
+<!-- 1. 기획 (리포트 밖 안내) -->
+<section class="plan">
+  <h1>스프린트·무산소 파워 검사 — 종합 리포트 반영 목업</h1>
+  <p><span class="tag">ACLP-5919</span><span class="tag">더미 데이터</span>짧게 전력으로 달리거나 페달을 밟을 때 낼 수 있는 최고 속도와 파워, 반복할 때 파워가 줄어드는 정도를 봅니다. 좌우 구분이 없는 측정값 검사입니다.</p>
+  <h3>폼 → 리포트 지표</h3>
+  <table>
+    <tr><th>폼 그룹</th><th>폼 질문</th><th>리포트 위치</th><th>표시</th></tr>
+    <tr><td>무동력 트레드밀 스프린트</td><td>최고 속도 (km/h)</td><td>표지 · 상세</td><td>상세 왼쪽 파란 카드 큰 값 (파란 숫자)</td></tr>
+    <tr><td rowspan="5">에어바이크 반복 스프린트 (5회)</td><td>파워 1~5차 (W)</td><td>—</td><td>싣지 않음 (회차별 값 제외 규칙)</td></tr>
+    <tr><td>결과 · 최고 파워 (W, 자동 계산)</td><td>표지 · 상세</td><td>핵심 값 줄 (파란 숫자)</td></tr>
+    <tr><td>결과 · 피로감소율 (%, 자동 계산)</td><td>표지 · 상세</td><td>핵심 값 줄 (파란 숫자)</td></tr>
+    <tr><td>결과 · 최저 파워 (W, 자동 계산)</td><td>상세</td><td>측정 항목 표</td></tr>
+    <tr><td>Avg Watt (W)</td><td>상세</td><td>측정 항목 표</td></tr>
+  </table>
+  <h3>디자인 결정</h3>
+  <ul>
+    <li>피그마 리포트 2쪽(무릎 나이 · 체성분)의 「파란 카드 + 회색 측정 항목 카드」 2단 구성을 그대로 따릅니다. 장비가 둘이라 왼쪽 = 트레드밀, 오른쪽 = 에어바이크로 나눴습니다.</li>
+    <li>표지 핵심 지표 3개(최고 속도 · 최고 파워 · 피로감소율)만 파란 큰 숫자로, 나머지(최저 파워 · Avg Watt)는 표 안 진한 숫자로 둡니다.</li>
+    <li>판정 문구 없이 저장된 값만 보여 줍니다. 1,000 이상은 천 단위 쉼표.</li>
+    <li>빈 값은 회색 「-」 (단위 없음). 검사를 하지 않았으면 섹션 · 표지 줄 모두 없음.</li>
+  </ul>
+</section>
+
+<!-- 2. 표지 -->
+<div class="part">표지 — 종합 결과 요약 줄</div>
+<div class="row">
+  <div class="page"><div style="padding:24px 0">
+    <div class="cover-row"><span class="o">9</span>
+      <div class="mid"><div class="nm"><b>스프린트·무산소 파워 검사</b><span class="rb m">측정값</span></div><p class="ds">짧게 전력으로 낼 수 있는 속도와 힘을 봅니다</p></div>
+      <div class="vals"><div class="line">
+        <div class="cell"><span class="lb"><b>트레드밀</b> 최고 속도</span><span class="v m">24.8<span class="u">km/h</span></span></div>
+        <div class="cell"><span class="lb"><b>바이크</b> 최고 파워</span><span class="v m">1,120<span class="u">W</span></span></div>
+        <div class="cell"><span class="lb"><b>바이크</b> 피로감소율</span><span class="v m">23.2<span class="u">%</span></span></div>
+      </div></div>
+    </div>
+    <div class="cover-row" style="opacity:.92"><span class="o">9</span>
+      <div class="mid"><div class="nm"><b>스프린트·무산소 파워 검사</b><span class="rb m">측정값</span></div><p class="ds">(빈 값 예시) 트레드밀 미입력 · 피로감소율 미계산</p></div>
+      <div class="vals"><div class="line">
+        <div class="cell"><span class="lb"><b>트레드밀</b> 최고 속도</span><span class="v g">-</span></div>
+        <div class="cell"><span class="lb"><b>바이크</b> 최고 파워</span><span class="v m">1,120<span class="u">W</span></span></div>
+        <div class="cell"><span class="lb"><b>바이크</b> 피로감소율</span><span class="v g">-</span></div>
+      </div></div>
+    </div>
+  </div></div>
+  <div class="notes">
+    <div class="note"><b>표지 줄</b>측정값 검사라 값은 진한 회색(피그마 체성분 · Exbody 줄과 같음). 칸 이름 앞에 장비명을 굵게 붙여 두 장비 값이 섞여도 구분되게 했습니다. 「에어바이크」는 칸 폭(165px)에 비해 길어 「바이크」로 줄였습니다.</div>
+    <div class="note q"><b>확인 — 칸 이름 줄임</b>표지에서 「에어바이크」를 「바이크」로 줄여도 될지, 아니면 장비명을 빼고 「최고 속도 · 최고 파워 · 피로감소율」만 쓸지 확인이 필요합니다.</div>
+  </div>
+</div>
+
+<!-- 3. 상세면 -->
+<div class="part">상세면</div>
+<div class="row">
+  <div class="page a4">
+    <div class="ph"><div class="h">서울인화스포츠마취통증의학과의원<span>무릎 기능 검사 결과 리포트</span></div><div class="p">김액티 123456 · 왼쪽 · 2026-11-12</div></div>
+    <div class="pbody">
+      <section>
+        <div class="sh"><div class="l"><span class="num">9</span><span class="name">스프린트·무산소 파워 검사</span></div><span class="desc">짧게 전력으로 낼 수 있는 속도와 힘을 봅니다</span></div>
+        <div class="split">
+          <div class="hero">
+            <span class="t">무동력 트레드밀 스프린트</span>
+            <span class="s">전력 질주 중 가장 빠른 속도</span>
+            <div class="k" style="margin-top:14px"><div><span class="lb blue">최고 속도</span><span class="v blue">24.8</span><span class="u">km/h</span></div></div>
+          </div>
+          <div class="blk">
+            <div class="bh"><span class="t">에어바이크 반복 스프린트</span><span class="s">5회 반복한 결과</span></div>
+            <div class="wcard">
+              <div class="kv">
+                <div><span class="lb">최고 파워</span><span class="v">1,120</span><span class="u">W</span></div>
+                <div><span class="lb">피로감소율</span><span class="v">23.2</span><span class="u">%</span></div>
+              </div>
+              <table class="tb">
+                <tr><th>항목</th><th style="text-align:right">측정값</th></tr>
+                <tr><td>최저 파워 <span class="u">W</span></td><td style="text-align:right">860</td></tr>
+                <tr><td>Avg Watt <span class="u">W</span></td><td style="text-align:right">985</td></tr>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+    <div class="pf"><span>본 리포트는 각 기기 측정값의 대표 지표를 정리한 참고 자료로, 의학적 진단을 대체하지 않습니다.</span><span>5 | 7</span></div>
+  </div>
+  <div class="notes">
+    <div class="note"><b>2단 구성</b>피그마 2쪽의 무릎 나이 · 체성분 배치(왼쪽 파란 카드 340px + 오른쪽 회색 카드)를 따랐습니다. 장비별로 카드를 나눠 값의 출처가 섞이지 않게 했습니다.</div>
+    <div class="note"><b>1~5차 파워 제외</b>회차별 값은 싣지 않는 규칙에 따라 결과 그룹(최고 · 최저 · 피로감소율)과 Avg Watt만 보여 줍니다.</div>
+    <div class="note"><b>강조</b>표지 핵심 지표(최고 속도 · 최고 파워 · 피로감소율)만 파란 큰 숫자. 최저 파워 · Avg Watt는 표 안 진한 숫자.</div>
+    <div class="note q"><b>확인 — 피로감소율 설명</b>폼 자동 계산식(예: (최고 − 최저) ÷ 최고 × 100)을 리포트에 한 줄로 적을지 확인이 필요합니다. 값이 클수록 어떤 의미인지 환자가 알기 어렵지만, 해석 문구는 판정에 가까워 넣지 않았습니다.</div>
+    <div class="note q"><b>확인 — Avg Watt 정의</b>Avg Watt가 5회 평균 파워인지, 장비가 표시한 세션 평균인지에 따라 이름(「평균 파워」 등)을 바꿀지 확인이 필요합니다. 지금은 폼 이름 그대로 둡니다.</div>
+  </div>
+</div>
+
+</body>
+</html>
