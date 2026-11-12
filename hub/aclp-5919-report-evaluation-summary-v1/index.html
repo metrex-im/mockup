@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>평가 요약 — 종합 리포트 목업 v1</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/sun-typeface/SUIT@2/fonts/static/woff2/SUIT.css">
+<style>
+/* 피그마 「2026.11 Sprint 34」 종합 리포트(등척성 Humac · 동작분석 Exbody) 기준. 캔버스 1280px, 본문 1120px. FE 는 794px 로 비율 축소한다. */
+:root{--p50:#EBF5FF;--p100:#CCE5FF;--p500:#1467FF;--p600:#0651DB;--p700:#0D3F9C;--m50:#F6F7F8;--m100:#E8E9ED;--m200:#D2D4DA;--m300:#B4B7C0;--m400:#9398A5;--m500:#6F7685;--m700:#393C47;--m800:#24262E}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:SUIT,-apple-system,sans-serif;background:#E9EBEF;color:var(--m800);padding:32px 16px 96px}
+/* 검토 안내 영역 (리포트 밖) */
+.plan{max-width:1700px;margin:0 auto 24px;background:#fff;border-radius:20px;padding:28px 32px}
+.plan h1{font-size:26px;font-weight:800;margin-bottom:10px}.plan h3{font-size:16px;margin:16px 0 6px}
+.plan p,.plan li,.plan td,.plan th{font-size:14px;line-height:1.7;color:var(--m700)}.plan ul{padding-left:18px}
+.plan table{border-collapse:collapse;margin-top:6px}.plan th,.plan td{border:1px solid var(--m100);padding:4px 10px;text-align:left}.plan th{background:var(--m50)}
+.tag{display:inline-block;background:var(--p50);color:var(--p600);font-weight:700;font-size:12px;border-radius:6px;padding:2px 8px;margin-right:6px}
+.part{max-width:1700px;margin:28px auto 12px;font-size:18px;font-weight:800;color:var(--m700)}
+.row{display:flex;gap:24px;justify-content:center;align-items:flex-start;max-width:1700px;margin:0 auto 28px}
+.notes{width:360px;display:flex;flex-direction:column;gap:12px;position:sticky;top:16px}
+.note{background:#FFF8D6;border:1px solid #F1DE86;border-radius:12px;padding:12px 14px;font-size:13px;line-height:1.6;color:#4A3F12}
+.note b{display:block;margin-bottom:4px}.note.q{background:#FDECEC;border-color:#F3C2BF;color:#5A1F1B}
+/* A4 페이지 */
+.page{width:1280px;background:#fff;flex-shrink:0;padding:0 80px;display:flex;flex-direction:column}
+.page.a4{min-height:1770px}
+.ph{display:flex;justify-content:space-between;align-items:center;height:88px;border-bottom:1px solid var(--m100);font-size:15px}
+.ph .h{font-weight:700;color:var(--m800)}.ph .h span{font-weight:500;color:var(--m500);margin-left:8px}.ph .p{color:var(--m700)}
+.pbody{flex:1;display:flex;flex-direction:column;gap:40px;padding:32px 0}
+.pf{display:flex;justify-content:space-between;border-top:1px solid var(--m100);padding:24px 10px 32px;font-size:13px;color:var(--m400)}
+/* 섹션 제목 줄 */
+.sh{display:flex;justify-content:space-between;align-items:center;padding:0 10px;margin-bottom:16px}
+.sh .l{display:flex;align-items:center;gap:12px}.num{width:30px;height:30px;border-radius:8px;background:var(--p500);color:#fff;font-weight:700;font-size:18px;display:flex;align-items:center;justify-content:center}
+.sh .name{font-size:24px;font-weight:800}.sh .desc{font-size:15px;color:var(--m400)}
+/* 회색 블록 + 블록 머리 */
+.blk{background:var(--m50);border-radius:20px;padding:20px;display:flex;flex-direction:column;gap:16px}
+.blk+.blk{margin-top:12px}
+.bh{display:flex;align-items:center;gap:10px;padding:0 4px}.badge{background:var(--p700);color:#fff;font-weight:700;font-size:17px;border-radius:7px;padding:3px 8px}
+.bh .t{font-size:19px;font-weight:800}.bh .s{font-size:15px;color:var(--m400)}
+.wcard{background:#fff;border-radius:16px;padding:20px 22px;display:flex;flex-direction:column;gap:16px}
+.cols{display:flex;gap:24px}.cols>*{flex:1}
+/* 차이 상자 + 왼쪽/오른쪽 */
+.dr{display:flex;align-items:flex-end;gap:20px}
+.diff{background:var(--p50);border:1px solid var(--p100);border-radius:14px;padding:12px 16px 8px;min-width:150px}
+.diff.plain{background:none;border:0;padding:0;min-width:120px}
+.diff .lb{font-size:15px;font-weight:700;color:var(--p600)}.diff .v{font-size:36px;font-weight:800;color:var(--p600)}.diff .u{font-size:20px;font-weight:700;color:var(--p600);margin-left:4px}
+.diff.plain .v{font-size:28px}
+.sv{display:flex;gap:24px;padding-bottom:6px}.sv .lb{font-size:15px;font-weight:500;display:block}.sv .v{font-size:28px;font-weight:800}.sv .u{font-size:16px;color:var(--m300);margin-left:4px;font-weight:500}
+.aff{color:var(--m700)}.una{color:var(--m400)}.na{color:var(--m300)}
+/* 파란 강조 카드 (체성분 · 무릎 나이 왼쪽 카드) */
+.hero{background:var(--p50);border-radius:20px;padding:22px 24px;display:flex;flex-direction:column;gap:10px}
+.hero .t{font-size:20px;font-weight:800}.hero .k{display:flex;gap:40px}.hero .k .lb{font-size:16px;font-weight:700;display:block}.hero .k .v{font-size:40px;font-weight:800}.hero .k .u{font-size:20px;color:var(--m400);margin-left:4px}
+.blue{color:var(--p600)}.gray{color:var(--m400)}
+/* 굵은 값 묶음 (Exbody 「기울기」 줄) */
+.kv{display:flex;gap:48px}.kv .lb{font-size:16px;font-weight:700;color:var(--p600);display:block}.kv .v{font-size:36px;font-weight:800;color:var(--p600)}.kv .u{font-size:18px;color:var(--m400);margin-left:4px}
+/* 상세 표 */
+.tb{width:100%;border-collapse:collapse;font-size:16px}.tb th{font-size:14px;font-weight:600;color:var(--m500);text-align:left;padding:8px 12px;border-bottom:1px solid var(--m200)}
+.tb td{padding:12px;border-bottom:1px solid var(--m100);font-weight:700;color:var(--m800)}.tb td:first-child{font-weight:500;color:var(--m700)}.tb td .u{font-size:13px;color:var(--m400);font-weight:500;margin-left:4px}
+.tb td.d{color:var(--p600)}.tb td.g{color:var(--m400)}.tb tr:last-child td{border-bottom:0}
+/* 표지 요약 줄 */
+.cover-row{display:flex;border-bottom:1px solid var(--m100);padding:22px 0}
+.cover-row .o{width:60px;padding-left:20px;font-size:20px;font-weight:800;color:var(--p500)}
+.cover-row .mid{flex:1}.cover-row .nm{display:flex;gap:8px;align-items:center}.cover-row .nm b{font-size:20px}
+.rb{font-size:15px;font-weight:700;color:#fff;border-radius:4px;padding:1px 6px}.rb.m{background:var(--m400)}.rb.d{background:var(--p700)}
+.cover-row .ds{font-size:15px;color:var(--m400);margin-top:4px}
+.cover-row .vals{width:660px;display:flex;flex-direction:column;gap:14px}
+.line{display:flex;justify-content:flex-end}.cell{width:165px;display:flex;flex-direction:column;align-items:flex-end;padding:0 4px}
+.cell .lb{font-size:15px;color:var(--m400)}.cell .lb b{color:var(--m500)}.cell .v{font-size:28px;font-weight:800}.cell .u{font-size:18px;color:var(--m300);margin-left:4px;font-weight:500}
+.cell .v.d{color:var(--p600)}.cell .v.m{color:var(--m700)}.cell .v.g{color:var(--m400)}
+/* 헤드라인 카드 */
+.hc{background:var(--p50);border-radius:20px;padding:18px 24px 22px}.hc .top{display:flex;justify-content:space-between;font-size:16px;color:var(--m500);font-weight:700}.hc .top span{font-weight:500;color:var(--m400)}
+.hc p{font-size:21px;font-weight:800;color:var(--m700);margin-top:6px}.hc .b{color:var(--p600)}
+/* 추가 규칙 (스프린트·컨디셔닝·평가 요약) */
+.split{display:flex;gap:20px;align-items:stretch}.split>.hero{width:340px;flex:none}.split>.blk{flex:1;margin-top:0}
+.hero .s{font-size:15px;color:var(--m400);margin-top:-6px}.hero hr{border:0;border-top:1px solid var(--p100);margin:6px 0}
+.cols>.blk{margin-top:0}.cols .wcard{flex:1}
+.kv .v.m{color:var(--m800)}.kv .lb.m{color:var(--m700)}
+.memo{font-size:18px;line-height:1.85;font-weight:500;color:var(--m800);white-space:pre-line;word-break:keep-all}
+.ghost{border:2px dashed var(--m200);border-radius:20px;padding:18px 22px;color:var(--m400);font-size:15px}
+.wt{font-size:18px;font-weight:800;color:var(--m800)}
+.tb.sub{border-top:1px solid var(--m100)}
+</style>
+</head>
+<body>
+<!-- 1. 기획 (리포트 밖 안내) -->
+<section class="plan">
+  <h1>평가 요약 — 종합 리포트 반영 목업</h1>
+  <p><span class="tag">ACLP-5919</span><span class="tag">더미 데이터</span>검사가 아니라 의료진이 전체 평가를 마친 뒤 직접 적는 글입니다. 측정값이 없고, 입력한 문장을 그대로 싣습니다.</p>
+  <h3>폼 → 리포트 지표</h3>
+  <table>
+    <tr><th>폼 그룹</th><th>폼 질문</th><th>리포트 위치</th><th>표시</th></tr>
+    <tr><td>종합 소견 / 다음 단계 목표</td><td>종합 소견 / 다음 단계 목표 (자유 입력, 여러 줄)</td><td>상세면 맨 끝 (Red Flag 체크 다음)</td><td>흰 카드 안 본문, 입력한 줄바꿈 유지</td></tr>
+    <tr><td colspan="2">—</td><td>표지</td><td>싣지 않음 · 검사 수에 넣지 않음 · 번호 없음</td></tr>
+  </table>
+  <h3>디자인 결정</h3>
+  <ul>
+    <li>검사가 아니라 섹션 번호 배지(파란 사각형)를 빼고 제목만 둡니다. Red Flag 체크와 같은 「기록 섹션」 규칙입니다.</li>
+    <li>회색 블록 + 흰 카드 구성은 다른 검사와 같게 두되, 숫자 강조가 없으므로 본문 18px · 줄 간격 1.85로 읽기 편하게 했습니다.</li>
+    <li>의료진이 입력한 문장은 금지어 · 판정 규칙의 예외로 보고 고치지 않습니다. 앞뒤 공백만 정리하고 빈 줄 · 줄바꿈은 그대로 둡니다.</li>
+    <li>입력이 비었거나 폼을 작성하지 않았으면 섹션 전체를 뺍니다(「-」 카드도 두지 않음 — 제안, 확인 필요).</li>
+  </ul>
+</section>
+
+<!-- 2. 표지 -->
+<div class="part">표지 — 해당 없음</div>
+<div class="row">
+  <div class="page"><div style="padding:24px 0">
+    <div class="ghost">평가 요약은 표지 「종합 결과 요약」 줄과 「진행한 검사 N종」 개수에 넣지 않습니다.</div>
+  </div></div>
+  <div class="notes">
+    <div class="note"><b>표지 제외</b>측정값이 없는 기록이라 표지 줄 · 검사 수 · 번호에서 모두 뺍니다. 표지 문구 「진행한 검사 N종」도 평가 요약을 세지 않습니다.</div>
+  </div>
+</div>
+
+<!-- 3. 상세면 -->
+<div class="part">상세면 — 마지막 쪽</div>
+<div class="row">
+  <div class="page a4">
+    <div class="ph"><div class="h">서울인화스포츠마취통증의학과의원<span>무릎 기능 검사 결과 리포트</span></div><div class="p">김액티 123456 · 왼쪽 · 2026-11-12</div></div>
+    <div class="pbody">
+      <div class="ghost">앞 섹션 · Red Flag 체크 (번호 없음, 별도 목업)</div>
+      <section>
+        <div class="sh"><div class="l"><span class="name">평가 요약</span></div><span class="desc">담당 의료진이 직접 작성한 내용입니다</span></div>
+        <div class="blk">
+          <div class="wcard" style="padding:26px 28px">
+            <span class="wt">종합 소견 / 다음 단계 목표</span>
+            <p class="memo">왼쪽 ACL 재건술 후 6개월 시점 평가입니다.
+Single Hop 건측 대비 88%, 등속성 무릎 펴는 힘 건측 대비 79%로 측정되었습니다.
+
+다음 단계 목표
+- 4주간 대퇴사두근 근력 운동 주 3회
+- 직선 달리기에서 방향 전환 드릴로 단계적 진행
+- 8주 후 재평가 예정</p>
+          </div>
+        </div>
+      </section>
+    </div>
+    <div class="pf"><span>본 리포트는 각 기기 측정값의 대표 지표를 정리한 참고 자료로, 의학적 진단을 대체하지 않습니다.</span><span>7 | 7</span></div>
+  </div>
+  <div class="notes">
+    <div class="note"><b>위치</b>상세면의 맨 마지막, Red Flag 체크 다음에 번호 없이 붙입니다. 남는 공간은 비워 둡니다.</div>
+    <div class="note"><b>본문 그대로</b>의료진 입력 문장은 줄바꿈 · 목록 기호(-)를 그대로 보여 줍니다(white-space: pre-line). 굵게 · 색 강조는 자동으로 넣지 않습니다.</div>
+    <div class="note q"><b>확인 — 환자 발송 노출</b>이 글은 의료진 메모 성격입니다. 환자에게 보내는 리포트 · 톡톡(카카오톡) 발송본에도 넣을지, 의료진 화면 · 출력본에만 둘지 결정이 필요합니다. 의료진이 환자가 볼 것을 모르고 적으면 내부 표현이 그대로 나갑니다.</div>
+    <div class="note q"><b>확인 — 긴 글 넘침</b>자유 입력이라 길이 제한이 없습니다. 한 쪽을 넘으면 ① 다음 쪽으로 카드를 이어 그릴지(머리 · 바닥글 반복), ② 폼에 글자 수 제한(예: 600자)을 둘지 정해야 합니다. 지금 목업 기준 한 쪽에 약 35줄(본문 18px 기준)까지 들어갑니다.</div>
+    <div class="note q"><b>확인 — 카드 제목 「소견」</b>폼 질문 이름에 리포트 금지어 「소견」이 들어 있습니다. 리포트 카드 제목을 폼 이름 그대로 둘지, 「담당 의료진 메모 / 다음 단계 목표」 등으로 바꿀지 확인이 필요합니다. 섹션 제목 「평가 요약」에는 금지어가 없습니다.</div>
+    <div class="note q"><b>확인 — 빈 입력</b>폼은 제출했지만 글이 비어 있으면 섹션을 아예 뺄지(제안), 「-」 카드를 둘지 확인이 필요합니다.</div>
+  </div>
+</div>
+
+</body>
+</html>
