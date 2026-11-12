@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>고유수용성 감각 — 종합 리포트 목업 v1</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/sun-typeface/SUIT@2/fonts/static/woff2/SUIT.css">
+<style>
+/* 피그마 「2026.11 Sprint 34」 종합 리포트(등척성 Humac · 동작분석 Exbody) 기준. 캔버스 1280px, 본문 1120px. FE 는 794px 로 비율 축소한다. */
+:root{--p50:#EBF5FF;--p100:#CCE5FF;--p500:#1467FF;--p600:#0651DB;--p700:#0D3F9C;--m50:#F6F7F8;--m100:#E8E9ED;--m200:#D2D4DA;--m300:#B4B7C0;--m400:#9398A5;--m500:#6F7685;--m700:#393C47;--m800:#24262E}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:SUIT,-apple-system,sans-serif;background:#E9EBEF;color:var(--m800);padding:32px 16px 96px}
+/* 검토 안내 영역 (리포트 밖) */
+.plan{max-width:1700px;margin:0 auto 24px;background:#fff;border-radius:20px;padding:28px 32px}
+.plan h1{font-size:26px;font-weight:800;margin-bottom:10px}.plan h3{font-size:16px;margin:16px 0 6px}
+.plan p,.plan li,.plan td,.plan th{font-size:14px;line-height:1.7;color:var(--m700)}.plan ul{padding-left:18px}
+.plan table{border-collapse:collapse;margin-top:6px}.plan th,.plan td{border:1px solid var(--m100);padding:4px 10px;text-align:left}.plan th{background:var(--m50)}
+.tag{display:inline-block;background:var(--p50);color:var(--p600);font-weight:700;font-size:12px;border-radius:6px;padding:2px 8px;margin-right:6px}
+.part{max-width:1700px;margin:28px auto 12px;font-size:18px;font-weight:800;color:var(--m700)}
+.row{display:flex;gap:24px;justify-content:center;align-items:flex-start;max-width:1700px;margin:0 auto 28px}
+.notes{width:360px;display:flex;flex-direction:column;gap:12px;position:sticky;top:16px}
+.note{background:#FFF8D6;border:1px solid #F1DE86;border-radius:12px;padding:12px 14px;font-size:13px;line-height:1.6;color:#4A3F12}
+.note b{display:block;margin-bottom:4px}.note.q{background:#FDECEC;border-color:#F3C2BF;color:#5A1F1B}
+/* A4 페이지 */
+.page{width:1280px;background:#fff;flex-shrink:0;padding:0 80px;display:flex;flex-direction:column}
+.page.a4{min-height:1770px}
+.ph{display:flex;justify-content:space-between;align-items:center;height:88px;border-bottom:1px solid var(--m100);font-size:15px}
+.ph .h{font-weight:700;color:var(--m800)}.ph .h span{font-weight:500;color:var(--m500);margin-left:8px}.ph .p{color:var(--m700)}
+.pbody{flex:1;display:flex;flex-direction:column;gap:40px;padding:32px 0}
+.pf{display:flex;justify-content:space-between;border-top:1px solid var(--m100);padding:24px 10px 32px;font-size:13px;color:var(--m400)}
+/* 섹션 제목 줄 */
+.sh{display:flex;justify-content:space-between;align-items:center;padding:0 10px;margin-bottom:16px}
+.sh .l{display:flex;align-items:center;gap:12px}.num{width:30px;height:30px;border-radius:8px;background:var(--p500);color:#fff;font-weight:700;font-size:18px;display:flex;align-items:center;justify-content:center}
+.sh .name{font-size:24px;font-weight:800}.sh .desc{font-size:15px;color:var(--m400)}
+/* 회색 블록 + 블록 머리 */
+.blk{background:var(--m50);border-radius:20px;padding:20px;display:flex;flex-direction:column;gap:16px}
+.blk+.blk{margin-top:12px}
+.bh{display:flex;align-items:center;gap:10px;padding:0 4px}.badge{background:var(--p700);color:#fff;font-weight:700;font-size:17px;border-radius:7px;padding:3px 8px}
+.bh .t{font-size:19px;font-weight:800}.bh .s{font-size:15px;color:var(--m400)}
+.wcard{background:#fff;border-radius:16px;padding:20px 22px;display:flex;flex-direction:column;gap:16px}
+.cols{display:flex;gap:24px}.cols>*{flex:1}
+/* 차이 상자 + 왼쪽/오른쪽 */
+.dr{display:flex;align-items:flex-end;gap:20px}
+.diff{background:var(--p50);border:1px solid var(--p100);border-radius:14px;padding:12px 16px 8px;min-width:150px}
+.diff.plain{background:none;border:0;padding:0;min-width:120px}
+.diff .lb{font-size:15px;font-weight:700;color:var(--p600)}.diff .v{font-size:36px;font-weight:800;color:var(--p600)}.diff .u{font-size:20px;font-weight:700;color:var(--p600);margin-left:4px}
+.diff.plain .v{font-size:28px}
+.sv{display:flex;gap:24px;padding-bottom:6px}.sv .lb{font-size:15px;font-weight:500;display:block}.sv .v{font-size:28px;font-weight:800}.sv .u{font-size:16px;color:var(--m300);margin-left:4px;font-weight:500}
+.aff{color:var(--m700)}.una{color:var(--m400)}.na{color:var(--m300)}
+/* 파란 강조 카드 (체성분 · 무릎 나이 왼쪽 카드) */
+.hero{background:var(--p50);border-radius:20px;padding:22px 24px;display:flex;flex-direction:column;gap:10px}
+.hero .t{font-size:20px;font-weight:800}.hero .k{display:flex;gap:40px}.hero .k .lb{font-size:16px;font-weight:700;display:block}.hero .k .v{font-size:40px;font-weight:800}.hero .k .u{font-size:20px;color:var(--m400);margin-left:4px}
+.blue{color:var(--p600)}.gray{color:var(--m400)}
+/* 굵은 값 묶음 (Exbody 「기울기」 줄) */
+.kv{display:flex;gap:48px}.kv .lb{font-size:16px;font-weight:700;color:var(--p600);display:block}.kv .v{font-size:36px;font-weight:800;color:var(--p600)}.kv .u{font-size:18px;color:var(--m400);margin-left:4px}
+/* 상세 표 */
+.tb{width:100%;border-collapse:collapse;font-size:16px}.tb th{font-size:14px;font-weight:600;color:var(--m500);text-align:left;padding:8px 12px;border-bottom:1px solid var(--m200)}
+.tb td{padding:12px;border-bottom:1px solid var(--m100);font-weight:700;color:var(--m800)}.tb td:first-child{font-weight:500;color:var(--m700)}.tb td .u{font-size:13px;color:var(--m400);font-weight:500;margin-left:4px}
+.tb td.d{color:var(--p600)}.tb td.g{color:var(--m400)}.tb tr:last-child td{border-bottom:0}
+/* 표지 요약 줄 */
+.cover-row{display:flex;border-bottom:1px solid var(--m100);padding:22px 0}
+.cover-row .o{width:60px;padding-left:20px;font-size:20px;font-weight:800;color:var(--p500)}
+.cover-row .mid{flex:1}.cover-row .nm{display:flex;gap:8px;align-items:center}.cover-row .nm b{font-size:20px}
+.rb{font-size:15px;font-weight:700;color:#fff;border-radius:4px;padding:1px 6px}.rb.m{background:var(--m400)}.rb.d{background:var(--p700)}
+.cover-row .ds{font-size:15px;color:var(--m400);margin-top:4px}
+.cover-row .vals{width:660px;display:flex;flex-direction:column;gap:14px}
+.line{display:flex;justify-content:flex-end}.cell{width:165px;display:flex;flex-direction:column;align-items:flex-end;padding:0 4px}
+.cell .lb{font-size:15px;color:var(--m400)}.cell .lb b{color:var(--m500)}.cell .v{font-size:28px;font-weight:800}.cell .u{font-size:18px;color:var(--m300);margin-left:4px;font-weight:500}
+.cell .v.d{color:var(--p600)}.cell .v.m{color:var(--m700)}.cell .v.g{color:var(--m400)}
+/* 헤드라인 카드 */
+.hc{background:var(--p50);border-radius:20px;padding:18px 24px 22px}.hc .top{display:flex;justify-content:space-between;font-size:16px;color:var(--m500);font-weight:700}.hc .top span{font-weight:500;color:var(--m400)}
+.hc p{font-size:21px;font-weight:800;color:var(--m700);margin-top:6px}.hc .b{color:var(--p600)}
+/* 고유수용성 추가 규칙 */
+.jt{font-size:18px;font-weight:800;color:var(--m800)}
+.ch{font-size:15px;font-weight:700;color:var(--m500);margin-bottom:10px}.ch b{color:var(--m800);margin-right:6px}
+.hint{font-size:14px;color:var(--m400);padding:0 4px}
+.wcard .cols>div{min-width:0}
+.vsep{border-left:1px solid var(--m100);padding-left:24px}
+.diff .v.na{color:var(--m300)}
+</style>
+</head>
+<body>
+
+<section class="plan">
+  <h1>고유수용성 감각 — 종합 리포트 반영 목업</h1>
+  <p><span class="tag">ACLP-5919</span><span class="tag">더미 데이터</span>눈을 감은 채 관절을 목표 각도에 맞추는 정확도(JPS), 소리가 난 방향을 가리키는 정확도·반응 시간, 다른 과제를 하면서 한 발로 서 있는 시간을 봅니다.</p>
+  <h3>폼 → 리포트 지표</h3>
+  <table>
+    <tr><th>폼 질문</th><th>리포트 위치</th><th>표시</th></tr>
+    <tr><td>JPS 무릎·발목·어깨 (환측/건측) · 각도 1·2 <b>오차 평균</b> (계산값)</td><td>표지(측정한 앞 2개) + 상세</td><td>관절별 카드, 각도마다 건측·환측 차이(°) + 왼쪽/오른쪽</td></tr>
+    <tr><td>JPS 각도 1·2 <b>목표각</b></td><td>상세</td><td>각도 머리말 「각도 1 · 목표 30°」, 표지 라벨 「무릎 30°」</td></tr>
+    <tr><td>JPS 재현각 1~3차 · 오차 1~3차</td><td>싣지 않음</td><td>회차 원값은 제외 (최종 결과만)</td></tr>
+    <tr><td>청각 반응 방향 가리키기 · 포인팅 오차각 / 반응 시간 (환/건)</td><td>상세</td><td>차이(°, 초) + 왼쪽/오른쪽</td></tr>
+    <tr><td>Dual-task SL Standing · 유지 시간 (환/건)</td><td>상세</td><td>차이(초) + 왼쪽/오른쪽</td></tr>
+  </table>
+  <h3>디자인 결정</h3>
+  <ul>
+    <li>등척성(Humac) 상세면과 같은 「회색 블록 + 흰 카드 + 차이 상자 + 왼쪽/오른쪽」 구조. 블록은 JPS · 청각 반응 · Dual-task 3개.</li>
+    <li>JPS 는 관절마다 흰 카드 1장, 카드 안에서 각도 1 · 각도 2 를 좌우 2단으로 놓는다. 측정하지 않은 각도(예: 어깨 각도 2)는 칸째 빠지고, 관절 전체를 안 했으면 카드가 빠진다.</li>
+    <li>오차는 「작을수록 목표에 가깝다」는 방향이 다른 지표와 반대라서, JPS 블록 아래 회색 한 줄로 뜻만 중립적으로 적는다 (평가 문구 없음).</li>
+    <li>차이 = |환측 − 건측| 같은 단위, 부호 없음. 한쪽이 비면 그 값과 차이 모두 회색 「-」.</li>
+  </ul>
+  <h3>헤드라인 문장 제안 (미정)</h3>
+  <ul>
+    <li>A안 (차이만): 「무릎을 30°에 맞출 때 각도 오차는 건측과 <b>2.2°</b> 차이 납니다.」</li>
+    <li>B안 (방향 포함): 「무릎을 30°에 맞출 때 각도 오차는 건측보다 <b>2.2°</b> 큽니다.」 — 오차가 크다는 표현이 환자에게 부정 평가로 읽힐 수 있어 A안을 우선 제안.</li>
+  </ul>
+</section>
+
+<div class="part">표지 — 종합 결과 요약 줄</div>
+<div class="row">
+  <div class="page"><div style="padding:24px 0">
+    <div class="cover-row">
+      <div class="o">12</div>
+      <div class="mid"><div class="nm"><b>고유수용성 감각</b><span class="rb d">건측과 차이</span></div><div class="ds">눈을 감고 관절 각도와 소리 방향을 맞추는 정확도를 봅니다</div></div>
+      <div class="vals"><div class="line">
+        <div class="cell"><span class="lb">JPS <b>무릎 30°</b></span><span class="v d">2.2<span class="u">°</span></span></div>
+        <div class="cell"><span class="lb">JPS <b>무릎 60°</b></span><span class="v d">1.6<span class="u">°</span></span></div>
+      </div></div>
+    </div>
+  </div></div>
+  <div class="notes">
+    <div class="note"><b>표지 = JPS 앞 2개</b>무릎 → 발목 → 어깨, 각도 1 → 2 순서에서 값이 있는 앞 2개 항목의 차이만 싣는다. 무릎을 안 했으면 발목 2개가 올라온다.</div>
+    <div class="note q"><b>확인 필요 · 표지 라벨</b>라벨의 각도는 환측 목표각 기준. 환측·건측 목표각이 다르게 입력되면 어떤 값을 쓸지(환측 기준 / 「각도 1」로 고정) 정해야 합니다.</div>
+  </div>
+</div>
+
+<div class="part">상세면</div>
+<div class="row">
+  <div class="page a4">
+    <div class="ph"><div class="h">서울인화스포츠마취통증의학과의원<span>무릎 기능 검사 결과 리포트</span></div><div class="p">김액티 123456 · 왼쪽 · 2026-11-12</div></div>
+    <div class="pbody">
+      <section>
+        <div class="sh"><div class="l"><span class="num">12</span><span class="name">고유수용성 감각</span></div><span class="desc">눈을 감고 관절 각도와 소리 방향을 맞추는 정확도를 봅니다</span></div>
+
+        <div class="blk">
+          <div class="bh"><span class="badge">JPS</span><span class="t">관절 위치 감각</span><span class="s">목표 각도에 맞춘 3회 오차의 평균</span></div>
+
+          <div class="wcard">
+            <span class="jt">무릎</span>
+            <div class="cols">
+              <div><div class="ch"><b>각도 1</b>목표 30°</div>
+                <div class="dr"><div class="diff"><div class="lb">건측 · 환측 차이</div><span class="v">2.2</span><span class="u">°</span></div>
+                <div class="sv"><div><span class="lb aff">왼쪽</span><span class="v aff">4.3</span><span class="u">°</span></div><div><span class="lb una">오른쪽</span><span class="v una">2.1</span><span class="u">°</span></div></div></div></div>
+              <div class="vsep"><div class="ch"><b>각도 2</b>목표 60°</div>
+                <div class="dr"><div class="diff"><div class="lb">건측 · 환측 차이</div><span class="v">1.6</span><span class="u">°</span></div>
+                <div class="sv"><div><span class="lb aff">왼쪽</span><span class="v aff">5.7</span><span class="u">°</span></div><div><span class="lb una">오른쪽</span><span class="v una">4.1</span><span class="u">°</span></div></div></div></div>
+            </div>
+          </div>
+
+          <div class="wcard">
+            <span class="jt">발목</span>
+            <div class="cols">
+              <div><div class="ch"><b>각도 1</b>목표 10°</div>
+                <div class="dr"><div class="diff"><div class="lb">건측 · 환측 차이</div><span class="v">0.8</span><span class="u">°</span></div>
+                <div class="sv"><div><span class="lb aff">왼쪽</span><span class="v aff">3.2</span><span class="u">°</span></div><div><span class="lb una">오른쪽</span><span class="v una">2.4</span><span class="u">°</span></div></div></div></div>
+              <div class="vsep"><div class="ch"><b>각도 2</b>목표 20°</div>
+                <div class="dr"><div class="diff"><div class="lb">건측 · 환측 차이</div><span class="v na">-</span></div>
+                <div class="sv"><div><span class="lb aff">왼쪽</span><span class="v aff">3.8</span><span class="u">°</span></div><div><span class="lb una">오른쪽</span><span class="v na">-</span></div></div></div></div>
+            </div>
+          </div>
+
+          <div class="wcard">
+            <span class="jt">어깨</span>
+            <div class="cols">
+              <div><div class="ch"><b>각도 1</b>목표 90°</div>
+                <div class="dr"><div class="diff"><div class="lb">건측 · 환측 차이</div><span class="v">0.3</span><span class="u">°</span></div>
+                <div class="sv"><div><span class="lb aff">왼쪽</span><span class="v aff">2.6</span><span class="u">°</span></div><div><span class="lb una">오른쪽</span><span class="v una">2.9</span><span class="u">°</span></div></div></div></div>
+              <div></div>
+            </div>
+          </div>
+          <p class="hint">오차는 목표 각도와 다시 맞춘 각도의 차이입니다. 값이 작을수록 목표 각도에 가깝게 맞춘 것입니다.</p>
+        </div>
+
+        <div class="blk">
+          <div class="bh"><span class="badge">청각</span><span class="t">청각 반응 방향 가리키기</span><span class="s">소리가 난 방향을 가리킨 각도 오차와 반응 시간</span></div>
+          <div class="wcard"><div class="cols">
+            <div><div class="ch"><b>포인팅 오차각</b></div>
+              <div class="dr"><div class="diff"><div class="lb">건측 · 환측 차이</div><span class="v">4.5</span><span class="u">°</span></div>
+              <div class="sv"><div><span class="lb aff">왼쪽</span><span class="v aff">12.5</span><span class="u">°</span></div><div><span class="lb una">오른쪽</span><span class="v una">8.0</span><span class="u">°</span></div></div></div></div>
+            <div class="vsep"><div class="ch"><b>반응 시간</b></div>
+              <div class="dr"><div class="diff"><div class="lb">건측 · 환측 차이</div><span class="v">0.24</span><span class="u">초</span></div>
+              <div class="sv"><div><span class="lb aff">왼쪽</span><span class="v aff">1.42</span><span class="u">초</span></div><div><span class="lb una">오른쪽</span><span class="v una">1.18</span><span class="u">초</span></div></div></div></div>
+          </div></div>
+        </div>
+
+        <div class="blk">
+          <div class="bh"><span class="badge">Dual-task</span><span class="t">Dual-task SL Standing</span><span class="s">다른 과제를 하면서 한 발로 서 있는 시간</span></div>
+          <div class="wcard"><div class="cols">
+            <div><div class="ch"><b>유지 시간</b></div>
+              <div class="dr"><div class="diff"><div class="lb">건측 · 환측 차이</div><span class="v">9.5</span><span class="u">초</span></div>
+              <div class="sv"><div><span class="lb aff">왼쪽</span><span class="v aff">18.4</span><span class="u">초</span></div><div><span class="lb una">오른쪽</span><span class="v una">27.9</span><span class="u">초</span></div></div></div></div>
+            <div></div>
+          </div></div>
+        </div>
+      </section>
+    </div>
+    <div class="pf"><span>본 리포트는 각 기기 측정값의 대표 지표를 정리한 참고 자료로, 의학적 진단을 대체하지 않습니다.</span><span>6 | 9</span></div>
+  </div>
+  <div class="notes">
+    <div class="note"><b>회차 원값 제외</b>재현각 1~3차, 오차 1~3차는 싣지 않고 폼이 계산한 「오차 평균」만 보여 준다. 목표각은 값이 아니라 각도 머리말로만 쓴다.</div>
+    <div class="note"><b>빈 값 · 미시행 예시</b>발목 각도 2 는 오른쪽이 비어 있어 오른쪽·차이가 회색 「-」. 어깨 각도 2 는 시행하지 않아 칸 자체가 없다.</div>
+    <div class="note"><b>방향 안내 한 줄</b>JPS 오차·포인팅 오차각·반응 시간은 작을수록 목표에 가깝고, 유지 시간은 길수록 오래 선 것이다. 판정 대신 JPS 블록에만 뜻을 적었다.</div>
+    <div class="note q"><b>확인 필요 · 목표각이 좌우 다를 때</b>폼은 환측·건측 목표각을 따로 받는다. 다르게 입력되면 머리말을 「목표 왼쪽 30° · 오른쪽 25°」로 쓸지, 좌우 같아야 한다고 폼에서 막을지 정해야 합니다. 목표각이 다르면 오차 차이를 바로 비교하기 어렵습니다.</div>
+    <div class="note q"><b>확인 필요 · 안내 한 줄 범위</b>청각 반응·Dual-task 블록에도 같은 방향 안내를 넣을지, 문구 자체를 뺄지 결정이 필요합니다.</div>
+  </div>
+</div>
+
+</body>
+</html>
